@@ -11,3 +11,19 @@
 :};
 
 %goal program;
+
+Program program = import_decl* {: return new Program(import_decl, new List()); :}
+                ;
+
+ImportDecl import_decl = IMPORT package DOUBLE_COLON ID SEMICOLON {: return new ImportDecl(package, ID); :}
+                       ;
+
+List package_path_fragment_list = package_path_fragment {: return new List(package_path_fragment); :}
+                                | package_path_fragment_list DOT package_path_fragment {: return package_path_fragment_list.add(package_path_fragment); :}
+				;
+
+PackagePathFragment package_path_fragment = ID {: return new PackagePathFragment(ID); :}
+		    			  ;
+
+Package package = package_path_fragment_list {: return new Package(package_path_fragment_list); :}
+		;

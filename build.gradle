@@ -85,7 +85,7 @@ task generateScanner(type: JavaExec) {
 
 task generateBeaver(type: JavaExec) {
     doFirst {
-        file('src/gen').mkdirs()
+        file('src/gen/parser').mkdirs()
     }
 
     description 'Generates the parser with Beaver.'

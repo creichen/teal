@@ -29,7 +29,7 @@ import lang.ast.LangParser.SyntaxError;
 // macros
 LineTerminator = \r|\n|\r\n
 WhiteSpace = [ ] | \t | \f | \n | \r
-ID = [a-zA-Z][a-zA-Z0-9_]*
+ID = [a-zA-Z_][a-zA-Z0-9_]*
 IntLiteral = -?(0x[0-9a-fA-F]+|0|[1-9][0-9]+)
 SingleLineComment = "//" [^\r\n]* {LineTerminator}?
 MultiLineComment = "/*" ~"*/"
