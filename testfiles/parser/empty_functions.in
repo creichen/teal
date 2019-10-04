@@ -1,0 +1,7 @@
+int func1(int a) { /* empty */ }
+
+int func2(int b, int c) {
+    // empty
+}
+
+int func3() {}

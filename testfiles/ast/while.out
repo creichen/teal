@@ -1,0 +1,80 @@
+Program
+  List
+    FunctionDecl
+      IdUse ID="int"
+      IdDecl ID="a"
+      List
+      List
+        DeclStmt
+          VarDecl
+            IdUse ID="int"
+            IdDecl ID="x"
+        ExprStmt
+          AssignExpr
+            Variable
+              IdUse ID="x"
+            IntConstant Value="1"
+        WhileStmt
+          Variable
+            IdUse ID="x"
+          BlockStmt
+            List
+              ExprStmt
+                AssignExpr
+                  Variable
+                    IdUse ID="x"
+                  IntConstant Value="0"
+        ReturnStmt
+          Variable
+            IdUse ID="x"
+    FunctionDecl
+      IdUse ID="int"
+      IdDecl ID="b"
+      List
+      List
+        DeclStmt
+          VarDecl
+            IdUse ID="int"
+            IdDecl ID="x"
+        ExprStmt
+          AssignExpr
+            Variable
+              IdUse ID="x"
+            IntConstant Value="1"
+        WhileStmt
+          Variable
+            IdUse ID="x"
+          BlockStmt
+            List
+              BreakStmt
+        ReturnStmt
+          Variable
+            IdUse ID="x"
+    FunctionDecl
+      IdUse ID="int"
+      IdDecl ID="c"
+      List
+      List
+        DeclStmt
+          VarDecl
+            IdUse ID="int"
+            IdDecl ID="x"
+        ExprStmt
+          AssignExpr
+            Variable
+              IdUse ID="x"
+            IntConstant Value="1"
+        WhileStmt
+          Variable
+            IdUse ID="x"
+          BlockStmt
+            List
+              ContinueStmt
+              ExprStmt
+                AssignExpr
+                  Variable
+                    IdUse ID="x"
+                  IntConstant Value="0"
+        ReturnStmt
+          Variable
+            IdUse ID="x"

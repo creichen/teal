@@ -1,0 +1,27 @@
+Program
+  List
+    FunctionDecl
+      IdUse ID="int"
+      IdDecl ID="func1"
+      List
+        VarDecl
+          IdUse ID="int"
+          IdDecl ID="a"
+      List
+    FunctionDecl
+      IdUse ID="int"
+      IdDecl ID="func2"
+      List
+        VarDecl
+          IdUse ID="int"
+          IdDecl ID="b"
+        VarDecl
+          IdUse ID="int"
+          IdDecl ID="c"
+      List
+    FunctionDecl
+      IdUse ID="int"
+      IdDecl ID="func3"
+      List
+      List
+

@@ -1,0 +1,52 @@
+Program
+  List
+    FunctionDecl
+      IdUse ID="int"
+      IdDecl ID="a"
+      List
+        VarDecl
+          IdUse ID="int"
+          IdDecl ID="x"
+      List
+        IfElseStmt
+          Variable
+            IdUse ID="x"
+          BlockStmt
+            List
+              ReturnStmt
+                IntConstant Value="1"
+          BlockStmt
+            List
+        ReturnStmt
+          IntConstant Value="0"
+    FunctionDecl
+      IdUse ID="int"
+      IdDecl ID="b"
+      List
+        VarDecl
+          IdUse ID="int"
+          IdDecl ID="x"
+        VarDecl
+          IdUse ID="int"
+          IdDecl ID="year"
+      List
+        IfElseStmt
+          Variable
+            IdUse ID="x"
+          BlockStmt
+            List
+              ReturnStmt
+                IntConstant Value="0"
+          BlockStmt
+            List
+        IfElseStmt
+          Variable
+            IdUse ID="x"
+          BlockStmt
+            List
+              ReturnStmt
+                IntConstant Value="1"
+          BlockStmt
+            List
+              ReturnStmt
+                IntConstant Value="2"

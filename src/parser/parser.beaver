@@ -1,0 +1,120 @@
+%class "LangParser";
+%package "lang.ast";
+
+%embed {:
+	static public class SyntaxError extends RuntimeException { public SyntaxError(String msg) {super(msg);}}
+	// Disable syntax error recovery
+	protected void recoverFromError(Symbol token, TokenStream in) {
+		throw new SyntaxError("Cannot recover from the syntax error");
+	}
+:};
+
+%terminals ID, LPAREN, RPAREN, COMMA, SEMICOLON, LBRACE, RBRACE,
+	   WHILE, IF, ELSE, BREAK, CONTINUE, RETURN,
+	   PLUS, MINUS, STAR, SLASH, PERCENT, EQ, ASSIGN, LT, GT, GTE, LTE,
+	   INT_LITERAL;
+
+%typeof program = "Program";
+%typeof function_decl = "FunctionDecl";
+%typeof param_decl_list = "List";
+%typeof param_decl_list_no_empty = "List";
+%typeof param_decl = "VarDecl";
+%typeof stmt_list = "List";
+%typeof stmt_list_no_empty = "List";
+%typeof function_decl_list = "List";
+%typeof stmt = "Stmt";
+%typeof decl_stmt = "DeclStmt";
+%typeof block_stmt = "BlockStmt";
+%typeof expr_stmt = "ExprStmt";
+%typeof while_stmt = "WhileStmt";
+%typeof if_stmt = "IfElseStmt";
+%typeof if_else_stmt = "IfElseStmt";
+%typeof expr = "Expr";
+%typeof variable = "Variable";
+%typeof constant = "Constant";
+
+
+%goal program;
+
+program = function_decl_list.l {: return new Program(l); :}
+	;
+
+function_decl_list = function_decl.d {: return new List(d); :}
+		   | function_decl_list.l function_decl.d {: l.add(d); return l; :}
+		   ;
+
+function_decl = ID.t ID.n LPAREN param_decl_list.pl RPAREN LBRACE stmt_list.sl RBRACE {: return new FunctionDecl(new IdUse(t), new IdDecl(n), pl, sl); :}
+	      ;
+
+param_decl_list = /*empty*/ {: return new List(); :}
+                | param_decl_list_no_empty
+		;
+
+param_decl_list_no_empty = param_decl.d {: return new List(d); :}
+                         | param_decl_list_no_empty.l COMMA param_decl.d {: l.add(d); return l; :}
+			 ;
+
+param_decl = ID.t ID.n {: return new VarDecl(new IdUse(t), new IdDecl(n)); :}
+           ;
+
+
+stmt_list = /* empty */ {: return new List(); :}
+          | stmt_list_no_empty
+	  ;
+
+stmt_list_no_empty = stmt.s {: return new List(s); :}
+		   | stmt_list_no_empty.l stmt.s {: l.add(s); return l; :}
+		   ;
+
+stmt = decl_stmt
+     | block_stmt
+     | expr_stmt
+     | while_stmt
+     | if_stmt
+     | if_else_stmt
+     | break_stmt
+     | continue_stmt
+     | return_stmt
+     ;
+
+decl_stmt = ID.t ID.n SEMICOLON {: return new DeclStmt(new VarDecl(new IdUse(t), new IdDecl(n))); :}
+	  ;
+
+block_stmt = LBRACE stmt_list.l RBRACE {: return new BlockStmt(l); :}
+	   ;
+
+expr_stmt = expr.e SEMICOLON {: return new ExprStmt(e); :}
+	  ;
+
+while_stmt = WHILE LPAREN expr.c RPAREN block_stmt.b {: return new WhileStmt(c, b); :}
+	   ;
+
+if_stmt = IF LPAREN expr.c RPAREN block_stmt.b {: return new IfElseStmt(c, b, new BlockStmt()); :}
+	;
+
+if_else_stmt = IF LPAREN expr.c RPAREN block_stmt.t ELSE block_stmt.e {: return new IfElseStmt(c, t, e); :}
+	     ;
+
+break_stmt = BREAK SEMICOLON {: return new BreakStmt(); :}
+	   ;
+
+continue_stmt = CONTINUE SEMICOLON {: return new ContinueStmt(); :}
+	      ;
+
+return_stmt = RETURN expr.e SEMICOLON {: return new ReturnStmt(e); :}
+	    ;
+
+expr = variable
+     | constant
+     | assignment_expr
+     ;
+
+
+variable = ID.id {: return new Variable(new IdUse(id)); :}
+	 ;
+
+constant = INT_LITERAL.i {: return new IntConstant(i); :}
+	 ;
+
+assignment_expr = variable.l ASSIGN expr.r {: return new AssignExpr(l, r); :}
+		;
