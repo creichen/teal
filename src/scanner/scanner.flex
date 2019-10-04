@@ -30,9 +30,10 @@ import lang.ast.LangParser.SyntaxError;
 LineTerminator = \r|\n|\r\n
 WhiteSpace = [ ] | \t | \f | \n | \r
 ID = [a-zA-Z][a-zA-Z0-9_]*
-IntLiteral = [0-9] | [1-9][0-9]*
+IntLiteral = -?(0x[0-9a-fA-F]+|0|[1-9][0-9]+)
 SingleLineComment = "//" [^\r\n]* {LineTerminator}?
 MultiLineComment = "/*" ~"*/"
+StringLiteral = \"([^\"]|\\\")*\"
 
 
 %%
@@ -53,9 +54,15 @@ MultiLineComment = "/*" ~"*/"
 "while"       { return sym(Terminals.WHILE); }
 "if"          { return sym(Terminals.IF); }
 "else"        { return sym(Terminals.ELSE); }
-"break"       { return sym(Terminals.BREAK); }
-"continue"    { return sym(Terminals.CONTINUE); }
+"for"         { return sym(Terminals.FOR); }
 "return"      { return sym(Terminals.RETURN); }
+"assert"      { return sym(Terminals.ASSERT); }
+"import"      { return sym(Terminals.IMPORT); }
+"qualifier"   { return sym(Terminals.QUALIFIER); }
+"type"        { return sym(Terminals.TYPE); }
+"class"       { return sym(Terminals.CLASS); }
+"self"        { return sym(Terminals.SELF); }
+"::"          { return sym(Terminals.DCOLON); }
 "+"           { return sym(Terminals.PLUS); }
 "-"           { return sym(Terminals.MINUS); }
 "*"           { return sym(Terminals.STAR); }
@@ -69,6 +76,7 @@ MultiLineComment = "/*" ~"*/"
 "<="          { return sym(Terminals.LTE); }
 {IntLiteral}  { return sym(Terminals.INT_LITERAL); }
 {ID}          { return sym(Terminals.ID); }
+{STRING}      { return sym(Terminals.STRING_LITERAL); }
 <<EOF>>       { return sym(Terminals.EOF); }
 
 

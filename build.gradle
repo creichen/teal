@@ -13,6 +13,7 @@ repositories.mavenCentral()
 configurations {
   jflex
   beaver
+  jastaddparser
 }
 
 // Dependencies are Jar files needed to compile and generate the compiler.
@@ -24,6 +25,8 @@ dependencies {
   jflex 'de.jflex:jflex:1.6.1'
   beaver 'org.extendj:nbfront:0.1.5'
   jastadd2 "org.jastadd:jastadd:2.3.2" // Selects which JastAdd version to use (optional).
+
+  jastaddparser 'org.jastadd:jastaddparser:1.0.3'
 }
 
 // This specifies where the source code is located:
@@ -80,6 +83,19 @@ task generateScanner(type: JavaExec) {
   }
 }
 
+task generateBeaver(type: JavaExec) {
+    doFirst {
+        file('src/gen').mkdirs()
+    }
+
+    description 'Generates the parser with Beaver.'
+    classpath = configurations.jastaddparser
+    main = 'org.jastadd.jastaddparser.Main'
+
+    args file('src/parser/AttoL.parser').path, file('src/gen/parser/AttoL.beaver').path
+}
+
+
 task generateParser(type: JavaExec) {
   description 'Generates the parser with Beaver.'
   classpath = configurations.beaver
@@ -88,13 +104,15 @@ task generateParser(type: JavaExec) {
   // Options to Beaver (http://beaver.sourceforge.net/):
   args '-d', file('src/gen').path,
       '-t', '-c', '-w',
-      file('src/parser/parser.beaver').path
+      file('src/gen/parser/AttoL.beaver').path
 
   doFirst {
     // Ensure src/gen exists before running Beaver:
     file('src/gen').mkdirs()
   }
 }
+
+generateParser.dependsOn 'generateBeaver'
 
 // The following makes the clean task also remove generated code:
 clean.dependsOn 'cleanGeneratedJava'

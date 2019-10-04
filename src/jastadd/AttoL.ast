@@ -1,0 +1,93 @@
+Program ::= ImportDecl* Decl*;
+
+// ImportDecl
+ImportDecl ::= Package <ID>;
+Package ::= PackagePathFragment* ;
+PackagePathFragment ::= <ID>;
+
+// Declarations
+abstract Decl;
+
+// Variables
+VarIdDecl ::= Name:IdDecl [Type] ;
+VarDecl : Decl ::= VarIdDecl [Initializer:Expr] ;
+
+// Functions
+FunDecl : Decl ::= Name:IdDecl [Type] Formal:VarIdDecl* ;
+ConcreteFunDecl : FunDecl ::= Body:Stmt ;
+
+// Type declarations
+TypeDecl : Decl ::= Name:IdDecl Formal:IdDecl* ;
+AliasTypeDecl : TypeDecl ::=  Type;
+StructTypeDecl : TypeDecl ::= SuperType:Type* StructElt*;
+abstract StructElt;
+VarDeclElt : StructElt ::= VarDecl;
+FunDeclElt : StructElt ::= FunDecl;
+// TODO: do we want statements inside structs ?
+StmtElt : StructElt ::= Stmt;
+
+
+// TODO: what are the FunFormal arguments for a class?
+// Arguments to the constructor?
+// Class declarations
+ClassDecl : Decl ::= Name:IdDecl TypeFormal:IdDecl* FunFormal:VarIdDecl* SuperType:Type* StructElt*;
+
+// Qualifier declarations
+QualifierDecl : Decl ::= Name:IdDecl TypeFormal:IdDecl* FunFormal:IdDecl* VarIdDecl SuperType:Type* StructElt*;
+
+
+// Type uses
+abstract Type;
+SimpleType : Type ::= IdUse Actual:Type* ;
+TypeQualifier ::= IdUse TypeActual:Type* FunActual:Expr* ;
+QualifiedType : Type ::= TypeQualifier Type ;
+
+// Expressions
+abstract Expr;
+
+// Binary
+abstract BinExpr : Expr ::= Left:Expr Right:Expr;
+AddExpr : BinExpr;
+SubExpr : BinExpr;
+MulExpr : BinExpr;
+DivExpr : BinExpr;
+ModExpr : BinExpr;
+EQExpr : BinExpr;
+LTExpr : BinExpr;
+GTExpr : BinExpr;
+LEQExpr : BinExpr;
+GEQExpr : BinExpr;
+OrExpr : BinExpr;
+AndExpr : BinExpr;
+
+// Other expressions
+CallExpr : Expr ::= Func:Expr Actual:Expr*;
+Self : Expr ;
+ListExpr : Expr ::= Expr* ;
+Index : Expr ::= Base:Expr Index:Expr ;
+
+// Constants
+Constant : Expr ;
+IntConstant : Constant ::= <Value> ;
+StringConstant : Constant ::= <Value> ;
+
+// Access
+Access : Expr ::= IdUse ;
+MemberAccess : Expr ::= Expr IdUse;
+QualifiedAccess ::= Package <ID> ;
+
+// Statements
+abstract Stmt;
+VarDeclStmt : Stmt ::= VarDecl ;
+ExprStmt : Stmt ::= Expr ;
+AssignStmt : Stmt ::= LValue:Expr RValue:Expr ;
+BlockStmt : Stmt ::= Stmt* ;
+IfStmt : Stmt ::= Cond:Expr Then:Stmt Else:Stmt ;
+ForStmt : Stmt ::= Iterator:IdUse Rang:Expr Body:Stmt ;
+WhileStmt : Stmt ::= Cond:Expr Body:Stmt ;
+AssertStmt : Expr ::= Expr <Message> ;
+SkipStmt : Stmt;
+
+// Identifiers
+IdUse ::= <ID> ;
+IdDecl ::= <ID> ;
