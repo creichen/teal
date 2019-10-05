@@ -7,7 +7,7 @@ import java.io.FileNotFoundException;
 import beaver.Parser.Exception;
 
 import lang.ast.Program;
-import lang.ast.LangParser;
+import lang.ast.AttoLParser;
 import lang.ast.LangScanner;
 
 /**
@@ -18,9 +18,9 @@ public class Compiler {
 	 * Entry point
 	 * @param args
 	 */
-    
+
     public static Object DrAST_root_node; //Enable debugging with DrAST
-    
+
 	public static void main(String[] args) {
 		try {
 			if (args.length != 1) {
@@ -33,7 +33,7 @@ public class Compiler {
 
 			String filename = args[0];
 			LangScanner scanner = new LangScanner(new FileReader(filename));
-			LangParser parser = new LangParser();
+			AttoLParser parser = new AttoLParser();
 			Program program = (Program) parser.parse(scanner);
             DrAST_root_node = program; //Enable debugging with DrAST
 			System.out.println(program.dumpTree());
@@ -54,4 +54,3 @@ public class Compiler {
 		System.err.println("  where FILE is the file to be parsed");
 	}
 }
-

@@ -1,29 +1,241 @@
 %header {:
-	package lang.ast;
+        package lang.ast;
 :};
 
 %embed {:
-	static public class SyntaxError extends RuntimeException { public SyntaxError(String msg) {super(msg);}}
-	// Disable syntax error recovery
-	protected void recoverFromError(Symbol token, TokenStream in) {
-		throw new SyntaxError("Cannot recover from the syntax error");
-	}
+        static public class SyntaxError extends RuntimeException { public SyntaxError(String msg) {super(msg);}}
+        // Disable syntax error recovery
+        protected void recoverFromError(Symbol token, TokenStream in) {
+                throw new SyntaxError("Cannot recover from the syntax error at " +
+		Symbol.getLine(token.getStart()) + ":" + Symbol.getColumn(token.getStart()));
+        }
 :};
 
 %goal program;
 
-Program program = import_decl* {: return new Program(import_decl, new List()); :}
+
+// Package and import
+Program program = import_decl* decl* {: return new Program(import_decl, decl); :}
                 ;
 
-ImportDecl import_decl = IMPORT package DOUBLE_COLON ID SEMICOLON {: return new ImportDecl(package, ID); :}
+ImportDecl import_decl = IMPORT package_path SEMICOLON {: return new ImportDecl(package_path); :}
                        ;
 
+List package_path = package_path_fragment_list DOUBLE_COLON package_path_fragment {: return package_path_fragment_list.add(package_path_fragment); :}
+     		  ;
+
 List package_path_fragment_list = package_path_fragment {: return new List(package_path_fragment); :}
-                                | package_path_fragment_list DOT package_path_fragment {: return package_path_fragment_list.add(package_path_fragment); :}
-				;
+                                | package_path_fragment_list DOUBLE_COLON package_path_fragment {: return package_path_fragment_list.add(package_path_fragment); :}
+                                ;
 
 PackagePathFragment package_path_fragment = ID {: return new PackagePathFragment(ID); :}
-		    			  ;
+                                          ;
 
-Package package = package_path_fragment_list {: return new Package(package_path_fragment_list); :}
-		;
+Decl decl = var_decl
+          | fun_decl
+          | type_decl
+          | class_decl
+          | qualifier_decl
+          ;
+
+VarDecl var_id_decl = ID {: return new VarDecl(new IdDecl(ID), new Opt(), new Opt()); :}
+                    | ID COLON type {: return new VarDecl(new IdDecl(ID), new Opt(type), new Opt()); :}
+                    ;
+
+VarDecl var_decl = ID COLON type SEMICOLON {: return new VarDecl(new IdDecl(ID), new Opt(type), new Opt()); :}
+                 | ID COLON type ASSIGN expr SEMICOLON {: return new VarDecl(new IdDecl(ID), new Opt(type), new Opt(expr)); :}
+                 ;
+
+
+FunDecl fun_decl = concrete_fun_decl
+                 | abstract_fun_decl
+                 ;
+
+Type type_opt = COLON type {: return type; :}
+     	      ;
+
+FunDecl concrete_fun_decl = FUN ID LPAREN fun_formals RPAREN type_opt? EQ stmt {: return new FunDecl(new IdDecl(ID), type_opt, fun_formals, new Opt(stmt)); :}
+                          ;
+
+FunDecl abstract_fun_decl = FUN ID LPAREN fun_formals RPAREN type_opt? SEMICOLON {: return new FunDecl(new IdDecl(ID), type_opt, fun_formals, new Opt()); :}
+                          ;
+
+List fun_formals = /* empty */ {: return new List(); :}
+		 | fun_formal_list
+		 ;
+
+List fun_formals_opt = /* empty */ {: return new List(); :}
+                     | LPAREN fun_formal_list RPAREN {: return fun_formal_list; :}
+                     ;
+
+List fun_formal_list = fun_formal {: return new List(fun_formal); :}
+                     | fun_formal_list COMMA fun_formal {: return fun_formal_list.add(fun_formal); :}
+                     ;
+
+VarDecl fun_formal = var_id_decl
+                   ;
+
+Type type = ID type_actuals {: return new SimpleType(new IdUse(ID), type_actuals); :}
+          | type_qualifier type {: return new QualifiedType(type, type_qualifier); :}
+          ;
+
+TypeQualifier type_qualifier = ID type_actuals fun_actuals {: return new TypeQualifier(new IdUse(ID), type_actuals, fun_actuals); :}
+                             ;
+
+List type_actuals = /* empty */ {: return new List(); :}
+                  | LBRACK RBRACK {: return new List(); :}
+                  | LBRACK type_actual_list RBRACK {: return type_actual_list; :}
+                  ;
+
+List type_actual_list = type {: return new List(type); :}
+                      | type_actual_list COMMA type {: return type_actual_list.add(type); :}
+                      ;
+
+List fun_actuals = /* empty */ {: return new List(); :}
+                 | LPAREN RPAREN {: return new List(); :}
+                 | LPAREN fun_actual_list RPAREN {: return fun_actual_list; :}
+                 ;
+
+List fun_actual_list = expr {: return new List(expr); :}
+                     | fun_actual_list COMMA expr {: return fun_actual_list.add(expr); :}
+                     ;
+
+Stmt stmt = var_decl_stmt
+          | expr_stmt
+          | assign_stmt
+          | block_stmt
+          | if_stmt
+          | for_stmt
+          | while_stmt
+          | return_stmt
+          | assert_stmt
+          ;
+
+VarDeclStmt var_decl_stmt = var_decl {: return new VarDeclStmt(var_decl); :}
+                          ;
+
+ExprStmt expr_stmt = expr SEMICOLON {: return new ExprStmt(expr); :}
+                   ;
+
+AssignStmt assign_stmt = expr.lvalue ASSIGN expr SEMICOLON {: return new AssignStmt(lvalue, expr); :}
+                       ;
+
+BlockStmt block_stmt = LBRACE stmt* RBRACE {: return new BlockStmt(stmt); :}
+                     ;
+
+IfStmt if_stmt = IF expr block_stmt {: return new IfStmt(expr, block_stmt, new SkipStmt()); :}
+               | IF expr block_stmt.t ELSE block_stmt.e {: return new IfStmt(expr, t, e); :}
+               ;
+
+ForStmt for_stmt = FOR ID IN expr block_stmt {: return new ForStmt(new IdUse(ID), expr, block_stmt); :}
+                 ;
+
+WhileStmt while_stmt = WHILE expr block_stmt {: return new WhileStmt(expr, block_stmt); :}
+                     ;
+
+ReturnStmt return_stmt = RETURN expr SEMICOLON {: return new ReturnStmt(expr); :}
+                       ;
+
+AssertStmt assert_stmt = ASSERT expr SEMICOLON {: return new AssertStmt(expr, ""); :}
+                       ;
+
+List type_formals = /* empty */ {: return new List(); :}
+                  | LBRACK RBRACK {: return new List(); :}
+                  | LBRACK type_formal_list RBRACK {: return type_formal_list; :}
+                  ;
+
+List type_formal_list = type_var_decl {: return new List(type_var_decl); :}
+                      | type_formal_list COMMA type_var_decl {: return type_formal_list.add(type_var_decl); :}
+                      ;
+
+
+TypeVarDecl type_var_decl = ID {: return new TypeVarDecl(new IdDecl(ID)); :}
+                          ;
+
+typedecl type_decl = TYPE ID type_formals EQ type SEMICOLON {: return new AliasTypeDecl(new IdDecl(ID), type_formals, type); :}
+                   | TYPE ID type_formals SUBTYPE type_actual_list EQ struct_decl
+                        {: return new StructTypeDecl(new IdDecl(ID), type_formals, type_actual_list, struct_decl); :}
+                   ;
+
+List struct_decl = LBRACE struct_elt* RBRACE {: return struct_elt; :}
+            ;
+
+StructElt struct_elt = var_decl {: return new VarDeclElt(var_decl); :}
+                     | fun_decl {: return new FunDeclElt(fun_decl); :}
+                     ;
+// TODO: disallow stmt in struct_decl; avoid reduce-reduce conflict
+//                     | stmt {: return new StmtElt(stmt); :}
+
+
+ClassDecl class_decl = CLASS ID type_formals fun_formals_opt EQ struct_decl
+                           {: return new ClassDecl(new IdDecl(ID), type_formals, fun_formals_opt, new List(), struct_decl); :}
+                     | CLASS ID type_formals fun_formals_opt SUBTYPE type_actual_list EQ struct_decl
+                           {: return new ClassDecl(new IdDecl(ID), type_formals, fun_formals_opt, type_actual_list, struct_decl); :}
+                     ;
+
+QualifierDecl qualifier_decl = QUALIFIER ID type_formals fun_formals_opt LPAREN var_id_decl RPAREN EQ struct_decl
+                                    {: return new QualifierDecl(new IdDecl(ID), type_formals, fun_formals_opt,
+                                                                var_id_decl, new List(), struct_decl); :}
+                             | QUALIFIER ID type_formals fun_formals_opt LPAREN var_id_decl RPAREN SUBTYPE type_actual_list EQ struct_decl
+                                    {: return new QualifierDecl(new IdDecl(ID), type_formals, fun_formals_opt,
+                                                                var_id_decl, type_actual_list, struct_decl); :}
+                             ;
+
+Expr expr = bin_expr ;
+
+List fun_actual_list_maybe_empty = /* empty */ {: return new List(); :}
+                                 | fun_actual_list
+                                 ;
+
+Expr bin_expr = or_expr
+              ;
+
+%nonassoc BOTTOM;
+%right NOT;
+%left DOT;
+%left STAR, SLASH, PERCENT;
+%left PLUS, MINUS;
+%left LT, GT, LTE, GTE, EQEQ, NEQ;
+%left AND;
+%left OR;
+
+Expr or_expr = or_expr OR and_expr {: return new OrExpr(or_expr, and_expr); :}
+              | and_expr @BOTTOM
+              ;
+
+Expr and_expr = and_expr AND cmp_expr {: return new AndExpr(and_expr, cmp_expr); :}
+              | cmp_expr @BOTTOM
+              ;
+
+Expr cmp_expr = cmp_expr LT add_expr {: return new LTExpr(cmp_expr, add_expr); :}
+              | cmp_expr GT add_expr {: return new GTExpr(cmp_expr, add_expr); :}
+              | cmp_expr LTE add_expr {: return new LEQExpr(cmp_expr, add_expr); :}
+              | cmp_expr GTE add_expr {: return new GEQExpr(cmp_expr, add_expr); :}
+              | cmp_expr EQEQ add_expr {: return new EQExpr(cmp_expr, add_expr); :}
+              | cmp_expr NEQ add_expr {: return new NEQExpr(cmp_expr, add_expr); :}
+              | add_expr @BOTTOM
+              ;
+
+Expr add_expr = add_expr PLUS mul_expr {: return new AddExpr(add_expr, mul_expr); :}
+              | add_expr MINUS mul_expr {: return new SubExpr(add_expr, mul_expr); :}
+              | mul_expr @BOTTOM
+              ;
+
+Expr mul_expr = mul_expr STAR term {: return new MulExpr(mul_expr, term); :}
+              | mul_expr SLASH term {: return new DivExpr(mul_expr, term); :}
+              | mul_expr PERCENT term {: return new ModExpr(mul_expr, term); :}
+              | term @BOTTOM
+              ;
+
+Expr term = LPAREN expr RPAREN {: return expr; :}
+          | NOT expr {: return new NotExpr(expr); :}
+          | INTEGER_LITERAL {: return new IntConstant((Integer)INTEGER_LITERAL.value); :}
+          | STRING_LITERAL {: return new StringConstant((String)STRING_LITERAL.value); :}
+          | ID {: return new Access(new IdUse(ID)); :}
+          | package_path {: return new QualifiedAccess(package_path); :}
+          | LBRACK fun_actual_list_maybe_empty RBRACK {: return new ListExpr(fun_actual_list_maybe_empty); :}
+          | expr DOT ID {: return new MemberAccess(expr, ID); :}
+          | expr LPAREN fun_actual_list_maybe_empty RPAREN {: return new CallExpr(expr, fun_actual_list_maybe_empty); :}
+          | expr.b LBRACK expr.i RBRACK {: return new IndexExpr(b, i); :}
+          | SELF {: return new Self(); :}
+          ;

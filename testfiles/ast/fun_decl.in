@@ -1,0 +1,9 @@
+fun func1 () : RetType;
+
+fun func2 (x, y) : RetType;
+
+fun func3 (x : TypeOfX, y, z : TypeOfZ) : Qualifier [QT] (qf) MyType ;
+
+fun func4 () = {}
+
+fun func5 (x) = if x { return 5; } else { return 6; }

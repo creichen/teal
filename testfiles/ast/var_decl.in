@@ -1,0 +1,13 @@
+// uninitilized variable declaration
+a : MyType;
+/*
+	initialized variable declarations
+ */
+b : int := 0x40 ;
+
+c : int := 10 ;
+
+d : String := "escaped\" string" ;
+
+// a fancy typed variable
+e : QualId [typeActual] (funActual) QualId2 (funActual2) TypeId := 5;

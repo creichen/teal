@@ -1,0 +1,12 @@
+Program
+  List
+    ImportDecl
+      List
+        PackagePathFragment ID="pack1"
+        PackagePathFragment ID="pack2"
+        PackagePathFragment ID="ImportedDef"
+    ImportDecl
+      List
+        PackagePathFragment ID="pack1"
+        PackagePathFragment ID="_"
+  List

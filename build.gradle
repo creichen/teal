@@ -23,7 +23,9 @@ dependencies {
   testCompile 'junit:junit:4.12'
 
   jflex 'de.jflex:jflex:1.6.1'
-  beaver 'org.extendj:nbfront:0.1.5'
+  // beaver 'org.extendj:nbfront:0.1.5'
+  beaver 'net.sf.beaver:beaver-cc:0.9.11'
+
   jastadd2 "org.jastadd:jastadd:2.3.2" // Selects which JastAdd version to use (optional).
 
   jastaddparser 'org.jastadd:jastaddparser:1.0.3'
@@ -92,7 +94,7 @@ task generateBeaver(type: JavaExec) {
     classpath = configurations.jastaddparser
     main = 'org.jastadd.jastaddparser.Main'
 
-    args file('src/parser/AttoL.parser').path, file('src/gen/parser/AttoL.beaver').path
+    args file('src/parser/AttoL.parser').path, file('src/gen/parser/AttoLParser.beaver').path
 }
 
 
@@ -104,7 +106,7 @@ task generateParser(type: JavaExec) {
   // Options to Beaver (http://beaver.sourceforge.net/):
   args '-d', file('src/gen').path,
       '-t', '-c', '-w',
-      file('src/gen/parser/AttoL.beaver').path
+      file('src/gen/parser/AttoLParser.beaver').path
 
   doFirst {
     // Ensure src/gen exists before running Beaver:

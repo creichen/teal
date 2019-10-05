@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-import lang.ast.LangParser;
+import lang.ast.AttoLParser;
 import lang.ast.LangScanner;
 
 /** Utility methods for running tests. */
@@ -29,7 +29,7 @@ public final class Util {
    */
   public static Object parse(File file) throws Exception {
     LangScanner scanner = new LangScanner(new FileReader(file));
-    LangParser parser = new LangParser();
+    AttoLParser parser = new AttoLParser();
     return parser.parse(scanner);
   }
 
@@ -95,7 +95,7 @@ public final class Util {
       Util.parse(new File(directory, filename));
 
       fail("syntax is valid, expected syntax error");
-    } catch (beaver.Parser.Exception | lang.ast.LangParser.SyntaxError e) {
+    } catch (beaver.Parser.Exception | lang.ast.AttoLParser.SyntaxError e) {
       // Ok (expected syntax error)!
     } catch (Exception e) {
       fail("IO error while trying to parse '" + filename + "': "

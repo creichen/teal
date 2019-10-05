@@ -1,0 +1,6 @@
+* Parser
+- Lvalues cannot be checked at parser level due to R-R conflict.
+** TODO implement lvalue check
+- change package paths to ~pack1::pack2::id~ from ~pack1.pack2::id~ to avoid ambiguity
+  pack1.(pack2::id) or (pack1.pack2)::id
+- misterious bug with NeoBeaver, switch to Beaver
