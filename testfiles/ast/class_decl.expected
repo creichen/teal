@@ -1,0 +1,148 @@
+Program
+  List
+  List
+    ClassDecl
+      IdDecl ID="MyClass"
+      List
+      List
+      List
+      List
+    ClassDecl
+      IdDecl ID="MyClass"
+      List
+        TypeVarDecl
+          IdDecl ID="MyType1"
+        TypeVarDecl
+          IdDecl ID="MyType2"
+      List
+      List
+      List
+    ClassDecl
+      IdDecl ID="MyClass"
+      List
+      List
+        VarDecl
+          IdDecl ID="arg1"
+          Opt
+          Opt
+        VarDecl
+          IdDecl ID="arg2"
+          Opt
+          Opt
+      List
+      List
+    ClassDecl
+      IdDecl ID="MyClass"
+      List
+      List
+      List
+        SimpleType
+          IdUse ID="Super1"
+          List
+        SimpleType
+          IdUse ID="Super2"
+          List
+      List
+    ClassDecl
+      IdDecl ID="MyClass"
+      List
+        TypeVarDecl
+          IdDecl ID="MyType1"
+        TypeVarDecl
+          IdDecl ID="MyType2"
+      List
+        VarDecl
+          IdDecl ID="arg1"
+          Opt
+          Opt
+        VarDecl
+          IdDecl ID="args2"
+          Opt
+          Opt
+      List
+      List
+    ClassDecl
+      IdDecl ID="MyClass"
+      List
+        TypeVarDecl
+          IdDecl ID="MyType1"
+        TypeVarDecl
+          IdDecl ID="MyType2"
+      List
+      List
+        SimpleType
+          IdUse ID="Super1"
+          List
+        SimpleType
+          IdUse ID="Super2"
+          List
+            SimpleType
+              IdUse ID="MyType3"
+              List
+            SimpleType
+              IdUse ID="MyType4"
+              List
+      List
+    ClassDecl
+      IdDecl ID="MyClass"
+      List
+      List
+        VarDecl
+          IdDecl ID="arg1"
+          Opt
+          Opt
+        VarDecl
+          IdDecl ID="arg2"
+          Opt
+          Opt
+      List
+        SimpleType
+          IdUse ID="Super1"
+          List
+        SimpleType
+          IdUse ID="Super2"
+          List
+            SimpleType
+              IdUse ID="MyType3"
+              List
+            SimpleType
+              IdUse ID="MyType4"
+              List
+      List
+    ClassDecl
+      IdDecl ID="MyClass"
+      List
+      List
+      List
+      List
+        VarDeclElt
+          VarDecl
+            IdDecl ID="v"
+            Opt
+              SimpleType
+                IdUse ID="MyType"
+                List
+            Opt
+        VarDeclElt
+          VarDecl
+            IdDecl ID="w"
+            Opt
+              SimpleType
+                IdUse ID="T"
+                List
+            Opt
+              Access
+                IdUse ID="v"
+        FunDeclElt
+          FunDecl
+            IdDecl ID="f"
+            Opt
+            List
+              VarDecl
+                IdDecl ID="a"
+                Opt
+                Opt
+            Opt
+              ReturnStmt
+                Access
+                  IdUse ID="a"

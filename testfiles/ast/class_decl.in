@@ -1,0 +1,27 @@
+class MyClass = {}
+
+class MyClass [MyType1, MyType2] = {}
+
+class MyClass (arg1, arg2) = {}
+
+class MyClass <: Super1, Super2 = {}
+
+class MyClass [MyType1, MyType2] (arg1, args2) = {}
+
+class MyClass [MyType1, MyType2] <: Super1, Super2 [MyType3, MyType4] = {}
+
+class MyClass (arg1, arg2) <: Super1, Super2 [MyType3, MyType4] = {}
+
+
+
+class MyClass = {
+      // variables
+      v : MyType;
+      w : T := v;
+
+      // methods
+      fun f(a) = return a;
+
+      // do we want statemens inside a class? they don't work for now
+      // x := 5;
+}
