@@ -1,0 +1,64 @@
+Program
+  List
+  List
+    AliasTypeDecl
+      IdDecl ID="MyType"
+      List
+        TypeVarDecl
+          IdDecl ID="typeVar1"
+        TypeVarDecl
+          IdDecl ID="typeVar2"
+      QualifiedType
+        SimpleType
+          IdUse ID="MyOtherType"
+          List
+        TypeQualifier
+          IdUse ID="Qual1"
+          List
+            SimpleType
+              IdUse ID="typeVar1"
+              List
+          List
+            IntConstant Value="0"
+    StructTypeDecl
+      IdDecl ID="MyType"
+      List
+        TypeVarDecl
+          IdDecl ID="TypeVar"
+      List
+        SimpleType
+          IdUse ID="SuperType1"
+          List
+        QualifiedType
+          SimpleType
+            IdUse ID="SimpleType"
+            List
+          TypeQualifier
+            IdUse ID="MyQualifier"
+            List
+              SimpleType
+                IdUse ID="TypeArg"
+                List
+            List
+              Access
+                IdUse ID="FuncArg"
+      List
+        VarDeclElt
+          VarDecl
+            IdDecl ID="v"
+            Opt
+              SimpleType
+                IdUse ID="typeVar1"
+                List
+            Opt
+        FunDeclElt
+          FunDecl
+            IdDecl ID="f"
+            Opt
+              SimpleType
+                IdUse ID="typeVar2"
+                List
+            List
+            Opt
+              ReturnStmt
+                IntConstant Value="0"

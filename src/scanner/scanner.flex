@@ -69,6 +69,7 @@ StringLiteral = \"([^\"]|\\\")*\"
 "!="          { return sym(Terminals.NEQ); }
 ">="          { return sym(Terminals.GTE); }
 "<="          { return sym(Terminals.LTE); }
+"<:"          { return sym(Terminals.SUBTYPE); }
 "="           { return sym(Terminals.EQ); }
 "<"           { return sym(Terminals.LT); }
 ">"           { return sym(Terminals.GT); }

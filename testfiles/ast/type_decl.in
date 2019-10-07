@@ -1,0 +1,6 @@
+type MyType [typeVar1, typeVar2] = Qual1 [typeVar1] (0) MyOtherType ;
+
+type MyType [TypeVar] <: SuperType1, MyQualifier [TypeArg] (FuncArg) SimpleType = {
+     v : typeVar1;
+     fun f() : typeVar2 = return 0;
+}

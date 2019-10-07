@@ -1,0 +1,103 @@
+Program
+  List
+  List
+    QualifierDecl
+      IdDecl ID="Qual1"
+      List
+        TypeVarDecl
+          IdDecl ID="t1"
+        TypeVarDecl
+          IdDecl ID="t2"
+      List
+        VarDecl
+          IdDecl ID="a1"
+          Opt
+          Opt
+        VarDecl
+          IdDecl ID="a2"
+          Opt
+            SimpleType
+              IdUse ID="t2"
+              List
+          Opt
+      VarDecl
+        IdDecl ID="x"
+        Opt
+          SimpleType
+            IdUse ID="t"
+            List
+        Opt
+      List
+      List
+    QualifierDecl
+      IdDecl ID="Qual2"
+      List
+      List
+        VarDecl
+          IdDecl ID="a1"
+          Opt
+          Opt
+        VarDecl
+          IdDecl ID="a2"
+          Opt
+            SimpleType
+              IdUse ID="t2"
+              List
+          Opt
+      VarDecl
+        IdDecl ID="x"
+        Opt
+          SimpleType
+            IdUse ID="t"
+            List
+        Opt
+      List
+      List
+    QualifierDecl
+      IdDecl ID="Qual3"
+      List
+        TypeVarDecl
+          IdDecl ID="t1"
+        TypeVarDecl
+          IdDecl ID="t2"
+      List
+        VarDecl
+          IdDecl ID="x"
+          Opt
+          Opt
+        VarDecl
+          IdDecl ID="y"
+          Opt
+          Opt
+      VarDecl
+        IdDecl ID="x"
+        Opt
+        Opt
+      List
+        SimpleType
+          IdUse ID="Qual4"
+          List
+        SimpleType
+          IdUse ID="Qual5"
+          List
+      List
+    QualifierDecl
+      IdDecl ID="Qual4"
+      List
+        TypeVarDecl
+          IdDecl ID="t1"
+        TypeVarDecl
+          IdDecl ID="t2"
+      List
+      VarDecl
+        IdDecl ID="x"
+        Opt
+        Opt
+      List
+        SimpleType
+          IdUse ID="Qual4"
+          List
+        SimpleType
+          IdUse ID="Qual5"
+          List
+      List

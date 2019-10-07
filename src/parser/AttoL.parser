@@ -152,13 +152,16 @@ List type_formal_list = type_var_decl {: return new List(type_var_decl); :}
 TypeVarDecl type_var_decl = ID {: return new TypeVarDecl(new IdDecl(ID)); :}
                           ;
 
-typedecl type_decl = TYPE ID type_formals EQ type SEMICOLON {: return new AliasTypeDecl(new IdDecl(ID), type_formals, type); :}
+// TODO: why do we need a type with a body and also a class?
+TypeDecl type_decl = TYPE ID type_formals EQ type SEMICOLON {: return new AliasTypeDecl(new IdDecl(ID), type_formals, type); :}
                    | TYPE ID type_formals SUBTYPE type_actual_list EQ struct_decl
                         {: return new StructTypeDecl(new IdDecl(ID), type_formals, type_actual_list, struct_decl); :}
+                   // | TYPE ID type_formals EQ struct_decl
+                   //      {: return new StructTypeDecl(new IdDecl(ID), type_formals, new List(), struct_decl); :}
                    ;
 
 List struct_decl = LBRACE struct_elt* RBRACE {: return struct_elt; :}
-            ;
+                 ;
 
 StructElt struct_elt = var_decl {: return new VarDeclElt(var_decl); :}
                      | fun_decl {: return new FunDeclElt(fun_decl); :}
@@ -173,11 +176,11 @@ ClassDecl class_decl = CLASS ID type_formals fun_formals_opt EQ struct_decl
                            {: return new ClassDecl(new IdDecl(ID), type_formals, fun_formals_opt, type_actual_list, struct_decl); :}
                      ;
 
-QualifierDecl qualifier_decl = QUALIFIER ID type_formals fun_formals_opt LPAREN var_id_decl RPAREN EQ struct_decl
-                                    {: return new QualifierDecl(new IdDecl(ID), type_formals, fun_formals_opt,
+QualifierDecl qualifier_decl = QUALIFIER ID type_formals LPAREN fun_formals RPAREN LPAREN var_id_decl RPAREN EQ struct_decl
+                                    {: return new QualifierDecl(new IdDecl(ID), type_formals, fun_formals,
                                                                 var_id_decl, new List(), struct_decl); :}
-                             | QUALIFIER ID type_formals fun_formals_opt LPAREN var_id_decl RPAREN SUBTYPE type_actual_list EQ struct_decl
-                                    {: return new QualifierDecl(new IdDecl(ID), type_formals, fun_formals_opt,
+                             | QUALIFIER ID type_formals LPAREN fun_formals RPAREN LPAREN var_id_decl RPAREN SUBTYPE type_actual_list EQ struct_decl
+                                    {: return new QualifierDecl(new IdDecl(ID), type_formals, fun_formals,
                                                                 var_id_decl, type_actual_list, struct_decl); :}
                              ;
 
@@ -191,6 +194,10 @@ Expr bin_expr = or_expr
               ;
 
 %nonassoc BOTTOM;
+
+
+
+
 %right NOT;
 %left DOT;
 %left STAR, SLASH, PERCENT;
@@ -198,6 +205,8 @@ Expr bin_expr = or_expr
 %left LT, GT, LTE, GTE, EQEQ, NEQ;
 %left AND;
 %left OR;
+
+
 
 Expr or_expr = or_expr OR and_expr {: return new OrExpr(or_expr, and_expr); :}
               | and_expr @BOTTOM
