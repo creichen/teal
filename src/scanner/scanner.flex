@@ -47,6 +47,10 @@ StringLiteral = \"([^\"]|\\\")*\"
 
 // token definitions
 "fun"         { return sym(Terminals.FUN); }
+"var"         { return sym(Terminals.VAR); }
+"qualifier"   { return sym(Terminals.QUALIFIER); }
+"type"        { return sym(Terminals.TYPE); }
+"class"       { return sym(Terminals.CLASS); }
 "while"       { return sym(Terminals.WHILE); }
 "if"          { return sym(Terminals.IF); }
 "else"        { return sym(Terminals.ELSE); }
@@ -54,10 +58,11 @@ StringLiteral = \"([^\"]|\\\")*\"
 "return"      { return sym(Terminals.RETURN); }
 "assert"      { return sym(Terminals.ASSERT); }
 "import"      { return sym(Terminals.IMPORT); }
-"qualifier"   { return sym(Terminals.QUALIFIER); }
-"type"        { return sym(Terminals.TYPE); }
-"class"       { return sym(Terminals.CLASS); }
 "self"        { return sym(Terminals.SELF); }
+"not"         { return sym(Terminals.NOT); }
+"in"          { return sym(Terminals.IN); }
+"and"         { return sym(Terminals.AND); }
+"or"          { return sym(Terminals.OR); }
 "::"          { return sym(Terminals.DOUBLE_COLON); }
 "+"           { return sym(Terminals.PLUS); }
 "-"           { return sym(Terminals.MINUS); }
@@ -82,6 +87,7 @@ StringLiteral = \"([^\"]|\\\")*\"
 "["           { return sym(Terminals.LBRACK); }
 "]"           { return sym(Terminals.RBRACK); }
 ":"           { return sym(Terminals.COLON); }
+"."           { return sym(Terminals.DOT); }
 
 {IntLiteral}
 {

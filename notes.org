@@ -4,3 +4,4 @@
 - change package paths to ~pack1::pack2::id~ from ~pack1.pack2::id~ to avoid ambiguity
   pack1.(pack2::id) or (pack1.pack2)::id
 - misterious bug with NeoBeaver, switch to Beaver
+- always check for undefined non-terminals; otherwise you'll get a mismatch between the ID expected by Beaver and the ID produced by Flex

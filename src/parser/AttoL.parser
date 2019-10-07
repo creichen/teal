@@ -38,21 +38,19 @@ Decl decl = var_decl
           | qualifier_decl
           ;
 
-VarDecl var_id_decl = ID {: return new VarDecl(new IdDecl(ID), new Opt(), new Opt()); :}
-                    | ID COLON type {: return new VarDecl(new IdDecl(ID), new Opt(type), new Opt()); :}
+VarDecl var_id_decl = ID type_opt? {: return new VarDecl(new IdDecl(ID), type_opt, new Opt()); :}
                     ;
 
-VarDecl var_decl = ID COLON type SEMICOLON {: return new VarDecl(new IdDecl(ID), new Opt(type), new Opt()); :}
-                 | ID COLON type ASSIGN expr SEMICOLON {: return new VarDecl(new IdDecl(ID), new Opt(type), new Opt(expr)); :}
+VarDecl var_decl = VAR var_id_decl SEMICOLON {: return var_id_decl; :}
+                 | VAR var_id_decl ASSIGN expr SEMICOLON {: var_id_decl.setInitializerOpt(new Opt(expr)); return var_id_decl; :}
                  ;
-
 
 FunDecl fun_decl = concrete_fun_decl
                  | abstract_fun_decl
                  ;
 
 Type type_opt = COLON type {: return type; :}
-     	      ;
+	      ;
 
 FunDecl concrete_fun_decl = FUN ID LPAREN fun_formals RPAREN type_opt? EQ stmt {: return new FunDecl(new IdDecl(ID), type_opt, fun_formals, new Opt(stmt)); :}
                           ;
@@ -194,9 +192,6 @@ Expr bin_expr = or_expr
               ;
 
 %nonassoc BOTTOM;
-
-
-
 
 %right NOT;
 %left DOT;
