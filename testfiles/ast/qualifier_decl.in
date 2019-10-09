@@ -1,10 +1,9 @@
-qualifier Qual1 [t1, t2] (a1, a2 : t2) (x : t) = {}
+qualifier Qual1 [t1, t2] (a1, a2 : t2) = {}
 
-qualifier Qual2 (a1, a2 : t2) (x : t) = {}
+qualifier Qual2 (a1, a2 : t2) = {}
 
-qualifier Qual3 [t1, t2] (x, y) (x) <: Qual4, Qual5 = {}
+qualifier Qual3 [t1, t2] (x, y)  <: Qual4, Qual5 = {}
 
-qualifier Qual4 [t1, t2] () (x) <: Qual4, Qual5 = {}
+qualifier Qual4 [t1, t2]  <: Qual4, Qual5 = {}
 
-// this won't work
-// qualifier Qual4 [t1, t2] (x) <: Qual4, Qual5 = {}
+qualifier Qual4 [t1, t2] (x) <: Qual4, Qual5 = {}

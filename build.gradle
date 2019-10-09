@@ -23,8 +23,8 @@ dependencies {
   testCompile 'junit:junit:4.12'
 
   jflex 'de.jflex:jflex:1.6.1'
-  // beaver 'org.extendj:nbfront:0.1.5'
-  beaver 'net.sf.beaver:beaver-cc:0.9.11'
+  beaver 'org.extendj:nbfront:0.1.5'
+  // beaver 'net.sf.beaver:beaver-cc:0.9.11'
 
   jastadd2 "org.jastadd:jastadd:2.3.2" // Selects which JastAdd version to use (optional).
 
@@ -104,8 +104,8 @@ task generateParser(type: JavaExec) {
   main = 'beaver.comp.run.Make'
 
   // Options to Beaver (http://beaver.sourceforge.net/):
-  args '-d', file('src/gen').path,
-      '-t', '-c', '-w',
+  args '-d', file('src/gen/lang/ast').path,
+      '-t', '-c', '-w', '-a',
       file('src/gen/parser/AttoLParser.beaver').path
 
   doFirst {

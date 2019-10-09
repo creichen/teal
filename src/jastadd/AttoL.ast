@@ -33,7 +33,7 @@ StmtElt : StructElt ::= Stmt;
 ClassDecl : Decl ::= Name:IdDecl TypeFormal:TypeVarDecl* FunFormal:VarDecl* SuperType:Type* StructElt*;
 
 // Qualifier declarations
-QualifierDecl : Decl ::= Name:IdDecl TypeFormal:TypeVarDecl* FunFormal:IdDecl* VarDecl SuperType:Type* StructElt*;
+QualifierDecl : Decl ::= Name:IdDecl TypeFormal:TypeVarDecl* FunFormal:IdDecl* SuperType:Type* StructElt*;
 
 
 // Type uses

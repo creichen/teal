@@ -174,38 +174,31 @@ ClassDecl class_decl = CLASS ID type_formals fun_formals_opt EQ struct_decl
                            {: return new ClassDecl(new IdDecl(ID), type_formals, fun_formals_opt, type_actual_list, struct_decl); :}
                      ;
 
-QualifierDecl qualifier_decl = QUALIFIER ID type_formals LPAREN fun_formals RPAREN LPAREN var_id_decl RPAREN EQ struct_decl
-                                    {: return new QualifierDecl(new IdDecl(ID), type_formals, fun_formals,
-                                                                var_id_decl, new List(), struct_decl); :}
-                             | QUALIFIER ID type_formals LPAREN fun_formals RPAREN LPAREN var_id_decl RPAREN SUBTYPE type_actual_list EQ struct_decl
-                                    {: return new QualifierDecl(new IdDecl(ID), type_formals, fun_formals,
-                                                                var_id_decl, type_actual_list, struct_decl); :}
+QualifierDecl qualifier_decl = QUALIFIER ID type_formals fun_formals_opt EQ struct_decl
+                                    {: return new QualifierDecl(new IdDecl(ID), type_formals, fun_formals_opt,
+                                                                new List(), struct_decl); :}
+                             | QUALIFIER ID type_formals fun_formals_opt SUBTYPE type_actual_list EQ struct_decl
+                                    {: return new QualifierDecl(new IdDecl(ID), type_formals, fun_formals_opt,
+                                                                type_actual_list, struct_decl); :}
                              ;
-
-Expr expr = bin_expr ;
 
 List fun_actual_list_maybe_empty = /* empty */ {: return new List(); :}
                                  | fun_actual_list
                                  ;
 
-Expr bin_expr = or_expr
-              ;
 
+%left DOT;
+%right NOT;
+// %left STAR, SLASH, PERCENT;
+// %left PLUS, MINUS;
+// %left LT, GT, LTE, GTE, EQEQ, NEQ;
+// %left AND;
+// %left OR;
 %nonassoc BOTTOM;
 
-%right NOT;
-%left DOT;
-%left STAR, SLASH, PERCENT;
-%left PLUS, MINUS;
-%left LT, GT, LTE, GTE, EQEQ, NEQ;
-%left AND;
-%left OR;
-
-
-
-Expr or_expr = or_expr OR and_expr {: return new OrExpr(or_expr, and_expr); :}
-              | and_expr @BOTTOM
-              ;
+Expr expr = expr OR and_expr {: return new OrExpr(expr, and_expr); :}
+          | and_expr @BOTTOM
+          ;
 
 Expr and_expr = and_expr AND cmp_expr {: return new AndExpr(and_expr, cmp_expr); :}
               | cmp_expr @BOTTOM
@@ -228,18 +221,21 @@ Expr add_expr = add_expr PLUS mul_expr {: return new AddExpr(add_expr, mul_expr)
 Expr mul_expr = mul_expr STAR term {: return new MulExpr(mul_expr, term); :}
               | mul_expr SLASH term {: return new DivExpr(mul_expr, term); :}
               | mul_expr PERCENT term {: return new ModExpr(mul_expr, term); :}
-              | term @BOTTOM
+	      | unary_expr
               ;
 
+Expr unary_expr = NOT term {: return new NotExpr(term); :}
+                | term @BOTTOM
+		;
+
 Expr term = LPAREN expr RPAREN {: return expr; :}
-          | NOT expr {: return new NotExpr(expr); :}
           | INTEGER_LITERAL {: return new IntConstant((Integer)INTEGER_LITERAL.value); :}
           | STRING_LITERAL {: return new StringConstant((String)STRING_LITERAL.value); :}
           | ID {: return new Access(new IdUse(ID)); :}
           | package_path {: return new QualifiedAccess(package_path); :}
           | LBRACK fun_actual_list_maybe_empty RBRACK {: return new ListExpr(fun_actual_list_maybe_empty); :}
-          | expr DOT ID {: return new MemberAccess(expr, ID); :}
-          | expr LPAREN fun_actual_list_maybe_empty RPAREN {: return new CallExpr(expr, fun_actual_list_maybe_empty); :}
-          | expr.b LBRACK expr.i RBRACK {: return new IndexExpr(b, i); :}
+          | term DOT ID {: return new MemberAccess(term, ID); :}
+          | term LPAREN fun_actual_list_maybe_empty RPAREN {: return new CallExpr(term, fun_actual_list_maybe_empty); :}
+          | term.b LBRACK expr.i RBRACK {: return new IndexExpr(b, i); :}
           | SELF {: return new Self(); :}
           ;
