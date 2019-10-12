@@ -1,0 +1,11 @@
+fun f(n) = {
+       for i : T in range(n) {
+           g(i);
+       }
+
+       for i : T in range(n) {
+           g(i);
+       }
+
+       return 0;
+}

@@ -125,7 +125,7 @@ IfStmt if_stmt = IF expr block_stmt {: return new IfStmt(expr, block_stmt, new S
                | IF expr block_stmt.t ELSE block_stmt.e {: return new IfStmt(expr, t, e); :}
                ;
 
-ForStmt for_stmt = FOR ID IN expr block_stmt {: return new ForStmt(new IdUse(ID), expr, block_stmt); :}
+ForStmt for_stmt = FOR var_id_decl IN expr block_stmt {: return new ForStmt(var_id_decl, expr, block_stmt); :}
                  ;
 
 WhileStmt while_stmt = WHILE expr block_stmt {: return new WhileStmt(expr, block_stmt); :}
