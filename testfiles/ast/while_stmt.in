@@ -1,0 +1,7 @@
+fun f(a : T, b) : U = {
+    while a {
+	  b := b + 1;
+	  a := a - 1;
+    }
+    return b;
+}
