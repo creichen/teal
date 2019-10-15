@@ -1,0 +1,150 @@
+import java.util.HashMap;
+
+aspect NameAnalysis {
+	inh IdDecl IdUse.lookup(String s);
+
+	inh IdDecl Stmt.lookup(String s);
+
+	eq BlockStmt.getStmt().lookup(String s) {
+		IdDecl d = localLookup(s);
+		if (d != null)
+			return d;
+		return lookup(s);
+	}
+
+	eq IfStmt.getThen().lookup(String s) {
+		return lookup(s);
+	}
+
+	eq IfStmt.getElse().lookup(String s) {
+		return lookup(s);
+	}
+
+	eq ForStmt.getBody().lookup(String s) {
+		IdDecl d = localLookup(s);
+		if (d != null)
+			return d;
+		return lookup(s);
+	}
+
+	eq WhileStmt.getBody().lookup(String s) {
+		return lookup(s);
+	}
+
+	eq StmtElt.getStmt().lookup(String s) {
+		return lookup(s);
+	}
+
+	inh IdDecl StructElt.lookup(String s);
+
+	eq TypeDecl.getStructElt().lookup(String s) {
+		IdDecl d = localLookup(s);
+		if (d != null)
+			return d;
+		return lookup(s);
+	}
+
+	eq FunDecl.getBody().lookup(String s) {
+		IdDecl d = localLookup(s);
+		if (d != null)
+			return d;
+		return lookup(s);
+	}
+
+	inh IdDecl TypeDecl.lookup(String s);
+	eq Program.getDecl().lookup(String s) {
+		return lookup(s);
+	}
+	inh IdDecl FunDecl.lookup(String s);
+	eq FunDeclElt.getFunDecl().lookup(String s) {
+		return lookup(s);
+	}
+
+	syn IdDecl Program.lookup(String s) {
+		return unknownDecl();
+	}
+}
+
+aspect NameAnalysisPrivate {
+	syn nta UnknownDecl Program.unknownDecl() = new UnknownDecl("UnknownDecl");
+	syn boolean IdDecl.isUnknown() = false;
+	eq UnknownDecl.isUnknown() = true;
+
+	syn IdDecl Stmt.declaredVar() = null;
+
+	eq VarDeclStmt.declaredVar() = getVarDecl().getIdDecl();
+
+	syn HashMap<String, IdDecl> BlockStmt.localDeclMap() {
+		HashMap<String, IdDecl> declMap = new HashMap<>();
+		for (Stmt s : getStmts()) {
+			IdDecl decl = s.declaredVar();
+			if (decl != null)
+				declMap.put(decl.getID(), decl);
+		}
+		return declMap;
+	}
+
+	syn IdDecl BlockStmt.localLookup(String s) {
+		IdDecl d = localDeclMap().get(s);
+		if (d != null)
+			return d;
+		return null;
+	}
+
+	syn IdDecl ForStmt.localLookup(String s) {
+		if (getIterator().getIdDecl().getID().equals(s))
+			return getIterator().getIdDecl();
+		return null;
+	}
+
+	syn IdDecl FunDecl.localLookup(String s) {
+		for (VarDecl d : getFormals())
+			if (d.getIdDecl().getID().equals(s))
+				return d.getIdDecl();
+		return null;
+	}
+
+
+	syn IdDecl StructElt.getMemberDecl() = null;
+	eq VarDeclElt.getMemberDecl() = getVarDecl().getIdDecl();
+	eq FunDeclElt.getMemberDecl() = getFunDecl().getIdDecl();
+
+	syn HashMap<String, IdDecl> TypeDecl.localDeclMap() {
+		// Declared formal type parameters
+		HashMap<String, IdDecl> declMap = new HashMap<>();
+		for (TypeVarDecl d : getTypeFormals()) {
+			IdDecl decl = d.getIdDecl();
+			declMap.put(decl.getID(), decl);
+		}
+		// Declared variables and methods
+		for (StructElt se : getStructElts()) {
+			IdDecl decl = se.getMemberDecl();
+			if (decl != null)
+				declMap.put(decl.getID(), decl);
+		}
+		return declMap;
+	}
+	eq ClassDecl.localDeclMap() {
+		HashMap<String, IdDecl> declMap = super.localDeclMap();
+		for (VarDecl d : getFunFormals()) {
+			IdDecl decl = d.getIdDecl();
+			declMap.put(decl.getID(), decl);
+		}
+		return declMap;
+	}
+	eq QualifierDecl.localDeclMap() {
+		HashMap<String, IdDecl> declMap = super.localDeclMap();
+		for (VarDecl d : getFunFormals()) {
+			IdDecl decl = d.getIdDecl();
+			declMap.put(decl.getID(), decl);
+		}
+		return declMap;
+	}
+
+	syn IdDecl TypeDecl.localLookup(String s) {
+		IdDecl d = localDeclMap().get(s);
+		if (d != null)
+			return d;
+		return null;
+	}
+}
