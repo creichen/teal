@@ -1,0 +1,62 @@
+Program
+  List
+  List
+    FunDecl
+      IdDecl ID="f"
+      Opt
+      List
+        VarDecl
+          IdDecl ID="n"
+          Opt
+          Opt
+      Opt
+        BlockStmt
+          List
+            ForStmt
+              VarDecl
+                IdDecl ID="i"
+                Opt
+                  SimpleType
+                    IdUse ID="T"
+                    List
+                Opt
+              CallExpr
+                Access
+                  IdUse ID="range"
+                List
+                  Access
+                    IdUse ID="n"
+              BlockStmt
+                List
+                  ExprStmt
+                    CallExpr
+                      Access
+                        IdUse ID="g"
+                      List
+                        Access
+                          IdUse ID="i"
+            ForStmt
+              VarDecl
+                IdDecl ID="i"
+                Opt
+                  SimpleType
+                    IdUse ID="T"
+                    List
+                Opt
+              CallExpr
+                Access
+                  IdUse ID="range"
+                List
+                  Access
+                    IdUse ID="n"
+              BlockStmt
+                List
+                  ExprStmt
+                    CallExpr
+                      Access
+                        IdUse ID="g"
+                      List
+                        Access
+                          IdUse ID="i"
+            ReturnStmt
+              IntConstant Value="0"
