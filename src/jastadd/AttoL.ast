@@ -9,17 +9,16 @@ PackagePathFragment ::= <ID>;
 abstract Decl;
 
 // Variables
-VarDecl : Decl ::= Name:IdDecl [Type] [Initializer:Expr];
+VarDecl : Decl ::= IdDecl [Type] [Initializer:Expr];
 
 // Functions
-FunDecl : Decl ::= Name:IdDecl [Type] Formal:VarDecl* [Body:Stmt];
+FunDecl : Decl ::= IdDecl [Type] Formal:VarDecl* [Body:Stmt];
 
 TypeVarDecl ::= IdDecl ;
 
 // Type declarations
-TypeDecl : Decl ::= Name:IdDecl TypeFormal:TypeVarDecl* ;
-AliasTypeDecl : TypeDecl ::=  Type;
-StructTypeDecl : TypeDecl ::= SuperType:Type* StructElt*;
+TypeDecl : Decl ::= IdDecl TypeFormal:TypeVarDecl* SuperType:Type* StructElt*;
+
 abstract StructElt;
 VarDeclElt : StructElt ::= VarDecl;
 FunDeclElt : StructElt ::= FunDecl;
@@ -30,10 +29,10 @@ StmtElt : StructElt ::= Stmt;
 // TODO: what are the FunFormal arguments for a class?
 // Arguments to the constructor?
 // Class declarations
-ClassDecl : Decl ::= Name:IdDecl TypeFormal:TypeVarDecl* FunFormal:VarDecl* SuperType:Type* StructElt*;
+ClassDecl : TypeDecl ::= FunFormal:VarDecl*;
 
 // Qualifier declarations
-QualifierDecl : Decl ::= Name:IdDecl TypeFormal:TypeVarDecl* FunFormal:IdDecl* SuperType:Type* StructElt*;
+QualifierDecl : TypeDecl ::= FunFormal:VarDecl*;
 
 
 // Type uses
@@ -41,6 +40,8 @@ abstract Type;
 SimpleType : Type ::= IdUse Actual:Type* ;
 TypeQualifier ::= IdUse TypeActual:Type* FunActual:Expr* ;
 QualifiedType : Type ::= Type TypeQualifier;
+IntegerType : Type;
+UnknownType : Type;
 
 // Expressions
 abstract Expr;
@@ -94,3 +95,5 @@ SkipStmt : Stmt;
 // Identifiers
 IdUse ::= <ID> ;
 IdDecl ::= <ID> ;
+// Unknown
+UnknownDecl : IdDecl;

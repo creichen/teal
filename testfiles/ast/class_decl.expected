@@ -21,6 +21,8 @@ Program
       IdDecl ID="MyClass"
       List
       List
+      List
+      List
         VarDecl
           IdDecl ID="arg1"
           Opt
@@ -29,11 +31,8 @@ Program
           IdDecl ID="arg2"
           Opt
           Opt
-      List
-      List
     ClassDecl
       IdDecl ID="MyClass"
-      List
       List
       List
         SimpleType
@@ -43,6 +42,7 @@ Program
           IdUse ID="Super2"
           List
       List
+      List
     ClassDecl
       IdDecl ID="MyClass"
       List
@@ -50,6 +50,8 @@ Program
           IdDecl ID="MyType1"
         TypeVarDecl
           IdDecl ID="MyType2"
+      List
+      List
       List
         VarDecl
           IdDecl ID="arg1"
@@ -59,8 +61,6 @@ Program
           IdDecl ID="args2"
           Opt
           Opt
-      List
-      List
     ClassDecl
       IdDecl ID="MyClass"
       List
@@ -68,7 +68,6 @@ Program
           IdDecl ID="MyType1"
         TypeVarDecl
           IdDecl ID="MyType2"
-      List
       List
         SimpleType
           IdUse ID="Super1"
@@ -83,8 +82,23 @@ Program
               IdUse ID="MyType4"
               List
       List
+      List
     ClassDecl
       IdDecl ID="MyClass"
+      List
+      List
+        SimpleType
+          IdUse ID="Super1"
+          List
+        SimpleType
+          IdUse ID="Super2"
+          List
+            SimpleType
+              IdUse ID="MyType3"
+              List
+            SimpleType
+              IdUse ID="MyType4"
+              List
       List
       List
         VarDecl
@@ -95,23 +109,8 @@ Program
           IdDecl ID="arg2"
           Opt
           Opt
-      List
-        SimpleType
-          IdUse ID="Super1"
-          List
-        SimpleType
-          IdUse ID="Super2"
-          List
-            SimpleType
-              IdUse ID="MyType3"
-              List
-            SimpleType
-              IdUse ID="MyType4"
-              List
-      List
     ClassDecl
       IdDecl ID="MyClass"
-      List
       List
       List
       List
@@ -146,3 +145,4 @@ Program
               ReturnStmt
                 Access
                   IdUse ID="a"
+      List

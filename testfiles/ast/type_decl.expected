@@ -1,26 +1,28 @@
 Program
   List
   List
-    AliasTypeDecl
+    TypeDecl
       IdDecl ID="MyType"
       List
         TypeVarDecl
           IdDecl ID="typeVar1"
         TypeVarDecl
           IdDecl ID="typeVar2"
-      QualifiedType
-        SimpleType
-          IdUse ID="MyOtherType"
-          List
-        TypeQualifier
-          IdUse ID="Qual1"
-          List
-            SimpleType
-              IdUse ID="typeVar1"
-              List
-          List
-            IntConstant Value="0"
-    StructTypeDecl
+      List
+        QualifiedType
+          SimpleType
+            IdUse ID="MyOtherType"
+            List
+          TypeQualifier
+            IdUse ID="Qual1"
+            List
+              SimpleType
+                IdUse ID="typeVar1"
+                List
+            List
+              IntConstant Value="0"
+      List
+    TypeDecl
       IdDecl ID="MyType"
       List
         TypeVarDecl

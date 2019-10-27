@@ -9,6 +9,8 @@ Program
         TypeVarDecl
           IdDecl ID="t2"
       List
+      List
+      List
         VarDecl
           IdDecl ID="a1"
           Opt
@@ -20,12 +22,12 @@ Program
               IdUse ID="t2"
               List
           Opt
-      List
-      List
     QualifierDecl
       IdDecl ID="Qual2"
       List
       List
+      List
+      List
         VarDecl
           IdDecl ID="a1"
           Opt
@@ -37,8 +39,6 @@ Program
               IdUse ID="t2"
               List
           Opt
-      List
-      List
     QualifierDecl
       IdDecl ID="Qual3"
       List
@@ -46,6 +46,14 @@ Program
           IdDecl ID="t1"
         TypeVarDecl
           IdDecl ID="t2"
+      List
+        SimpleType
+          IdUse ID="Qual4"
+          List
+        SimpleType
+          IdUse ID="Qual5"
+          List
+      List
       List
         VarDecl
           IdDecl ID="x"
@@ -55,6 +63,13 @@ Program
           IdDecl ID="y"
           Opt
           Opt
+    QualifierDecl
+      IdDecl ID="Qual4"
+      List
+        TypeVarDecl
+          IdDecl ID="t1"
+        TypeVarDecl
+          IdDecl ID="t2"
       List
         SimpleType
           IdUse ID="Qual4"
@@ -62,6 +77,7 @@ Program
         SimpleType
           IdUse ID="Qual5"
           List
+      List
       List
     QualifierDecl
       IdDecl ID="Qual4"
@@ -71,7 +87,6 @@ Program
         TypeVarDecl
           IdDecl ID="t2"
       List
-      List
         SimpleType
           IdUse ID="Qual4"
           List
@@ -79,23 +94,8 @@ Program
           IdUse ID="Qual5"
           List
       List
-    QualifierDecl
-      IdDecl ID="Qual4"
-      List
-        TypeVarDecl
-          IdDecl ID="t1"
-        TypeVarDecl
-          IdDecl ID="t2"
       List
         VarDecl
           IdDecl ID="x"
           Opt
           Opt
-      List
-        SimpleType
-          IdUse ID="Qual4"
-          List
-        SimpleType
-          IdUse ID="Qual5"
-          List
-      List
