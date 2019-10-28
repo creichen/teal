@@ -68,6 +68,7 @@ Self : Expr ;
 ListExpr : Expr ::= Expr* ;
 IndexExpr : Expr ::= Base:Expr Index:Expr ;
 NotExpr : Expr ::= Expr ;
+TypedExpr : Expr ::= Expr Type;
 
 // Constants
 Constant : Expr ;

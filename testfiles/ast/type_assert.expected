@@ -1,0 +1,53 @@
+Program
+  List
+  List
+    FunDecl
+      IdDecl ID="f"
+      Opt
+      List
+        VarDecl
+          IdDecl ID="x"
+          Opt
+            SimpleType
+              IdUse ID="int"
+              List
+          Opt
+      Opt
+        ReturnStmt
+          TypedExpr
+            Access
+              IdUse ID="x"
+            SimpleType
+              IdUse ID="int"
+              List
+    FunDecl
+      IdDecl ID="f"
+      Opt
+      List
+        VarDecl
+          IdDecl ID="x"
+          Opt
+            SimpleType
+              IdUse ID="T"
+              List
+                SimpleType
+                  IdUse ID="a"
+                  List
+                SimpleType
+                  IdUse ID="b"
+                  List
+                SimpleType
+                  IdUse ID="c"
+                  List
+          Opt
+      Opt
+        ReturnStmt
+          TypedExpr
+            Access
+              IdUse ID="x"
+            SimpleType
+              IdUse ID="T"
+              List
+                SimpleType
+                  IdUse ID="a"
+                  List

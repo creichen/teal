@@ -5,6 +5,10 @@
   pack1.(pack2::id) or (pack1.pack2)::id
 - always check for undefined non-terminals; otherwise you'll get a mismatch between the ID expected by Beaver and the ID produced by Flex
 
+** Use '(expr : Type)' for type assertions
+To avoid parsing conflicts, we have to use ~(expr : Type)~ instead of ~expr : Type~. The ambiguity arises in situations like:
+~a : T [x]~ that can be parsed both as ~(a : T)[x]~ and ~a : (T[x])~.
+
 * Name analysis
 ** Scopes
 Function and method parameters live in a scope enclosing the body of the function. This means that they can be shadowed by variable declarations
