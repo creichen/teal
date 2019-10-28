@@ -1,6 +1,7 @@
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Comparator;
 import beaver.Symbol;
 
@@ -20,6 +21,31 @@ aspect Util {
 		}
 	}
 
+	public class MultiHashMap<K, V> extends HashMap<K, HashSet<V>> {
+		public MultiHashMap() {
+			super();
+		}
+
+		public V append(K key, V value) {
+			HashSet<V> entry = get(key);
+			if (entry == null) {
+				entry = new HashSet<>();
+				put(key, entry);
+			}
+			entry.add(value);
+			return value;
+		}
+
+		/** Get one value maped to key, if it exists. Otherwise, return null.
+		 **/
+		public V getOne(K key) {
+			HashSet<V> entry = get(key);
+			if (entry == null)
+				return null;
+			return entry.iterator().next();
+		}
+	}
+
 	public class SrcLocComparator implements Comparator<ASTNode> {
 		public int compare(ASTNode n1, ASTNode n2) {
 			int startPos1 = n1.getStart();
@@ -33,49 +59,9 @@ aspect Util {
 	}
 }
 
-
-aspect SrcLoc {
-	inh int ASTNode.getParentStartLoc();
-	eq ASTNode.getChild().getParentStartLoc() {
-		return getStartLoc();
-	}
-
-	syn int ASTNode.getStartLoc() {
-		if (getStart() != 0)
-			return getStart();
-		return getParentStartLoc();
-	}
-
-
-	inh int ASTNode.getParentEndLoc();
-	eq ASTNode.getChild().getParentEndLoc() {
-		return getEndLoc();
-	}
-
-	syn int ASTNode.getEndLoc() {
-		if (getEnd() != 0)
-			return getEnd();
-		return getParentEndLoc();
-	}
-
-	public int ASTNode.getStartLine() {
-		return Symbol.getLine(getStartLoc());
-	}
-
-	public int ASTNode.getEndLine() {
-		return Symbol.getLine(getEndLoc());
-	}
-
-	public int ASTNode.getStartCol() {
-		return Symbol.getColumn(getStartLoc());
-	}
-
-	public int ASTNode.getEndCol() {
-		return Symbol.getColumn(getEndLoc());
-	}
-
-	public String ASTNode.prettySrcLoc() {
-		return getStartLine() + ":" + getStartCol() + "-" +
-			getEndLine() + ":" + getEndCol();
+aspect CompilerError {
+	public interface CompilerError {
+		String report();
+		int getStartLoc();
 	}
 }

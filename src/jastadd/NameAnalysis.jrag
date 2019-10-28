@@ -1,5 +1,8 @@
 import java.util.HashMap;
 import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Collection;
 
 aspect NameAnalysis {
 	inh IdDecl IdUse.lookup(String s);
@@ -68,7 +71,7 @@ aspect NameAnalysis {
 	eq AssertStmt.getExpr().lookup(String s) = lookup(s);
 
 	syn IdDecl Program.lookup(String s) {
-		IdDecl d = globalDeclMap().get(s);
+		IdDecl d = globalDeclMap().getOne(s);
 		if (d != null)
 			return d;
 		return unknownDecl();
@@ -93,19 +96,19 @@ aspect NameAnalysisPrivate {
 		}
 	}
 
-	syn HashMap<String, IndexedDecl> BlockStmt.localDeclMap() {
-		HashMap<String, IndexedDecl> declMap = new HashMap<>();
+	syn MultiHashMap<String, IndexedDecl> BlockStmt.localDeclMap() {
+		MultiHashMap<String, IndexedDecl> declMap = new MultiHashMap<>();
 		for (int i = 0; i < getNumStmt(); i++) {
 			Stmt s = getStmt(i);
 			IdDecl decl = s.declaredVar();
 			if (decl != null)
-				declMap.put(decl.getID(), new IndexedDecl(i, decl));
+				declMap.append(decl.getID(), new IndexedDecl(i, decl));
 		}
 		return declMap;
 	}
 
 	syn IndexedDecl BlockStmt.localLookup(String s) {
-		IndexedDecl d = localDeclMap().get(s);
+		IndexedDecl d = localDeclMap().getOne(s);
 		if (d != null)
 			return d;
 		return null;
@@ -117,54 +120,63 @@ aspect NameAnalysisPrivate {
 		return null;
 	}
 
-	syn IdDecl FunDecl.localLookup(String s) {
+	syn MultiHashMap<String, IdDecl> Decl.localDeclMap() = new MultiHashMap<>();
+
+	eq FunDecl.localDeclMap() {
+		MultiHashMap<String, IdDecl> declMap = new MultiHashMap<>();
 		for (VarDecl d : getFormals())
-			if (d.getIdDecl().getID().equals(s))
-				return d.getIdDecl();
-		return null;
+			declMap.append(d.getIdDecl().getID(), d.getIdDecl());
+		return declMap;
 	}
 
+	syn IdDecl FunDecl.localLookup(String s) {
+		IdDecl d = localDeclMap().getOne(s);
+		return d;
+	}
 
 	syn IdDecl StructElt.getMemberDecl() = null;
 	eq VarDeclElt.getMemberDecl() = getVarDecl().getIdDecl();
 	eq FunDeclElt.getMemberDecl() = getFunDecl().getIdDecl();
 
-	syn HashMap<String, IdDecl> TypeDecl.localDeclMap() {
+	/**
+	   For type, class and interface declarations: the type paramaters,
+	   constructor parameters, method names and variable declarations
+	   share a single namespace.
+	 **/
+	syn MultiHashMap<String, IdDecl> TypeDecl.localDeclMap() {
 		// Declared formal type parameters
-		HashMap<String, IdDecl> declMap = new HashMap<>();
+		MultiHashMap<String, IdDecl> declMap = new MultiHashMap<>();
 		for (TypeVarDecl d : getTypeFormals()) {
 			IdDecl decl = d.getIdDecl();
-			declMap.put(decl.getID(), decl);
+			declMap.append(decl.getID(), decl);
 		}
 		// Declared variables and methods
 		for (StructElt se : getStructElts()) {
 			IdDecl decl = se.getMemberDecl();
 			if (decl != null)
-				declMap.put(decl.getID(), decl);
+				declMap.append(decl.getID(), decl);
 		}
 		return declMap;
 	}
 	eq ClassDecl.localDeclMap() {
-		HashMap<String, IdDecl> declMap = super.localDeclMap();
+		MultiHashMap<String, IdDecl> declMap = super.localDeclMap();
 		for (VarDecl d : getFunFormals()) {
 			IdDecl decl = d.getIdDecl();
-			declMap.put(decl.getID(), decl);
+			declMap.append(decl.getID(), decl);
 		}
 		return declMap;
 	}
 	eq QualifierDecl.localDeclMap() {
-		HashMap<String, IdDecl> declMap = super.localDeclMap();
+		MultiHashMap<String, IdDecl> declMap = super.localDeclMap();
 		for (VarDecl d : getFunFormals()) {
 			IdDecl decl = d.getIdDecl();
-			declMap.put(decl.getID(), decl);
+			declMap.append(decl.getID(), decl);
 		}
 		return declMap;
 	}
 
 	syn IdDecl TypeDecl.localLookup(String s) {
-		IdDecl d = localDeclMap().get(s);
-		if (d != null)
-			return d;
+		IdDecl d = localDeclMap().getOne(s);
 		return null;
 	}
 
@@ -172,14 +184,94 @@ aspect NameAnalysisPrivate {
 	// all subclases of Decl have an IdDecl child node, so we get
 	// the definitions for getIdDecl for free
 
-	syn HashMap<String, IdDecl> Program.globalDeclMap() {
-		HashMap<String, IdDecl> declMap = new HashMap<>();
+	/**
+	   Type declarations, qualifier declarations, function names and global
+	   variable declarations share a single namespace.
+	 **/
+	syn MultiHashMap<String, IdDecl> Program.globalDeclMap() {
+		MultiHashMap<String, IdDecl> declMap = new MultiHashMap<>();
+		for (Decl d : builtinDecls()) {
+			declMap.append(d.getIdDecl().getID(), d.getIdDecl());
+		}
 		for (Decl d : getDecls()) {
-			declMap.put(d.getIdDecl().getID(), d.getIdDecl());
+			declMap.append(d.getIdDecl().getID(), d.getIdDecl());
 		}
 		return declMap;
 	}
+}
 
+aspect NameAnalysisCheck {
+	class DuplicateSymbolDeclaration implements CompilerError {
+		private ArrayList<IdDecl> declarations;
+		DuplicateSymbolDeclaration(Collection<IdDecl> declarations) {
+			this.declarations = new ArrayList<>(declarations);
+			Collections.sort(this.declarations,
+							 new Comparator<IdDecl>() {
+								 public int compare(IdDecl left, IdDecl right) {
+									 return Integer.compare(left.getStartLoc(), right.getStartLoc());
+								 }
+							 });
+		}
+		public int getStartLoc() {
+			return declarations.iterator().next().getStartLoc();
+		}
+		public String report() {
+			String name = declarations.iterator().next().getID();
+			String err = "Multiple declarations for symbol '" + name + "' at locations: ";
+			for (int i = 0; i < declarations.size(); i++) {
+				IdDecl d = declarations.get(i);
+				if (i != 0)
+					err += ", ";
+				err += d.prettySrcLoc();
+			}
+			err += ".";
+			return err;
+		}
+	}
+
+	coll ArrayList<CompilerError> Program.nameErrors() [new ArrayList<CompilerError>()] with addAll;
+	Decl contributes duplicateNameErrors() to Program.nameErrors();
+	Program contributes duplicateNameErrors() to Program.nameErrors();
+	BlockStmt contributes duplicateNameErrors() to Program.nameErrors();
+
+	syn ArrayList<CompilerError> Decl.duplicateNameErrors() {
+		ArrayList<CompilerError> errors = new ArrayList<>();
+		for (Map.Entry<String, HashSet<IdDecl>> entry : localDeclMap().entrySet()) {
+			if (entry.getValue().size() > 1) {
+				errors.add(new DuplicateSymbolDeclaration(entry.getValue()));
+			}
+		}
+		return errors;
+	}
+
+	syn ArrayList<CompilerError> Program.duplicateNameErrors() {
+		ArrayList<CompilerError> errors = new ArrayList<>();
+		for (Map.Entry<String, HashSet<IdDecl>> entry : globalDeclMap().entrySet()) {
+			if (entry.getValue().size() > 1) {
+				errors.add(new DuplicateSymbolDeclaration(entry.getValue()));
+			}
+		}
+		return errors;
+	}
+
+	syn ArrayList<CompilerError> BlockStmt.duplicateNameErrors() {
+		ArrayList<CompilerError> errors = new ArrayList<>();
+		for (Map.Entry<String, HashSet<IndexedDecl>> entry : localDeclMap().entrySet()) {
+			if (entry.getValue().size() > 1) {
+				ArrayList<IdDecl> duplicateNames = new ArrayList<>();
+				for (IndexedDecl d : entry.getValue())
+					duplicateNames.add(d.decl);
+				errors.add(new DuplicateSymbolDeclaration(duplicateNames));
+			}
+		}
+		return errors;
+	}
+}
+
+aspect NameAnalysisTest {
+	/**
+	   A map from identifier uses to declarations; used only for testing
+	 **/
 	coll AccHashMap<IdUse, IdDecl> Program.globalSymbolTable() [new AccHashMap<IdUse, IdDecl>()] with add;
 	IdUse contributes new AbstractMap.SimpleEntry<IdUse, IdDecl>(this, lookup(getID())) to Program.globalSymbolTable();
 }

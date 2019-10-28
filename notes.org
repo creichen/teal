@@ -3,5 +3,14 @@
 ** TODO implement lvalue check
 - change package paths to ~pack1::pack2::id~ from ~pack1.pack2::id~ to avoid ambiguity
   pack1.(pack2::id) or (pack1.pack2)::id
-- misterious bug with NeoBeaver, switch to Beaver
 - always check for undefined non-terminals; otherwise you'll get a mismatch between the ID expected by Beaver and the ID produced by Flex
+
+* Name analysis
+** Scopes
+Function and method parameters live in a scope enclosing the body of the function. This means that they can be shadowed by variable declarations
+inside the function.
+
+** Name overloading
+Name overloading is generally disabled. This simplifies name analysis.
+Inside type declarations: formal type paramaters, formal constructor parameters, methods and member declarations share the same namespace.
+Inside a translation unit (i.e. Program): function declarations, type declarations and variable declarations share the same namespace.

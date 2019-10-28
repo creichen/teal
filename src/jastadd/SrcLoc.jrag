@@ -1,0 +1,54 @@
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Comparator;
+import beaver.Symbol;
+
+aspect SrcLoc {
+	inh int ASTNode.getParentStartLoc();
+	eq ASTNode.getChild().getParentStartLoc() {
+		return getStartLoc();
+	}
+
+	syn int ASTNode.getStartLoc() {
+		if (getStart() != 0)
+			return getStart();
+		return getParentStartLoc();
+	}
+
+
+	inh int ASTNode.getParentEndLoc();
+	eq ASTNode.getChild().getParentEndLoc() {
+		return getEndLoc();
+	}
+
+	syn int ASTNode.getEndLoc() {
+		if (getEnd() != 0)
+			return getEnd();
+		return getParentEndLoc();
+	}
+
+	syn int ASTNode.getStartLine() {
+		return Symbol.getLine(getStartLoc());
+	}
+
+	syn int ASTNode.getEndLine() {
+		return Symbol.getLine(getEndLoc());
+	}
+
+	syn int ASTNode.getStartCol() {
+		return Symbol.getColumn(getStartLoc());
+	}
+
+	syn int ASTNode.getEndCol() {
+		return Symbol.getColumn(getEndLoc());
+	}
+
+	syn String ASTNode.prettySrcLoc() {
+		if (start == -1)
+			return "<builtin>";
+		return getStartLine() + ":" + getStartCol() + "-" +
+			getEndLine() + ":" + getEndCol();
+	}
+}

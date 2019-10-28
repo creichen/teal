@@ -1,0 +1,5 @@
+var dup_name := 0;
+fun dup_name() = return 0;
+fun dup_name(with_param) = return 1;
+
+var non_dup_name := 0;
