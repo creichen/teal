@@ -6,6 +6,7 @@ import java.util.Collection;
 
 aspect NameAnalysis {
 	inh IdDecl IdUse.lookup(String s);
+	syn IdDecl IdUse.lookup() = lookup(getID());
 
 	inh IdDecl Stmt.lookup(String s);
 
@@ -201,6 +202,7 @@ aspect NameAnalysisPrivate {
 }
 
 aspect NameAnalysisCheck {
+	// Check for duplicate symbols
 	class DuplicateSymbolDeclaration implements CompilerError {
 		private ArrayList<IdDecl> declarations;
 		DuplicateSymbolDeclaration(Collection<IdDecl> declarations) {
@@ -266,6 +268,25 @@ aspect NameAnalysisCheck {
 		}
 		return errors;
 	}
+
+	// Check for undeclared symbols
+	class UndeclaredSymbol implements CompilerError {
+		String name;
+		SrcLoc loc;
+		UndeclaredSymbol(String name, SrcLoc loc) {
+			this.name = name;
+			this.loc = loc;
+		}
+		public String report() {
+			return "Undeclared symbol '" + name + "' at " + loc.pretty() + ".";
+		}
+		public int getStartLoc() {
+			return loc.getStartLoc();
+		}
+	}
+
+	IdUse contributes Collections.singleton(new UndeclaredSymbol(getID(), getSrcLoc()))
+		when lookup().isUnknown() to Program.nameErrors();
 }
 
 aspect NameAnalysisTest {

@@ -1,3 +1,3 @@
 var int := 0;
-type array[T] = array[T];
+type array[T] = {}
 type string = string;

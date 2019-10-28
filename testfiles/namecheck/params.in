@@ -1,4 +1,4 @@
-fun f(dup_a, dup_a : t, nondup) = return 0;
+fun f(dup_a, dup_a : int, nondup) = return 0;
 
 class C1 [DupT, DupT, NonDupT, DupFunc] (DupFunc, nonDupFunc, dupMember, dupMethod) = {
       var dupMember := 0;

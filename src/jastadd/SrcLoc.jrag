@@ -6,6 +6,28 @@ import java.util.Comparator;
 import beaver.Symbol;
 
 aspect SrcLoc {
+	public class SrcLoc {
+		int startLine, startCol, endLine, endCol;
+		int startLoc;
+		SrcLoc(int startLoc, int endLoc) {
+			this.startLoc = startLoc;
+			startLine = Symbol.getLine(startLoc);
+			startCol = Symbol.getColumn(startLoc);
+			endLine = Symbol.getLine(endLoc);
+			endLine = Symbol.getColumn(endLoc);
+		}
+
+		String pretty() {
+			return startLine + ":" + startCol + "-" +
+				endLine + ":" + endCol;
+		}
+
+		int getStartLoc() {
+			return startLoc;
+		}
+	}
+
+
 	inh int ASTNode.getParentStartLoc();
 	eq ASTNode.getChild().getParentStartLoc() {
 		return getStartLoc();
@@ -45,9 +67,11 @@ aspect SrcLoc {
 		return Symbol.getColumn(getEndLoc());
 	}
 
+	syn SrcLoc ASTNode.getSrcLoc() {
+		return new SrcLoc(getStartLoc(), getEndLoc());
+	}
+
 	syn String ASTNode.prettySrcLoc() {
-		if (start == -1)
-			return "<builtin>";
 		return getStartLine() + ":" + getStartCol() + "-" +
 			getEndLine() + ":" + getEndCol();
 	}
