@@ -1,0 +1,21 @@
+var shadowed := 1;
+
+fun f1(t : int, s : string) = {
+    var shadowed := 0;
+    var t1 := t + 1 + shadowed; // the 'shadowed' variable refers to the line above
+    var s1 := s;
+    return t1;
+}
+
+fun f2() = f1(0, "abc") + shadowed; // the 'shadowed' value refers to line 1
+
+fun f3(t : int, s : string) = {
+    var t := shadowed; // refers to line 1
+    var shadowed := "str";
+    return shadowed; // refers to line above
+}
+
+fun f4(sp : int) = {
+    var sp := 0;
+    return sp; // refers to the declaration above
+}

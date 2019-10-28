@@ -1,14 +1,15 @@
 import java.util.HashMap;
+import java.util.AbstractMap;
 
 aspect NameAnalysis {
 	inh IdDecl IdUse.lookup(String s);
 
 	inh IdDecl Stmt.lookup(String s);
 
-	eq BlockStmt.getStmt().lookup(String s) {
-		IdDecl d = localLookup(s);
-		if (d != null)
-			return d;
+	eq BlockStmt.getStmt(int i).lookup(String s) {
+		IndexedDecl d = localLookup(s);
+		if (d != null && d.index < i)
+			return d.decl;
 		return lookup(s);
 	}
 
@@ -60,7 +61,16 @@ aspect NameAnalysis {
 		return lookup(s);
 	}
 
+	inh IdDecl Expr.lookup(String s);
+	eq ExprStmt.getExpr().lookup(String s) = lookup(s);
+	eq AssignStmt.getLValue().lookup(String s) = lookup(s);
+	eq ReturnStmt.getExpr().lookup(String s) = lookup(s);
+	eq AssertStmt.getExpr().lookup(String s) = lookup(s);
+
 	syn IdDecl Program.lookup(String s) {
+		IdDecl d = globalDeclMap().get(s);
+		if (d != null)
+			return d;
 		return unknownDecl();
 	}
 }
@@ -74,18 +84,28 @@ aspect NameAnalysisPrivate {
 
 	eq VarDeclStmt.declaredVar() = getVarDecl().getIdDecl();
 
-	syn HashMap<String, IdDecl> BlockStmt.localDeclMap() {
-		HashMap<String, IdDecl> declMap = new HashMap<>();
-		for (Stmt s : getStmts()) {
+	class IndexedDecl {
+		int index;
+		IdDecl decl;
+		IndexedDecl(int index, IdDecl decl) {
+			this.index = index;
+			this.decl = decl;
+		}
+	}
+
+	syn HashMap<String, IndexedDecl> BlockStmt.localDeclMap() {
+		HashMap<String, IndexedDecl> declMap = new HashMap<>();
+		for (int i = 0; i < getNumStmt(); i++) {
+			Stmt s = getStmt(i);
 			IdDecl decl = s.declaredVar();
 			if (decl != null)
-				declMap.put(decl.getID(), decl);
+				declMap.put(decl.getID(), new IndexedDecl(i, decl));
 		}
 		return declMap;
 	}
 
-	syn IdDecl BlockStmt.localLookup(String s) {
-		IdDecl d = localDeclMap().get(s);
+	syn IndexedDecl BlockStmt.localLookup(String s) {
+		IndexedDecl d = localDeclMap().get(s);
 		if (d != null)
 			return d;
 		return null;
@@ -147,4 +167,19 @@ aspect NameAnalysisPrivate {
 			return d;
 		return null;
 	}
+
+	syn IdDecl Decl.getIdDecl() = null;
+	// all subclases of Decl have an IdDecl child node, so we get
+	// the definitions for getIdDecl for free
+
+	syn HashMap<String, IdDecl> Program.globalDeclMap() {
+		HashMap<String, IdDecl> declMap = new HashMap<>();
+		for (Decl d : getDecls()) {
+			declMap.put(d.getIdDecl().getID(), d.getIdDecl());
+		}
+		return declMap;
+	}
+
+	coll AccHashMap<IdUse, IdDecl> Program.globalSymbolTable() [new AccHashMap<IdUse, IdDecl>()] with add;
+	IdUse contributes new AbstractMap.SimpleEntry<IdUse, IdDecl>(this, lookup(getID())) to Program.globalSymbolTable();
 }

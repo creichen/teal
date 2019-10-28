@@ -89,7 +89,7 @@ IfStmt : Stmt ::= Cond:Expr Then:Stmt Else:Stmt ;
 ForStmt : Stmt ::= Iterator:VarDecl Rang:Expr Body:Stmt ;
 WhileStmt : Stmt ::= Cond:Expr Body:Stmt ;
 ReturnStmt : Stmt ::= Expr ;
-AssertStmt : Expr ::= Expr <Message:String> ;
+AssertStmt : Stmt ::= Expr <Message:String> ;
 SkipStmt : Stmt;
 
 // Identifiers
