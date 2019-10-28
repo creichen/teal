@@ -6,24 +6,34 @@ import java.util.Comparator;
 import beaver.Symbol;
 
 aspect SrcLoc {
-	public class SrcLoc {
+	public class SrcLoc implements Comparable<SrcLoc> {
 		int startLine, startCol, endLine, endCol;
 		int startLoc;
+		int endLoc;
 		SrcLoc(int startLoc, int endLoc) {
 			this.startLoc = startLoc;
+			this.endLoc = endLoc;
 			startLine = Symbol.getLine(startLoc);
 			startCol = Symbol.getColumn(startLoc);
 			endLine = Symbol.getLine(endLoc);
 			endLine = Symbol.getColumn(endLoc);
 		}
 
-		String pretty() {
+		public String pretty() {
 			return startLine + ":" + startCol + "-" +
 				endLine + ":" + endCol;
 		}
 
-		int getStartLoc() {
+		public int getStartLoc() {
 			return startLoc;
+		}
+
+		@Override
+		public int compareTo(SrcLoc other) {
+			if (this.startLoc != other.startLoc)
+				return Integer.compare(startLoc, other.startLoc);
+			else
+				return Integer.compare(endLoc, other.endLoc);
 		}
 	}
 

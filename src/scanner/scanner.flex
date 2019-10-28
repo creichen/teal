@@ -63,6 +63,7 @@ StringLiteral = \"([^\"]|\\\")*\"
 "in"          { return sym(Terminals.IN); }
 "and"         { return sym(Terminals.AND); }
 "or"          { return sym(Terminals.OR); }
+"null"        { return sym(Terminals.NULL); }
 "::"          { return sym(Terminals.DOUBLE_COLON); }
 "+"           { return sym(Terminals.PLUS); }
 "-"           { return sym(Terminals.MINUS); }

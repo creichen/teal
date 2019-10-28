@@ -65,6 +65,7 @@ AndExpr : BinExpr;
 // Other expressions
 CallExpr : Expr ::= Func:Expr Actual:Expr*;
 Self : Expr ;
+Null : Expr ;
 ListExpr : Expr ::= Expr* ;
 IndexExpr : Expr ::= Base:Expr Index:Expr ;
 NotExpr : Expr ::= Expr ;

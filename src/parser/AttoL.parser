@@ -240,4 +240,5 @@ Expr term = LPAREN expr RPAREN {: return expr; :}
           | term.b LBRACK expr.i RBRACK {: return new IndexExpr(b, i); :}
           | LPAREN expr COLON type RPAREN  {: return new TypedExpr(expr, type); :}
           | SELF {: return new Self(); :}
+	  | NULL {: return new Null(); :}
           ;

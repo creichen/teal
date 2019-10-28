@@ -210,7 +210,7 @@ aspect NameAnalysisCheck {
 			Collections.sort(this.declarations,
 							 new Comparator<IdDecl>() {
 								 public int compare(IdDecl left, IdDecl right) {
-									 return Integer.compare(left.getStartLoc(), right.getStartLoc());
+									 return left.getSrcLoc().compareTo(right.getSrcLoc());
 								 }
 							 });
 		}
