@@ -1,0 +1,25 @@
+aspect SemanticCheck {
+	class LValueError implements CompilerError {
+		SrcLoc loc;
+		LValueError(SrcLoc loc) {
+			this.loc = loc;
+		}
+		public String report() {
+			return "Illegal target expression for assignment at " + loc.pretty() + ".";
+		}
+		public int getStartLoc() {
+			return loc.getStartLoc();
+		}
+	}
+
+	// nothing here
+	coll ArrayList<CompilerError> Program.semanticErrors() [new ArrayList<CompilerError>()];
+
+	syn boolean Expr.isLValue() = false;
+	eq Access.isLValue() = true;
+	eq MemberAccess.isLValue() = true;
+	eq IndexExpr.isLValue() = true;
+	eq TypedExpr.isLValue() = getExpr().isLValue();
+
+	AssignStmt contributes new LValueError(getLValue().getSrcLoc()) when !getLValue().isLValue() to Program.semanticErrors();
+}
