@@ -1,0 +1,92 @@
+import lang.ir.*;
+
+aspect IRGen {
+	coll ArrayList<VarDecl> FunDecl.localVars() root FunDecl;
+	VarDecl contributes this to FunDecl.localVars();
+	// local declarations
+	coll ArrayList<IdDecl> FunDecl.localDecls() root FunDecl;
+	IdDecl contributes this to FunDecl.localDecls();
+	syn HashMap<IdDecl, Integer> FunDecl.localDeclUIDs() {
+		HashMap<IdDecl, Integer> uids = new HashMap<>();
+		for (int i = 0; i < localDecls().size(); ++i)
+			uids.put(localDecls().get(i), i);
+		return uids;
+	}
+	// local expressions
+	coll ArrayList<Expr> FunDecl.localExprs() root FunDecl;
+	Expr contributes this to FunDecl.localExprs();
+	syn HashMap<Expr, Integer> FunDecl.localExprUIDs() {
+		HashMap<Expr, Integer> uids = new HashMap<>();
+		for (int i = 0; i < localExprs().size(); ++i)
+			uids.put(localExprs().get(i), i);
+		return uids;
+	}
+
+	inh int Stmt.getUID(Expr e);
+	inh int Expr.getUID(Expr e);
+	syn int Expr.getUID() = getUID(this);
+	eq FunDecl.getBody().getUID(Expr e) {
+		Integer uid = localExprUIDs().get(e);
+		assert uid != null;
+		return uid;
+	}
+
+	// Collect global variables; we could implement this
+	// as a collection attribute, but that might be expensive.
+	// We know that global variables are VarDecls at top-level,
+	// so we don't have to traverse the entire AST to collect them.
+	syn VarDecl Decl.getVarDecl() = null;
+	eq VarDecl.getVarDecl() = this;
+	syn ArrayList<VarDecl> Program.globalVars() {
+		ArrayList<VarDecl> varDecls = new ArrayList<>();
+		for (Decl d : getDecls()) {
+			VarDecl v = d.getVarDecl();
+			if (v != null)
+				varDecls.add(v);
+		}
+		return varDecls;
+	}
+
+	syn IRModule Program.genIR() {
+		IRModule m = new IRModule();
+		// single module support for now
+		m.setIRModuleName(new IRModuleName(new lang.ir.List(new IRName("main"))));
+		return m;
+	}
+
+	syn IRFunction FunDecl.genIR() {
+		IRFunction func = new IRFunction();
+		// name
+		func.setIRName(getIdDecl().genIR());
+		// formal param types
+		lang.ir.List<IRTypeRef> irTypes = new lang.ir.List<>();
+		for (VarDecl d : getFormals()) {
+			irTypes.add(d.getType().genIR());
+		}
+		func.setParamTypeList(irTypes);
+		// return type, if any
+		if (hasType())
+			func.setIRTypeRef(getType().genIR());
+		else
+			func.setIRTypeRef(new IRTypeRef(IRModule.AnyType));
+		// variable declarations (including formal params)
+		for (VarDecl d : localVars()) {
+			IRVar local = d.genIR();
+			// patch the name here, since we might have multiple variables with
+			// the same name at different scopes, and we want them to have a unique
+			// name inside the IR
+			Integer index = localDeclUIDs().get(d.getIdDecl());
+			assert index != null;
+			local.getIRName().setString(local.getIRName().getString() + "." + index);
+			func.addLocal(local);
+		}
+		// function body
+		return func;
+	}
+
+	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), getType().genIR());
+	syn IRTypeRef Type.genIR() = new IRTypeRef(IRModule.AnyType);
+	syn IRName IdDecl.genIR() = new IRName(getID());
+
+
+}

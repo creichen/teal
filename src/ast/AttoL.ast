@@ -14,7 +14,7 @@ VarDecl : Decl ::= IdDecl [Type] [Initializer:Expr];
 // Functions
 FunDecl : Decl ::= IdDecl [Type] Formal:VarDecl* [Body:Stmt];
 
-TypeVarDecl ::= IdDecl ;
+TypeVarDecl : Decl ::= IdDecl ;
 
 // Type declarations
 TypeDecl : Decl ::= IdDecl TypeFormal:TypeVarDecl* SuperType:Type* StructElt*;

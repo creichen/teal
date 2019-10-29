@@ -77,6 +77,14 @@ aspect NameAnalysis {
 			return d;
 		return unknownDecl();
 	}
+
+	inh Decl IdDecl.getDecl();
+	eq FunDecl.getIdDecl().getDecl() = this;
+	eq VarDecl.getIdDecl().getDecl() = this;
+	eq QualifierDecl.getIdDecl().getDecl() = this;
+	eq TypeDecl.getIdDecl().getDecl() = this;
+	eq TypeVarDecl.getIdDecl().getDecl() = this;
+	eq Program.unknownDecl().getDecl() = null;
 }
 
 aspect NameAnalysisPrivate {

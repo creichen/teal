@@ -1,0 +1,57 @@
+import java.io.PrintStream;
+import java.util.Iterator;
+
+aspect IRPrint {
+	protected static <T extends ASTNode>
+	void ASTNode.printCollection(Iterable<T> collection, String pre, String post, String delim, PrintStream out) {
+		Iterator<T> itr = collection.iterator();
+		out.print(pre);
+		if (itr.hasNext())
+			itr.next().print(out);
+		if (!itr.hasNext()) {
+			out.print(post);
+			return;
+		}
+		while(itr.hasNext()) {
+			out.print(delim);
+			itr.next().print(out);
+		}
+		out.print(post);
+	}
+
+	public void ASTNode.print(PrintStream out) {
+		out.print("*** not implemented ***");
+	}
+
+	public void IRModule.print(PrintStream out) {
+		out.print("module ");
+		getIRModuleName().print(out);
+
+		out.println();
+		out.println();
+
+		for (IRVar v : getIRVars())
+			v.print(out);
+
+		out.println();
+		for (IRType t : getIRTypes())
+			t.print(out);
+
+		for (IRFunction f : getIRFunctions())
+			f.print(out);
+
+		out.println();
+	}
+
+	public void IRFunction.print(PrintStream out) {
+		out.print("fun ");
+		getIRTypeRef().print(out);
+		out.print("@" + getIRName().getString());
+
+		printCollection(getParamTypes(), "(", ")", ", ", out);
+
+
+		out.print("(");
+		out.print(")");
+	}
+}

@@ -1,0 +1,119 @@
+import lang.ir.*;
+
+aspect IRGenExpr {
+	public class TranslationResult {
+		private ArrayList<IRVar> variables;
+		private ArrayList<IRInsn> instructions;
+
+		public TranslationResult() {
+			variables = new ArrayList<>();
+			instructions = new ArrayList<>();
+		}
+
+		public TranslationResult add(IRVar var) {
+			variables.add(var);
+			return this;
+		}
+
+		public TranslationResult add(IRInsn insn) {
+			instructions.add(insn);
+			return this;
+		}
+
+		public void append(TranslationResult other) {
+			variables.addAll(other.variables);
+			instructions.addAll(other.instructions);
+		}
+	}
+
+	public enum VariableScope {
+		LOCAL,
+		GLOBAL,
+		MEMBER
+	}
+
+	inh VariableScope VarDecl.getScope();
+	eq Program.getDecl().getScope() = VariableScope.GLOBAL;
+	eq VarDeclStmt.getVarDecl().getScope() = VariableScope.LOCAL;
+	eq VarDeclElt.getVarDecl().getScope() = VariableScope.MEMBER;
+
+
+	syn IRVar Expr.getIRVar() {
+		int uid = getUID();
+		return new IRVar(new IRName("$" + uid), new IRTypeRef(IRModule.AnyType));
+	}
+
+	syn IRVarRef Expr.getIRVarRef() {
+		return new IRVarRef(getIRVar());
+	}
+
+	syn TranslationResult Expr.genIR() = null;
+
+	// IntConstant
+	eq IntConstant.genIR() {
+		TranslationResult tr = new TranslationResult();
+		tr.add(getIRVar());
+		tr.add(new IRConstantInsn().setDst(getIRVarRef()).setSrc(new IRInteger(getValue())));
+		return tr;
+	}
+
+	// StringConstant
+	eq StringConstant.genIR() {
+		TranslationResult tr = new TranslationResult();
+		tr.add(getIRVar());
+		tr.add(new IRConstantInsn().setDst(getIRVarRef()).setSrc(new IRString(getValue())));
+		return tr;
+	}
+
+	// Access
+	syn IRInsn Decl.genAccess(IRVarRef dstVar) = null;
+	eq VarDecl.genAccess(IRVarRef dstVar) {
+		switch (getScope()) {
+		default:
+		case MEMBER:
+			throw new NotYetImplementedError("Missing implementation for member accesses");
+		case LOCAL:
+		case GLOBAL:
+			return new IRCopyInsn(dstVar, new IRVarRef(genIR()));
+		}
+	}
+
+	eq Access.genIR() {
+		// this can be a local variable load, global variable load or member access
+		IdDecl idDecl = getIdUse().lookup();
+		Decl d = idDecl.getDecl();
+		return new TranslationResult().add(d.genAccess(getIRVarRef())).add(getIRVar());
+	}
+
+	syn IRFunRef Expr.getCalledFunction() = null;
+	eq Access.getCalledFunction() {
+		IdDecl dd = getIdUse().lookup();
+		// We have to bite the bullet and do the cast here. This
+		// is translator code and the type hierarchy in the AST does not neatly
+		// overlap to the hierarchy in the IR. This is to say that the diagram
+		// below does not commute (where the down-arrow means translation)
+		//   ASTType1   <:    ASTType2
+		//     |                 |
+		//     v                 v
+		//   IRType1    <:    IRType2
+		return new IRFunRef(((FunDecl)dd.getDecl()).genIR());
+	}
+
+	eq CallExpr.genIR() {
+		TranslationResult tr = new TranslationResult();
+		Expr fun = getFunc();
+		IRFunRef funCallTarget = getCalledFunction();
+		if (funCallTarget != null) {
+			IRCallInsn call = new IRCallInsn().setDst(getIRVarRef());
+			for (Expr e : getActuals()) {
+				tr.append(e.genIR());
+				call.addArg(e.getIRVarRef());
+			}
+			tr.add(getIRVar());
+			tr.add(call);
+		} else {
+			throw new NotYetImplementedError("Method calls are not implemented");
+		}
+		return tr;
+	}
+}

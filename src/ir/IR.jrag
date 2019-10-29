@@ -1,0 +1,5 @@
+aspect IR {
+	public static IRType IRModule.IntegerType = new IRType();
+	public static IRType IRModule.StringType = new IRType();
+	public static IRType IRModule.AnyType = new IRType();
+}

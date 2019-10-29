@@ -3,18 +3,20 @@ IRModule ::= IRModuleName IRVar* IRType* IRClass* IRQualifier* IRTypeAlias* IRFu
 IRModuleName ::= IRName*;
 IRVar ::= IRName IRTypeRef;
 
-IRFunction ::= IRName IRTypeRef ParamType:IRTypeRef* IRCode;
-IRCode ::= Local:IRVar* IRCodeBB*;
+IRFunction ::= IRName IRTypeRef ParamType:IRTypeRef* Local:IRVar* IRCodeBB*;
 IRCodeBB ::= IRInsn* IRCodeExit;
-
 
 // Instructions
 abstract IRInsn;
 IRConstantInsn : IRInsn ::= Dst:IRVarRef Src:IRConstant;
 
+// Instruction to access the i-th argument
+IRArgInsn : IRInsn ::= Dst:IRVarRef <Index:Integer>;
+
+// Copy instruction
 IRCopyInsn : IRInsn ::= Dst:IRVarRef Src:IRVarRef;
 
-abstract IRAbstractLoadInsn : IRInsn ::= Dest:IRVarRef Field:IRFieldRef;
+abstract IRAbstractLoadInsn : IRInsn ::= Dst:IRVarRef Field:IRFieldRef;
 IRLoadStaticInsn : IRAbstractLoadInsn ::= IRModuleName;
 IRLoadInsn : IRInsn ::= Base:IRVarRef;
 
@@ -22,9 +24,9 @@ abstract IRAbstractStoreInsn : IRInsn ::= Field:IRFieldRef Src:IRVarRef;
 IRStoreStaticInsn : IRAbstractStoreInsn ::= IRModuleName;
 IRStoreInsn : IRInsn ::= Base:IRVarRef;
 
-abstract IRAbstractCallInsn ::= Dst:IRVarRef Arg:IRVarRef*;
-IRCallInsn : IRInsn ::= IRFunRef;
-IRDispatchInsn : IRInsn ::= Base:IRVarRef IRMethodRef;
+abstract IRAbstractCallInsn : IRInsn ::= Dst:IRVarRef Arg:IRVarRef*;
+IRCallInsn : IRAbstractCallInsn ::= IRFunRef;
+IRDispatchInsn : IRAbstractCallInsn ::= Base:IRVarRef IRMethodRef;
 
 IRNewInsn : IRInsn ::= Dst:IRVarRef IRTypeRef Arg:IRVarRef*;
 IRNewArrayInsn : IRInsn ::= Dst:IRVarRef IRTypeRef Size:IRVarRef;
@@ -38,8 +40,8 @@ IRJump : IRCodeExit ::=  IRBlockRef;
 IRBranch : IRCodeExit ::= Cond:IRVarRef TrueTarget:IRBlockRef FalseTarget:IRBlockRef;
 
 abstract IRConstant;
-IRString : IRConstant ::= <String>;
-IRInteger : IRConstant ::= <Integer>;
+IRString : IRConstant ::= <Value:String>;
+IRInteger : IRConstant ::= <Value:Integer>;
 
 IRVarRef ::= <IRLocalVar>;
 IRFunRef ::= <IRFunction>;
