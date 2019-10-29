@@ -62,13 +62,20 @@ jar {
 }
 
 // Before compiling, we should generate some Java code:
-compileJava.dependsOn 'generateJava', 'generateScanner', 'generateParser'
+compileJava.dependsOn 'generateJavaAST', 'generateScanner', 'generateParser', 'generateJavaIR'
 
-task generateJava(type: org.jastadd.JastAddTask) {
+task generateJavaAST(type: org.jastadd.JastAddTask) {
   description 'Generates the compiler AST classes from JastAdd specifications.'
   outputDir = file('src/gen')
   sources = fileTree(dir: 'src/ast', includes: [ '**/*.jrag', '**/*.jadd', '**/*.ast' ])
   options = [ '--package=lang.ast', '--beaver', '--cache=all' ]
+}
+
+task generateJavaIR(type: org.jastadd.JastAddTask) {
+  description 'Generates the compiler AST classes from JastAdd specifications.'
+  outputDir = file('src/gen')
+  sources = fileTree(dir: 'src/ir', includes: [ '**/*.jrag', '**/*.jadd', '**/*.ast' ])
+  options = [ '--package=lang.ir', '--beaver', '--cache=all' ]
 }
 
 task generateScanner(type: JavaExec) {
