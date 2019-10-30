@@ -49,9 +49,58 @@ aspect IRPrint {
 		out.print("@" + getIRName().getString());
 
 		printCollection(getParamTypes(), "(", ")", ", ", out);
-
+		printCollection(getLocals(), "", "", "\n", out);
+		printCollection(getIRCodeBBs(), "", "", "\n", out);
 
 		out.print("(");
 		out.print(")");
+	}
+
+	public void IRTypeRef.print(PrintStream out) {
+		out.print(getIRType().getIRName().getString());
+	}
+
+	public void IRVar.print(PrintStream out) {
+		getIRName().print(out);
+		out.print(" : ");
+		getIRTypeRef().print(out);
+	}
+
+	public void IRCodeBB.print(PrintStream out) {
+		for (IRInsn i : getIRInsns()) {
+			i.print(out);
+			out.println();
+		}
+		getIRCodeExit().print(out);
+		out.println();
+	}
+
+	public void IRReturn.print(PrintStream out) {
+		out.print("ret ");
+		getIRVarRef().print(out);
+	}
+
+	public void IRJump.print(PrintStream out) {
+		out.print("j ");
+		getIRCodeBBRef().print(out);
+	}
+
+	public void IRBranch.print(PrintStream out) {
+		out.print("br ");
+		getCond().print(out);
+		getTrueTarget().print(out);
+		getFalseTarget().print(out);
+	}
+
+	public void IRCodeBBRef.print(PrintStream out) {
+		out.print(getIRCodeBB().label());
+	}
+
+	public void IRVarRef.print(PrintStream out) {
+		getIRVar().getIRName().print(out);
+	}
+
+	public void IRName.print(PrintStream out) {
+		out.print(getString());
 	}
 }

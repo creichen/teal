@@ -68,7 +68,7 @@ aspect IRGen {
 		if (hasType())
 			func.setIRTypeRef(getType().genIR());
 		else
-			func.setIRTypeRef(new IRTypeRef(IRModule.AnyType));
+			func.setIRTypeRef((new SimpleType(new IdUse("any"), new List())).genIR());
 		// variable declarations (including formal params)
 		for (VarDecl d : localVars()) {
 			IRVar local = d.genIR();
@@ -85,8 +85,5 @@ aspect IRGen {
 	}
 
 	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), getType().genIR());
-	syn IRTypeRef Type.genIR() = new IRTypeRef(IRModule.AnyType);
 	syn IRName IdDecl.genIR() = new IRName(getID());
-
-
 }

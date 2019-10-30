@@ -1,5 +1,31 @@
 aspect IR {
-	public static IRType IRModule.IntegerType = new IRType();
-	public static IRType IRModule.StringType = new IRType();
-	public static IRType IRModule.AnyType = new IRType();
+	public IRType IRModule.IntegerType = new IRType();
+	public IRType IRModule.StringType = new IRType();
+	public IRType IRModule.AnyType = new IRType();
+	public String IRModule.defaultName = "main";
+
+	syn nta List<IRType> IRModule.builtinTypes() {
+		List<IRType> btypes = new List<>();
+		btypes.add(IntegerType);
+		btypes.add(StringType);
+		btypes.add(AnyType);
+		return btypes;
+	}
+
+	syn nta List<IRFunction> IRModule.builtinFunctions() {
+		List<IRFunction> bins = new List<>();
+		bins.add(new IRFunction(new IRName("__builtin_add"),
+								new IRTypeRef(IntegerType),
+								new List().add(new IRTypeRef(IntegerType)).add(new IRTypeRef(IntegerType)),
+								new List(), new List()));
+		bins.add(new IRFunction(new IRName("__builtin_sub"),
+								new IRTypeRef(IntegerType),
+								new List().add(new IRTypeRef(IntegerType)).add(new IRTypeRef(IntegerType)),
+								new List(), new List()));
+		return bins;
+	}
+
+	inh int IRCodeBB.getNumber();
+	eq IRFunction.getIRCodeBB(int i).getNumber() = i;
+	syn String IRCodeBB.label() = "bb" + getNumber();
 }

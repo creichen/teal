@@ -40,7 +40,7 @@ aspect IRGenExpr {
 
 	syn IRVar Expr.getIRVar() {
 		int uid = getUID();
-		return new IRVar(new IRName("$" + uid), new IRTypeRef(IRModule.AnyType));
+		return new IRVar(new IRName("$" + uid), type().genIR());
 	}
 
 	syn IRVarRef Expr.getIRVarRef() {
@@ -73,7 +73,6 @@ aspect IRGenExpr {
 		case MEMBER:
 			throw new NotYetImplementedError("Missing implementation for member accesses");
 		case LOCAL:
-		case GLOBAL:
 			return new IRCopyInsn(dstVar, new IRVarRef(genIR()));
 		}
 	}
@@ -81,8 +80,21 @@ aspect IRGenExpr {
 	eq Access.genIR() {
 		// this can be a local variable load, global variable load or member access
 		IdDecl idDecl = getIdUse().lookup();
-		Decl d = idDecl.getDecl();
-		return new TranslationResult().add(d.genAccess(getIRVarRef())).add(getIRVar());
+		VarDecl d = (VarDecl) idDecl.getDecl();
+		TranslationResult tr = new TranslationResult();
+		switch (d.getScope()) {
+		default:
+		case MEMBER:
+			throw new NotYetImplementedError("Missing implementation for member accesses");
+		case LOCAL:
+			tr.add(new IRCopyInsn(getIRVarRef(), new IRVarRef(d.genIR())));
+			break;
+		case GLOBAL:
+			tr.add(new IRLoadStaticInsn().setDst(getIRVarRef()).setSrc(getIRVarRef()));
+			break;
+		}
+		tr.add(getIRVar());
+		return tr;
 	}
 
 	syn IRFunRef Expr.getCalledFunction() = null;
@@ -99,12 +111,28 @@ aspect IRGenExpr {
 		return new IRFunRef(((FunDecl)dd.getDecl()).genIR());
 	}
 
+	public static TranslationResult CallExpr.makeCall(IRFunRef target,
+													  IRVar dstVar,
+													  Expr ... actuals) {
+		TranslationResult tr = new TranslationResult();
+		IRCallInsn call = new IRCallInsn().setDst(new IRVarRef(dstVar));
+		call.setIRFunRef(target);
+		for (Expr e : actuals) {
+			tr.append(e.genIR());
+			call.addArg(e.getIRVarRef());
+		}
+		tr.add(call);
+		tr.add(dstVar);
+		return tr;
+	}
+
 	eq CallExpr.genIR() {
 		TranslationResult tr = new TranslationResult();
 		Expr fun = getFunc();
-		IRFunRef funCallTarget = getCalledFunction();
+		IRFunRef funCallTarget = fun.getCalledFunction();
 		if (funCallTarget != null) {
 			IRCallInsn call = new IRCallInsn().setDst(getIRVarRef());
+			call.setIRFunRef(funCallTarget);
 			for (Expr e : getActuals()) {
 				tr.append(e.genIR());
 				call.addArg(e.getIRVarRef());

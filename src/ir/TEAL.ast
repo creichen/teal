@@ -16,13 +16,13 @@ IRArgInsn : IRInsn ::= Dst:IRVarRef <Index:Integer>;
 // Copy instruction
 IRCopyInsn : IRInsn ::= Dst:IRVarRef Src:IRVarRef;
 
-abstract IRAbstractLoadInsn : IRInsn ::= Dst:IRVarRef Field:IRFieldRef;
-IRLoadStaticInsn : IRAbstractLoadInsn ::= IRModuleName;
-IRLoadInsn : IRInsn ::= Base:IRVarRef;
+abstract IRAbstractLoadInsn : IRInsn ::= Dst:IRVarRef;
+IRLoadStaticInsn : IRAbstractLoadInsn ::= Src:IRVarRef;
+IRLoadInsn : IRInsn ::= Base:IRVarRef Field:IRFieldRef;
 
-abstract IRAbstractStoreInsn : IRInsn ::= Field:IRFieldRef Src:IRVarRef;
+abstract IRAbstractStoreInsn : IRInsn ::= Src:IRVarRef;
 IRStoreStaticInsn : IRAbstractStoreInsn ::= IRModuleName;
-IRStoreInsn : IRInsn ::= Base:IRVarRef;
+IRStoreInsn : IRInsn ::= Base:IRVarRef Field:IRFieldRef;
 
 abstract IRAbstractCallInsn : IRInsn ::= Dst:IRVarRef Arg:IRVarRef*;
 IRCallInsn : IRAbstractCallInsn ::= IRFunRef;
@@ -36,17 +36,17 @@ IRAssert : IRInsn ::= IRVarRef;
 // Block terminators
 abstract IRCodeExit;
 IRReturn : IRCodeExit ::= IRVarRef;
-IRJump : IRCodeExit ::=  IRBlockRef;
-IRBranch : IRCodeExit ::= Cond:IRVarRef TrueTarget:IRBlockRef FalseTarget:IRBlockRef;
+IRJump : IRCodeExit ::=  IRCodeBBRef;
+IRBranch : IRCodeExit ::= Cond:IRVarRef TrueTarget:IRCodeBBRef FalseTarget:IRCodeBBRef;
 
 abstract IRConstant;
 IRString : IRConstant ::= <Value:String>;
 IRInteger : IRConstant ::= <Value:Integer>;
 
-IRVarRef ::= <IRLocalVar>;
-IRFunRef ::= <IRFunction>;
-IRBlockRef ::= <IRBlock>;
-IRTypeRef ::= <IRType>;
+IRVarRef ::= <IRVar:IRVar>;
+IRFunRef ::= <IRFunction:IRFunction>;
+IRCodeBBRef ::= <IRCodeBB:IRCodeBB>;
+IRTypeRef ::= <IRType:IRType>;
 
 IRName ::= <String>;
 
@@ -55,5 +55,5 @@ IRFieldRef;
 IRMethodRef;
 IRTypeAlias;
 IRClass;
-IRType;
+IRType ::= IRName;
 IRQualifier;

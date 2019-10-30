@@ -1,0 +1,14 @@
+aspect IRGenType {
+	syn IRType TypeDecl.genIR() {
+		// not much to translate for now
+		return new IRType(new IRName(getIdDecl().getID()));
+	}
+
+	syn IRTypeRef Type.genIR() {
+		throw new NotYetImplementedError("Non-simple type translation not implemented");
+	}
+	eq SimpleType.genIR() {
+		TypeDecl d = (TypeDecl)getIdUse().lookup().getDecl();
+		return new IRTypeRef(d.genIR());
+	}
+}
