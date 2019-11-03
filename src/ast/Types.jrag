@@ -1,5 +1,7 @@
 aspect Types {
-	syn Type Expr.type() = new SimpleType(new IdUse("any"), new List());
+	syn nta Type Expr.defaultType() = new SimpleType(new IdUse("any"), new List());
+	syn Type Expr.type() = defaultType();
+
 	syn nta Type FunDecl.defaultType() = new SimpleType(new IdUse("any"), new List());
 	syn Type FunDecl.type() {
 		if (hasType())

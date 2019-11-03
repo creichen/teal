@@ -61,7 +61,10 @@ aspect IRGen {
 			if (d instanceof VarDecl) {
 				m.getIRVars().add(((VarDecl) d).genIR());
 			} else if (d instanceof FunDecl) {
-				m.getIRFunctions().add(((FunDecl) d).genIR());
+				IRFunction f = ((FunDecl) d).genIR();
+				IRFunctionCtx fctx = new IRFunctionCtx(f);
+				((FunDecl) d).genCode(fctx);
+				m.getIRFunctions().add(f);
 			} else {
 				throw new NotYetImplementedError("Cannot translate declaration");
 			}
@@ -80,6 +83,7 @@ aspect IRGen {
 		public IRFunctionCtx(IRFunction F) {
 			this.F = F;
 			locals = new HashMap<>();
+			temps = new HashMap<>();
 		}
 
 		public IRCodeBB startBB() {
@@ -132,11 +136,11 @@ aspect IRGen {
 		}
 		func.setParamTypeList(irTypes);
 		// return type, if any
-
 		func.setIRTypeRef(type().genIR());
+		return func;
+	}
 
-		IRFunctionCtx fctx = new IRFunctionCtx(func);
-
+	public void FunDecl.genCode(IRFunctionCtx fctx) {
 		fctx.startBB();
 		// generate code for the arguments
 		for (int i = 0; i < getNumFormal(); ++i) {
@@ -148,13 +152,14 @@ aspect IRGen {
 
 		getBody().genCode(fctx);
 
-		// function body
-		return func;
+		if (fctx.getCurrentBB().getIRCodeExit() == null) {
+			fctx.getCurrentBB().setIRCodeExit(new IRReturn(new IRVarRef()));
+		}
 	}
 
 	public void Stmt.genCode(IRFunctionCtx ctx) { }
 	public void BlockStmt.genCode(IRFunctionCtx ctx) {
-		IRCodeBB currentBB = ctx.startBB();
+		// IRCodeBB currentBB = ctx.startBB();
 		for (Stmt s : getStmts()) {
 			s.genCode(ctx);
 		}
@@ -167,6 +172,34 @@ aspect IRGen {
 		ctx.addInsn(copy);
 	}
 
+	public void ExprStmt.genCode(IRFunctionCtx ctx) {
+		getExpr().genCode(ctx);
+	}
+
+	public void IfStmt.genCode(IRFunctionCtx ctx) {
+		IRVarRef cond = getCond().genCode(ctx);
+		IRCodeBB currentBB = ctx.getCurrentBB();
+
+		IRCodeBB thenEntry = ctx.startBB();
+		getThen().genCode(ctx);
+		IRCodeBB thenExit = ctx.getCurrentBB();
+
+
+		IRCodeBB elseEntry = ctx.startBB();
+		getElse().genCode(ctx);
+		IRCodeBB elseExit = ctx.getCurrentBB();
+
+		IRCodeBB joinBB = ctx.startBB();
+
+		// set the terminators
+		currentBB.setIRCodeExit(new IRBranch(cond, new IRCodeBBRef(thenEntry), new IRCodeBBRef(elseEntry)));
+		thenExit.setIRCodeExit(new IRJump(new IRCodeBBRef(joinBB)));
+		elseExit.setIRCodeExit(new IRJump(new IRCodeBBRef(joinBB)));
+	}
+
+
 	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), type().genIR());
 	syn IRName IdDecl.genIR() = new IRName(getID());
+
+
 }

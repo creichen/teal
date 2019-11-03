@@ -1,31 +1,6 @@
 import lang.ir.*;
 
 aspect IRGenExpr {
-	public class TranslationResult {
-		private ArrayList<IRVar> variables;
-		private ArrayList<IRInsn> instructions;
-
-		public TranslationResult() {
-			variables = new ArrayList<>();
-			instructions = new ArrayList<>();
-		}
-
-		public TranslationResult add(IRVar var) {
-			variables.add(var);
-			return this;
-		}
-
-		public TranslationResult add(IRInsn insn) {
-			instructions.add(insn);
-			return this;
-		}
-
-		public void append(TranslationResult other) {
-			variables.addAll(other.variables);
-			instructions.addAll(other.instructions);
-		}
-	}
-
 	public enum VariableScope {
 		LOCAL,
 		GLOBAL,
@@ -48,55 +23,6 @@ aspect IRGenExpr {
 		return new IRVarRef(getIRVar());
 	}
 
-	syn TranslationResult Expr.genIR() = null;
-
-	// IntConstant
-	eq IntConstant.genIR() {
-		TranslationResult tr = new TranslationResult();
-		tr.add(getIRVar());
-		tr.add(new IRConstantInsn().setDst(getIRVarRef()).setSrc(new IRInteger(getValue())));
-		return tr;
-	}
-
-	// StringConstant
-	eq StringConstant.genIR() {
-		TranslationResult tr = new TranslationResult();
-		tr.add(getIRVar());
-		tr.add(new IRConstantInsn().setDst(getIRVarRef()).setSrc(new IRString(getValue())));
-		return tr;
-	}
-
-	// Access
-	syn IRInsn Decl.genAccess(IRVarRef dstVar) = null;
-	eq VarDecl.genAccess(IRVarRef dstVar) {
-		switch (getScope()) {
-		default:
-		case MEMBER:
-			throw new NotYetImplementedError("Missing implementation for member accesses");
-		case LOCAL:
-			return new IRCopyInsn(dstVar, new IRVarRef(genIR()));
-		}
-	}
-
-	eq Access.genIR() {
-		// this can be a local variable load, global variable load or member access
-		IdDecl idDecl = getIdUse().lookup();
-		VarDecl d = (VarDecl) idDecl.getDecl();
-		TranslationResult tr = new TranslationResult();
-		switch (d.getScope()) {
-		default:
-		case MEMBER:
-			throw new NotYetImplementedError("Missing implementation for member accesses");
-		case LOCAL:
-			tr.add(new IRCopyInsn(getIRVarRef(), new IRVarRef(d.genIR())));
-			break;
-		case GLOBAL:
-			tr.add(new IRLoadStaticInsn().setDst(getIRVarRef()).setSrc(getIRVarRef()));
-			break;
-		}
-		tr.add(getIRVar());
-		return tr;
-	}
 
 	syn IRFunRef Expr.getCalledFunction() = null;
 	eq Access.getCalledFunction() {
@@ -112,41 +38,9 @@ aspect IRGenExpr {
 		return new IRFunRef(((FunDecl)dd.getDecl()).genIR());
 	}
 
-	public static TranslationResult CallExpr.makeCall(IRFunRef target,
-													  IRVar dstVar,
-													  Expr ... actuals) {
-		TranslationResult tr = new TranslationResult();
-		IRCallInsn call = new IRCallInsn().setDst(new IRVarRef(dstVar));
-		call.setIRFunRef(target);
-		for (Expr e : actuals) {
-			tr.append(e.genIR());
-			call.addArg(e.getIRVarRef());
-		}
-		tr.add(call);
-		tr.add(dstVar);
-		return tr;
+	public IRVarRef Expr.genCode(IRFunctionCtx ctx) {
+		throw new NotYetImplementedError("Can't translate expression.");
 	}
-
-	eq CallExpr.genIR() {
-		TranslationResult tr = new TranslationResult();
-		Expr fun = getFunc();
-		IRFunRef funCallTarget = fun.getCalledFunction();
-		if (funCallTarget != null) {
-			IRCallInsn call = new IRCallInsn().setDst(getIRVarRef());
-			call.setIRFunRef(funCallTarget);
-			for (Expr e : getActuals()) {
-				tr.append(e.genIR());
-				call.addArg(e.getIRVarRef());
-			}
-			tr.add(getIRVar());
-			tr.add(call);
-		} else {
-			throw new NotYetImplementedError("Method calls are not implemented");
-		}
-		return tr;
-	}
-
-	public IRVarRef Expr.genCode(IRFunctionCtx ctx) { throw new NotYetImplementedError("Can't translate expression.");}
 
 	public IRVarRef CallExpr.genCode(IRFunctionCtx ctx) {
 		Expr fun = getFunc();
@@ -156,8 +50,8 @@ aspect IRGenExpr {
 			IRCallInsn call = new IRCallInsn().setDst(r);
 			call.setIRFunRef(funCallTarget);
 			for (Expr e : getActuals()) {
-				e.genCode(ctx);
-				call.addArg(ctx.getTempIRVar(e));
+				IRVarRef arg = e.genCode(ctx);
+				call.addArg(arg);
 			}
 			ctx.addInsn(call);
 		} else {
@@ -184,5 +78,4 @@ aspect IRGenExpr {
 		}
 		return r;
 	}
-
 }

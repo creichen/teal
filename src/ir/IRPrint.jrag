@@ -52,9 +52,9 @@ aspect IRPrint {
 		out.print(" {\n\t");
 		printCollection(getLocals(), "", "", "\n\t", out);
 		out.print("\n");
-		printCollection(getIRCodeBBs(), "", "", "", out);
+		printCollection(getIRCodeBBs(), "", "", "\n", out);
 
-		out.println("}\n");
+		out.println("\n}\n");
 	}
 
 	public void IRTypeRef.print(PrintStream out) {
@@ -74,10 +74,12 @@ aspect IRPrint {
 			i.print(out);
 			out.println();
 		}
-		//getIRCodeExit().print(out);
+		out.print("\t");
+		getIRCodeExit().print(out);
 		// out.println();
 	}
 
+	// Terminators
 	public void IRReturn.print(PrintStream out) {
 		out.print("ret ");
 		getIRVarRef().print(out);
@@ -91,22 +93,13 @@ aspect IRPrint {
 	public void IRBranch.print(PrintStream out) {
 		out.print("br ");
 		getCond().print(out);
+		out.print(", ");
 		getTrueTarget().print(out);
+		out.print(", ");
 		getFalseTarget().print(out);
 	}
 
-	public void IRCodeBBRef.print(PrintStream out) {
-		out.print(getIRCodeBB().label());
-	}
-
-	public void IRVarRef.print(PrintStream out) {
-		getIRVar().getIRName().print(out);
-	}
-
-	public void IRName.print(PrintStream out) {
-		out.print(getString());
-	}
-
+	// Instructions
 	public void IRCopyInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" = ");
@@ -118,4 +111,32 @@ aspect IRPrint {
 		out.print(" = arg ");
 		out.print(getIndex());
 	}
+
+	public void IRCallInsn.print(PrintStream out) {
+		getDst().print(out);
+		out.print(" = call ");
+		getIRFunRef().print(out);
+		printCollection(getArgs(), "(", ")", ", ", out);
+	}
+
+	// Refs
+	public void IRCodeBBRef.print(PrintStream out) {
+		out.print(getIRCodeBB().label());
+	}
+
+	public void IRVarRef.print(PrintStream out) {
+		if (getIRVar() == null)
+			out.print("undef");
+		else
+			getIRVar().getIRName().print(out);
+	}
+
+	public void IRName.print(PrintStream out) {
+		out.print(getString());
+	}
+
+	public void IRFunRef.print(PrintStream out) {
+		getIRFunction().getIRName().print(out);
+	}
+
 }
