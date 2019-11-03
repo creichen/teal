@@ -2,7 +2,7 @@ aspect BuiltinTypes {
 	/**
 	   Introduce the int, string, any, array[T] as builtin types.
 	 **/
-	syn nta List<Decl> Program.builtinDecls() {
+	syn nta List<Decl> Program.builtinDeclList() {
 		List<Decl> decls = new List<Decl>();
 		decls
 			.add(new TypeDecl().setIdDecl(new IdDecl("int")))

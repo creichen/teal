@@ -199,7 +199,7 @@ aspect NameAnalysisPrivate {
 	 **/
 	syn MultiHashMap<String, IdDecl> Program.globalDeclMap() {
 		MultiHashMap<String, IdDecl> declMap = new MultiHashMap<>();
-		for (Decl d : builtinDecls()) {
+		for (Decl d : builtinDeclList()) {
 			declMap.append(d.getIdDecl().getID(), d.getIdDecl());
 		}
 		for (Decl d : getDecls()) {

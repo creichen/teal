@@ -48,10 +48,77 @@ aspect IRGen {
 	}
 
 	syn IRModule Program.genIR() {
-		IRModule m = new IRModule();
 		// single module support for now
-		m.setIRModuleName(new IRModuleName(new lang.ir.List(new IRName("main"))));
+		IRModule m = new IRModule(new IRModuleName(new lang.ir.List(new IRName("main"))),
+								  new lang.ir.List<IRVar>(),
+								  new lang.ir.List<IRType>(),
+								  new lang.ir.List<IRClass>(),
+								  new lang.ir.List<IRQualifier>(),
+								  new lang.ir.List<IRTypeAlias>(),
+								  new lang.ir.List<IRFunction>());
+
+		for (Decl d : getDecls()) {
+			if (d instanceof VarDecl) {
+				m.getIRVars().add(((VarDecl) d).genIR());
+			} else if (d instanceof FunDecl) {
+				m.getIRFunctions().add(((FunDecl) d).genIR());
+			} else {
+				throw new NotYetImplementedError("Cannot translate declaration");
+			}
+		}
+
 		return m;
+	}
+
+	public class IRFunctionCtx {
+		private IRFunction F;
+		private IRCodeBB BB;
+		private int counter = 0;
+		private HashMap<VarDecl, IRVar> locals;
+		private HashMap<Expr, IRVar> temps;
+
+		public IRFunctionCtx(IRFunction F) {
+			this.F = F;
+			locals = new HashMap<>();
+		}
+
+		public IRCodeBB startBB() {
+			BB = new IRCodeBB(new lang.ir.List(), null);
+			F.getIRCodeBBList().add(BB);
+			return BB;
+		}
+
+		public IRCodeBB getCurrentBB() {
+			return BB;
+		}
+
+		public void addInsn(IRInsn I) {
+			BB.getIRInsnList().add(I);
+		}
+
+		public IRVarRef getTempIRVar(Expr e) {
+			IRVar tmp = temps.get(e);
+			if (tmp == null) {
+				tmp = new IRVar(new IRName("tmp" + counter++),
+								e.type().genIR());
+				F.getLocals().add(tmp);
+				temps.put(e, tmp);
+			}
+			return new IRVarRef(tmp);
+		}
+
+		public IRVarRef getIRVarRef(VarDecl d) {
+			IRVar v = locals.get(d);
+			if (v == null) {
+				// Append an index to the name. We might have multiple variables with
+				// the same name at different scopes, and we want them to have a unique
+				// name inside the IR
+				v = new IRVar(new IRName(d.getIdDecl().getID() + counter++), d.type().genIR());
+				F.getLocals().add(v);
+				locals.put(d, v);
+			}
+			return new IRVarRef(v);
+		}
 	}
 
 	syn IRFunction FunDecl.genIR() {
@@ -61,29 +128,45 @@ aspect IRGen {
 		// formal param types
 		lang.ir.List<IRTypeRef> irTypes = new lang.ir.List<>();
 		for (VarDecl d : getFormals()) {
-			irTypes.add(d.getType().genIR());
+			irTypes.add(d.type().genIR());
 		}
 		func.setParamTypeList(irTypes);
 		// return type, if any
-		if (hasType())
-			func.setIRTypeRef(getType().genIR());
-		else
-			func.setIRTypeRef((new SimpleType(new IdUse("any"), new List())).genIR());
-		// variable declarations (including formal params)
-		for (VarDecl d : localVars()) {
-			IRVar local = d.genIR();
-			// patch the name here, since we might have multiple variables with
-			// the same name at different scopes, and we want them to have a unique
-			// name inside the IR
-			Integer index = localDeclUIDs().get(d.getIdDecl());
-			assert index != null;
-			local.getIRName().setString(local.getIRName().getString() + "." + index);
-			func.addLocal(local);
+
+		func.setIRTypeRef(type().genIR());
+
+		IRFunctionCtx fctx = new IRFunctionCtx(func);
+
+		fctx.startBB();
+		// generate code for the arguments
+		for (int i = 0; i < getNumFormal(); ++i) {
+			VarDecl d = getFormal(i);
+			IRVarRef v = fctx.getIRVarRef(d);
+			IRArgInsn iarg = new IRArgInsn(v, i);
+			fctx.addInsn(iarg);
 		}
+
+		getBody().genCode(fctx);
+
 		// function body
 		return func;
 	}
 
-	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), getType().genIR());
+	public void Stmt.genCode(IRFunctionCtx ctx) { }
+	public void BlockStmt.genCode(IRFunctionCtx ctx) {
+		IRCodeBB currentBB = ctx.startBB();
+		for (Stmt s : getStmts()) {
+			s.genCode(ctx);
+		}
+	}
+
+	public void AssignStmt.genCode(IRFunctionCtx ctx) {
+		IRVarRef left = getLValue().genCode(ctx);
+		IRVarRef right = getRValue().genCode(ctx);
+		IRCopyInsn copy = new IRCopyInsn(left, right);
+		ctx.addInsn(copy);
+	}
+
+	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), type().genIR());
 	syn IRName IdDecl.genIR() = new IRName(getID());
 }

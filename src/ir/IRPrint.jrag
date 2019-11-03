@@ -25,7 +25,7 @@ aspect IRPrint {
 
 	public void IRModule.print(PrintStream out) {
 		out.print("module ");
-		getIRModuleName().print(out);
+		printCollection(getIRModuleName().getIRNames(), "", "", ".", out);
 
 		out.println();
 		out.println();
@@ -44,16 +44,17 @@ aspect IRPrint {
 	}
 
 	public void IRFunction.print(PrintStream out) {
-		out.print("fun ");
+		out.print("function ");
 		getIRTypeRef().print(out);
-		out.print("@" + getIRName().getString());
+		out.print(" @" + getIRName().getString());
 
 		printCollection(getParamTypes(), "(", ")", ", ", out);
-		printCollection(getLocals(), "", "", "\n", out);
-		printCollection(getIRCodeBBs(), "", "", "\n", out);
+		out.print(" {\n\t");
+		printCollection(getLocals(), "", "", "\n\t", out);
+		out.print("\n");
+		printCollection(getIRCodeBBs(), "", "", "", out);
 
-		out.print("(");
-		out.print(")");
+		out.println("}\n");
 	}
 
 	public void IRTypeRef.print(PrintStream out) {
@@ -67,12 +68,14 @@ aspect IRPrint {
 	}
 
 	public void IRCodeBB.print(PrintStream out) {
+		out.println(label() + ":");
 		for (IRInsn i : getIRInsns()) {
+			out.print("\t");
 			i.print(out);
 			out.println();
 		}
-		getIRCodeExit().print(out);
-		out.println();
+		//getIRCodeExit().print(out);
+		// out.println();
 	}
 
 	public void IRReturn.print(PrintStream out) {
@@ -102,5 +105,17 @@ aspect IRPrint {
 
 	public void IRName.print(PrintStream out) {
 		out.print(getString());
+	}
+
+	public void IRCopyInsn.print(PrintStream out) {
+		getDst().print(out);
+		out.print(" = ");
+		getSrc().print(out);
+	}
+
+	public void IRArgInsn.print(PrintStream out) {
+		getDst().print(out);
+		out.print(" = arg ");
+		out.print(getIndex());
 	}
 }

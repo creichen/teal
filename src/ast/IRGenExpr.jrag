@@ -34,6 +34,7 @@ aspect IRGenExpr {
 
 	inh VariableScope VarDecl.getScope();
 	eq Program.getDecl().getScope() = VariableScope.GLOBAL;
+	eq FunDecl.getFormal().getScope() = VariableScope.LOCAL;
 	eq VarDeclStmt.getVarDecl().getScope() = VariableScope.LOCAL;
 	eq VarDeclElt.getVarDecl().getScope() = VariableScope.MEMBER;
 
@@ -144,4 +145,44 @@ aspect IRGenExpr {
 		}
 		return tr;
 	}
+
+	public IRVarRef Expr.genCode(IRFunctionCtx ctx) { throw new NotYetImplementedError("Can't translate expression.");}
+
+	public IRVarRef CallExpr.genCode(IRFunctionCtx ctx) {
+		Expr fun = getFunc();
+		IRFunRef funCallTarget = fun.getCalledFunction();
+		IRVarRef r = ctx.getTempIRVar(this);
+		if (funCallTarget != null) {
+			IRCallInsn call = new IRCallInsn().setDst(r);
+			call.setIRFunRef(funCallTarget);
+			for (Expr e : getActuals()) {
+				e.genCode(ctx);
+				call.addArg(ctx.getTempIRVar(e));
+			}
+			ctx.addInsn(call);
+		} else {
+			throw new NotYetImplementedError("Method calls are not implemented");
+		}
+		return r;
+	}
+
+	public IRVarRef Access.genCode(IRFunctionCtx ctx) {
+		// this can be a local variable load, global variable load or member access
+		IdDecl idDecl = getIdUse().lookup();
+		VarDecl d = (VarDecl) idDecl.getDecl();
+		IRVarRef r;
+		switch (d.getScope()) {
+		default:
+		case MEMBER:
+			throw new NotYetImplementedError("Missing implementation for member accesses");
+		case LOCAL:
+			r = ctx.getIRVarRef(d);
+			break;
+		case GLOBAL:
+			r = new IRVarRef(d.genIR());
+			break;
+		}
+		return r;
+	}
+
 }
