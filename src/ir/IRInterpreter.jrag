@@ -1,0 +1,131 @@
+import java.util.HashMap;
+import lang.ast.NotYetImplementedError;
+
+aspect IRInterpreter {
+	class InterpreterException extends Exception {
+		InterpreterException(String e) {
+			super(e);
+		}
+	}
+
+	class IRValue {
+		private IRType dynamicType;
+		private Object value;
+
+		public IRValue(IRType type, Object value) {
+			this.dynamicType = type;
+			this.value = value;
+		}
+
+		public IRType getDynType() {
+			return dynamicType;
+		}
+
+		public Object getValue() {
+			return value;
+		}
+	}
+
+
+	class Storage {
+		private HashMap<IRVar, IRValue> varToVal;
+		public Storage() {
+			varToVal = new HashMap<IRVar, IRValue>();
+		}
+
+		public void set(IRVar var, IRValue val) {
+			varToVal.put(var, val);
+		}
+
+		public IRValue get(IRVar var) throws InterpreterException {
+			IRValue val = varToVal.get(var);
+			if (val == null)
+				throw new InterpreterException("IR value " + var.getIRName().getString() + " is not present in storage. ");
+			return val;
+		}
+
+		public void set(IRVarRef var, IRValue  val)  {
+			set(var.getIRVar(), val);
+		}
+
+		public IRValue get(IRVarRef var) throws InterpreterException {
+			return get(var.getIRVar());
+		}
+	}
+
+	public void IRModule.eval(java.util.List<IRValue> args) throws InterpreterException {
+		Storage s = new Storage();
+		for (IRFunction f : getIRFunctions()) {
+			if (f.getIRName().getString() == "main") {
+				f.eval(new IRFunctionEvalCtx(s, args));
+				return;
+			}
+		}
+	}
+
+	class IRFunctionEvalCtx {
+		java.util.List<IRValue> args;
+		Storage s;
+
+		public IRFunctionEvalCtx(Storage s, java.util.List<IRValue> args) {
+			this.s = s;
+			this.args = args;
+		}
+
+		public IRValue getArg(int i) {
+			return args.get(i);
+		}
+
+		public Storage getStore()  {
+			return s;
+		}
+	}
+
+	public IRValue IRFunction.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		if (getNumIRCodeBB() == 0)
+			return null;
+
+		while (true) {
+			IRCodeBB currentBB = getIRCodeBB(0);
+			currentBB.eval(ctx);
+
+			if (currentBB.getIRCodeExit() instanceof IRReturn) {
+				IRVarRef rv = ((IRReturn)(currentBB.getIRCodeExit())).getIRVarRef();
+				return ctx.getStore().get(rv);
+			} else if (currentBB.getIRCodeExit() instanceof IRJump) {
+				IRJump ji = (IRJump) currentBB.getIRCodeExit();
+				currentBB = ji.getIRCodeBBRef().getIRCodeBB();
+			} else {
+				IRBranch bi = (IRBranch) currentBB.getIRCodeExit();
+				// TODO: check types here, instead of Java types
+				IRValue cond = ctx.getStore().get(bi.getCond());
+				if (!(cond.getValue() instanceof Integer))
+					throw new InterpreterException("Condition expected to be integer");
+				Integer icond = (Integer) cond.getValue();
+				if (icond == 0) {
+					currentBB = bi.getFalseTarget().getIRCodeBB();
+				} else {
+					currentBB = bi.getTrueTarget().getIRCodeBB();
+				}
+			}
+		}
+	}
+
+	public void IRCodeBB.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		for (IRInsn i : getIRInsns()) {
+			i.eval(ctx);
+		}
+	}
+
+	public void IRInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		throw new NotYetImplementedError("Instruction evaluation not implemented.");
+	}
+
+	public void IRCopyInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		ctx.getStore().set(getDst(), ctx.getStore().get(getSrc()));
+	}
+
+	public void IRArgInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		ctx.getStore().set(getDst(), ctx.getArg(getIndex()));
+	}
+}
