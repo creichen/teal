@@ -2,7 +2,7 @@ aspect BuiltinTypes {
 	/**
 	   Introduce the int, string, any, array[T] as builtin types.
 	 **/
-	syn nta List<Decl> Program.builtinDeclList() {
+	syn List<Decl> Program.getBuiltinDeclList() {
 		List<Decl> decls = new List<Decl>();
 		decls
 			.add(new TypeDecl().setIdDecl(new IdDecl("int")))
@@ -10,6 +10,13 @@ aspect BuiltinTypes {
 			.add(new TypeDecl().setIdDecl(new IdDecl("any")))
 			.add(new TypeDecl().setIdDecl(new IdDecl("array"))
 				 .setTypeFormalList(new List<TypeVarDecl>().add(new TypeVarDecl(new IdDecl("T")))));
+
+		decls
+			.add(new FunDecl(new IdDecl("__builtin_int_plus"),
+							 new Opt(new SimpleType(new IdUse("int"), new List())),
+							 new List().add(new VarDecl(new IdDecl("m"), new Opt(new SimpleType(new IdUse("int"), new List())), new Opt()))
+							 .add(new VarDecl(new IdDecl("n"), new Opt(new SimpleType(new IdUse("int"), new List())), new Opt())),
+							 new Opt()));
 
 		return decls;
 	}

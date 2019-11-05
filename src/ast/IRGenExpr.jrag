@@ -78,4 +78,16 @@ aspect IRGenExpr {
 		}
 		return r;
 	}
+
+	public IRVarRef IntConstant.genCode(IRFunctionCtx ctx) {
+		IRVarRef r = ctx.getTempIRVar(this);
+		ctx.addInsn(new IRConstantInsn(r, new IRInteger(getValue())));
+		return r;
+	}
+
+	public IRVarRef StringConstant.genCode(IRFunctionCtx ctx) {
+		IRVarRef r = ctx.getTempIRVar(this);
+		ctx.addInsn(new IRConstantInsn(r, new IRString(getValue())));
+		return r;
+	}
 }

@@ -119,6 +119,11 @@ aspect IRPrint {
 		printCollection(getArgs(), "(", ")", ", ", out);
 	}
 
+	public void IRConstantInsn.print(PrintStream out) {
+		getDst().print(out);
+		out.print(" = constant ");
+	}
+
 	// Refs
 	public void IRCodeBBRef.print(PrintStream out) {
 		out.print(getIRCodeBB().label());
@@ -138,5 +143,4 @@ aspect IRPrint {
 	public void IRFunRef.print(PrintStream out) {
 		getIRFunction().getIRName().print(out);
 	}
-
 }

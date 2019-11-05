@@ -60,6 +60,9 @@ aspect NameAnalysis {
 	eq Program.getDecl().lookup(String s) {
 		return lookup(s);
 	}
+	eq Program.getBuiltinDecl().lookup(String s) {
+		return lookup(s);
+	}
 	inh IdDecl FunDecl.lookup(String s);
 	eq FunDeclElt.getFunDecl().lookup(String s) {
 		return lookup(s);
@@ -199,7 +202,7 @@ aspect NameAnalysisPrivate {
 	 **/
 	syn MultiHashMap<String, IdDecl> Program.globalDeclMap() {
 		MultiHashMap<String, IdDecl> declMap = new MultiHashMap<>();
-		for (Decl d : builtinDeclList()) {
+		for (Decl d : getBuiltinDeclList()) {
 			declMap.append(d.getIdDecl().getID(), d.getIdDecl());
 		}
 		for (Decl d : getDecls()) {

@@ -61,12 +61,25 @@ aspect IRGen {
 			if (d instanceof VarDecl) {
 				m.getIRVars().add(((VarDecl) d).genIR());
 			} else if (d instanceof FunDecl) {
-				IRFunction f = ((FunDecl) d).genIR();
+				FunDecl fd = (FunDecl) d;
+				IRFunction f = fd.genIR();
 				IRFunctionCtx fctx = new IRFunctionCtx(f);
-				((FunDecl) d).genCode(fctx);
+				if (fd.hasBody())
+					fd.genCode(fctx);
 				m.getIRFunctions().add(f);
 			} else {
 				throw new NotYetImplementedError("Cannot translate declaration");
+			}
+		}
+
+		for (Decl d : getBuiltinDeclList()) {
+			if (d instanceof FunDecl) {
+				FunDecl fd = (FunDecl) d;
+				IRFunction f = fd.genIR();
+				IRFunctionCtx fctx = new IRFunctionCtx(f);
+				if (fd.hasBody())
+					fd.genCode(fctx);
+				m.getIRFunctions().add(f);
 			}
 		}
 
