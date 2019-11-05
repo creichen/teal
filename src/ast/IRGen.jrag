@@ -197,9 +197,25 @@ aspect IRGen {
 		elseExit.setIRCodeExit(new IRJump(new IRCodeBBRef(joinBB)));
 	}
 
+	public void WhileStmt.genCode(IRFunctionCtx ctx) {
+		IRCodeBB currentBB = ctx.getCurrentBB();
+
+		// header block
+		IRCodeBB headerBB = ctx.startBB();
+		IRVarRef cond = getCond().genCode(ctx);
+
+		// body block
+		IRCodeBB bodyBB = ctx.startBB();
+		getBody().genCode(ctx);
+
+		IRCodeBB exitBB = ctx.startBB();
+
+		currentBB.setIRCodeExit(new IRJump(new IRCodeBBRef(headerBB)));
+		headerBB.setIRCodeExit(new IRBranch(cond, new IRCodeBBRef(bodyBB), new IRCodeBBRef(exitBB)));
+		// and the loop back-edge
+		bodyBB.setIRCodeExit(new IRJump(new IRCodeBBRef(headerBB)));
+	}
 
 	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), type().genIR());
 	syn IRName IdDecl.genIR() = new IRName(getID());
-
-
 }
