@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.ArrayList;
 import lang.ast.NotYetImplementedError;
 
 aspect IRInterpreter {
@@ -97,7 +98,7 @@ aspect IRInterpreter {
 				currentBB = ji.getIRCodeBBRef().getIRCodeBB();
 			} else {
 				IRBranch bi = (IRBranch) currentBB.getIRCodeExit();
-				// TODO: check types here, instead of Java types
+				// TODO: check TEAL types here, instead of Java types
 				IRValue cond = ctx.getStore().get(bi.getCond());
 				if (!(cond.getValue() instanceof Integer))
 					throw new InterpreterException("Condition expected to be integer");
@@ -127,5 +128,21 @@ aspect IRInterpreter {
 
 	public void IRArgInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
 		ctx.getStore().set(getDst(), ctx.getArg(getIndex()));
+	}
+
+	public void IRCallInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		IRFunction callee = getIRFunRef().getIRFunction();
+		if (callee.getNumParamType() != getNumArg())
+			throw new InterpreterException("Mismatch between declared and actual number of arguments.");
+		ArrayList<IRValue> actuals = new ArrayList<>();
+		for (IRVarRef arg : getArgs()) {
+			IRValue v = ctx.getStore().get(arg);
+			actuals.add(v);
+		}
+
+		IRFunctionEvalCtx calleeCtx = new IRFunctionEvalCtx(ctx.getStore(), actuals);
+		IRValue retVal = callee.eval(calleeCtx);
+
+		ctx.getStore().set(getDst(), retVal);
 	}
 }
