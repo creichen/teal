@@ -28,4 +28,8 @@ aspect IR {
 	inh int IRCodeBB.getNumber();
 	eq IRFunction.getIRCodeBB(int i).getNumber() = i;
 	syn String IRCodeBB.label() = "bb" + getNumber();
+
+	inh IRModule IRFunction.getModule();
+	eq IRModule.getIRFunction().getModule() = this;
+	inh IRModule IRConstant.getModule();
 }

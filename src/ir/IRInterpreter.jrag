@@ -82,9 +82,26 @@ aspect IRInterpreter {
 		}
 	}
 
+	public IRValue IRFunction.evalBuiltin(IRFunctionEvalCtx ctx) throws InterpreterException {
+		switch(getIRName().getString()) {
+		default:
+			return null;
+		case "__builtin_add": {
+			Integer a = (Integer) ctx.getArg(0).getValue();
+			Integer b = (Integer) ctx.getArg(1).getValue();
+			return new IRValue(getIRTypeRef().getIRType(), a + b);
+		}
+		case "__builtin_sub": {
+			Integer a = (Integer) ctx.getArg(0).getValue();
+			Integer b = (Integer) ctx.getArg(1).getValue();
+			return new IRValue(getIRTypeRef().getIRType(), a - b);
+		}
+		}
+	}
+
 	public IRValue IRFunction.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
 		if (getNumIRCodeBB() == 0)
-			return null;
+			return evalBuiltin(ctx);
 
 		while (true) {
 			IRCodeBB currentBB = getIRCodeBB(0);
@@ -118,6 +135,7 @@ aspect IRInterpreter {
 		}
 	}
 
+	// Instructions
 	public void IRInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
 		throw new NotYetImplementedError("Instruction evaluation not implemented.");
 	}
@@ -145,4 +163,13 @@ aspect IRInterpreter {
 
 		ctx.getStore().set(getDst(), retVal);
 	}
+
+	public void IRConstantInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		ctx.getStore().set(getDst(), getSrc().asIRValue());
+	}
+
+	// Constants
+	syn IRValue IRConstant.asIRValue();
+	eq IRString.asIRValue() = new IRValue(getModule().StringType, getValue());
+	eq IRInteger.asIRValue() = new IRValue(getModule().IntegerType, getValue());
 }
