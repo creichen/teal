@@ -1,21 +1,41 @@
 aspect BuiltinTypes {
+	public class BuiltinNames {
+		public static final String INT = "int";
+		public static final String STRING = "string";
+		public static final String ANY = "any";
+		public static final String ARRAY = "array";
+
+		public static final String INT_ADD = "__builtin_int_add";
+		public static final String INT_SUB = "__builtin_int_sub";
+		public static final String INT_MUL = "__builtin_int_mul";
+		public static final String INT_DIV = "__builtin_int_div";
+		public static final String INT_MOD = "__builtin_int_mod";
+
+		public static final String INT_EQ = "__builtin_int_eq";
+		public static final String INT_NEQ = "__builtin_int_neq";
+		public static final String INT_LEQ = "__builtin_int_leq";
+		public static final String INT_GEQ = "__builtin_int_geq";
+		public static final String INT_LT = "__builtin_int_lt";
+		public static final String INT_GT = "__builtin_int_gt";
+	}
+
 	/**
 	   Introduce the int, string, any, array[T] as builtin types.
 	 **/
-	syn List<Decl> Program.getBuiltinDeclList() {
+	syn nta List<Decl> Program.getBuiltinDeclList() {
 		List<Decl> decls = new List<Decl>();
 		decls
-			.add(new TypeDecl().setIdDecl(new IdDecl("int")))
-			.add(new TypeDecl().setIdDecl(new IdDecl("string")))
-			.add(new TypeDecl().setIdDecl(new IdDecl("any")))
-			.add(new TypeDecl().setIdDecl(new IdDecl("array"))
+			.add(new TypeDecl().setIdDecl(new IdDecl(BuiltinNames.INT)))
+			.add(new TypeDecl().setIdDecl(new IdDecl(BuiltinNames.STRING)))
+			.add(new TypeDecl().setIdDecl(new IdDecl(BuiltinNames.ANY)))
+			.add(new TypeDecl().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
 				 .setTypeFormalList(new List<TypeVarDecl>().add(new TypeVarDecl(new IdDecl("T")))));
 
 		decls
-			.add(new FunDecl(new IdDecl("__builtin_int_plus"),
-							 new Opt(new SimpleType(new IdUse("int"), new List())),
-							 new List().add(new VarDecl(new IdDecl("m"), new Opt(new SimpleType(new IdUse("int"), new List())), new Opt()))
-							 .add(new VarDecl(new IdDecl("n"), new Opt(new SimpleType(new IdUse("int"), new List())), new Opt())),
+			.add(new FunDecl(new IdDecl(BuiltinNames.INT_ADD),
+							 new Opt(new SimpleType(new IdUse(BuiltinNames.INT), new List())),
+							 new List().add(new VarDecl(new IdDecl("m"), new Opt(new SimpleType(new IdUse(BuiltinNames.INT), new List())), new Opt()))
+							 .add(new VarDecl(new IdDecl("n"), new Opt(new SimpleType(new IdUse(BuiltinNames.INT), new List())), new Opt())),
 							 new Opt()));
 
 		return decls;

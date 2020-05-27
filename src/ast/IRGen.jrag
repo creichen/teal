@@ -229,6 +229,16 @@ aspect IRGen {
 		bodyBB.setIRCodeExit(new IRJump(new IRCodeBBRef(headerBB)));
 	}
 
+	public void ReturnStmt.genCode(IRFunctionCtx ctx) {
+		// generate the code to compute the return value
+		IRVarRef retVal = getExpr().genCode(ctx);
+		IRCodeBB currentBB = ctx.getCurrentBB();
+		currentBB.setIRCodeExit(new IRReturn(retVal));
+		// start a new basic block to hold the translation
+		// of any (unreachable) statements following the return.
+		ctx.startBB();
+	}
+
 	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), type().genIR());
 	syn IRName IdDecl.genIR() = new IRName(getID());
 }

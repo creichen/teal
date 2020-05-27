@@ -1,5 +1,6 @@
 import java.io.PrintStream;
 import java.util.Iterator;
+import java.io.ByteArrayOutputStream;
 
 aspect IRPrint {
 	protected static <T extends ASTNode>
@@ -17,6 +18,16 @@ aspect IRPrint {
 			itr.next().print(out);
 		}
 		out.print(post);
+	}
+
+	public void ASTNode.dump() {
+		print(System.out);
+	}
+
+	public String ASTNode.toString() {
+		ByteArrayOutputStream w = new ByteArrayOutputStream();
+		print(new PrintStream(w));
+		return w.toString();
 	}
 
 	public void ASTNode.print(PrintStream out) {

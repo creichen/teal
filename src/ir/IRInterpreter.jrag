@@ -1,15 +1,16 @@
 import java.util.HashMap;
 import java.util.ArrayList;
 import lang.ast.NotYetImplementedError;
+import lang.ast.BuiltinNames;
 
 aspect IRInterpreter {
-	class InterpreterException extends Exception {
+	public class InterpreterException extends Exception {
 		InterpreterException(String e) {
 			super(e);
 		}
 	}
 
-	class IRValue {
+	public class IRValue {
 		private IRType dynamicType;
 		private Object value;
 
@@ -54,14 +55,14 @@ aspect IRInterpreter {
 		}
 	}
 
-	public void IRModule.eval(java.util.List<IRValue> args) throws InterpreterException {
+	public IRValue IRModule.eval(java.util.List<IRValue> args) throws InterpreterException {
 		Storage s = new Storage();
 		for (IRFunction f : getIRFunctions()) {
-			if (f.getIRName().getString() == "main") {
-				f.eval(new IRFunctionEvalCtx(s, args));
-				return;
+			if (f.getIRName().getString().equals("main")) {
+				return f.eval(new IRFunctionEvalCtx(s, args));
 			}
 		}
+		return null;
 	}
 
 	class IRFunctionEvalCtx {
@@ -82,19 +83,57 @@ aspect IRInterpreter {
 		}
 	}
 
+	private long IRFunction.evalBuiltin(String op, long l, long r) throws InterpreterException {
+		switch (op) {
+		case BuiltinNames.INT_ADD:
+			return l + r;
+		case BuiltinNames.INT_SUB:
+			return l - r;
+		case BuiltinNames.INT_MUL:
+			return l * r;
+		case BuiltinNames.INT_DIV:
+			if (r != 0) return l / r;
+			else throw new InterpreterException("Division by 0");
+		case BuiltinNames.INT_MOD:
+			if (r != 0) return l % r;
+			else throw new InterpreterException("Division by 0");
+		case BuiltinNames.INT_EQ:
+			return l == r ? 1 : 0;
+		case BuiltinNames.INT_NEQ:
+			return l != r ? 1 : 0;
+		case BuiltinNames.INT_LEQ:
+			return l <= r ? 1 : 0;
+		case BuiltinNames.INT_GEQ:
+			return l >= r ? 1 : 0;
+		case BuiltinNames.INT_LT:
+			return l < r ? 1 : 0;
+		case BuiltinNames.INT_GT:
+			return l > r ? 1 : 0;
+		default:
+			throw new InterpreterException("Builtin function " + op + " cannot be evaluated.");
+
+		}
+	}
+
 	public IRValue IRFunction.evalBuiltin(IRFunctionEvalCtx ctx) throws InterpreterException {
-		switch(getIRName().getString()) {
+		switch (getIRName().getString()) {
 		default:
 			return null;
-		case "__builtin_add": {
+		case BuiltinNames.INT_ADD:
+		case BuiltinNames.INT_SUB:
+		case BuiltinNames.INT_MUL:
+		case BuiltinNames.INT_DIV:
+		case BuiltinNames.INT_MOD:
+		case BuiltinNames.INT_EQ:
+		case BuiltinNames.INT_NEQ:
+		case BuiltinNames.INT_LEQ:
+		case BuiltinNames.INT_GEQ:
+		case BuiltinNames.INT_LT:
+		case BuiltinNames.INT_GT: {
 			Integer a = (Integer) ctx.getArg(0).getValue();
 			Integer b = (Integer) ctx.getArg(1).getValue();
-			return new IRValue(getIRTypeRef().getIRType(), a + b);
-		}
-		case "__builtin_sub": {
-			Integer a = (Integer) ctx.getArg(0).getValue();
-			Integer b = (Integer) ctx.getArg(1).getValue();
-			return new IRValue(getIRTypeRef().getIRType(), a - b);
+			// TODO: change the internal representation from Integer (32-bit) to Long (64-bit)
+			return new IRValue(getIRTypeRef().getIRType(), (Integer)(int)evalBuiltin(getIRName().getString(), a, b));
 		}
 		}
 	}

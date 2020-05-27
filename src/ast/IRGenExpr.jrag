@@ -42,6 +42,21 @@ aspect IRGenExpr {
 		throw new NotYetImplementedError("Can't translate expression.");
 	}
 
+	public IRVarRef AddExpr.genCode(IRFunctionCtx ctx) {
+		IdDecl dd = lookup(BuiltinNames.INT_ADD);
+		IRFunRef builtinFunc = new IRFunRef(((FunDecl)dd.getDecl()).genIR());
+		IRVarRef r = ctx.getTempIRVar(this);
+
+		IRCallInsn call = new IRCallInsn().setDst(r).setIRFunRef(builtinFunc);
+		IRVarRef left = getLeft().genCode(ctx);
+		IRVarRef right = getRight().genCode(ctx);
+		call.addArg(left).addArg(right);
+
+		ctx.addInsn(call);
+
+		return r;
+	}
+
 	public IRVarRef CallExpr.genCode(IRFunctionCtx ctx) {
 		Expr fun = getFunc();
 		IRFunRef funCallTarget = fun.getCalledFunction();

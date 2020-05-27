@@ -1,0 +1,30 @@
+fun g(x) = {}
+
+fun f(a) = {
+    var x;
+    x := a;
+    x := f(x);
+
+    g(x);
+}
+
+fun h(a) =
+    if (a) {
+       if (f(a)) {
+       	  h(a);
+       } else {
+       	 g(a);
+       }
+   } else {
+         g(a);
+	 while (a) { }
+   }
+
+fun loop(i) = {
+    var x;
+    x := i;
+    while (1) {
+    	  x := i;
+    	  loop(i);
+    }
+}
