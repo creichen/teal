@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.Map;
 import java.util.ArrayList;
 import lang.ast.NotYetImplementedError;
 import lang.ast.BuiltinNames;
@@ -57,6 +58,14 @@ aspect IRInterpreter {
 
 		public IRValue get(IRVarRef var) throws InterpreterException {
 			return get(var.getIRVar());
+		}
+
+		public String toString() {
+			String r = "";
+			for (Map.Entry<IRVar, IRValue> v : varToVal.entrySet()) {
+				r += v.getKey().toString() + "=" + v.getValue().toString() + "\n";
+			}
+			return r;
 		}
 	}
 
@@ -157,6 +166,7 @@ aspect IRInterpreter {
 
 		dbgi("entering function");
 		dbgi(toString());
+		dbgi(ctx.getStore().toString());
 
 		IRCodeBB currentBB = getIRCodeBB(0);
 		while (true) {
@@ -216,7 +226,8 @@ aspect IRInterpreter {
 			actuals.add(v);
 		}
 
-		IRFunctionEvalCtx calleeCtx = new IRFunctionEvalCtx(ctx.getStore(), actuals);
+		// TODO: implement a storage for global variables
+		IRFunctionEvalCtx calleeCtx = new IRFunctionEvalCtx(new Storage(), actuals);
 		IRValue retVal = callee.eval(calleeCtx);
 
 		ctx.getStore().set(getDst(), retVal);

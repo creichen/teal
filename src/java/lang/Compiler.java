@@ -81,7 +81,7 @@ public class Compiler {
 			// Dump the IR
 			m.print(System.out);
 
-			if (args[1].equals("--run"))
+			if (args.length > 1 && args[1].equals("--run"))
 				// this all the compilation pipeline for now, interpret
 				interpret(m, args);
 

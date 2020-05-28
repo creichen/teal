@@ -1,0 +1,9 @@
+fun main(n : int) : int = {
+    var r : int := sum(n);
+    return r;
+}
+
+fun sum(n : int) : int = {
+    if n == 0 { return 0; }
+    return n + sum(n - 1);
+}

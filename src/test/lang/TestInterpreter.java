@@ -111,4 +111,24 @@ public class TestInterpreter {
 		assertNotNull(m);
 		assertTrue(checkResult(m, 0, 11, 8));
 	}
+
+	@Test
+	public void testWhile() {
+		IRModule m =loadAndCompileProgram("sum.in");
+		assertNotNull(m);
+
+		int n = 10000;
+		int r = (n - 1) * n / 2;
+		assertTrue(checkResult(m, r, n));
+	}
+
+	@Test
+	public void testRecursiveCall() {
+		IRModule m =loadAndCompileProgram("sum_rec.in");
+		assertNotNull(m);
+
+		int n = 20;
+		int r = (n + 1) * n / 2;
+		assertTrue(checkResult(m, r, n));
+	}
 }
