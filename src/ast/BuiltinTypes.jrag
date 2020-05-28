@@ -11,12 +11,30 @@ aspect BuiltinTypes {
 		public static final String INT_DIV = "__builtin_int_div";
 		public static final String INT_MOD = "__builtin_int_mod";
 
-		public static final String INT_EQ = "__builtin_int_eq";
-		public static final String INT_NEQ = "__builtin_int_neq";
+		public static final String ANY_EQ = "__builtin_int_eq";
+		public static final String ANY_NEQ = "__builtin_int_neq";
 		public static final String INT_LEQ = "__builtin_int_leq";
 		public static final String INT_GEQ = "__builtin_int_geq";
 		public static final String INT_LT = "__builtin_int_lt";
 		public static final String INT_GT = "__builtin_int_gt";
+
+		public static final String INT_AND = "__builtin_int_logical_and";
+		public static final String INT_OR = "__builtin_int_logical_or";
+	}
+
+
+	private Decl Program.makeBuiltinFunDecl(String name, String retType, String ...argTypes) {
+		FunDecl f = new FunDecl();
+		f.setIdDecl(new IdDecl(name));
+		f.setType(new SimpleType(new IdUse(retType), new List()));
+
+		int count = 0;
+		for (String t : argTypes)  {
+			String argName = "a" + (count++);
+			f.addFormal(new VarDecl(new IdDecl(argName), new Opt(new SimpleType(new IdUse(t), new List())), new Opt()));
+		}
+
+		return f;
 	}
 
 	/**
@@ -31,12 +49,22 @@ aspect BuiltinTypes {
 			.add(new TypeDecl().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
 				 .setTypeFormalList(new List<TypeVarDecl>().add(new TypeVarDecl(new IdDecl("T")))));
 
-		decls
-			.add(new FunDecl(new IdDecl(BuiltinNames.INT_ADD),
-							 new Opt(new SimpleType(new IdUse(BuiltinNames.INT), new List())),
-							 new List().add(new VarDecl(new IdDecl("m"), new Opt(new SimpleType(new IdUse(BuiltinNames.INT), new List())), new Opt()))
-							 .add(new VarDecl(new IdDecl("n"), new Opt(new SimpleType(new IdUse(BuiltinNames.INT), new List())), new Opt())),
-							 new Opt()));
+		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_ADD, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
+		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_SUB, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
+		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_MUL, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
+		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_DIV, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
+		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_MOD, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
+
+		decls.add(makeBuiltinFunDecl(BuiltinNames.ANY_EQ, BuiltinNames.INT, BuiltinNames.ANY, BuiltinNames.ANY));
+		decls.add(makeBuiltinFunDecl(BuiltinNames.ANY_NEQ, BuiltinNames.INT, BuiltinNames.ANY, BuiltinNames.ANY));
+
+		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_LEQ, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
+		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_GEQ, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
+		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_LT, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
+		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_GT, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
+
+		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_AND, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
+		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_OR, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
 
 		return decls;
 	}

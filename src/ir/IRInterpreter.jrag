@@ -97,10 +97,6 @@ aspect IRInterpreter {
 		case BuiltinNames.INT_MOD:
 			if (r != 0) return l % r;
 			else throw new InterpreterException("Division by 0");
-		case BuiltinNames.INT_EQ:
-			return l == r ? 1 : 0;
-		case BuiltinNames.INT_NEQ:
-			return l != r ? 1 : 0;
 		case BuiltinNames.INT_LEQ:
 			return l <= r ? 1 : 0;
 		case BuiltinNames.INT_GEQ:
@@ -124,8 +120,6 @@ aspect IRInterpreter {
 		case BuiltinNames.INT_MUL:
 		case BuiltinNames.INT_DIV:
 		case BuiltinNames.INT_MOD:
-		case BuiltinNames.INT_EQ:
-		case BuiltinNames.INT_NEQ:
 		case BuiltinNames.INT_LEQ:
 		case BuiltinNames.INT_GEQ:
 		case BuiltinNames.INT_LT:
@@ -135,6 +129,14 @@ aspect IRInterpreter {
 			// TODO: change the internal representation from Integer (32-bit) to Long (64-bit)
 			return new IRValue(getIRTypeRef().getIRType(), (Integer)(int)evalBuiltin(getIRName().getString(), a, b));
 		}
+		case BuiltinNames.ANY_EQ:
+		case BuiltinNames.ANY_NEQ:
+			Object a = ctx.getArg(0).getValue();
+			Object b = ctx.getArg(0).getValue();
+			int r = a.equals(b) ? 1 : 0;
+			if (getIRName().getString().equals(BuiltinNames.ANY_NEQ))
+				r = 1 - r;
+			return new IRValue(getIRTypeRef().getIRType(), Integer.valueOf(r));
 		}
 	}
 

@@ -42,8 +42,23 @@ aspect IRGenExpr {
 		throw new NotYetImplementedError("Can't translate expression.");
 	}
 
-	public IRVarRef AddExpr.genCode(IRFunctionCtx ctx) {
-		IdDecl dd = lookup(BuiltinNames.INT_ADD);
+	syn String BinExpr.builtin();
+	eq AddExpr.builtin() = BuiltinNames.INT_ADD;
+	eq SubExpr.builtin() = BuiltinNames.INT_SUB;
+	eq MulExpr.builtin() = BuiltinNames.INT_MUL;
+	eq DivExpr.builtin() = BuiltinNames.INT_DIV;
+	eq ModExpr.builtin() = BuiltinNames.INT_MOD;
+	eq EQExpr.builtin() = BuiltinNames.ANY_EQ;
+	eq NEQExpr.builtin() = BuiltinNames.ANY_NEQ;
+	eq LTExpr.builtin() = BuiltinNames.INT_LT;
+	eq GTExpr.builtin() = BuiltinNames.INT_GT;
+	eq LEQExpr.builtin() = BuiltinNames.INT_LEQ;
+	eq GEQExpr.builtin() = BuiltinNames.INT_GEQ;
+	eq OrExpr.builtin() = BuiltinNames.INT_OR;
+	eq AndExpr.builtin() = BuiltinNames.INT_AND;
+
+	public IRVarRef BinExpr.genCode(IRFunctionCtx ctx) {
+		IdDecl dd = lookup(builtin());
 		IRFunRef builtinFunc = new IRFunRef(((FunDecl)dd.getDecl()).genIR());
 		IRVarRef r = ctx.getTempIRVar(this);
 
