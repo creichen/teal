@@ -11,8 +11,9 @@ aspect BuiltinTypes {
 		public static final String INT_DIV = "__builtin_int_div";
 		public static final String INT_MOD = "__builtin_int_mod";
 
-		public static final String ANY_EQ = "__builtin_int_eq";
-		public static final String ANY_NEQ = "__builtin_int_neq";
+		public static final String ANY_EQ = "__builtin_any_eq";
+		public static final String ANY_NEQ = "__builtin_any_neq";
+
 		public static final String INT_LEQ = "__builtin_int_leq";
 		public static final String INT_GEQ = "__builtin_int_geq";
 		public static final String INT_LT = "__builtin_int_lt";

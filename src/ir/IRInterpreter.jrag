@@ -2,6 +2,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import lang.ast.NotYetImplementedError;
 import lang.ast.BuiltinNames;
+import static lang.common.Debug.dbgi;
 
 aspect IRInterpreter {
 	public class InterpreterException extends Exception {
@@ -25,6 +26,10 @@ aspect IRInterpreter {
 
 		public Object getValue() {
 			return value;
+		}
+
+		public String toString() {
+			return value.toString() + ":" + getDynType().toString();
 		}
 	}
 
@@ -105,6 +110,10 @@ aspect IRInterpreter {
 			return l < r ? 1 : 0;
 		case BuiltinNames.INT_GT:
 			return l > r ? 1 : 0;
+		case BuiltinNames.INT_AND:
+			return (l != 0 && r != 0) ? 1 : 0;
+		case BuiltinNames.INT_OR:
+			return (l == 0 && r == 0) ? 0 : 1;
 		default:
 			throw new InterpreterException("Builtin function " + op + " cannot be evaluated.");
 
@@ -123,7 +132,9 @@ aspect IRInterpreter {
 		case BuiltinNames.INT_LEQ:
 		case BuiltinNames.INT_GEQ:
 		case BuiltinNames.INT_LT:
-		case BuiltinNames.INT_GT: {
+		case BuiltinNames.INT_GT:
+		case BuiltinNames.INT_AND:
+		case BuiltinNames.INT_OR : {
 			Integer a = (Integer) ctx.getArg(0).getValue();
 			Integer b = (Integer) ctx.getArg(1).getValue();
 			// TODO: change the internal representation from Integer (32-bit) to Long (64-bit)
@@ -132,7 +143,7 @@ aspect IRInterpreter {
 		case BuiltinNames.ANY_EQ:
 		case BuiltinNames.ANY_NEQ:
 			Object a = ctx.getArg(0).getValue();
-			Object b = ctx.getArg(0).getValue();
+			Object b = ctx.getArg(1).getValue();
 			int r = a.equals(b) ? 1 : 0;
 			if (getIRName().getString().equals(BuiltinNames.ANY_NEQ))
 				r = 1 - r;
@@ -144,20 +155,26 @@ aspect IRInterpreter {
 		if (getNumIRCodeBB() == 0)
 			return evalBuiltin(ctx);
 
+		dbgi("entering function");
+		dbgi(toString());
+
+		IRCodeBB currentBB = getIRCodeBB(0);
 		while (true) {
-			IRCodeBB currentBB = getIRCodeBB(0);
 			currentBB.eval(ctx);
 
 			if (currentBB.getIRCodeExit() instanceof IRReturn) {
 				IRVarRef rv = ((IRReturn)(currentBB.getIRCodeExit())).getIRVarRef();
+				dbgi("exec " + currentBB.getIRCodeExit() + " ret=" + ctx.getStore().get(rv));
 				return ctx.getStore().get(rv);
 			} else if (currentBB.getIRCodeExit() instanceof IRJump) {
 				IRJump ji = (IRJump) currentBB.getIRCodeExit();
 				currentBB = ji.getIRCodeBBRef().getIRCodeBB();
+				dbgi("exec " + ji);
 			} else {
 				IRBranch bi = (IRBranch) currentBB.getIRCodeExit();
 				// TODO: check TEAL types here, instead of Java types
 				IRValue cond = ctx.getStore().get(bi.getCond());
+				dbgi("exec " + bi + " cond=" + cond);
 				if (!(cond.getValue() instanceof Integer))
 					throw new InterpreterException("Condition expected to be integer");
 				Integer icond = (Integer) cond.getValue();

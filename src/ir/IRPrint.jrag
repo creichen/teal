@@ -31,7 +31,7 @@ aspect IRPrint {
 	}
 
 	public void ASTNode.print(PrintStream out) {
-		out.print("*** not implemented ***");
+		out.print("*** not implemented (" + getClass().toString() + ") ***");
 	}
 
 	public void IRModule.print(PrintStream out) {

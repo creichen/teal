@@ -97,4 +97,18 @@ public class TestInterpreter {
 		assertTrue(checkResult(m, 0, -100, 100));
 	}
 
+	@Test
+	public void testEq() {
+		IRModule m = loadAndCompileProgram("eq.in");
+		assertNotNull(m);
+		assertTrue(checkResult(m, 0, 10, 13));
+		assertTrue(checkResult(m, 1, 1001, 1001));
+	}
+
+	@Test
+	public void testArith() {
+		IRModule m =loadAndCompileProgram("arith.in");
+		assertNotNull(m);
+		assertTrue(checkResult(m, 0, 11, 8));
+	}
 }

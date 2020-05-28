@@ -185,6 +185,16 @@ aspect IRGen {
 		ctx.addInsn(copy);
 	}
 
+	public void VarDeclStmt.genCode(IRFunctionCtx ctx) {
+		if (!getVarDecl().hasInitializer())
+			return;
+		// generate code for the initializer
+		IRVarRef dst = ctx.getIRVarRef(getVarDecl());
+		IRVarRef src = getVarDecl().getInitializer().genCode(ctx);
+		IRCopyInsn copy = new IRCopyInsn(dst, src);
+		ctx.addInsn(copy);
+	}
+
 	public void ExprStmt.genCode(IRFunctionCtx ctx) {
 		getExpr().genCode(ctx);
 	}

@@ -3,6 +3,7 @@ package lang;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import beaver.Parser.Exception;
@@ -13,6 +14,8 @@ import lang.ast.LangScanner;
 import lang.ast.CompilerError;
 
 import lang.ir.IRModule;
+import lang.ir.IRValue;
+import lang.ir.InterpreterException;
 
 /**
  * Dumps the parsed Abstract Syntax Tree of a Calc program.
@@ -25,9 +28,22 @@ public class Compiler {
 
     public static Object DrAST_root_node; //Enable debugging with DrAST
 
+	public static void interpret(IRModule m, String[] strings) {
+		ArrayList<IRValue> args = new ArrayList<>();
+		for (int i = 2; i < strings.length; ++i) {
+			args.add(new IRValue(m.IntegerType, Integer.parseInt(strings[i])));
+		}
+		try {
+			IRValue ret = m.eval(args);
+			System.out.println("Program returned " + ret);
+		} catch (InterpreterException e) {
+			System.err.println("Error while intepreting program: " + e.toString());
+		}
+	}
+
 	public static void main(String[] args) {
 		try {
-			if (args.length != 1) {
+			if (args.length < 1) {
 				System.err.println(
 						"You must specify a source file on the command line!");
 				printUsage();
@@ -65,7 +81,9 @@ public class Compiler {
 			// Dump the IR
 			m.print(System.out);
 
-			// this all the compilation pipeline for now
+			if (args[1].equals("--run"))
+				// this all the compilation pipeline for now, interpret
+				interpret(m, args);
 
 		} catch (FileNotFoundException e) {
 			System.out.println("File not found!");
