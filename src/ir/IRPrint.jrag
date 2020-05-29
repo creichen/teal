@@ -70,8 +70,8 @@ aspect IRPrint {
 
 	public void IRTypeInstanceRef.print(PrintStream out) {
 		out.print(getIRType().getIRName().getString());
-		out.print(" ");
-		printCollection(getTypeActuals(), "[", "]", ",", out);
+		if (getNumTypeActual() != 0)
+			printCollection(getTypeActuals(), "[", "]", ",", out);
 	}
 
 	public void IRTypeFormalRef.print(PrintStream out) {

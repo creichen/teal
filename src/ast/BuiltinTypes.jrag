@@ -44,10 +44,10 @@ aspect BuiltinTypes {
 	syn nta List<Decl> Program.getBuiltinDeclList() {
 		List<Decl> decls = new List<Decl>();
 		decls
-			.add(new TypeDecl().setIdDecl(new IdDecl(BuiltinNames.INT)))
-			.add(new TypeDecl().setIdDecl(new IdDecl(BuiltinNames.STRING)))
-			.add(new TypeDecl().setIdDecl(new IdDecl(BuiltinNames.ANY)))
-			.add(new TypeDecl().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
+			.add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.INT)))
+			.add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.STRING)))
+			.add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.ANY)))
+			.add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
 				 .setTypeFormalList(new List<TypeVarDecl>().add(new TypeVarDecl(new IdDecl("T")))));
 
 		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_ADD, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));

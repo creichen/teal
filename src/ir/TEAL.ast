@@ -55,8 +55,11 @@ IRTypeFormalRef : IRTypeRef ::= <IRTypeFormal:IRTypeFormal>;
 // Qualifier reference
 IRQualifierRef ::= <IRQualifier:IRQualifier>;
 
+// Types
+abstract IRType ::= IRName;
+
 // Class
-IRClass ::= IRName IRTypeFormal* Super:IRTypeRef* Constructor:IRFunction IRFunction* IRVar*;
+IRClass : IRType ::= IRTypeFormal* Super:IRTypeRef* [Constructor:IRFunction] IRFunction* IRVar*;
 
 // IRTypeRef ::= /* empty */
 // | IRQualifierRef* Module:Name* Type:Name TypeActuals:IRTypeRef*
@@ -71,6 +74,5 @@ IRMethodRef;
 IRTypeAlias;
 
 IRModuleRef ::= <IRModule:IRModule>;
-IRType ::= IRName;
 IRTypeFormal ::= IRName;
 IRQualifier;
