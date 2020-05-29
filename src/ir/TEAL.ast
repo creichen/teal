@@ -46,7 +46,22 @@ IRInteger : IRConstant ::= <Value:Integer>;
 IRVarRef ::= <IRVar:IRVar>;
 IRFunRef ::= <IRFunction:IRFunction>;
 IRCodeBBRef ::= <IRCodeBB:IRCodeBB>;
-IRTypeRef ::= <IRType:IRType>;
+
+// Type reference
+abstract IRTypeRef;
+IRTypeInstanceRef : IRTypeRef ::= [IRQualifierRef] <IRType:IRType> TypeActual:IRTypeRef*;
+IRTypeFormalRef : IRTypeRef ::= <IRTypeFormal:IRTypeFormal>;
+
+// Qualifier reference
+IRQualifierRef ::= <IRQualifier:IRQualifier>;
+
+// Class
+IRClass ::= IRName IRTypeFormal* Super:IRTypeRef* Constructor:IRFunction IRFunction* IRVar*;
+
+// IRTypeRef ::= /* empty */
+// | IRQualifierRef* Module:Name* Type:Name TypeActuals:IRTypeRef*
+// | IRTypeFormal
+// ;
 
 IRName ::= <String>;
 
@@ -54,6 +69,8 @@ IRName ::= <String>;
 IRFieldRef;
 IRMethodRef;
 IRTypeAlias;
-IRClass;
+
+IRModuleRef ::= <IRModule:IRModule>;
 IRType ::= IRName;
+IRTypeFormal ::= IRName;
 IRQualifier;

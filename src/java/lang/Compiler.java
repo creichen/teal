@@ -31,7 +31,7 @@ public class Compiler {
 	public static void interpret(IRModule m, String[] strings) {
 		ArrayList<IRValue> args = new ArrayList<>();
 		for (int i = 2; i < strings.length; ++i) {
-			args.add(new IRValue(m.IntegerType, Integer.parseInt(strings[i])));
+			args.add(new IRValue(m.IntegerTypeRef, Integer.parseInt(strings[i])));
 		}
 		try {
 			IRValue ret = m.eval(args);

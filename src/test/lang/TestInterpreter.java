@@ -22,7 +22,7 @@ import lang.ast.Program;
 import lang.ir.IRModule;
 import lang.ir.IRValue;
 import lang.ir.InterpreterException;
-import lang.ir.IRType;
+import lang.ir.IRTypeRef;
 
 public class TestInterpreter {
 	private static final String TEST_DIRECTORY = "testfiles/interpreter";
@@ -67,11 +67,11 @@ public class TestInterpreter {
 		ArrayList<IRValue> args = new ArrayList<>();
 		for (Object input : testInput) {
 
-			IRType type;
+			IRTypeRef type;
 			if (input instanceof String) {
-				type = m.StringType;
+				type = m.StringTypeRef;
 			} else if (input instanceof Integer) {
-				type = m.IntegerType;
+				type = m.IntegerTypeRef;
 			} else {
 				System.err.println("Unsupported type for argument.");
 				return false;

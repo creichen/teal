@@ -7,8 +7,9 @@ aspect IRGenType {
 	syn IRTypeRef Type.genIR() {
 		throw new NotYetImplementedError("Non-simple type translation not implemented");
 	}
+
 	eq SimpleType.genIR() {
 		TypeDecl d = (TypeDecl)getIdUse().lookup().getDecl();
-		return new IRTypeRef(d.genIR());
+		return new IRTypeInstanceRef(new lang.ir.Opt(), d.genIR(), new lang.ir.List());
 	}
 }

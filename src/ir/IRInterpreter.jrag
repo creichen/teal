@@ -13,15 +13,15 @@ aspect IRInterpreter {
 	}
 
 	public class IRValue {
-		private IRType dynamicType;
+		private IRTypeRef dynamicType;
 		private Object value;
 
-		public IRValue(IRType type, Object value) {
+		public IRValue(IRTypeRef type, Object value) {
 			this.dynamicType = type;
 			this.value = value;
 		}
 
-		public IRType getDynType() {
+		public IRTypeRef getDynType() {
 			return dynamicType;
 		}
 
@@ -147,7 +147,7 @@ aspect IRInterpreter {
 			Integer a = (Integer) ctx.getArg(0).getValue();
 			Integer b = (Integer) ctx.getArg(1).getValue();
 			// TODO: change the internal representation from Integer (32-bit) to Long (64-bit)
-			return new IRValue(getIRTypeRef().getIRType(), (Integer)(int)evalBuiltin(getIRName().getString(), a, b));
+			return new IRValue(getIRTypeRef(), (Integer)(int)evalBuiltin(getIRName().getString(), a, b));
 		}
 		case BuiltinNames.ANY_EQ:
 		case BuiltinNames.ANY_NEQ:
@@ -156,7 +156,7 @@ aspect IRInterpreter {
 			int r = a.equals(b) ? 1 : 0;
 			if (getIRName().getString().equals(BuiltinNames.ANY_NEQ))
 				r = 1 - r;
-			return new IRValue(getIRTypeRef().getIRType(), Integer.valueOf(r));
+			return new IRValue(getIRTypeRef(), Integer.valueOf(r));
 		}
 	}
 
@@ -239,6 +239,6 @@ aspect IRInterpreter {
 
 	// Constants
 	syn IRValue IRConstant.asIRValue();
-	eq IRString.asIRValue() = new IRValue(getModule().StringType, getValue());
-	eq IRInteger.asIRValue() = new IRValue(getModule().IntegerType, getValue());
+	eq IRString.asIRValue() = new IRValue(getModule().StringTypeRef, getValue());
+	eq IRInteger.asIRValue() = new IRValue(getModule().IntegerTypeRef, getValue());
 }
