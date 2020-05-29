@@ -13,7 +13,6 @@ aspect IRGenExpr {
 	eq VarDeclStmt.getVarDecl().getScope() = VariableScope.LOCAL;
 	eq VarDeclElt.getVarDecl().getScope() = VariableScope.MEMBER;
 
-
 	syn IRVar Expr.getIRVar() {
 		int uid = getUID();
 		return new IRVar(new IRName("$" + uid), type().genIR());
@@ -22,7 +21,6 @@ aspect IRGenExpr {
 	syn IRVarRef Expr.getIRVarRef() {
 		return new IRVarRef(getIRVar());
 	}
-
 
 	syn IRFunRef Expr.getCalledFunction() = null;
 	eq Access.getCalledFunction() {

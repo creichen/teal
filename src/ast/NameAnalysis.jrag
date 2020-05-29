@@ -189,7 +189,7 @@ aspect NameAnalysisPrivate {
 
 	syn IdDecl TypeDecl.localLookup(String s) {
 		IdDecl d = localDeclMap().getOne(s);
-		return null;
+		return d;
 	}
 
 	syn IdDecl Decl.getIdDecl() = null;

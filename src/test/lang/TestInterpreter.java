@@ -69,9 +69,9 @@ public class TestInterpreter {
 
 			IRTypeRef type;
 			if (input instanceof String) {
-				type = m.StringTypeRef;
+				type = m.makeStringTypeRef();
 			} else if (input instanceof Integer) {
-				type = m.IntegerTypeRef;
+				type = m.makeIntegerTypeRef();
 			} else {
 				System.err.println("Unsupported type for argument.");
 				return false;

@@ -239,6 +239,6 @@ aspect IRInterpreter {
 
 	// Constants
 	syn IRValue IRConstant.asIRValue();
-	eq IRString.asIRValue() = new IRValue(getModule().StringTypeRef, getValue());
-	eq IRInteger.asIRValue() = new IRValue(getModule().IntegerTypeRef, getValue());
+	eq IRString.asIRValue() = new IRValue(getModule().makeStringTypeRef(), getValue());
+	eq IRInteger.asIRValue() = new IRValue(getModule().makeIntegerTypeRef(), getValue());
 }

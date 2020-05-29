@@ -3,9 +3,17 @@ aspect IR {
 	public IRClass IRModule.StringType = new IRClass().setIRName(new IRName("string"));
 	public IRClass IRModule.AnyType = new IRClass().setIRName(new IRName("any"));
 
-	public IRTypeRef IRModule.IntegerTypeRef = new IRTypeInstanceRef(new Opt(), IntegerType, new List());
-	public IRTypeRef IRModule.StringTypeRef = new IRTypeInstanceRef(new Opt(), StringType, new List());
-	public IRTypeRef IRModule.AnyTypeRef = new IRTypeInstanceRef(new Opt(), AnyType, new List());
+	public IRTypeRef IRModule.makeIntegerTypeRef() {
+		return new IRTypeInstanceRef(new Opt(), IntegerType, new List());
+	}
+
+	public IRTypeRef IRModule.makeStringTypeRef() {
+		return new IRTypeInstanceRef(new Opt(), StringType, new List());
+	}
+
+	public IRTypeRef IRModule.makeAnyTypeRef() {
+		return new IRTypeInstanceRef(new Opt(), AnyType, new List());
+	}
 
 	public String IRModule.defaultName = "main";
 

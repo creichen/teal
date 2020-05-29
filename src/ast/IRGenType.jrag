@@ -3,8 +3,75 @@ aspect IRGenType {
 		throw new NotYetImplementedError("Translation of types not fully implemented");
 	}
 
+	syn IRTypeFormal TypeVarDecl.genIR() {
+		return new IRTypeFormal(new IRName(getIdDecl().getID()));
+	}
+
+	syn IRVar VarDeclElt.genIR() {
+		return getVarDecl().genIR();
+	}
+
+	public IRFunction ClassDecl.makeConstructor() {
+		IRFunction init = new IRFunction();
+		init.setIRName(new IRName("__init"));
+
+		// build the return type
+		init.setIRTypeRef(new IRAnyTypeRef());
+
+		// formal param types
+		lang.ir.List<IRTypeRef> irTypes = new lang.ir.List<>();
+		for (VarDecl d : getFunFormals()) {
+			irTypes.add(d.type().genIR());
+		}
+		init.setParamTypeList(irTypes);
+		// extract the arguments
+		IRFunctionCtx fctx = new IRFunctionCtx(init);
+		fctx.startBB();
+		for (int i = 0; i < getNumFunFormal(); ++i) {
+			VarDecl d = getFunFormal(i);
+			IRVarRef v = fctx.getIRVarRef(d);
+			IRArgInsn iarg = new IRArgInsn(v, i);
+			fctx.addInsn(iarg);
+		}
+		// now add any initializer code
+		for (StructElt e : getStructElts()) {
+			if (!(e instanceof VarDeclElt))
+				continue;
+			VarDeclElt d = (VarDeclElt) e;
+			d.getVarDecl().genCode(fctx);
+		}
+		// return undef
+		if (fctx.getCurrentBB().getIRCodeExit() == null) {
+			fctx.getCurrentBB().setIRCodeExit(new IRReturn(new IRVarRef()));
+		}
+		// done
+		return init;
+	}
+
 	eq ClassDecl.genIR() {
-		return new IRClass().setIRName(new IRName(getIdDecl().getID()));
+		// class with a name
+		IRClass klass = new IRClass().setIRName(new IRName(getIdDecl().getID()));
+		// set formal type parameters
+		for (TypeVarDecl d : getTypeFormals()) {
+			klass.addIRTypeFormal(d.genIR());
+		}
+		// set supertypes
+		for (Type t : getSuperTypes()) {
+			klass.addSuper(t.genIR());
+		}
+		// set the fields
+		for (StructElt e : getStructElts()) {
+			if (e instanceof VarDeclElt) {
+				klass.addIRVar(((VarDeclElt)e).genIR());
+			}
+		}
+		// build the constructor, which contains initializers for all the fields
+		IRFunction init = makeConstructor();
+		klass.setConstructor(init);
+		// build the methods
+
+		// add the fields
+		return klass;
 	}
 
 	syn IRTypeRef Type.genIR() {

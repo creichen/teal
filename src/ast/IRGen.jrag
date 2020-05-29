@@ -67,8 +67,10 @@ aspect IRGen {
 				if (fd.hasBody())
 					fd.genCode(fctx);
 				m.getIRFunctions().add(f);
+			} else if (d instanceof ClassDecl) {
+				m.addIRType(((ClassDecl)d).genIR());
 			} else {
-				throw new NotYetImplementedError("Cannot translate declaration");
+				throw new NotYetImplementedError("Cannot translate declaration " + d.getClass());
 			}
 		}
 
@@ -138,6 +140,7 @@ aspect IRGen {
 		}
 	}
 
+
 	syn IRFunction FunDecl.genIR() {
 		IRFunction func = new IRFunction();
 		// name
@@ -185,14 +188,18 @@ aspect IRGen {
 		ctx.addInsn(copy);
 	}
 
-	public void VarDeclStmt.genCode(IRFunctionCtx ctx) {
-		if (!getVarDecl().hasInitializer())
+	public void VarDecl.genCode(IRFunctionCtx ctx) {
+		if (!hasInitializer())
 			return;
 		// generate code for the initializer
 		IRVarRef dst = ctx.getIRVarRef(getVarDecl());
 		IRVarRef src = getVarDecl().getInitializer().genCode(ctx);
 		IRCopyInsn copy = new IRCopyInsn(dst, src);
 		ctx.addInsn(copy);
+	}
+
+	public void VarDeclStmt.genCode(IRFunctionCtx ctx) {
+		getVarDecl().genCode(ctx);
 	}
 
 	public void ExprStmt.genCode(IRFunctionCtx ctx) {

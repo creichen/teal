@@ -54,6 +54,24 @@ aspect IRPrint {
 		out.println();
 	}
 
+	public void IRClass.print(PrintStream out) {
+		out.print("class ");
+		getIRName().print(out);
+
+		if (getNumIRTypeFormal() != 0)
+			printCollection(getIRTypeFormals(), "[", "]", ",", out);
+
+		out.println("{");
+
+		printCollection(getIRVars(), "", "\n", "\n", out);
+
+		getConstructor().print(out);
+
+		printCollection(getIRFunctions(), "", "\n", "\n", out);
+
+		out.println("}");
+	}
+
 	public void IRFunction.print(PrintStream out) {
 		out.print("function ");
 		getIRTypeRef().print(out);
@@ -76,6 +94,14 @@ aspect IRPrint {
 
 	public void IRTypeFormalRef.print(PrintStream out) {
 		getIRTypeFormal().print(out);
+	}
+
+	public void IRAnyTypeRef.print(PrintStream out) {
+		out.print("any");
+	}
+
+	public void IRIntTypeRef.print(PrintStream out) {
+		out.print("int");
 	}
 
 	public void IRTypeFormal.print(PrintStream out) {

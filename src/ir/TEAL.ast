@@ -51,6 +51,9 @@ IRCodeBBRef ::= <IRCodeBB:IRCodeBB>;
 abstract IRTypeRef;
 IRTypeInstanceRef : IRTypeRef ::= [IRQualifierRef] <IRType:IRType> TypeActual:IRTypeRef*;
 IRTypeFormalRef : IRTypeRef ::= <IRTypeFormal:IRTypeFormal>;
+abstract IRFundamentalTypeRef : IRTypeRef;
+IRIntTypeRef : IRFundamentalTypeRef;
+IRAnyTypeRef : IRFundamentalTypeRef;
 
 // Qualifier reference
 IRQualifierRef ::= <IRQualifier:IRQualifier>;
@@ -60,11 +63,6 @@ abstract IRType ::= IRName;
 
 // Class
 IRClass : IRType ::= IRTypeFormal* Super:IRTypeRef* [Constructor:IRFunction] IRFunction* IRVar*;
-
-// IRTypeRef ::= /* empty */
-// | IRQualifierRef* Module:Name* Type:Name TypeActuals:IRTypeRef*
-// | IRTypeFormal
-// ;
 
 IRName ::= <String>;
 
