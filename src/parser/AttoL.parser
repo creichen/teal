@@ -73,8 +73,8 @@ List fun_formal_list = fun_formal {: return new List(fun_formal); :}
 VarDecl fun_formal = var_id_decl
                    ;
 
-Type type = ID type_actuals {: return new SimpleType(new IdUse(ID), type_actuals); :}
-          | type_qualifier type {: return new QualifiedType(type, type_qualifier); :}
+Type type = ID type_actuals {: return new Type(new IdUse(ID), type_actuals, new List()); :}
+          | type_qualifier type {: return type.addTypeQualifier(type_qualifier); :}
           ;
 
 TypeQualifier type_qualifier = ID type_actuals fun_actuals {: return new TypeQualifier(new IdUse(ID), type_actuals, fun_actuals); :}

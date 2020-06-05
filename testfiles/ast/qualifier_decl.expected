@@ -18,8 +18,9 @@ Program
         VarDecl
           IdDecl ID="a2"
           Opt
-            SimpleType
+            Type
               IdUse ID="t2"
+              List
               List
           Opt
     QualifierDecl
@@ -35,8 +36,9 @@ Program
         VarDecl
           IdDecl ID="a2"
           Opt
-            SimpleType
+            Type
               IdUse ID="t2"
+              List
               List
           Opt
     QualifierDecl
@@ -47,11 +49,13 @@ Program
         TypeVarDecl
           IdDecl ID="t2"
       List
-        SimpleType
+        Type
           IdUse ID="Qual4"
           List
-        SimpleType
+          List
+        Type
           IdUse ID="Qual5"
+          List
           List
       List
       List
@@ -71,11 +75,13 @@ Program
         TypeVarDecl
           IdDecl ID="t2"
       List
-        SimpleType
+        Type
           IdUse ID="Qual4"
           List
-        SimpleType
+          List
+        Type
           IdUse ID="Qual5"
+          List
           List
       List
       List
@@ -87,11 +93,13 @@ Program
         TypeVarDecl
           IdDecl ID="t2"
       List
-        SimpleType
+        Type
           IdUse ID="Qual4"
           List
-        SimpleType
+          List
+        Type
           IdUse ID="Qual5"
+          List
           List
       List
       List

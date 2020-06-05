@@ -35,11 +35,13 @@ Program
       IdDecl ID="MyClass"
       List
       List
-        SimpleType
+        Type
           IdUse ID="Super1"
           List
-        SimpleType
+          List
+        Type
           IdUse ID="Super2"
+          List
           List
       List
       List
@@ -69,36 +71,44 @@ Program
         TypeVarDecl
           IdDecl ID="MyType2"
       List
-        SimpleType
+        Type
           IdUse ID="Super1"
           List
-        SimpleType
+          List
+        Type
           IdUse ID="Super2"
           List
-            SimpleType
+            Type
               IdUse ID="MyType3"
               List
-            SimpleType
+              List
+            Type
               IdUse ID="MyType4"
               List
+              List
+          List
       List
       List
     ClassDecl
       IdDecl ID="MyClass"
       List
       List
-        SimpleType
+        Type
           IdUse ID="Super1"
           List
-        SimpleType
+          List
+        Type
           IdUse ID="Super2"
           List
-            SimpleType
+            Type
               IdUse ID="MyType3"
               List
-            SimpleType
+              List
+            Type
               IdUse ID="MyType4"
               List
+              List
+          List
       List
       List
         VarDecl
@@ -118,16 +128,18 @@ Program
           VarDecl
             IdDecl ID="v"
             Opt
-              SimpleType
+              Type
                 IdUse ID="MyType"
+                List
                 List
             Opt
         VarDeclElt
           VarDecl
             IdDecl ID="w"
             Opt
-              SimpleType
+              Type
                 IdUse ID="T"
+                List
                 List
             Opt
               Access

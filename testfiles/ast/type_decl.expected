@@ -9,18 +9,19 @@ Program
         TypeVarDecl
           IdDecl ID="typeVar2"
       List
-        QualifiedType
-          SimpleType
-            IdUse ID="MyOtherType"
-            List
-          TypeQualifier
-            IdUse ID="Qual1"
-            List
-              SimpleType
-                IdUse ID="typeVar1"
-                List
-            List
-              IntConstant Value="0"
+        Type
+          IdUse ID="MyOtherType"
+          List
+          List
+            TypeQualifier
+              IdUse ID="Qual1"
+              List
+                Type
+                  IdUse ID="typeVar1"
+                  List
+                  List
+              List
+                IntConstant Value="0"
       List
     TypeDecl
       IdDecl ID="MyType"
@@ -28,37 +29,41 @@ Program
         TypeVarDecl
           IdDecl ID="TypeVar"
       List
-        SimpleType
+        Type
           IdUse ID="SuperType1"
           List
-        QualifiedType
-          SimpleType
-            IdUse ID="SimpleType"
-            List
-          TypeQualifier
-            IdUse ID="MyQualifier"
-            List
-              SimpleType
-                IdUse ID="TypeArg"
-                List
-            List
-              Access
-                IdUse ID="FuncArg"
+          List
+        Type
+          IdUse ID="SimpleType"
+          List
+          List
+            TypeQualifier
+              IdUse ID="MyQualifier"
+              List
+                Type
+                  IdUse ID="TypeArg"
+                  List
+                  List
+              List
+                Access
+                  IdUse ID="FuncArg"
       List
         VarDeclElt
           VarDecl
             IdDecl ID="v"
             Opt
-              SimpleType
+              Type
                 IdUse ID="typeVar1"
+                List
                 List
             Opt
         FunDeclElt
           FunDecl
             IdDecl ID="f"
             Opt
-              SimpleType
+              Type
                 IdUse ID="typeVar2"
+                List
                 List
             List
             Opt

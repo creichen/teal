@@ -1,18 +1,2 @@
 aspect Types {
-	syn nta Type Expr.defaultType() = new SimpleType(new IdUse("any"), new List());
-	syn Type Expr.type() = defaultType();
-
-	syn nta Type FunDecl.defaultType() = new SimpleType(new IdUse("any"), new List());
-	syn Type FunDecl.type() {
-		if (hasType())
-			return getType();
-		return defaultType();
-	}
-
-	syn nta Type VarDecl.defaultType() = new SimpleType(new IdUse("any"), new List());
-	syn Type VarDecl.type() {
-		if (hasType())
-			return getType();
-		return defaultType();
-	}
 }

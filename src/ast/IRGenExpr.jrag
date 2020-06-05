@@ -15,7 +15,7 @@ aspect IRGenExpr {
 
 	syn IRVar Expr.getIRVar() {
 		int uid = getUID();
-		return new IRVar(new IRName("$" + uid), type().genIR());
+		return new IRVar(new IRName("$" + uid), type().genIRTypeRef());
 	}
 
 	syn IRVarRef Expr.getIRVarRef() {

@@ -27,12 +27,12 @@ aspect BuiltinTypes {
 	private Decl Program.makeBuiltinFunDecl(String name, String retType, String ...argTypes) {
 		FunDecl f = new FunDecl();
 		f.setIdDecl(new IdDecl(name));
-		f.setType(new SimpleType(new IdUse(retType), new List()));
+		f.setType(new Type(new IdUse(retType), new List(), new List()));
 
 		int count = 0;
 		for (String t : argTypes)  {
 			String argName = "a" + (count++);
-			f.addFormal(new VarDecl(new IdDecl(argName), new Opt(new SimpleType(new IdUse(t), new List())), new Opt()));
+			f.addFormal(new VarDecl(new IdDecl(argName), new Opt(new Type(new IdUse(t), new List(), new List())), new Opt()));
 		}
 
 		return f;

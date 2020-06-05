@@ -16,8 +16,9 @@ Program
               VarDecl
                 IdDecl ID="i"
                 Opt
-                  SimpleType
+                  Type
                     IdUse ID="T"
+                    List
                     List
                 Opt
               CallExpr
@@ -39,8 +40,9 @@ Program
               VarDecl
                 IdDecl ID="i"
                 Opt
-                  SimpleType
+                  Type
                     IdUse ID="T"
+                    List
                     List
                 Opt
               CallExpr

@@ -8,8 +8,9 @@ Program
         VarDecl
           IdDecl ID="x"
           Opt
-            SimpleType
+            Type
               IdUse ID="T"
+              List
               List
           Opt
       Opt
@@ -30,15 +31,17 @@ Program
     FunDecl
       IdDecl ID="g"
       Opt
-        SimpleType
+        Type
           IdUse ID="T"
+          List
           List
       List
         VarDecl
           IdDecl ID="x"
           Opt
-            SimpleType
+            Type
               IdUse ID="T"
+              List
               List
           Opt
       Opt

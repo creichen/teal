@@ -36,12 +36,8 @@ QualifierDecl : TypeDecl ::= FunFormal:VarDecl*;
 
 
 // Type uses
-abstract Type;
-SimpleType : Type ::= IdUse Actual:Type* ;
 TypeQualifier ::= IdUse TypeActual:Type* FunActual:Expr* ;
-QualifiedType : Type ::= Type TypeQualifier;
-IntegerType : Type;
-UnknownType : Type;
+Type ::= IdUse Actual:Type* TypeQualifier*;
 
 // Expressions
 abstract Expr;

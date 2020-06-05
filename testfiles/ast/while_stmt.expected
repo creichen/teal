@@ -4,15 +4,17 @@ Program
     FunDecl
       IdDecl ID="f"
       Opt
-        SimpleType
+        Type
           IdUse ID="U"
+          List
           List
       List
         VarDecl
           IdDecl ID="a"
           Opt
-            SimpleType
+            Type
               IdUse ID="T"
+              List
               List
           Opt
         VarDecl

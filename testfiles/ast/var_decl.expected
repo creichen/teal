@@ -4,56 +4,60 @@ Program
     VarDecl
       IdDecl ID="a"
       Opt
-        SimpleType
+        Type
           IdUse ID="MyType"
+          List
           List
       Opt
     VarDecl
       IdDecl ID="b"
       Opt
-        SimpleType
+        Type
           IdUse ID="int"
+          List
           List
       Opt
         IntConstant Value="64"
     VarDecl
       IdDecl ID="c"
       Opt
-        SimpleType
+        Type
           IdUse ID="int"
+          List
           List
       Opt
         IntConstant Value="10"
     VarDecl
       IdDecl ID="d"
       Opt
-        SimpleType
+        Type
           IdUse ID="String"
+          List
           List
       Opt
         StringConstant Value="escaped\" string"
     VarDecl
       IdDecl ID="e"
       Opt
-        QualifiedType
-          QualifiedType
-            SimpleType
-              IdUse ID="TypeId"
-              List
+        Type
+          IdUse ID="TypeId"
+          List
+          List
             TypeQualifier
               IdUse ID="QualId2"
               List
               List
                 Access
                   IdUse ID="funActual2"
-          TypeQualifier
-            IdUse ID="QualId"
-            List
-              SimpleType
-                IdUse ID="typeActual"
-                List
-            List
-              Access
-                IdUse ID="funActual"
+            TypeQualifier
+              IdUse ID="QualId"
+              List
+                Type
+                  IdUse ID="typeActual"
+                  List
+                  List
+              List
+                Access
+                  IdUse ID="funActual"
       Opt
         IntConstant Value="5"

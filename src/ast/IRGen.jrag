@@ -119,7 +119,7 @@ aspect IRGen {
 			IRVar tmp = temps.get(e);
 			if (tmp == null) {
 				tmp = new IRVar(new IRName("tmp" + counter++),
-								e.type().genIR());
+								e.type().genIRTypeRef());
 				F.getLocals().add(tmp);
 				temps.put(e, tmp);
 			}
@@ -132,7 +132,7 @@ aspect IRGen {
 				// Append an index to the name. We might have multiple variables with
 				// the same name at different scopes, and we want them to have a unique
 				// name inside the IR
-				v = new IRVar(new IRName(d.getIdDecl().getID() + counter++), d.type().genIR());
+				v = new IRVar(new IRName(d.getIdDecl().getID() + counter++), d.type().genIRTypeRef());
 				F.getLocals().add(v);
 				locals.put(d, v);
 			}
@@ -148,11 +148,11 @@ aspect IRGen {
 		// formal param types
 		lang.ir.List<IRTypeRef> irTypes = new lang.ir.List<>();
 		for (VarDecl d : getFormals()) {
-			irTypes.add(d.type().genIR());
+			irTypes.add(d.type().genIRTypeRef());
 		}
 		func.setParamTypeList(irTypes);
 		// return type, if any
-		func.setIRTypeRef(type().genIR());
+		func.setIRTypeRef(type().genIRTypeRef());
 		return func;
 	}
 
@@ -256,6 +256,6 @@ aspect IRGen {
 		ctx.startBB();
 	}
 
-	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), type().genIR());
+	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), type().genIRTypeRef());
 	syn IRName IdDecl.genIR() = new IRName(getID());
 }

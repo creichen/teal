@@ -1,0 +1,29 @@
+aspect TypeAnalysis {
+	public interface TypeDefinition {
+		IRTypeRef genIRTypeRef();
+	}
+
+	TypeDecl implements TypeDefinition;
+	TypeVarDecl implements TypeDefinition;
+
+	syn TypeDefinition Expr.type() = (TypeDefinition) lookup("any").getDecl();
+	eq IntConstant.type() = (TypeDefinition) lookup("int").getDecl();
+	eq StringConstant.type() = (TypeDefinition) lookup("string").getDecl();
+	eq TypedExpr.type() {
+		return (TypeDefinition) getType().getIdUse().lookup().getDecl();
+	}
+
+	syn TypeDefinition Decl.type() = null;
+	eq VarDecl.type() {
+		if (hasType())
+			return (TypeDefinition) getType().getIdUse().lookup().getDecl();
+		if (hasInitializer())
+			return getInitializer().type();
+		return super.type();
+	}
+	eq FunDecl.type() {
+		if (hasType())
+			return (TypeDefinition) getType().getIdUse().lookup().getDecl();
+		return (TypeDefinition) lookup("any").getDecl();
+	}
+}

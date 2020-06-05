@@ -21,7 +21,7 @@ aspect IRGenType {
 		// formal param types
 		lang.ir.List<IRTypeRef> irTypes = new lang.ir.List<>();
 		for (VarDecl d : getFunFormals()) {
-			irTypes.add(d.type().genIR());
+			irTypes.add(d.type().genIRTypeRef());
 		}
 		init.setParamTypeList(irTypes);
 		// extract the arguments
@@ -74,12 +74,17 @@ aspect IRGenType {
 		return klass;
 	}
 
-	syn IRTypeRef Type.genIR() {
-		throw new NotYetImplementedError("Non-simple type translation not implemented");
+	syn IRTypeRef Decl.genIRTypeRef() = null;
+	// syn IRTypeRef TypeDefinition.genIRTypeRef() = null;
+	eq TypeVarDecl.genIRTypeRef() {
+		return new IRTypeFormalRef(genIR());
+	}
+	eq TypeDecl.genIRTypeRef() {
+		return new IRTypeInstanceRef().setIRType(genIR());
 	}
 
-	eq SimpleType.genIR() {
-		TypeDecl d = (TypeDecl)getIdUse().lookup().getDecl();
-		return new IRTypeInstanceRef(new lang.ir.Opt(), d.genIR(), new lang.ir.List());
+	syn IRTypeRef Type.genIR() {
+		TypeDecl d = (TypeDecl) getIdUse().lookup().getDecl();
+		return d.genIRTypeRef();
 	}
 }

@@ -8,8 +8,9 @@ Program
         VarDecl
           IdDecl ID="x"
           Opt
-            SimpleType
+            Type
               IdUse ID="int"
+              List
               List
           Opt
       Opt
@@ -17,8 +18,9 @@ Program
           TypedExpr
             Access
               IdUse ID="x"
-            SimpleType
+            Type
               IdUse ID="int"
+              List
               List
     FunDecl
       IdDecl ID="f"
@@ -27,27 +29,33 @@ Program
         VarDecl
           IdDecl ID="x"
           Opt
-            SimpleType
+            Type
               IdUse ID="T"
               List
-                SimpleType
+                Type
                   IdUse ID="a"
                   List
-                SimpleType
+                  List
+                Type
                   IdUse ID="b"
                   List
-                SimpleType
+                  List
+                Type
                   IdUse ID="c"
                   List
+                  List
+              List
           Opt
       Opt
         ReturnStmt
           TypedExpr
             Access
               IdUse ID="x"
-            SimpleType
+            Type
               IdUse ID="T"
               List
-                SimpleType
+                Type
                   IdUse ID="a"
                   List
+                  List
+              List

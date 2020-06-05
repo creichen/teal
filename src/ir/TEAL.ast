@@ -49,7 +49,7 @@ IRCodeBBRef ::= <IRCodeBB:IRCodeBB>;
 
 // Type reference
 abstract IRTypeRef;
-IRTypeInstanceRef : IRTypeRef ::= [IRQualifierRef] <IRType:IRType> TypeActual:IRTypeRef*;
+IRTypeInstanceRef : IRTypeRef ::= <IRType:IRType> TypeActual:IRTypeRef* IRQualifierRef*;
 IRTypeFormalRef : IRTypeRef ::= <IRTypeFormal:IRTypeFormal>;
 abstract IRFundamentalTypeRef : IRTypeRef;
 IRIntTypeRef : IRFundamentalTypeRef;

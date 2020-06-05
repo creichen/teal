@@ -4,16 +4,18 @@ Program
     FunDecl
       IdDecl ID="func1"
       Opt
-        SimpleType
+        Type
           IdUse ID="RetType"
+          List
           List
       List
       Opt
     FunDecl
       IdDecl ID="func2"
       Opt
-        SimpleType
+        Type
           IdUse ID="RetType"
+          List
           List
       List
         VarDecl
@@ -28,25 +30,27 @@ Program
     FunDecl
       IdDecl ID="func3"
       Opt
-        QualifiedType
-          SimpleType
-            IdUse ID="MyType"
-            List
-          TypeQualifier
-            IdUse ID="Qualifier"
-            List
-              SimpleType
-                IdUse ID="QT"
-                List
-            List
-              Access
-                IdUse ID="qf"
+        Type
+          IdUse ID="MyType"
+          List
+          List
+            TypeQualifier
+              IdUse ID="Qualifier"
+              List
+                Type
+                  IdUse ID="QT"
+                  List
+                  List
+              List
+                Access
+                  IdUse ID="qf"
       List
         VarDecl
           IdDecl ID="x"
           Opt
-            SimpleType
+            Type
               IdUse ID="TypeOfX"
+              List
               List
           Opt
         VarDecl
@@ -56,8 +60,9 @@ Program
         VarDecl
           IdDecl ID="z"
           Opt
-            SimpleType
+            Type
               IdUse ID="TypeOfZ"
+              List
               List
           Opt
       Opt
