@@ -73,7 +73,9 @@ List fun_formal_list = fun_formal {: return new List(fun_formal); :}
 VarDecl fun_formal = var_id_decl
                    ;
 
-Type type = ID type_actuals {: return new Type(new IdUse(ID), type_actuals, new List()); :}
+
+Type type_no_qual = ID type_actuals {: return new Type(new IdUse(ID), type_actuals, new List()); :}
+Type type = type_no_qual
           | type_qualifier type {: return type.addTypeQualifier(type_qualifier); :}
           ;
 
@@ -239,6 +241,8 @@ Expr term = LPAREN expr RPAREN {: return expr; :}
           | term LPAREN fun_actual_list_maybe_empty RPAREN {: return new CallExpr(term, fun_actual_list_maybe_empty); :}
           | term.b LBRACK expr.i RBRACK {: return new IndexExpr(b, i); :}
           | LPAREN expr COLON type RPAREN  {: return new TypedExpr(expr, type); :}
+          | NEW type_no_qual LPAREN fun_actual_list_maybe_empty RPAREN {: return new NewExpr(type_no_qual, fun_actual_list_maybe_empty); :}
           | SELF {: return new Self(); :}
 	  | NULL {: return new Null(); :}
+
           ;

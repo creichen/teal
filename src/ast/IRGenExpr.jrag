@@ -71,7 +71,7 @@ aspect IRGenExpr {
 	}
 
 	public IRVarRef CallExpr.genCode(IRFunctionCtx ctx) {
-		Expr fun = getFunc();
+		Expr fun = getFunc ();
 		IRFunRef funCallTarget = fun.getCalledFunction();
 		IRVarRef r = ctx.getTempIRVar(this);
 		if (funCallTarget != null) {
@@ -88,6 +88,24 @@ aspect IRGenExpr {
 		return r;
 	}
 
+	public void Expr.genAssignment(IRVarRef rhs, IRFunctionCtx ctx) { throw new RuntimeException(getClass() + " not allowed as LValue."); }
+
+	public void Access.genAssignment(IRVarRef rhs, IRFunctionCtx ctx) {
+		IdDecl idDecl = getIdUse().lookup();
+		VarDecl d = (VarDecl) idDecl.getDecl();
+		switch (d.getScope()) {
+		case MEMBER:
+			ctx.addInsn(new IRSelfInsn().setDst(ctx.getTempIRVar(this)));
+			ctx.addInsn(new IRStoreInsn().setBase(ctx.getTempIRVar(this))
+						.setField(new IRVarRef(d.genIR()))
+						.setSrc(rhs));
+		case LOCAL:
+		case GLOBAL:
+			IRVarRef dst = ctx.getIRVarRef(d);
+			ctx.addInsn(new IRCopyInsn(dst, rhs));
+		}
+	}
+
 	public IRVarRef Access.genCode(IRFunctionCtx ctx) {
 		// this can be a local variable load, global variable load or member access
 		IdDecl idDecl = getIdUse().lookup();
@@ -96,7 +114,13 @@ aspect IRGenExpr {
 		switch (d.getScope()) {
 		default:
 		case MEMBER:
-			throw new NotYetImplementedError("Missing implementation for member accesses");
+			IRVar tmp = ctx.getFreshTempIRVar(this);
+			ctx.addInsn(new IRSelfInsn().setDst(new IRVarRef(tmp)));
+			ctx.addInsn(new IRLoadInsn().setBase(new IRVarRef(tmp))
+						.setField(new IRVarRef(d.genIR()))
+						.setDst(ctx.getTempIRVar(this)));
+			r = ctx.getTempIRVar(this);
+			break;
 		case LOCAL:
 			r = ctx.getIRVarRef(d);
 			break;

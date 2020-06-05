@@ -118,12 +118,17 @@ aspect IRGen {
 		public IRVarRef getTempIRVar(Expr e) {
 			IRVar tmp = temps.get(e);
 			if (tmp == null) {
-				tmp = new IRVar(new IRName("tmp" + counter++),
-								e.type().genIRTypeRef());
-				F.getLocals().add(tmp);
+				tmp = getFreshTempIRVar(e);
 				temps.put(e, tmp);
 			}
 			return new IRVarRef(tmp);
+		}
+
+		public IRVar getFreshTempIRVar(Expr e) {
+			IRVar tmp = new IRVar(new IRName("tmp" + counter++),
+								  e.type().genIRTypeRef());
+			F.getLocals().add(tmp);
+			return tmp;
 		}
 
 		public IRVarRef getIRVarRef(VarDecl d) {
@@ -139,7 +144,6 @@ aspect IRGen {
 			return new IRVarRef(v);
 		}
 	}
-
 
 	syn IRFunction FunDecl.genIR() {
 		IRFunction func = new IRFunction();
@@ -182,10 +186,8 @@ aspect IRGen {
 	}
 
 	public void AssignStmt.genCode(IRFunctionCtx ctx) {
-		IRVarRef left = getLValue().genCode(ctx);
 		IRVarRef right = getRValue().genCode(ctx);
-		IRCopyInsn copy = new IRCopyInsn(left, right);
-		ctx.addInsn(copy);
+		getLValue().genAssignment(right, ctx);
 	}
 
 	public void VarDecl.genCode(IRFunctionCtx ctx) {

@@ -171,6 +171,28 @@ aspect IRPrint {
 		out.print(" = constant ");
 	}
 
+	public void IRLoadInsn.print(PrintStream out) {
+		getDst().print(out);
+		out.print(" = load ");
+		getBase().print(out);
+		out.print(" ");
+		getField().print(out);
+	}
+
+	public void IRStoreInsn.print(PrintStream out) {
+		out.print("store ");
+		getSrc().print(out);
+		out.print(" ");
+		getBase().print(out);
+		out.print(" ");
+		getField().print(out);
+	}
+
+	public void IRSelfInsn.print(PrintStream out) {
+		getDst().print(out);
+		out.print(" = self");
+	}
+
 	// Refs
 	public void IRCodeBBRef.print(PrintStream out) {
 		out.print(getIRCodeBB().label());

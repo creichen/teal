@@ -11,6 +11,10 @@ aspect IRGenType {
 		return getVarDecl().genIR();
 	}
 
+	syn IRFunction FunDeclElt.genIR() {
+		return getFunDecl().genIR();
+	}
+
 	public IRFunction ClassDecl.makeConstructor() {
 		IRFunction init = new IRFunction();
 		init.setIRName(new IRName("__init"));
@@ -69,8 +73,15 @@ aspect IRGenType {
 		IRFunction init = makeConstructor();
 		klass.setConstructor(init);
 		// build the methods
+		for (StructElt e : getStructElts()) {
+			if (e instanceof FunDeclElt) {
+				FunDecl fd = ((FunDeclElt) e).getFunDecl();
+				IRFunction f = fd.genIR();
+				fd.genCode(new IRFunctionCtx(f));
+				klass.addIRFunction(f);
+			}
+		}
 
-		// add the fields
 		return klass;
 	}
 

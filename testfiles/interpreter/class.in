@@ -1,0 +1,19 @@
+class First = {
+      var x : int;
+      fun set(y : int) = { x := y; }
+      fun get() = { return x; }
+}
+
+class Second(v : int)  <: First = {
+      var y : int := v;
+      fun add() = {
+          return get() + y;
+      }
+}
+
+fun main(x : int) = {
+    var o : Second;
+    o := new Second(1);
+    o.set(5);
+    return o.add();
+}
