@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Collection;
 
 aspect NameAnalysis {
+	syn Decl Type.decl() = getIdUse().lookup().getDecl();
+
 	inh IdDecl IdUse.lookup(String s);
 	syn IdDecl IdUse.lookup() = lookup(getID());
 
@@ -46,6 +48,16 @@ aspect NameAnalysis {
 		IdDecl d = localLookup(s);
 		if (d != null)
 			return d;
+		return lookup(s);
+	}
+
+	inh IdDecl Type.lookup(String s);
+	eq TypeDecl.getSuperType().lookup(String s) {
+		// search in the type formals first
+		for (TypeVarDecl typeVar : getTypeFormals()) {
+			if (typeVar.getIdDecl().getID().equals(s))
+				return typeVar.getIdDecl();
+		}
 		return lookup(s);
 	}
 
@@ -187,9 +199,23 @@ aspect NameAnalysisPrivate {
 		return declMap;
 	}
 
-	syn IdDecl TypeDecl.localLookup(String s) {
+	syn IdDecl Decl.localLookup(String s) = null;
+	eq TypeDecl.localLookup(String s) {
 		IdDecl d = localDeclMap().getOne(s);
-		return d;
+		if (d != null)
+			return d;
+
+		for (Type superType : getSuperTypes()) {
+			Decl superDecl = superType.decl();
+			if (superDecl == null)
+				continue;
+
+			d = superDecl.localLookup(s);
+			if (d != null)
+				return d;
+		}
+
+		return null;
 	}
 
 	syn IdDecl Decl.getIdDecl() = null;
