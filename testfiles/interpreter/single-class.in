@@ -1,0 +1,15 @@
+class C = {
+      var x : int;
+      var y : int;
+}
+
+fun main(x : int, y : int) = {
+    var c1 : C := new C();
+    var c2 := new C();
+    c1.x := x;
+    c1.y := y;
+    (c2:C).x := 100;
+    (c2:C).y := 10;
+    var r := c1.x + c1.y;
+    return r * (c2:C).x * (c2:C).y;
+}

@@ -107,14 +107,14 @@ public class TestInterpreter {
 
 	@Test
 	public void testArith() {
-		IRModule m =loadAndCompileProgram("arith.in");
+		IRModule m = loadAndCompileProgram("arith.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 0, 11, 8));
 	}
 
 	@Test
 	public void testWhile() {
-		IRModule m =loadAndCompileProgram("sum.in");
+		IRModule m = loadAndCompileProgram("sum.in");
 		assertNotNull(m);
 
 		int n = 10000;
@@ -124,11 +124,23 @@ public class TestInterpreter {
 
 	@Test
 	public void testRecursiveCall() {
-		IRModule m =loadAndCompileProgram("sum_rec.in");
+		IRModule m = loadAndCompileProgram("sum_rec.in");
 		assertNotNull(m);
 
 		int n = 20;
 		int r = (n + 1) * n / 2;
 		assertTrue(checkResult(m, r, n));
+	}
+
+	@Test
+	public void testSingleClass() {
+		IRModule m = loadAndCompileProgram("single-class.in");
+		assertNotNull(m);
+
+		int x = 5;
+		int y = 10;
+		int r = (x + y) * 10 * 100;
+
+		assertTrue(checkResult(m, r, x, y));
 	}
 }

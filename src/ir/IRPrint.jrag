@@ -61,7 +61,7 @@ aspect IRPrint {
 		if (getNumIRTypeFormal() != 0)
 			printCollection(getIRTypeFormals(), "[", "]", ",", out);
 
-		out.println("{");
+		out.println(" {");
 
 		printCollection(getIRVars(), "", "\n", "\n", out);
 
@@ -171,6 +171,20 @@ aspect IRPrint {
 		out.print(" = constant ");
 	}
 
+	public void IRNull.print(PrintStream out) {
+		out.print("null");
+	}
+
+	public void IRString.print(PrintStream out) {
+		out.print(getValue());
+	}
+
+	public void IRInteger.print(PrintStream out) {
+		out.print("\"");
+		out.print(getValue());
+		out.print("\"");
+	}
+
 	public void IRLoadInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" = load ");
@@ -191,6 +205,12 @@ aspect IRPrint {
 	public void IRSelfInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" = self");
+	}
+
+	public void IRNewInsn.print(PrintStream out) {
+		getDst().print(out);
+		out.print(" = new ");
+		getIRTypeRef().print(out);
 	}
 
 	// Refs

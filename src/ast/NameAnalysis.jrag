@@ -45,9 +45,13 @@ aspect NameAnalysis {
 	inh IdDecl StructElt.lookup(String s);
 
 	eq TypeDecl.getStructElt().lookup(String s) {
-		IdDecl d = localLookup(s);
+		// lookup in the local list of variables
+		// and methods and then in the supertypes'
+		// list of variables and methods
+		IdDecl d = memberLookup(s);
 		if (d != null)
 			return d;
+		// lookup in program scope
 		return lookup(s);
 	}
 
@@ -199,8 +203,8 @@ aspect NameAnalysisPrivate {
 		return declMap;
 	}
 
-	syn IdDecl Decl.localLookup(String s) = null;
-	eq TypeDecl.localLookup(String s) {
+	syn IdDecl Decl.memberLookup(String s) = null;
+	eq TypeDecl.memberLookup(String s) {
 		IdDecl d = localDeclMap().getOne(s);
 		if (d != null)
 			return d;
@@ -210,11 +214,16 @@ aspect NameAnalysisPrivate {
 			if (superDecl == null)
 				continue;
 
-			d = superDecl.localLookup(s);
+			d = superDecl.memberLookup(s);
 			if (d != null)
 				return d;
 		}
 
+		return null;
+	}
+
+	eq TypeVarDecl.memberLookup(String s) {
+		// TODO: implement once TEAL supports type bounds
 		return null;
 	}
 

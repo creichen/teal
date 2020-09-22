@@ -1,6 +1,7 @@
 aspect TypeAnalysis {
 	public interface TypeDefinition {
 		IRTypeRef genIRTypeRef();
+		IdDecl memberLookup(String name);
 	}
 
 	TypeDecl implements TypeDefinition;
@@ -11,6 +12,12 @@ aspect TypeAnalysis {
 	eq StringConstant.type() = (TypeDefinition) lookup("string").getDecl();
 	eq TypedExpr.type() {
 		return (TypeDefinition) getType().getIdUse().lookup().getDecl();
+	}
+	eq Access.type() {
+		VarDecl d = (VarDecl) getIdUse().lookup().getDecl();
+		if (d.hasType())
+			return (TypeDefinition) d.getType().decl();
+		return (TypeDefinition) lookup("any").getDecl();
 	}
 
 	syn TypeDefinition Decl.type() = null;

@@ -88,7 +88,42 @@ aspect IRGenExpr {
 		return r;
 	}
 
+	public IRVarRef NewExpr.genCode(IRFunctionCtx ctx) {
+		IRVarRef dst = ctx.getTempIRVar(this);
+		IRNewInsn newInsn = new IRNewInsn().setDst(dst)
+			.setIRTypeRef(getType().genIR());
+		// TODO: call the __init() method with all the actuals
+		ctx.addInsn(newInsn);
+		return dst;
+	}
+
 	public void Expr.genAssignment(IRVarRef rhs, IRFunctionCtx ctx) { throw new RuntimeException(getClass() + " not allowed as LValue."); }
+
+	public void MemberAccess.genAssignment(IRVarRef rhs, IRFunctionCtx ctx) {
+		Expr base = getExpr();
+		TypeDefinition type = base.type();
+		Decl memberDecl = type.memberLookup(getID()).getDecl();
+		if (!(memberDecl instanceof VarDecl)) {
+			super.genAssignment(rhs, ctx);
+		}
+
+		ctx.addInsn(new IRStoreInsn().setBase(base.genCode(ctx))
+					.setField(new IRVarRef(((VarDecl)memberDecl).genIR()))
+					.setSrc(rhs));
+	}
+
+	public IRVarRef MemberAccess.genCode(IRFunctionCtx ctx) {
+		Expr base = getExpr();
+		TypeDefinition type = base.type();
+		Decl memberDecl = type.memberLookup(getID()).getDecl();
+		if (!(memberDecl instanceof VarDecl))
+			throw new RuntimeException("Can't load a member that is not a field, " + this + ".");
+		IRVarRef tmp = ctx.getTempIRVar(this);
+		ctx.addInsn(new IRLoadInsn().setBase(base.genCode(ctx))
+					.setField(new IRVarRef(((VarDecl) memberDecl).genIR()))
+					.setDst(tmp));
+		return tmp;
+	}
 
 	public void Access.genAssignment(IRVarRef rhs, IRFunctionCtx ctx) {
 		IdDecl idDecl = getIdUse().lookup();
@@ -104,6 +139,11 @@ aspect IRGenExpr {
 			IRVarRef dst = ctx.getIRVarRef(d);
 			ctx.addInsn(new IRCopyInsn(dst, rhs));
 		}
+	}
+
+	public IRVarRef TypedExpr.genCode(IRFunctionCtx ctx) {
+		// TODO: generate an assertion too
+		return getExpr().genCode(ctx);
 	}
 
 	public IRVarRef Access.genCode(IRFunctionCtx ctx) {

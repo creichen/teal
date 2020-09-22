@@ -22,18 +22,13 @@ TypeDecl : Decl ::= IdDecl TypeFormal:TypeVarDecl* SuperType:Type* StructElt*;
 abstract StructElt;
 VarDeclElt : StructElt ::= VarDecl;
 FunDeclElt : StructElt ::= FunDecl;
-// TODO: do we want statements inside structs ?
 StmtElt : StructElt ::= Stmt;
 
-
-// TODO: what are the FunFormal arguments for a class?
-// Arguments to the constructor?
 // Class declarations
 ClassDecl : TypeDecl ::= FunFormal:VarDecl*;
 
 // Qualifier declarations
 QualifierDecl : TypeDecl ::= FunFormal:VarDecl*;
-
 
 // Type uses
 TypeQualifier ::= IdUse TypeActual:Type* FunActual:Expr* ;

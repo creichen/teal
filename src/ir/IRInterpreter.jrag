@@ -34,7 +34,6 @@ aspect IRInterpreter {
 		}
 	}
 
-
 	class Storage {
 		private HashMap<IRVar, IRValue> varToVal;
 		public Storage() {
@@ -205,7 +204,7 @@ aspect IRInterpreter {
 
 	// Instructions
 	public void IRInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
-		throw new NotYetImplementedError("Instruction evaluation not implemented.");
+		throw new NotYetImplementedError(this.getClass() + " Instruction evaluation not implemented.");
 	}
 
 	public void IRCopyInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
@@ -233,6 +232,27 @@ aspect IRInterpreter {
 		ctx.getStore().set(getDst(), retVal);
 	}
 
+	public void IRNewInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		// allocate a storage for instance variables
+		Storage s = new Storage();
+		// wrap it as an IRValue an return it
+		ctx.getStore().set(getDst(), new IRValue(getIRTypeRef(), s));
+	}
+
+	public void IRLoadInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		// extract the instance storage
+		Storage instance = (Storage) ctx.getStore().get(getBase()).getValue();
+		// return the value from the storage
+		ctx.getStore().set(getDst(), instance.get(getField()));
+	}
+
+	public void IRStoreInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		// extract the instance storage
+		Storage instance = (Storage) ctx.getStore().get(getBase()).getValue();
+		// set the value in the instance storage
+		instance.set(getField(), ctx.getStore().get(getSrc()));
+	}
+
 	public void IRConstantInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
 		ctx.getStore().set(getDst(), getSrc().asIRValue());
 	}
@@ -241,4 +261,5 @@ aspect IRInterpreter {
 	syn IRValue IRConstant.asIRValue();
 	eq IRString.asIRValue() = new IRValue(getModule().makeStringTypeRef(), getValue());
 	eq IRInteger.asIRValue() = new IRValue(getModule().makeIntegerTypeRef(), getValue());
+	eq IRNull.asIRValue() = new IRValue(getModule().makeAnyTypeRef(), null);
 }

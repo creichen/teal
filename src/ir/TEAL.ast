@@ -28,7 +28,7 @@ abstract IRAbstractCallInsn : IRInsn ::= Dst:IRVarRef Arg:IRVarRef*;
 IRCallInsn : IRAbstractCallInsn ::= IRFunRef;
 IRDispatchInsn : IRAbstractCallInsn ::= Base:IRVarRef IRMethodRef;
 
-IRNewInsn : IRInsn ::= Dst:IRVarRef IRTypeRef Arg:IRVarRef*;
+IRNewInsn : IRInsn ::= Dst:IRVarRef IRTypeRef;
 IRNewArrayInsn : IRInsn ::= Dst:IRVarRef IRTypeRef Size:IRVarRef;
 
 IRSelfInsn : IRInsn ::= Dst:IRVarRef;
@@ -44,6 +44,7 @@ IRBranch : IRCodeExit ::= Cond:IRVarRef TrueTarget:IRCodeBBRef FalseTarget:IRCod
 abstract IRConstant;
 IRString : IRConstant ::= <Value:String>;
 IRInteger : IRConstant ::= <Value:Integer>;
+IRNull : IRConstant;
 
 IRVarRef ::= <IRVar:IRVar>;
 IRFunRef ::= <IRFunction:IRFunction>;
