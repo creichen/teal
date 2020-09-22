@@ -101,7 +101,7 @@ task generateBeaver(type: JavaExec) {
     classpath = configurations.jastaddparser
     main = 'org.jastadd.jastaddparser.Main'
 
-    args file('src/parser/AttoL.parser').path, file('src/gen/parser/AttoLParser.beaver').path
+    args file('src/parser/teal.parser').path, file('src/gen/parser/teal.beaver').path
 }
 
 
@@ -113,7 +113,7 @@ task generateParser(type: JavaExec) {
   // Options to Beaver (http://beaver.sourceforge.net/):
   args '-d', file('src/gen/lang/ast').path,
       '-t', '-c', '-w', '-a',
-      file('src/gen/parser/AttoLParser.beaver').path
+      file('src/gen/parser/teal.beaver').path
 
   doFirst {
     // Ensure src/gen exists before running Beaver:
