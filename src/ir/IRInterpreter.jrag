@@ -12,6 +12,41 @@ aspect IRInterpreter {
 		}
 	}
 
+	public class IRTypeContext {
+		private IRType type;
+		private Map<IRTypeFormal, IRTypeInstanceRef> bindings = new HashMap<>();
+
+		public IRTypeContext(IRType type) {
+			this.type = type;
+		}
+
+		public void bind(IRTypeFormal formal, IRTypeInstanceRef actual) {
+			bindings.put(formal, actual);
+		}
+
+		public IRTypeInstanceRef lookup(IRTypeFormal formal) {
+			return bindings.get(formal);
+		}
+	}
+
+	public class IRInstance {
+		private IRTypeContext ctx;
+		private Storage store;
+
+		public IRInstance(IRTypeContext ctx, Storage s) {
+			this.ctx = ctx;
+			this.store = s;
+		}
+
+		public Storage getStore() {
+			return store;
+		}
+
+		public IRTypeContext getTypeCtx() {
+			return ctx;
+		}
+	}
+
 	public class IRValue {
 		private IRTypeRef dynamicType;
 		private Object value;
@@ -81,10 +116,18 @@ aspect IRInterpreter {
 	class IRFunctionEvalCtx {
 		java.util.List<IRValue> args;
 		Storage s;
+		IRValue self;
 
 		public IRFunctionEvalCtx(Storage s, java.util.List<IRValue> args) {
 			this.s = s;
 			this.args = args;
+			this.self = null;
+		}
+
+		public IRFunctionEvalCtx(Storage s, java.util.List<IRValue> args,
+								 IRValue self) {
+			this(s, args);
+			this.self = self;
 		}
 
 		public IRValue getArg(int i) {
@@ -93,6 +136,14 @@ aspect IRInterpreter {
 
 		public Storage getStore()  {
 			return s;
+		}
+
+		public IRValue getSelf() {
+			return self;
+		}
+
+		public boolean isMethodCtx() {
+			return self != null;
 		}
 	}
 
@@ -232,33 +283,74 @@ aspect IRInterpreter {
 		ctx.getStore().set(getDst(), retVal);
 	}
 
+	public void IRDispatchInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		IRFunction callee = getIRFunRef().getIRFunction();
+		if (callee.getNumParamType() != getNumArg())
+			throw new InterpreterException("Mismatch between declared and actual number of arguments.");
+		ArrayList<IRValue> actuals = new ArrayList<>();
+		for (IRVarRef arg : getArgs()) {
+			IRValue v = ctx.getStore().get(arg);
+			actuals.add(v);
+		}
+
+		// lookup the value of base in the store and provide that as self argument
+		IRValue self = ctx.getStore().get(getBase());
+
+		IRFunctionEvalCtx calleeCtx = new IRFunctionEvalCtx(new Storage(), actuals, self);
+		IRValue retVal = callee.eval(calleeCtx);
+
+		ctx.getStore().set(getDst(), retVal);
+	}
+
 	public void IRNewInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
-		// allocate a storage for instance variables
-		Storage s = new Storage();
-		// wrap it as an IRValue an return it
-		ctx.getStore().set(getDst(), new IRValue(getIRTypeRef(), s));
+		if (getIRTypeRef() instanceof IRTypeFormalRef) {
+			// class C[T] { ... new T() ... } is not supported
+			throw new InterpreterException("Can't evaluate formal type parameter " + getIRTypeRef());
+		} else {
+			// class C[T] { ... new Box[T]() ... } and also
+			// new Map<int, int>
+			IRTypeInstanceRef type = (IRTypeInstanceRef) getIRTypeRef();
+			if (type.getIRType().getNumIRTypeFormal() != type.getNumTypeActual())
+				throw new InterpreterException("Can't instantiate formal parameters of type " + type.getIRType());
+
+			IRTypeContext tctx = new IRTypeContext(type.getIRType());
+			for (int i = 0; i < type.getIRType().getNumIRTypeFormal(); ++i) {
+				IRTypeInstanceRef actual;
+				if (type.getTypeActual(i) instanceof IRTypeFormalRef) {
+					// we need a method context to be able to evaluate type formals
+					if (!ctx.isMethodCtx())
+						throw new InterpreterException("Can't evaluate formal type parameter " + type.getTypeActual(i));
+					IRInstance instance = (IRInstance) ctx.getSelf().getValue();
+					// lookup what types is bound to the current actual
+					actual = instance.getTypeCtx().lookup(((IRTypeFormalRef) type.getTypeActual(i)).getIRTypeFormal());
+				} else {
+					actual = (IRTypeInstanceRef) type.getTypeActual(i);
+				}
+				tctx.bind(type.getIRType().getIRTypeFormal(i), actual);
+			}
+
+			IRValue val = new IRValue(type, new IRInstance(tctx, new Storage()));
+			// wrap it as an IRValue an return it
+			ctx.getStore().set(getDst(), val);
+		}
 	}
 
 	public void IRLoadInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
 		// extract the instance storage
-		Storage instance = (Storage) ctx.getStore().get(getBase()).getValue();
+		IRInstance instance = (IRInstance) ctx.getStore().get(getBase()).getValue();
 		// return the value from the storage
-		ctx.getStore().set(getDst(), instance.get(getField()));
+		ctx.getStore().set(getDst(), instance.getStore().get(getField()));
 	}
 
 	public void IRStoreInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
 		// extract the instance storage
-		Storage instance = (Storage) ctx.getStore().get(getBase()).getValue();
+		IRInstance instance = (IRInstance) ctx.getStore().get(getBase()).getValue();
 		// set the value in the instance storage
-		instance.set(getField(), ctx.getStore().get(getSrc()));
+		instance.getStore().set(getField(), ctx.getStore().get(getSrc()));
 	}
 
 	public void IRConstantInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
 		ctx.getStore().set(getDst(), getSrc().asIRValue());
-	}
-
-	public void IRDispatchInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
-		// do nothing
 	}
 
 	// Constants

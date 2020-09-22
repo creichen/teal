@@ -62,10 +62,10 @@ IRAnyTypeRef : IRFundamentalTypeRef;
 IRQualifierRef ::= <IRQualifier:IRQualifier>;
 
 // Types
-abstract IRType ::= IRName;
+abstract IRType ::= IRName IRTypeFormal*;
 
 // Class
-IRClass : IRType ::= IRTypeFormal* Super:IRTypeRef* [Constructor:IRFunction] IRFunction* IRVar*;
+IRClass : IRType ::= Super:IRTypeRef* [Constructor:IRFunction] IRFunction* IRVar*;
 
 IRName ::= <String>;
 
