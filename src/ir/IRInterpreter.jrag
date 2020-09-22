@@ -257,6 +257,10 @@ aspect IRInterpreter {
 		ctx.getStore().set(getDst(), getSrc().asIRValue());
 	}
 
+	public void IRDispatchInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		// do nothing
+	}
+
 	// Constants
 	syn IRValue IRConstant.asIRValue();
 	eq IRString.asIRValue() = new IRValue(getModule().makeStringTypeRef(), getValue());

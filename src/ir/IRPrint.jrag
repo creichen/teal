@@ -166,9 +166,19 @@ aspect IRPrint {
 		printCollection(getArgs(), "(", ")", ", ", out);
 	}
 
+	public void IRDispatchInsn.print(PrintStream out) {
+		getDst().print(out);
+		out.print(" = dispatch ");
+		getBase().print(out);
+		out.print(" ");
+		getIRFunRef().print(out);
+		printCollection(getArgs(), "(", ")", ", ", out);
+	}
+
 	public void IRConstantInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" = constant ");
+		getSrc().print(out);
 	}
 
 	public void IRNull.print(PrintStream out) {
@@ -176,13 +186,13 @@ aspect IRPrint {
 	}
 
 	public void IRString.print(PrintStream out) {
+		out.print("\"");
 		out.print(getValue());
+		out.print("\"");
 	}
 
 	public void IRInteger.print(PrintStream out) {
-		out.print("\"");
 		out.print(getValue());
-		out.print("\"");
 	}
 
 	public void IRLoadInsn.print(PrintStream out) {

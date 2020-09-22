@@ -89,11 +89,29 @@ aspect IRGenExpr {
 	}
 
 	public IRVarRef NewExpr.genCode(IRFunctionCtx ctx) {
+		// allocate storage for the object
 		IRVarRef dst = ctx.getTempIRVar(this);
 		IRNewInsn newInsn = new IRNewInsn().setDst(dst)
 			.setIRTypeRef(getType().genIR());
-		// TODO: call the __init() method with all the actuals
 		ctx.addInsn(newInsn);
+
+		// call the constructor to initialize the object
+		IRDispatchInsn dispatch = new IRDispatchInsn()
+			.setDst(new IRVarRef(ctx.getFreshTempIRVar(this)) /*unused*/)
+			.setBase(ctx.getTempIRVar(this));
+		IRTypeRef irType = getType().genIR();
+
+		// TODO: ensure that new is called only on classes
+		IRClass klass = (IRClass) ((IRTypeInstanceRef) irType).getIRType();
+		IRFunction constructor = klass.getConstructor();
+		dispatch.setIRFunRef(new IRFunRef(constructor));
+		for (Expr arg : getActuals()) {
+			IRVarRef r = arg.genCode(ctx);
+			dispatch.addArg(r);
+		}
+		ctx.addInsn(dispatch);
+
+		// return a reference to the allocated storage
 		return dst;
 	}
 

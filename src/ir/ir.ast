@@ -24,9 +24,9 @@ abstract IRAbstractStoreInsn : IRInsn ::= Src:IRVarRef;
 IRStoreStaticInsn : IRAbstractStoreInsn ::= IRModuleName;
 IRStoreInsn : IRAbstractStoreInsn ::= Base:IRVarRef Field:IRVarRef;
 
-abstract IRAbstractCallInsn : IRInsn ::= Dst:IRVarRef Arg:IRVarRef*;
-IRCallInsn : IRAbstractCallInsn ::= IRFunRef;
-IRDispatchInsn : IRAbstractCallInsn ::= Base:IRVarRef IRMethodRef;
+abstract IRAbstractCallInsn : IRInsn ::= Dst:IRVarRef Arg:IRVarRef* IRFunRef;
+IRCallInsn : IRAbstractCallInsn;
+IRDispatchInsn : IRAbstractCallInsn ::= Base:IRVarRef;
 
 IRNewInsn : IRInsn ::= Dst:IRVarRef IRTypeRef;
 IRNewArrayInsn : IRInsn ::= Dst:IRVarRef IRTypeRef Size:IRVarRef;
