@@ -44,9 +44,12 @@ aspect IRGenType {
 			VarDeclElt d = (VarDeclElt) e;
 			d.getVarDecl().genCode(fctx);
 		}
-		// return undef
+		// return null
 		if (fctx.getCurrentBB().getIRCodeExit() == null) {
-			fctx.getCurrentBB().setIRCodeExit(new IRReturn(new IRVarRef()));
+			IRVar v = fctx.getFreshTempIRVar(new IRAnyTypeRef());
+			fctx.addInsn(new IRConstantInsn().setDst(new IRVarRef(v))
+										.setSrc(new IRNull()));
+			fctx.getCurrentBB().setIRCodeExit(new IRReturn(new IRVarRef(v)));
 		}
 		// done
 		return init;

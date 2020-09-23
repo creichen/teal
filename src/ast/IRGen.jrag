@@ -125,12 +125,11 @@ aspect IRGen {
 		}
 
 		public IRVar getFreshTempIRVar(Expr e) {
-			return getFreshTempIRVar(e.type());
+			return getFreshTempIRVar(e.type().genIRTypeRef());
 		}
 
-		public IRVar getFreshTempIRVar(TypeDefinition t) {
-			IRVar tmp = new IRVar(new IRName("tmp" + counter++),
-								  t.genIRTypeRef());
+		public IRVar getFreshTempIRVar(IRTypeRef t) {
+			IRVar tmp = new IRVar(new IRName("tmp" + counter++), t);
 			F.getLocals().add(tmp);
 			return tmp;
 		}
@@ -178,7 +177,7 @@ aspect IRGen {
 
 		if (fctx.getCurrentBB().getIRCodeExit() == null) {
 			// no exit here
-			IRVar v = fctx.getFreshTempIRVar((TypeDefinition) lookup("any").getDecl());
+			IRVar v = fctx.getFreshTempIRVar(new IRAnyTypeRef());
 			fctx.addInsn(new IRConstantInsn().setDst(new IRVarRef(v))
 										.setSrc(new IRNull()));
 			fctx.getCurrentBB().setIRCodeExit(new IRReturn(new IRVarRef(v)));

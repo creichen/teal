@@ -65,7 +65,7 @@ aspect IRInterpreter {
 		}
 
 		public String toString() {
-			return value.toString() + ":" + getDynType().toString();
+			return value == null ? "null" : value.toString() + ":" + getDynType().toString();
 		}
 	}
 
@@ -357,5 +357,5 @@ aspect IRInterpreter {
 	syn IRValue IRConstant.asIRValue();
 	eq IRString.asIRValue() = new IRValue(getModule().makeStringTypeRef(), getValue());
 	eq IRInteger.asIRValue() = new IRValue(getModule().makeIntegerTypeRef(), getValue());
-	eq IRNull.asIRValue() = new IRValue(getModule().makeAnyTypeRef(), null);
+	eq IRNull.asIRValue() = new IRValue(new IRAnyTypeRef(), null);
 }
