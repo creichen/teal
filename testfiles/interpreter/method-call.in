@@ -1,0 +1,25 @@
+class Box = {
+      var m : any;
+
+      fun set(v : any) = {
+      	  m := v;
+      }
+
+      fun get() = {
+      	  return m;
+      }
+}
+
+fun main(x : int, y : int) : int = {
+    var b : Box := new Box();
+    var bb : Box := new Box();
+    var b1 : Box := new Box();
+
+
+    b.set(x);
+    bb.set(b1);
+    b1.set(y);
+
+    var r := b.get();
+    return r + (bb.get():Box).get();
+}

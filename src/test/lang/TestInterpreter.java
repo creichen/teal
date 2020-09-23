@@ -151,4 +151,11 @@ public class TestInterpreter {
 
 		assertTrue(checkResult(m, 1115));
 	}
+
+	@Test
+	public void testMethodCall() {
+		IRModule m = loadAndCompileProgram("method-call.in");
+		assertNotNull(m);
+		assertTrue(checkResult(m, 1010, 10, 1000));
+	}
 }
