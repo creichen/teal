@@ -90,17 +90,31 @@ aspect IRGenType {
 		return klass;
 	}
 
-	syn IRTypeRef Decl.genIRTypeRef() = null;
+	public IRTypeRef Decl.genIRTypeRef() {
+		return null;
+	}
 	// syn IRTypeRef TypeDefinition.genIRTypeRef() = null;
-	eq TypeVarDecl.genIRTypeRef() {
+	@Override public IRTypeRef TypeVarDecl.genIRTypeRef() {
 		return new IRTypeFormalRef(genIR());
 	}
-	eq TypeDecl.genIRTypeRef() {
+
+	@Override public IRTypeRef TypeDecl.genIRTypeRef() {
 		return new IRTypeInstanceRef().setIRType(genIR());
 	}
 
-	syn IRTypeRef Type.genIR() {
-		TypeDecl d = (TypeDecl) getIdUse().lookup().getDecl();
-		return d.genIRTypeRef();
-	}
+	public IRTypeRef Type.genIR() {
+		Decl d = getIdUse().lookup().getDecl();
+		if (d instanceof TypeVarDecl) {
+			return d.genIRTypeRef();
+		} else if (d instanceof TypeDecl) {
+			IRTypeInstanceRef t = (IRTypeInstanceRef) ((TypeDecl) d).genIRTypeRef();
+			for (Type actual : getActuals()) {
+				t.addTypeActual(actual.genIR());
+			}
+			return t;
+			// TODO: add qualifiers here
+		} else {
+			throw new RuntimeException("Can't generate a type reference to something that is not a type, " + d + ".");
+		}
+    }
 }

@@ -21,5 +21,7 @@ fun main(x : int, y : int) : int = {
     b1.set(y);
 
     var r := b.get();
+    // since type analysis is not implemented, we need to ascribe the result of
+    // Box:get(), to be able to call .get() on it
     return r + (bb.get():Box).get();
 }

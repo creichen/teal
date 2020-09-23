@@ -158,4 +158,11 @@ public class TestInterpreter {
 		assertNotNull(m);
 		assertTrue(checkResult(m, 1010, 10, 1000));
 	}
+
+	@Test
+	public void testGenericClass() {
+		IRModule m = loadAndCompileProgram("generic-class.in");
+		assertNotNull(m);
+		assertTrue(checkResult(m, 50, 10, 15));
+	}
 }
