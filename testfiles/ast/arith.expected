@@ -6,8 +6,7 @@ Program
       Opt
       Opt
         CallExpr
-          Access
-            IdUse ID="f"
+          IdUse ID="f"
           List
             Access
               IdUse ID="y"
@@ -147,10 +146,9 @@ Program
       Opt
       Opt
         NotExpr
-          CallExpr
-            MemberAccess ID="f"
-              Access
-                IdUse ID="a"
+          DispatchExpr ID="f"
+            Access
+              IdUse ID="a"
             List
               Access
                 IdUse ID="i"

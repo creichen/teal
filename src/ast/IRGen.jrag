@@ -200,11 +200,21 @@ aspect IRGen {
 	public void VarDecl.genCode(IRFunctionCtx ctx) {
 		if (!hasInitializer())
 			return;
-		// generate code for the initializer
-		IRVarRef dst = ctx.getIRVarRef(getVarDecl());
 		IRVarRef src = getVarDecl().getInitializer().genCode(ctx);
-		IRCopyInsn copy = new IRCopyInsn(dst, src);
-		ctx.addInsn(copy);
+		// generate code for the initializer
+		if (getScope() == VariableScope.LOCAL) {
+			IRVarRef dst = ctx.getIRVarRef(getVarDecl());
+			IRCopyInsn copy = new IRCopyInsn(dst, src);
+			ctx.addInsn(copy);
+		} else if (getScope() == VariableScope.MEMBER) {
+			ctx.addInsn(new IRSelfInsn().setDst(ctx.getIRVarRef(this)));
+			ctx.addInsn(new IRStoreInsn().setBase(ctx.getIRVarRef(this))
+						.setField(new IRVarRef(genIR()))
+						.setSrc(src));
+		} else {
+			// Unclear where to generate the code to initialize globals
+			throw new NotYetImplementedError("Can't initialize global variable " + this + ".");
+		}
 	}
 
 	public void VarDeclStmt.genCode(IRFunctionCtx ctx) {

@@ -15,7 +15,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import static org.junit.Assert.*;
 
-import lang.ast.AttoLParser;
+import lang.ast.TEALParser;
 import lang.ast.CompilerError;
 import lang.ast.LangScanner;
 import lang.ast.Program;
@@ -31,7 +31,7 @@ public class TestInterpreter {
 		Path file = Paths.get(TEST_DIRECTORY, name);
 		try {
 			LangScanner scanner = new LangScanner(new FileReader(file.toString()));
-			AttoLParser parser = new AttoLParser();
+			TEALParser parser = new TEALParser();
 			Program program = (Program) parser.parse(scanner);
 
 			List<CompilerError> semaErrors = program.semanticErrors();
@@ -142,5 +142,13 @@ public class TestInterpreter {
 		int r = (x + y) * 10 * 100;
 
 		assertTrue(checkResult(m, r, x, y));
+	}
+
+	@Test
+	public void testClassWithMemberInit() {
+		IRModule m = loadAndCompileProgram("class-with-init.in");
+		assertNotNull(m);
+
+		assertTrue(checkResult(m, 1115));
 	}
 }

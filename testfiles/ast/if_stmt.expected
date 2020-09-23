@@ -52,8 +52,7 @@ Program
                 IdUse ID="x"
               IntConstant Value="4"
             CallExpr
-              Access
-                IdUse ID="g"
+              IdUse ID="g"
               List
                 Access
                   IdUse ID="x"

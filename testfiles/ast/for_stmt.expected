@@ -22,8 +22,7 @@ Program
                     List
                 Opt
               CallExpr
-                Access
-                  IdUse ID="range"
+                IdUse ID="range"
                 List
                   Access
                     IdUse ID="n"
@@ -31,8 +30,7 @@ Program
                 List
                   ExprStmt
                     CallExpr
-                      Access
-                        IdUse ID="g"
+                      IdUse ID="g"
                       List
                         Access
                           IdUse ID="i"
@@ -46,8 +44,7 @@ Program
                     List
                 Opt
               CallExpr
-                Access
-                  IdUse ID="range"
+                IdUse ID="range"
                 List
                   Access
                     IdUse ID="n"
@@ -55,8 +52,7 @@ Program
                 List
                   ExprStmt
                     CallExpr
-                      Access
-                        IdUse ID="g"
+                      IdUse ID="g"
                       List
                         Access
                           IdUse ID="i"

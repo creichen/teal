@@ -7,11 +7,23 @@ aspect IRGenExpr {
 		MEMBER
 	}
 
-	inh VariableScope VarDecl.getScope();
+	/*Warning at /work/projects/attol/src/ast/IRGenExpr.jrag:10: missing inherited equation for attribute getScope in class Decl when being child of Program (path: Program->Decl), and in class VarDecl when being child of ClassDecl (path: Program->ClassDecl->VarDecl), QualifierDecl (path: Program->QualifierDecl->VarDecl), ForStmt (path: Program->TypeDecl->FunDeclElt->FunDecl->ForStmt->VarDecl)
+
+
+	 */
+
+	inh VariableScope Decl.getScope();
 	eq Program.getDecl().getScope() = VariableScope.GLOBAL;
+	eq Program.getBuiltinDecl().getScope() = VariableScope.GLOBAL;
 	eq FunDecl.getFormal().getScope() = VariableScope.LOCAL;
 	eq VarDeclStmt.getVarDecl().getScope() = VariableScope.LOCAL;
+	eq ForStmt.getIterator().getScope() = VariableScope.LOCAL;
+
 	eq VarDeclElt.getVarDecl().getScope() = VariableScope.MEMBER;
+	eq FunDeclElt.getFunDecl().getScope() = VariableScope.MEMBER;
+	eq ClassDecl.getFunFormal().getScope() = VariableScope.MEMBER;
+	eq QualifierDecl.getFunFormal().getScope() = VariableScope.MEMBER;
+	eq TypeDecl.getTypeFormal().getScope() = VariableScope.MEMBER;
 
 	syn IRVar Expr.getIRVar() {
 		int uid = getUID();
@@ -71,10 +83,11 @@ aspect IRGenExpr {
 	}
 
 	public IRVarRef CallExpr.genCode(IRFunctionCtx ctx) {
-		Expr fun = getFunc ();
-		IRFunRef funCallTarget = fun.getCalledFunction();
+		IdUse fun = getIdUse();
+		FunDecl fd = (FunDecl) fun.lookup().getDecl();
+		IRFunRef funCallTarget = new IRFunRef(fd.genIR());
 		IRVarRef r = ctx.getTempIRVar(this);
-		if (funCallTarget != null) {
+		if (fd.getScope() == VariableScope.GLOBAL) {
 			IRCallInsn call = new IRCallInsn().setDst(r);
 			call.setIRFunRef(funCallTarget);
 			for (Expr e : getActuals()) {
@@ -83,7 +96,15 @@ aspect IRGenExpr {
 			}
 			ctx.addInsn(call);
 		} else {
-			throw new NotYetImplementedError("Method calls are not implemented");
+			assert fd.getScope() == VariableScope.MEMBER;
+			IRVar selfVar = ctx.getFreshTempIRVar(this);
+			IRSelfInsn self = new IRSelfInsn().setDst(new IRVarRef(selfVar));
+			ctx.addInsn(self);
+
+			IRDispatchInsn dispatch = new IRDispatchInsn().setDst(r);
+			dispatch.setIRFunRef(funCallTarget);
+			dispatch.setBase(new IRVarRef(selfVar));
+			ctx.addInsn(dispatch);
 		}
 		return r;
 	}

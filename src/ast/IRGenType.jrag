@@ -39,10 +39,12 @@ aspect IRGenType {
 		}
 		// now add any initializer code
 		for (StructElt e : getStructElts()) {
-			if (!(e instanceof VarDeclElt))
-				continue;
-			VarDeclElt d = (VarDeclElt) e;
-			d.getVarDecl().genCode(fctx);
+			if (e instanceof VarDeclElt) {
+				VarDeclElt d = (VarDeclElt) e;
+				d.getVarDecl().genCode(fctx);
+			} else if (e instanceof StmtElt) {
+				((StmtElt) e).getStmt().genCode(fctx);
+			}
 		}
 		// return null
 		if (fctx.getCurrentBB().getIRCodeExit() == null) {

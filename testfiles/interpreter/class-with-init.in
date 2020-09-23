@@ -1,0 +1,31 @@
+class D = {
+      var x : int;
+      var y : int;
+
+      fun init_x() = {
+      	  x := 100;
+      }
+
+      fun init_y() = {
+      	  y := 1000;
+      }
+
+      init_x();
+      init_y();
+}
+
+class C = {
+      var x : int := init_x();
+      var y : int := 10;
+
+      fun init_x() = {
+      	  return 5;
+      }
+}
+
+fun main() : int = {
+    var c : C := new C();
+    var d : D := new D();
+
+    return c.x + c.y + d.x + d.y;
+}

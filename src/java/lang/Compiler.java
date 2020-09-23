@@ -9,7 +9,7 @@ import java.util.List;
 import beaver.Parser.Exception;
 
 import lang.ast.Program;
-import lang.ast.AttoLParser;
+import lang.ast.TEALParser;
 import lang.ast.LangScanner;
 import lang.ast.CompilerError;
 
@@ -54,7 +54,7 @@ public class Compiler {
 			String filename = args[0];
 
 			LangScanner scanner = new LangScanner(new FileReader(filename));
-			AttoLParser parser = new AttoLParser();
+			TEALParser parser = new TEALParser();
 			Program program = (Program) parser.parse(scanner);
             DrAST_root_node = program; //Enable debugging with DrAST
 

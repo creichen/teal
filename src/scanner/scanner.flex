@@ -1,7 +1,7 @@
 package lang.ast; // The generated scanner will belong to the package lang.ast
 
-import lang.ast.AttoLParser.Terminals; // The terminals are implicitly defined in the parser
-import lang.ast.AttoLParser.SyntaxError;
+import lang.ast.TEALParser.Terminals; // The terminals are implicitly defined in the parser
+import lang.ast.TEALParser.SyntaxError;
 
 %%
 

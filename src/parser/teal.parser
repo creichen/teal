@@ -236,7 +236,8 @@ Expr term = LPAREN expr RPAREN {: return expr; :}
           | package_path {: return new QualifiedAccess(package_path); :}
           | LBRACK fun_actual_list_maybe_empty RBRACK {: return new ListExpr(fun_actual_list_maybe_empty); :}
           | term DOT ID {: return new MemberAccess(term, ID); :}
-          | term LPAREN fun_actual_list_maybe_empty RPAREN {: return new CallExpr(term, fun_actual_list_maybe_empty); :}
+          | ID LPAREN fun_actual_list_maybe_empty RPAREN {: return new CallExpr(new IdUse(ID), fun_actual_list_maybe_empty); :}
+          | term DOT ID LPAREN fun_actual_list_maybe_empty RPAREN {: return new DispatchExpr(term, ID, fun_actual_list_maybe_empty); :}
           | term.b LBRACK expr.i RBRACK {: return new IndexExpr(b, i); :}
           | LPAREN expr COLON type RPAREN  {: return new TypedExpr(expr, type); :}
           | NEW type_no_qual LPAREN fun_actual_list_maybe_empty RPAREN {: return new NewExpr(type_no_qual, fun_actual_list_maybe_empty); :}

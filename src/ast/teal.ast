@@ -54,7 +54,8 @@ OrExpr : BinExpr;
 AndExpr : BinExpr;
 
 // Other expressions
-CallExpr : Expr ::= Func:Expr Actual:Expr*;
+CallExpr : Expr ::= IdUse Actual:Expr*;
+DispatchExpr : Expr ::= Expr <ID> Actual:Expr*;
 Self : Expr ;
 Null : Expr ;
 ListExpr : Expr ::= Expr* ;
