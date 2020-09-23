@@ -1,0 +1,41 @@
+class Box[T] = {
+      var m : T;
+
+      fun set(v : T) = {
+      	  m := v;
+      }
+
+      fun get() : T = {
+      	  return m;
+      }
+}
+
+class BoxBox[T] = {
+      var m : Box[T] := new Box[T]();
+
+      fun set(v : T) = {
+      	  m.set(v);
+      }
+
+      fun get() : T = {
+      	  return m.get();
+      }
+}
+
+fun main(x : int, y : int) : int = {
+    var b : Box[int] := new Box[int]();
+    var bb : Box[int] := new Box[int]();
+    var b1 : Box[int] := new Box[int]();
+
+    var doubleBox : BoxBox[int] := new BoxBox[int]();
+    doubleBox.set(x + y);
+
+    b.set(x);
+    bb.set(b1);
+    b1.set(y);
+
+    var r := b.get();
+    // since type analysis is not implemented, we need to ascribe the result of
+    // Box:get(), to be able to call .get() on it
+    return r + (bb.get():Box).get() + doubleBox.get();
+}
