@@ -43,7 +43,7 @@ IRBranch : IRCodeExit ::= Cond:IRVarRef TrueTarget:IRCodeBBRef FalseTarget:IRCod
 
 abstract IRConstant;
 IRString : IRConstant ::= <Value:String>;
-IRInteger : IRConstant ::= <Value:Integer>;
+IRInteger : IRConstant ::= <Value:Long>;
 IRNull : IRConstant;
 
 IRVarRef ::= <IRVar:IRVar>;

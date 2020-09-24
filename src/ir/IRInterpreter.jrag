@@ -12,11 +12,33 @@ aspect IRInterpreter {
 		}
 	}
 
-	public class IRTypeContext {
+	public class NullDereferenceException extends InterpreterException {
+		IRValue v;
+		lang.ir.ASTNode op;
+
+		NullDereferenceException(IRValue v, lang.ir.ASTNode op) {
+			super("Null dereference");
+			this.v = v;
+			this.op = op;
+		}
+	}
+
+	public class IncompatibleTypeException extends InterpreterException {
+		IRValue v;
+		lang.ir.ASTNode op;
+
+		IncompatibleTypeException(IRValue v, lang.ir.ASTNode op) {
+			super("Null dereference");
+			this.v = v;
+			this.op = op;
+		}
+	}
+
+	public class IRConcreteType {
 		private IRType type;
 		private Map<IRTypeFormal, IRTypeInstanceRef> bindings = new HashMap<>();
 
-		public IRTypeContext(IRType type) {
+		public IRConcreteType(IRType type) {
 			this.type = type;
 		}
 
@@ -27,45 +49,78 @@ aspect IRInterpreter {
 		public IRTypeInstanceRef lookup(IRTypeFormal formal) {
 			return bindings.get(formal);
 		}
+
+		public boolean allTypeVariablesAreBound() {
+			for (IRTypeFormal f : type.getIRTypeFormals()) {
+				if (!bindings.containsKey(f))
+					return false;
+			}
+			return true;
+		}
 	}
 
-	public class IRInstance {
-		private IRTypeContext ctx;
-		private Storage store;
+	public class IRValue {
+		private IRConcreteType type;
+		public IRValue(IRConcreteType type) {
+			this.type = type;
+		}
 
-		public IRInstance(IRTypeContext ctx, Storage s) {
-			this.ctx = ctx;
-			this.store = s;
+		public boolean isNull() {
+			return false;
+		}
+
+		public IRConcreteType getType() {
+			return type;
+		}
+	}
+
+	public class IRObject extends IRValue {
+		private Storage store = new Storage();
+		private Object vtable = null;
+
+		public IRObject(IRConcreteType type) {
+			super(type);
 		}
 
 		public Storage getStore() {
 			return store;
 		}
+	}
 
-		public IRTypeContext getTypeCtx() {
-			return ctx;
+	public class IRIntegerValue extends IRValue {
+		private long val;
+		public IRIntegerValue(long val) {
+			super(null);
+			this.val = val;
+		}
+		public long asLong() {
+			return val;
+		}
+		@Override public String toString() {
+			return val + " : " + "int";
 		}
 	}
 
-	public class IRValue {
-		private IRTypeRef dynamicType;
-		private Object value;
-
-		public IRValue(IRTypeRef type, Object value) {
-			this.dynamicType = type;
-			this.value = value;
+	public class IRStringValue extends IRValue {
+		private String val;
+		public IRStringValue(String val) {
+			super(null);
+			this.val = val;
 		}
-
-		public IRTypeRef getDynType() {
-			return dynamicType;
+		public String asString() {
+			return val;
 		}
-
-		public Object getValue() {
-			return value;
+		@Override public String toString() {
+			return "\"" + val + "\" : " + "string";
 		}
+	}
 
-		public String toString() {
-			return value == null ? "null" : value.toString() + ":" + getDynType().toString();
+	public class IRNullValue extends IRValue {
+		public IRNullValue(IRConcreteType type) {
+			super(type);
+		}
+		public boolean isNull() {
+			return true;
 		}
 	}
 
@@ -182,7 +237,7 @@ aspect IRInterpreter {
 	public IRValue IRFunction.evalBuiltin(IRFunctionEvalCtx ctx) throws InterpreterException {
 		switch (getIRName().getString()) {
 		default:
-			return null;
+			throw new InterpreterException("Can't evaluate builtin, " + getIRName() + ".");
 		case BuiltinNames.INT_ADD:
 		case BuiltinNames.INT_SUB:
 		case BuiltinNames.INT_MUL:
@@ -194,19 +249,40 @@ aspect IRInterpreter {
 		case BuiltinNames.INT_GT:
 		case BuiltinNames.INT_AND:
 		case BuiltinNames.INT_OR : {
-			Integer a = (Integer) ctx.getArg(0).getValue();
-			Integer b = (Integer) ctx.getArg(1).getValue();
-			// TODO: change the internal representation from Integer (32-bit) to Long (64-bit)
-			return new IRValue(getIRTypeRef(), (Integer)(int)evalBuiltin(getIRName().getString(), a, b));
+			if (!(ctx.getArg(0) instanceof IRIntegerValue)) {
+				throw new IncompatibleTypeException(ctx.getArg(0), this);
+			}
+			if (!(ctx.getArg(1) instanceof IRIntegerValue)) {
+				throw new IncompatibleTypeException(ctx.getArg(1), this);
+			}
+			long a = ((IRIntegerValue) ctx.getArg(0)).asLong();
+			long b = ((IRIntegerValue) ctx.getArg(1)).asLong();
+			return new IRIntegerValue(evalBuiltin(getIRName().getString(), a, b));
 		}
 		case BuiltinNames.ANY_EQ:
 		case BuiltinNames.ANY_NEQ:
-			Object a = ctx.getArg(0).getValue();
-			Object b = ctx.getArg(1).getValue();
-			int r = a.equals(b) ? 1 : 0;
-			if (getIRName().getString().equals(BuiltinNames.ANY_NEQ))
-				r = 1 - r;
-			return new IRValue(getIRTypeRef(), Integer.valueOf(r));
+			long trueValue = (getIRName().getString() == BuiltinNames.ANY_EQ) ? 1 : 0;
+			long falseValue = 1 - trueValue;
+
+			if (ctx.getArg(0).isNull() != ctx.getArg(1).isNull()) {
+				// one argument is null, the other is not
+				// null != non-null
+				return new IRIntegerValue(falseValue);
+			}
+			if (ctx.getArg(1).isNull()) {
+				// both arguments are null, return true
+				// null == null
+				return new IRIntegerValue(trueValue);
+			}
+			// both are not null
+			if (ctx.getArg(0) instanceof IRIntegerValue && ctx.getArg(1) instanceof IRIntegerValue) {
+				// value equality for integers
+				return new IRIntegerValue(((IRIntegerValue) ctx.getArg(0)).asLong() ==
+										  ((IRIntegerValue) ctx.getArg(1)).asLong() ? trueValue : falseValue);
+			} else {
+				// object identity equality for everything else
+				return new IRIntegerValue(ctx.getArg(0) == ctx.getArg(1) ? trueValue : falseValue);
+			}
 		}
 	}
 
@@ -235,10 +311,9 @@ aspect IRInterpreter {
 				// TODO: check TEAL types here, instead of Java types
 				IRValue cond = ctx.getStore().get(bi.getCond());
 				dbgi("exec " + bi + " cond=" + cond);
-				if (!(cond.getValue() instanceof Integer))
+				if (!(cond instanceof IRIntegerValue))
 					throw new InterpreterException("Condition expected to be integer");
-				Integer icond = (Integer) cond.getValue();
-				if (icond == 0) {
+				if (((IRIntegerValue)cond).asLong() == 0) {
 					currentBB = bi.getFalseTarget().getIRCodeBB();
 				} else {
 					currentBB = bi.getTrueTarget().getIRCodeBB();
@@ -313,38 +388,37 @@ aspect IRInterpreter {
 			if (type.getIRType().getNumIRTypeFormal() != type.getNumTypeActual())
 				throw new InterpreterException("Can't instantiate formal parameters of type " + type.getIRType());
 
-			IRTypeContext tctx = new IRTypeContext(type.getIRType());
+			IRConcreteType tctx = new IRConcreteType(type.getIRType());
 			for (int i = 0; i < type.getIRType().getNumIRTypeFormal(); ++i) {
 				IRTypeInstanceRef actual;
 				if (type.getTypeActual(i) instanceof IRTypeFormalRef) {
 					// we need a method context to be able to evaluate type formals
 					if (!ctx.isMethodCtx())
 						throw new InterpreterException("Can't evaluate formal type parameter " + type.getTypeActual(i));
-					IRInstance instance = (IRInstance) ctx.getSelf().getValue();
+					IRObject instance = (IRObject) ctx.getSelf();
 					// lookup what types is bound to the current actual
-					actual = instance.getTypeCtx().lookup(((IRTypeFormalRef) type.getTypeActual(i)).getIRTypeFormal());
+					actual = instance.getType().lookup(((IRTypeFormalRef) type.getTypeActual(i)).getIRTypeFormal());
 				} else {
 					actual = (IRTypeInstanceRef) type.getTypeActual(i);
 				}
 				tctx.bind(type.getIRType().getIRTypeFormal(i), actual);
 			}
 
-			IRValue val = new IRValue(type, new IRInstance(tctx, new Storage()));
-			// wrap it as an IRValue an return it
+			IRValue val = new IRObject(tctx);
 			ctx.getStore().set(getDst(), val);
 		}
 	}
 
 	public void IRLoadInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
 		// extract the instance storage
-		IRInstance instance = (IRInstance) ctx.getStore().get(getBase()).getValue();
+		IRObject instance = (IRObject) ctx.getStore().get(getBase());
 		// return the value from the storage
 		ctx.getStore().set(getDst(), instance.getStore().get(getField()));
 	}
 
 	public void IRStoreInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
 		// extract the instance storage
-		IRInstance instance = (IRInstance) ctx.getStore().get(getBase()).getValue();
+		IRObject instance = (IRObject) ctx.getStore().get(getBase());
 		// set the value in the instance storage
 		instance.getStore().set(getField(), ctx.getStore().get(getSrc()));
 	}
@@ -361,7 +435,7 @@ aspect IRInterpreter {
 
 	// Constants
 	syn IRValue IRConstant.asIRValue();
-	eq IRString.asIRValue() = new IRValue(getModule().makeStringTypeRef(), getValue());
-	eq IRInteger.asIRValue() = new IRValue(new IRIntTypeRef(), getValue());
-	eq IRNull.asIRValue() = new IRValue(new IRAnyTypeRef(), null);
+	eq IRString.asIRValue() = new IRStringValue(getValue());
+	eq IRInteger.asIRValue() = new IRIntegerValue(getValue());
+	eq IRNull.asIRValue() = new IRNullValue(null);
 }

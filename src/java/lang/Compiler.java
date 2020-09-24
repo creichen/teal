@@ -16,6 +16,7 @@ import lang.ast.CompilerError;
 import lang.ir.IRModule;
 import lang.ir.IRValue;
 import lang.ir.InterpreterException;
+import lang.ir.IRIntegerValue;
 
 /**
  * Dumps the parsed Abstract Syntax Tree of a Calc program.
@@ -31,7 +32,7 @@ public class Compiler {
 	public static void interpret(IRModule m, String[] strings) {
 		ArrayList<IRValue> args = new ArrayList<>();
 		for (int i = 2; i < strings.length; ++i) {
-			args.add(new IRValue(m.makeIntegerTypeRef(), Integer.parseInt(strings[i])));
+			args.add(new IRIntegerValue(Long.parseLong(strings[i])));
 		}
 		try {
 			IRValue ret = m.eval(args);

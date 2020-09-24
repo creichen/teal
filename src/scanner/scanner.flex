@@ -94,13 +94,13 @@ StringLiteral = \"([^\"]|\\\")*\"
 {IntLiteral}
 {
    String text = yytext();
-   Integer data = Integer.parseInt(text);
+   Long data = Long.parseLong(text);
    return new beaver.Symbol(Terminals.INTEGER_LITERAL, yyline, yycolumn, yylength(), data);
 }
 {HexLiteral}
 {
    String text = yytext();
-   Integer data = Integer.parseInt(text.substring(2), 16);
+   Long data = Long.parseLong(text.substring(2), 16);
    return new beaver.Symbol(Terminals.INTEGER_LITERAL, yyline, yycolumn, yylength(), data);
 }
 {StringLiteral}

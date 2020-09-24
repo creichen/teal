@@ -21,6 +21,8 @@ import lang.ast.LangScanner;
 import lang.ast.Program;
 import lang.ir.IRModule;
 import lang.ir.IRValue;
+import lang.ir.IRIntegerValue;
+import lang.ir.IRStringValue;
 import lang.ir.InterpreterException;
 import lang.ir.IRTypeRef;
 
@@ -66,24 +68,33 @@ public class TestInterpreter {
 	private static boolean checkResult(IRModule m, Object expectedReturn, Object ... testInput) {
 		ArrayList<IRValue> args = new ArrayList<>();
 		for (Object input : testInput) {
-
-			IRTypeRef type;
 			if (input instanceof String) {
-				type = m.makeStringTypeRef();
+				args.add(new IRStringValue((String) input));
 			} else if (input instanceof Integer) {
-				type = m.makeIntegerTypeRef();
+				args.add(new IRIntegerValue((long)(int) input));
 			} else {
 				System.err.println("Unsupported type for argument.");
 				return false;
 			}
-
-			IRValue arg = new IRValue(type, input);
-			args.add(arg);
 		}
 
 		try {
 			IRValue ret = m.eval(args);
-			return ret.getValue().equals(expectedReturn);
+			if (ret instanceof IRIntegerValue) {
+				if (((IRIntegerValue)ret).asLong() != (long)(int) expectedReturn) {
+					System.err.println("Expected: " + expectedReturn + " but got " + ret + ".");
+					return false;
+				}
+				return true;
+			} else if (ret instanceof IRStringValue) {
+				if (!((IRStringValue)ret).asString().equals(expectedReturn)) {
+					System.err.println("Expected: " + expectedReturn + " but got " + ret + ".");
+					return false;
+				}
+				return true;
+			} else {
+				return false;
+			}
 		} catch (InterpreterException e) {
 			System.err.println("Error while intepreting program: " + e.toString());
 		}

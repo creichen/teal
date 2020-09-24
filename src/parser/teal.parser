@@ -230,7 +230,7 @@ Expr unary_expr = NOT term {: return new NotExpr(term); :}
 		;
 
 Expr term = LPAREN expr RPAREN {: return expr; :}
-          | INTEGER_LITERAL {: return new IntConstant((Integer)INTEGER_LITERAL.value); :}
+          | INTEGER_LITERAL {: return new IntConstant((Long)INTEGER_LITERAL.value); :}
           | STRING_LITERAL {: return new StringConstant((String)STRING_LITERAL.value); :}
           | ID {: return new Access(new IdUse(ID)); :}
           | package_path {: return new QualifiedAccess(package_path); :}
