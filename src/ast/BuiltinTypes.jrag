@@ -69,4 +69,29 @@ aspect BuiltinTypes {
 
 		return decls;
 	}
+
+	syn ClassDecl Program.getBuiltinClassDecl(String name) {
+		switch (name) {
+		case BuiltinNames.INT:
+			return (ClassDecl) getBuiltinDecl(0);
+		case BuiltinNames.STRING:
+			return (ClassDecl) getBuiltinDecl(1);
+		case BuiltinNames.ANY:
+			return (ClassDecl) getBuiltinDecl(2);
+		case BuiltinNames.ARRAY:
+			return (ClassDecl) getBuiltinDecl(3);
+		default:
+			return null;
+		}
+	}
+
+	inh ClassDecl Decl.getBuiltinClassDecl(String name);
+	eq Program.getDecl().getBuiltinClassDecl(String name) {
+		return getBuiltinClassDecl(name);
+	}
+	eq Program.getBuiltinDecl().getBuiltinClassDecl(String name) {
+		return getBuiltinClassDecl(name);
+	}
+	inh ClassDecl Expr.getBuiltinClassDecl(String name);
+
 }

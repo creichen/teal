@@ -7,9 +7,9 @@ aspect TypeAnalysis {
 	TypeDecl implements TypeDefinition;
 	TypeVarDecl implements TypeDefinition;
 
-	syn TypeDefinition Expr.type() = (TypeDefinition) lookup("any").getDecl();
-	eq IntConstant.type() = (TypeDefinition) lookup("int").getDecl();
-	eq StringConstant.type() = (TypeDefinition) lookup("string").getDecl();
+	syn TypeDefinition Expr.type() = getBuiltinClassDecl(BuiltinNames.ANY);
+	eq IntConstant.type() = getBuiltinClassDecl(BuiltinNames.INT);
+	eq StringConstant.type() = getBuiltinClassDecl(BuiltinNames.STRING);
 	eq TypedExpr.type() {
 		return (TypeDefinition) getType().getIdUse().lookup().getDecl();
 	}
@@ -17,7 +17,7 @@ aspect TypeAnalysis {
 		VarDecl d = (VarDecl) getIdUse().lookup().getDecl();
 		if (d.hasType())
 			return (TypeDefinition) d.getType().decl();
-		return (TypeDefinition) lookup("any").getDecl();
+		return getBuiltinClassDecl(BuiltinNames.ANY);
 	}
 
 	syn TypeDefinition Decl.type() = null;
@@ -31,6 +31,6 @@ aspect TypeAnalysis {
 	eq FunDecl.type() {
 		if (hasType())
 			return (TypeDefinition) getType().getIdUse().lookup().getDecl();
-		return (TypeDefinition) lookup("any").getDecl();
+		return getBuiltinClassDecl(BuiltinNames.ANY);
 	}
 }

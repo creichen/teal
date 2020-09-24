@@ -59,7 +59,11 @@ aspect IRPrint {
 		getIRName().print(out);
 
 		if (getNumIRTypeFormal() != 0)
-			printCollection(getIRTypeFormals(), "[", "]", ",", out);
+			printCollection(getIRTypeFormals(), "[", "]", ", ", out);
+
+		out.print(" <: ");
+		printCollection(getSupers(), "", "", ", ", out);
+
 
 		out.println(" {");
 

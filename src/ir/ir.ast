@@ -70,8 +70,6 @@ IRClass : IRType ::= Super:IRTypeRef* [Constructor:IRFunction] IRFunction* IRVar
 IRName ::= <String>;
 
 // To be defined
-IRFieldRef;
-IRMethodRef;
 IRTypeAlias;
 
 IRModuleRef ::= <IRModule:IRModule>;

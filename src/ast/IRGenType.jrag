@@ -71,10 +71,16 @@ aspect IRGenType {
 		for (TypeVarDecl d : getTypeFormals()) {
 			klass.addIRTypeFormal(d.genIR());
 		}
+
+		if (getNumSuperType() == 0 && getBuiltinClassDecl(BuiltinNames.ANY) != this) {
+			// no declared supertypes, add the default: any
+			klass.addSuper(getBuiltinClassDecl(BuiltinNames.ANY).genIRTypeRef());
+		}
 		// set supertypes
 		for (Type t : getSuperTypes()) {
 			klass.addSuper(t.genIR());
 		}
+
 		return klass;
 	}
 
