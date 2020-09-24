@@ -1,0 +1,33 @@
+class Animal = {
+      fun move() = {
+      	  return kind();
+      }
+
+      fun kind() = {
+      	  return "Animal";
+      }
+}
+
+class Chordata <: Animal = {
+      fun kind() = {
+      	  return "Chordata";
+      }
+}
+
+class Mammal <: Chordata = {
+      fun kind() = {
+      	  return "Mammal";
+      }
+}
+
+
+class Dog <: Mammal = {
+      fun kind() = {
+      	  return "Dog";
+      }
+}
+
+fun main() = {
+    var d : Animal := new Dog();
+    return d.move();
+}

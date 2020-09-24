@@ -202,4 +202,11 @@ public class TestInterpreter {
 		assertTrue(checkResult(m, 100, 5, 10));
 		assertTrue(checkResult(m, 100, 10, 5));
 	}
+
+	@Test
+	public void testSubclass() {
+		IRModule m = loadAndCompileProgram("subclass.in");
+		assertNotNull(m);
+		assertTrue(checkResult(m, "Dog"));
+	}
 }
