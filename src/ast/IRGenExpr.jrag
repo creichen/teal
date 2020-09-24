@@ -230,4 +230,10 @@ aspect IRGenExpr {
 		ctx.addInsn(new IRConstantInsn(r, new IRString(getValue())));
 		return r;
 	}
+
+	public IRVarRef Null.genCode(IRFunctionCtx ctx) {
+		IRVarRef r = ctx.getTempIRVar(this);
+		ctx.addInsn(new IRConstantInsn(r, new IRNull()));
+		return r;
+	}
 }

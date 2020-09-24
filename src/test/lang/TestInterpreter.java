@@ -209,4 +209,11 @@ public class TestInterpreter {
 		assertNotNull(m);
 		assertTrue(checkResult(m, "Dog"));
 	}
+
+	@Test
+	public void testStack() {
+		IRModule m = loadAndCompileProgram("stack.in");
+		assertNotNull(m);
+		assertTrue(checkResult(m, 2));
+	}
 }
