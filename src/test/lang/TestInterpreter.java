@@ -173,4 +173,22 @@ public class TestInterpreter {
 		assertTrue(checkResult(m, 11, 10, 5));
 		assertTrue(checkResult(m, 5, 5, 10));
 	}
+
+	@Test
+	public void testFactorial() {
+		// the test contains a circular function reference
+		IRModule m = loadAndCompileProgram("fact.in");
+		assertNotNull(m);
+		assertTrue(checkResult(m, 1, 0));
+		assertTrue(checkResult(m, 720, 6));
+	}
+
+	@Test
+	public void testPair() {
+		// the test contains a circular type reference
+		IRModule m = loadAndCompileProgram("pair.in");
+		assertNotNull(m);
+		assertTrue(checkResult(m, 100, 5, 10));
+		assertTrue(checkResult(m, 100, 10, 5));
+	}
 }

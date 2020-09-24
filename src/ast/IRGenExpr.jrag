@@ -7,11 +7,6 @@ aspect IRGenExpr {
 		MEMBER
 	}
 
-	/*Warning at /work/projects/attol/src/ast/IRGenExpr.jrag:10: missing inherited equation for attribute getScope in class Decl when being child of Program (path: Program->Decl), and in class VarDecl when being child of ClassDecl (path: Program->ClassDecl->VarDecl), QualifierDecl (path: Program->QualifierDecl->VarDecl), ForStmt (path: Program->TypeDecl->FunDeclElt->FunDecl->ForStmt->VarDecl)
-
-
-	 */
-
 	inh VariableScope Decl.getScope();
 	eq Program.getDecl().getScope() = VariableScope.GLOBAL;
 	eq Program.getBuiltinDecl().getScope() = VariableScope.GLOBAL;
@@ -32,20 +27,6 @@ aspect IRGenExpr {
 
 	syn IRVarRef Expr.getIRVarRef() {
 		return new IRVarRef(getIRVar());
-	}
-
-	syn IRFunRef Expr.getCalledFunction() = null;
-	eq Access.getCalledFunction() {
-		IdDecl dd = getIdUse().lookup();
-		// We have to bite the bullet and do the cast here. This
-		// is translator code and the type hierarchy in the AST does not neatly
-		// overlap to the hierarchy in the IR. This is to say that the diagram
-		// below does not commute (where the down-arrow means translation)
-		//   ASTType1   <:    ASTType2
-		//     |                 |
-		//     v                 v
-		//   IRType1    <:    IRType2
-		return new IRFunRef(((FunDecl)dd.getDecl()).genIR());
 	}
 
 	public IRVarRef Expr.genCode(IRFunctionCtx ctx) {

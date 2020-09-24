@@ -75,6 +75,10 @@ aspect IRGenType {
 		for (Type t : getSuperTypes()) {
 			klass.addSuper(t.genIR());
 		}
+		return klass;
+	}
+
+	public void ClassDecl.genCode(IRClass klass) {
 		// set the fields
 		for (StructElt e : getStructElts()) {
 			if (e instanceof VarDeclElt) {
@@ -98,8 +102,6 @@ aspect IRGenType {
 				klass.addIRFunction(f);
 			}
 		}
-
-		return klass;
 	}
 
 	public IRTypeRef Decl.genIRTypeRef() {

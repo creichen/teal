@@ -65,6 +65,24 @@ aspect NameAnalysis {
 		return lookup(s);
 	}
 
+	eq ClassDecl.getFunFormal().lookup(String s) {
+		// search in the type formals first
+		for (TypeVarDecl typeVar : getTypeFormals()) {
+			if (typeVar.getIdDecl().getID().equals(s))
+				return typeVar.getIdDecl();
+		}
+		return lookup(s);
+	}
+
+	eq QualifierDecl.getFunFormal().lookup(String s) {
+		// search in the type formals first
+		for (TypeVarDecl typeVar : getTypeFormals()) {
+			if (typeVar.getIdDecl().getID().equals(s))
+				return typeVar.getIdDecl();
+		}
+		return lookup(s);
+	}
+
 	eq FunDecl.getBody().lookup(String s) {
 		IdDecl d = localLookup(s);
 		if (d != null)

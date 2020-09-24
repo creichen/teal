@@ -68,7 +68,9 @@ aspect IRGen {
 					fd.genCode(fctx);
 				m.getIRFunctions().add(f);
 			} else if (d instanceof ClassDecl) {
-				m.addIRType(((ClassDecl)d).genIR());
+				IRClass c = (IRClass) ((ClassDecl) d).genIR();
+				((ClassDecl) d).genCode(c);
+				m.addIRType(c);
 			} else {
 				throw new NotYetImplementedError("Cannot translate declaration " + d.getClass());
 			}

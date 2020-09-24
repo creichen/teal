@@ -1,0 +1,11 @@
+class Pair[S, T] (first : S, second : T) = {
+      fun swap() : Pair[T, S] = {
+      	  return new Pair[T, S](second, first);
+      }
+}
+
+fun main(x : int, y : int) = {
+    var p : Pair[int, int] := new Pair[int, int](x, y);
+    var s : Pair[int, int] := p.swap();
+    return p.first * s.first + p.second * s.second;
+}
