@@ -33,9 +33,16 @@ aspect IRGenType {
 		fctx.startBB();
 		for (int i = 0; i < getNumFunFormal(); ++i) {
 			VarDecl d = getFunFormal(i);
-			IRVarRef v = fctx.getIRVarRef(d);
-			IRArgInsn iarg = new IRArgInsn(v, i);
+			// extract the argument
+			IRArgInsn iarg = new IRArgInsn(fctx.getIRVarRef(d), i);
 			fctx.addInsn(iarg);
+			// copy the argument to the member variable
+			IRVar selfVar = fctx.getFreshTempIRVar(new IRAnyTypeRef());
+			IRSelfInsn self = new IRSelfInsn().setDst(new IRVarRef(selfVar));
+			fctx.addInsn(self);
+			IRStoreInsn store = new IRStoreInsn().setBase(new IRVarRef(selfVar))
+				.setField(new IRVarRef(d.genIR())).setSrc(fctx.getIRVarRef(d));
+			fctx.addInsn(store);
 		}
 		// now add any initializer code
 		for (StructElt e : getStructElts()) {
@@ -74,6 +81,11 @@ aspect IRGenType {
 				klass.addIRVar(((VarDeclElt)e).genIR());
 			}
 		}
+		// add the class argument parameters as fields
+		for (VarDecl d : getFunFormals()) {
+			klass.addIRVar(d.genIR());
+		}
+
 		// build the constructor, which contains initializers for all the fields
 		IRFunction init = makeConstructor();
 		klass.setConstructor(init);

@@ -165,4 +165,12 @@ public class TestInterpreter {
 		assertNotNull(m);
 		assertTrue(checkResult(m, 50, 10, 15));
 	}
+
+	@Test
+	public void testConstructor() {
+		IRModule m = loadAndCompileProgram("constructor.in");
+		assertNotNull(m);
+		assertTrue(checkResult(m, 11, 10, 5));
+		assertTrue(checkResult(m, 5, 5, 10));
+	}
 }

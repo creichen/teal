@@ -1,0 +1,21 @@
+class C(x : int, y : int) = {
+      var m : int;
+      var n : int;
+
+      fun doInitM()  = {
+	       m := x;
+      }
+
+      doInitM();
+
+      fun doInitN(x : int) = {
+      	  n := x;
+      }
+
+      doInitN(y % 2 == 1);
+}
+
+fun main(x : int, y : int) = {
+    var x := new C(x, y);
+    return (x:C).m + (x:C).n;
+}
