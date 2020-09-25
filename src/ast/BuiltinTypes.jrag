@@ -4,6 +4,7 @@ aspect BuiltinTypes {
 		public static final String STRING = "string";
 		public static final String ANY = "any";
 		public static final String ARRAY = "array";
+		public static final String QUALIFIER = "Qualifier";
 
 		public static final String INT_ADD = "__builtin_int_add";
 		public static final String INT_SUB = "__builtin_int_sub";
@@ -48,7 +49,14 @@ aspect BuiltinTypes {
 			.add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.STRING)))
 			.add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.ANY)))
 			.add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
-				 .setTypeFormalList(new List<TypeVarDecl>().add(new TypeVarDecl(new IdDecl("T")))));
+				 .setTypeFormalList(new List<TypeVarDecl>().add(new TypeVarDecl(new IdDecl("T")))))
+			.add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.QUALIFIER))
+				 .setTypeFormalList(new List<TypeVarDecl>().add(new TypeVarDecl(new IdDecl("T"))))
+				 .setSuperTypeList(new List<Type>())
+				 .setStructEltList(new List<StructElt>())
+				 .setFunFormalList(new List<VarDecl>()));
+
+
 
 		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_ADD, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
 		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_SUB, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
@@ -80,12 +88,15 @@ aspect BuiltinTypes {
 			return (ClassDecl) getBuiltinDecl(2);
 		case BuiltinNames.ARRAY:
 			return (ClassDecl) getBuiltinDecl(3);
+		case BuiltinNames.QUALIFIER:
+			return (ClassDecl) getBuiltinDecl(4);
 		default:
 			return null;
 		}
 	}
 
 	inh ClassDecl Decl.getBuiltinClassDecl(String name);
+
 	eq Program.getDecl().getBuiltinClassDecl(String name) {
 		return getBuiltinClassDecl(name);
 	}
@@ -93,5 +104,5 @@ aspect BuiltinTypes {
 		return getBuiltinClassDecl(name);
 	}
 	inh ClassDecl Expr.getBuiltinClassDecl(String name);
-
+	inh ClassDecl TypeQualifier.getBuiltinClassDecl(String name);
 }

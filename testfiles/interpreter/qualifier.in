@@ -1,0 +1,18 @@
+class Even <: Qualifier[int] = {
+      fun check(v : int) = {
+      }
+}
+
+class MultipleOf(n : int) <: Qualifier[int] = {
+      fun check(v : int) = {
+      	  assert v % n == 0;
+      }
+}
+
+fun main(d : int, n : int) = {
+    var x : Even int;
+    x := 2;
+    var y : MultipleOf(d) int;
+    y := n;
+    return 0;
+}

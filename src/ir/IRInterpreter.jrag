@@ -28,7 +28,18 @@ aspect IRInterpreter {
 		lang.ir.ASTNode op;
 
 		IncompatibleTypeException(IRValue v, lang.ir.ASTNode op) {
-			super("Null dereference");
+			super("Incompatible type");
+			this.v = v;
+			this.op = op;
+		}
+	}
+
+	public class FailedAssertException extends InterpreterException {
+		IRValue v;
+		lang.ir.ASTNode op;
+
+		FailedAssertException(IRValue v, lang.ir.ASTNode op) {
+			super("Assertion failed");
 			this.v = v;
 			this.op = op;
 		}
@@ -504,6 +515,15 @@ aspect IRInterpreter {
 		if (!ctx.isMethodCtx())
 			throw new InterpreterException("Attempt to execute 'self' instruction outside a method.");
 		ctx.getStore().set(getDst(), ctx.getSelf());
+	}
+
+	public void IRAssertInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		IRValue test = ctx.getStore().get(getTest());
+		if (!(test instanceof IRIntegerValue))
+			throw new FailedAssertException(test, this);
+		IRIntegerValue testI = (IRIntegerValue) test;
+		if (testI.asLong() == 0)
+			throw new FailedAssertException(test, this);
 	}
 
 	// Constants

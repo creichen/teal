@@ -65,7 +65,7 @@ public class TestInterpreter {
 		}
 	}
 
-	private static boolean checkResult(IRModule m, Object expectedReturn, Object ... testInput) {
+	private static boolean checkResultNoCatch(IRModule m, Object expectedReturn, Object ... testInput) throws InterpreterException {
 		ArrayList<IRValue> args = new ArrayList<>();
 		for (Object input : testInput) {
 			if (input instanceof String) {
@@ -78,23 +78,28 @@ public class TestInterpreter {
 			}
 		}
 
-		try {
-			IRValue ret = m.eval(args);
-			if (ret instanceof IRIntegerValue) {
-				if (((IRIntegerValue)ret).asLong() != (long)(int) expectedReturn) {
-					System.err.println("Expected: " + expectedReturn + " but got " + ret + ".");
-					return false;
-				}
-				return true;
-			} else if (ret instanceof IRStringValue) {
-				if (!((IRStringValue)ret).asString().equals(expectedReturn)) {
-					System.err.println("Expected: " + expectedReturn + " but got " + ret + ".");
-					return false;
-				}
-				return true;
-			} else {
+
+		IRValue ret = m.eval(args);
+		if (ret instanceof IRIntegerValue) {
+			if (((IRIntegerValue)ret).asLong() != (long)(int) expectedReturn) {
+				System.err.println("Expected: " + expectedReturn + " but got " + ret + ".");
 				return false;
 			}
+			return true;
+		} else if (ret instanceof IRStringValue) {
+			if (!((IRStringValue)ret).asString().equals(expectedReturn)) {
+				System.err.println("Expected: " + expectedReturn + " but got " + ret + ".");
+				return false;
+			}
+			return true;
+		}
+
+		return false;
+	}
+
+	private static boolean checkResult(IRModule m, Object expectedReturn, Object ... testInput) {
+		try {
+			return checkResultNoCatch(m, expectedReturn, testInput);
 		} catch (InterpreterException e) {
 			System.err.println("Error while intepreting program: " + e.toString());
 		}
@@ -215,5 +220,19 @@ public class TestInterpreter {
 		IRModule m = loadAndCompileProgram("stack.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 2));
+	}
+
+	@Test
+	public void testLocalVarQualifier() {
+		IRModule m = loadAndCompileProgram("qualifier.in");
+		assertNotNull(m);
+		assertTrue(checkResult(m, 0, 11, 132));
+	}
+
+	@Test(expected=InterpreterException.class)
+	public void testLocalVarQualifierFail() throws InterpreterException {
+		IRModule m = loadAndCompileProgram("qualifier.in");
+		assertNotNull(m);
+		checkResultNoCatch(m, 0, 11, 12);
 	}
 }

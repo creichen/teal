@@ -33,7 +33,9 @@ IRNewArrayInsn : IRInsn ::= Dst:IRVarRef IRTypeRef Size:IRVarRef;
 
 IRSelfInsn : IRInsn ::= Dst:IRVarRef;
 
-IRAssert : IRInsn ::= IRVarRef;
+IRAssertInsn : IRInsn ::= Test:IRVarRef;
+
+IRCheckQualifier : IRInsn ::= IRVarRef IRQualifierRef;
 
 // Block terminators
 abstract IRCodeExit;
@@ -52,7 +54,7 @@ IRCodeBBRef ::= <IRCodeBB:IRCodeBB>;
 
 // Type reference
 abstract IRTypeRef;
-IRTypeInstanceRef : IRTypeRef ::= <IRType:IRType> TypeActual:IRTypeRef* IRQualifierRef*;
+IRTypeInstanceRef : IRTypeRef ::= <IRType:IRType> TypeActual:IRTypeRef*;
 IRTypeFormalRef : IRTypeRef ::= <IRTypeFormal:IRTypeFormal>;
 abstract IRFundamentalTypeRef : IRTypeRef;
 IRIntTypeRef : IRFundamentalTypeRef;
@@ -67,6 +69,9 @@ abstract IRType ::= IRName IRTypeFormal*;
 // Class
 IRClass : IRType ::= Super:IRTypeRef* [Constructor:IRFunction] IRFunction* IRVar*;
 
+// Qualifier
+IRQualifier ::= IRName IRTypeFormal* Super:IRTypeRef* [Constructor:IRFunction] [Check:IRFunction] IRFunction* IRVar*;
+
 IRName ::= <String>;
 
 // To be defined
@@ -74,4 +79,3 @@ IRTypeAlias;
 
 IRModuleRef ::= <IRModule:IRModule>;
 IRTypeFormal ::= IRName;
-IRQualifier;

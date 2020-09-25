@@ -84,6 +84,11 @@ aspect IRGen {
 				if (fd.hasBody())
 					fd.genCode(fctx);
 				m.getIRFunctions().add(f);
+			} else if (d == getBuiltinClassDecl(BuiltinNames.QUALIFIER)) {
+				// generate code for the qualifier builtin type
+				IRClass c = (IRClass) ((ClassDecl) d).genIR();
+				((ClassDecl) d).genCode(c);
+				m.addIRType(c);
 			}
 		}
 
@@ -95,12 +100,14 @@ aspect IRGen {
 		private IRCodeBB BB;
 		private int counter = 0;
 		private HashMap<VarDecl, IRVar> locals;
+		private HashMap<TypeQualifier, IRVar> qualifiers;
 		private HashMap<Expr, IRVar> temps;
 
 		public IRFunctionCtx(IRFunction F) {
 			this.F = F;
 			locals = new HashMap<>();
 			temps = new HashMap<>();
+			qualifiers = new HashMap<>();
 		}
 
 		public IRCodeBB startBB() {
@@ -147,6 +154,17 @@ aspect IRGen {
 				locals.put(d, v);
 			}
 			return new IRVarRef(v);
+		}
+
+		public IRVar getQualifierIRVar(TypeQualifier qual) {
+			IRVar v = qualifiers.get(qual);
+			if (v == null) {
+				v = new IRVar(new IRName("__qual_" + qual.getIdUse().getID() + counter++),
+							  qual.genIR());
+				F.addLocal(v);
+				qualifiers.put(qual, v);
+			}
+			return v;
 		}
 	}
 
@@ -199,7 +217,7 @@ aspect IRGen {
 		getLValue().genAssignment(right, ctx);
 	}
 
-	public void VarDecl.genCode(IRFunctionCtx ctx) {
+	public void VarDecl.genCodeInitializer(IRFunctionCtx ctx) {
 		if (!hasInitializer())
 			return;
 		IRVarRef src = getVarDecl().getInitializer().genCode(ctx);
@@ -217,6 +235,11 @@ aspect IRGen {
 			// Unclear where to generate the code to initialize globals
 			throw new NotYetImplementedError("Can't initialize global variable " + this + ".");
 		}
+	}
+
+	public void VarDecl.genCode(IRFunctionCtx ctx) {
+		genCodeInitializer(ctx);
+		genCodeQualifiers(ctx);
 	}
 
 	public void VarDeclStmt.genCode(IRFunctionCtx ctx) {
@@ -275,6 +298,11 @@ aspect IRGen {
 		// start a new basic block to hold the translation
 		// of any (unreachable) statements following the return.
 		ctx.startBB();
+	}
+
+	public void AssertStmt.genCode(IRFunctionCtx ctx) {
+		IRVarRef test = getExpr().genCode(ctx);
+		ctx.addInsn(new IRAssertInsn(test));
 	}
 
 	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), type().genIRTypeRef());

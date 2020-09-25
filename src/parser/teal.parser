@@ -166,7 +166,8 @@ List struct_decl = LBRACE struct_elt* RBRACE {: return struct_elt; :}
 StructElt struct_elt = var_decl {: return new VarDeclElt(var_decl); :}
                      | fun_decl {: return new FunDeclElt(fun_decl); :}
                      | expr_stmt {: return new StmtElt(expr_stmt); :}
-		     ;
+                     | assign_stmt {: return new StmtElt(assign_stmt); :}
+                     ;
 
 ClassDecl class_decl = CLASS ID type_formals fun_formals_opt EQ struct_decl
                            {: return new ClassDecl(new IdDecl(ID), type_formals, new List(), struct_decl, fun_formals_opt); :}

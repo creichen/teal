@@ -186,6 +186,7 @@ aspect IRGenExpr {
 		case GLOBAL:
 			IRVarRef dst = ctx.getIRVarRef(d);
 			ctx.addInsn(new IRCopyInsn(dst, rhs));
+			d.genQualifierCheck(ctx);
 		}
 	}
 
