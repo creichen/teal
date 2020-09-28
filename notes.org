@@ -1,9 +1,12 @@
+#+TITLE: TEAL - typed, easily analyzable language
+
 * Parser
-- Lvalues cannot be checked at parser level due to R-R conflict.
-** TODO implement lvalue check
-- change package paths to ~pack1::pack2::id~ from ~pack1.pack2::id~ to avoid ambiguity
+Lvalues cannot be checked at parser level due to R-R conflict.
+
+Change package paths to ~pack1::pack2::id~ from ~pack1.pack2::id~ to avoid ambiguity
   pack1.(pack2::id) or (pack1.pack2)::id
-- always check for undefined non-terminals; otherwise you'll get a mismatch between the ID expected by Beaver and the ID produced by Flex
+
+Not: always check for undefined non-terminals; otherwise you'll get a mismatch between the ID expected by Beaver and the ID produced by Flex
 
 ** Use '(expr : Type)' for type assertions
 To avoid parsing conflicts, we have to use ~(expr : Type)~ instead of ~expr : Type~. The ambiguity arises in situations like:
@@ -18,3 +21,65 @@ inside the function.
 Name overloading is generally disabled. This simplifies name analysis.
 Inside type declarations: formal type paramaters, formal constructor parameters, methods and member declarations share the same namespace.
 Inside a translation unit (i.e. Program): function declarations, type declarations and variable declarations share the same namespace.
+The lack of name overloading improves readability and, for a language without editor support, enables the use of grep for code navigation.
+
+* Calling the super constructors
+Inside classes, only expression statements, functions and variable declarations are allowed. Expression and assignment statements are allowed because we want to be able to call superclass constructors or call other initialization methods.
+
+* Class members
+The arguments to a class should be class members. This improves writeability and avoids the idiom (prevalent in Java). Same for qualifiers.
+#+BEGIN_SRC
+class C(m, n) = {
+ var x;
+ var y;
+ self.x := m;
+ self.y := n;
+}
+#+END_SRC
+
+* Scope
+Use a single name scope. Splitting the scopes may allow the user to define a variable that has the same name as type, but that just decreases the readability of the language. An even more strict proposal would be to enforce naming conventions in the language, i.e. capital initials for classes, qualifiers and type variables, and small initials for functions, methods, members, and variables.
+
+* Interfaces
+TEAL allows a class to inherit from multiple superclasses. In this case the interface concept justs serves as a marker for classes that have only abstract methods.
+
+* Names and types
+In order to resolve name accesses, i.e. a.x, we need to find the type of a. ~a~ can be any expression, for example it can be a function call, ~f().g().x~. We require that the expression is either a variable with explicitly declared type or a type ascription expression.
+
+* Qualifiers
+** How many types a qualifier can qualify?
+A qualifier declares the subtypes it may qualify. For example, ~qual Q <: A, B~ can qualify the types A and B. Inside the qualifier, the ~self~ variable refers to the value it qualifies. It is unclear what is the type of the ~self~ variable in this case. It should be the union of the types A and B, but the TEAL type system does not have such a concept. There are two solution to this:
+- let ~self~ have the common supertype of A and B, which may be ~any~
+- restrict the number of types a qulifier can qualify to one - implemented.
+
+** Arguments to qualifiers
+Example:
+#+BEGIN_SRC
+qual DivisibleBy(n : int) <: int {
+...
+}
+
+class DivisibleBy2(m : int, n : int) <: DivisibleBy(expr1) DivisibleBy(expr2) int {
+...
+}
+#+END_SRC
+In what scope and when should expr1 and expr2 be evaluated? The names in expr1 and expr2 should be statically bound and the evaluation should be done at instantiation time. The lookup order for names is expr1 and expr2 is: formal function arguments for the class definition, global functions and global variables.
+
+** Qualifiers as syntactic sugar
+If we restrict the number of types a qulifier can qualify to 1, we can have the qulifiers as classes implementing a qualifier interface:
+#+BEGIN_SRC
+class Qualifier[T] = {
+   fun check(v : T);
+}
+#+END_SRC
+
+* Remaining
+** TODO For loops
+Desugaring of for loops.
+** TODO Explicit and implicit calls to constructors of superclasses
+The superclasses are not initialized when a class is built.
+** TODO Packages
+Support for import statement
+** TODO Qualifiers for classes
+Qualifiers are supported only for variables.
+** TODO Semantic checks for lvalues

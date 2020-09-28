@@ -1,0 +1,17 @@
+#+TITLE: TEAL - typed, easily analyzable language
+
+* Building
+~./gradlew jar test~
+
+* Generate and dump the IR
+~java -jar compiler.jar program.teal~
+
+* Generate and interpret the IR
+~java -jar compiler.jar program.teal --run arg1 arg2 ...~
+The arguments to the program can be integers or strings. Prints out the value returned by main.
+
+* Logging
+Enabled by the ~TEAL_DEBUG~ environment variable, ~export TEAL_DEBUG=interp,irgen~.
+
+* Notes on the implementation
+See [[file:notes.org][the implementatio notes]].
