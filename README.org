@@ -14,4 +14,4 @@ The arguments to the program can be integers or strings. Prints out the value re
 Enabled by the ~TEAL_DEBUG~ environment variable, ~export TEAL_DEBUG=interp,irgen~.
 
 * Notes on the implementation
-See [[file:notes.org][the implementatio notes]].
+See [[file:notes.org][the implementation notes]].

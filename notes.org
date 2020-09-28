@@ -76,6 +76,8 @@ class Qualifier[T] = {
 * Remaining
 ** TODO For loops
 Desugaring of for loops.
+** TODO Arrays
+Implement the array type and desugar array accesses and array types.
 ** TODO Explicit and implicit calls to constructors of superclasses
 The superclasses are not initialized when a class is built.
 ** TODO Packages
