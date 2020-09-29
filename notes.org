@@ -74,6 +74,9 @@ class Qualifier[T] = {
 #+END_SRC
 
 * Remaining
+** TODO Add source location to IR nodes
+** TODO Split the language in different version, e.g. TEAL-0, TEAL-1, ...
+This might not be feasible, because classes are needed to implement arrays. Qualifiers may be added separately.
 ** TODO For loops
 Desugaring of for loops.
 ** TODO Arrays
