@@ -12,6 +12,17 @@ aspect IRInterpreter {
 		}
 	}
 
+	public class ArrayAccessException extends InterpreterException {
+		IRValue v;
+		lang.ir.ASTNode op;
+
+		ArrayAccessException(IRValue v, lang.ir.ASTNode op) {
+			super("Array access exception");
+			this.v = v;
+			this.op = op;
+		}
+	}
+
 	public class NullDereferenceException extends InterpreterException {
 		IRValue v;
 		lang.ir.ASTNode op;
@@ -202,6 +213,26 @@ aspect IRInterpreter {
 		}
 		public boolean isNull() {
 			return true;
+		}
+	}
+
+	public class IRArray extends IRValue {
+		private IRValue[] values;
+		public IRArray(long size) {
+			super(null);
+			values = new IRValue[(int) size];
+		}
+
+		public void set(long i, IRValue v) {
+			values[(int) i] = v;
+		}
+
+		public IRValue get(long i) {
+			return values[(int) i];
+		}
+
+		public long getSize() {
+			return values.length;
 		}
 	}
 
@@ -491,6 +522,34 @@ aspect IRInterpreter {
 			IRValue val = new IRObject(tctx, ((IRClass) type.getIRType()).getVTable());
 			ctx.getStore().set(getDst(), val);
 		}
+	}
+
+	public void IRNewArrayInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		IRIntegerValue size = (IRIntegerValue) ctx.getStore().get(getSize());
+		if (size.asLong() < 0) {
+			throw new InterpreterException("Negative array size.");
+		}
+		IRValue array = new IRArray(size.asLong());
+		ctx.getStore().set(getDst(), array);
+	}
+
+	public void IRLoadArrayInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		IRIntegerValue index = (IRIntegerValue) ctx.getStore().get(getIndex());
+		IRArray array = (IRArray) ctx.getStore().get(getBase());
+		if (index.asLong() < 0 || index.asLong() >= array.getSize()) {
+			throw new ArrayAccessException(array, this);
+		}
+		ctx.getStore().set(getDst(), array.get(index.asLong()));
+	}
+
+	public void IRStoreArrayInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		IRIntegerValue index  = (IRIntegerValue) ctx.getStore().get(getIndex());
+		IRArray array = (IRArray) ctx.getStore().get(getBase());
+		IRValue datum = ctx.getStore().get(getSrc());
+		if (index.asLong() < 0 || index.asLong() >= array.getSize()) {
+			throw new ArrayAccessException(array, this);
+		}
+		array.set(index.asLong(), datum);
 	}
 
 	public void IRLoadInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {

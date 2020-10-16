@@ -238,4 +238,11 @@ public class TestInterpreter {
 		assertNotNull(m);
 		checkResultNoCatch(m, 0, 11, 12);
 	}
+
+	@Test
+	public void testArrays() {
+		IRModule m = loadAndCompileProgram("array.in");
+		assertNotNull(m);
+		assertTrue(checkResult(m, 55, 11));
+	}
 }

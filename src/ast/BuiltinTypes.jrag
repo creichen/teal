@@ -105,4 +105,16 @@ aspect BuiltinTypes {
 	}
 	inh ClassDecl Expr.getBuiltinClassDecl(String name);
 	inh ClassDecl TypeQualifier.getBuiltinClassDecl(String name);
+
+	syn boolean TypeDecl.isInt() {
+		return equals(getBuiltinClassDecl(BuiltinNames.INT));
+	}
+
+	syn boolean TypeDecl.isString() {
+		return equals(getBuiltinClassDecl(BuiltinNames.STRING));
+	}
+
+	syn boolean TypeDecl.isArray() {
+		return equals(getBuiltinClassDecl(BuiltinNames.ARRAY));
+	}
 }

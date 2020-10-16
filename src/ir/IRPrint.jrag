@@ -232,6 +232,31 @@ aspect IRPrint {
 		getIRTypeRef().print(out);
 	}
 
+	public void IRNewArrayInsn.print(PrintStream out) {
+		getDst().print(out);
+		out.print(" = newarray ");
+		getIRTypeRef().print(out);
+		out.print(" ");
+		getSize().print(out);
+	}
+
+	public void IRLoadArrayInsn.print(PrintStream out) {
+		getDst().print(out);
+		out.print(" = loadarray ");
+		getBase().print(out);
+		out.print(" ");
+		getIndex().print(out);
+	}
+
+	public void IRStoreArrayInsn.print(PrintStream out) {
+		out.print("storearray ");
+		getSrc().print(out);
+		out.print(" ");
+		getBase().print(out);
+		out.print(" ");
+		getIndex().print(out);
+	}
+
 	// Refs
 	public void IRCodeBBRef.print(PrintStream out) {
 		out.print(getIRCodeBB().label());

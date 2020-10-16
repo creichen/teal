@@ -118,7 +118,21 @@ aspect IRGenExpr {
 		return tmp;
 	}
 
+	public IRVarRef NewExpr.genCodeArray(IRFunctionCtx ctx) {
+		IRVarRef dst = ctx.getTempIRVar(this);
+		IRVarRef size = getActual(0).genCode(ctx);
+		IRNewArrayInsn newInsn = new IRNewArrayInsn().setDst(dst)
+			.setIRTypeRef(getType().getActual(0).genIR()).setSize(size);
+		ctx.addInsn(newInsn);
+		return dst;
+	}
+
 	public IRVarRef NewExpr.genCode(IRFunctionCtx ctx) {
+		// generate special IR instructions for arrays
+		if (((ClassDecl) getType().getIdUse().lookup().getDecl()).isArray()) {
+			return genCodeArray(ctx);
+		}
+
 		// allocate storage for the object
 		IRVarRef dst = ctx.getTempIRVar(this);
 		IRNewInsn newInsn = new IRNewInsn().setDst(dst)
@@ -190,11 +204,6 @@ aspect IRGenExpr {
 		}
 	}
 
-	public IRVarRef TypedExpr.genCode(IRFunctionCtx ctx) {
-		// TODO: generate an assertion too
-		return getExpr().genCode(ctx);
-	}
-
 	public IRVarRef Access.genCode(IRFunctionCtx ctx) {
 		// this can be a local variable load, global variable load or member access
 		IdDecl idDecl = getIdUse().lookup();
@@ -218,6 +227,27 @@ aspect IRGenExpr {
 			break;
 		}
 		return r;
+	}
+
+	public void IndexExpr.genAssignment(IRVarRef rhs, IRFunctionCtx ctx) {
+		IRVarRef base = getBase().genCode(ctx);
+		IRVarRef index = getIndex().genCode(ctx);
+		ctx.addInsn(new IRStoreArrayInsn().setBase(base).setIndex(index).setSrc(rhs));
+	}
+
+	public IRVarRef IndexExpr.genCode(IRFunctionCtx ctx) {
+		IRVarRef base = getBase().genCode(ctx);
+		IRVarRef index = getIndex().genCode(ctx);
+		IRVarRef dst = ctx.getTempIRVar(this);
+		IRLoadArrayInsn load = new IRLoadArrayInsn()
+			.setBase(base).setIndex(index).setDst(dst);
+		ctx.addInsn(load);
+		return dst;
+	}
+
+	public IRVarRef TypedExpr.genCode(IRFunctionCtx ctx) {
+		// TODO: generate an assertion too
+		return getExpr().genCode(ctx);
 	}
 
 	public IRVarRef IntConstant.genCode(IRFunctionCtx ctx) {
