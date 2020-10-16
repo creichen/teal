@@ -1,4 +1,5 @@
 // Top level
+IRProgram ::= IRModule*;
 IRModule ::= IRModuleName IRVar* IRType* IRClass* IRQualifier* IRTypeAlias* IRFunction*;
 IRModuleName ::= IRName*;
 IRVar ::= IRName IRTypeRef;

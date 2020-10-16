@@ -1,0 +1,98 @@
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.io.File;
+import java.util.stream.Collectors;
+
+aspect Modules {
+	syn Path ImportDecl.toPath() {
+		Path p;
+		if (getNumPackagePathFragment() == 2) {
+			// import A::B imports name B from file A.teal
+			p = Paths.get(getPackagePathFragment(0).getID() + ".teal");
+		} else {
+			// import A::B::C imports name C from file A/B/C.teal
+			p = Paths.get(getPackagePathFragment(0).getID());
+			for (int i = 1; i < getNumPackagePathFragment() - 1; ++i) {
+				String frag = getPackagePathFragment(i).getID();
+				if (i == getNumPackagePathFragment() - 2) {
+					frag += ".teal";
+				}
+				p = p.resolve(frag);
+			}
+		}
+		return p;
+	}
+
+	syn Decl ImportDecl.getDecl() {
+		File importedFile = importToFileMap().get(this);
+		Module importedModule = moduleMap().get(importedFile);
+		String importedName = getPackagePathFragment(getNumPackagePathFragment() - 1).getID();
+		return importedModule.lookup(importedName).getDecl();
+	}
+
+	private java.util.List<String> Module.importPaths = new ArrayList<>();
+	public void Module.addImportPaths(Collection<String> paths) {
+		importPaths.addAll(paths);
+	}
+
+	syn lazy Map<ImportDecl, File> Module.importToFileMap() {
+		Map<ImportDecl, File> map = new HashMap<>();
+
+		for (ImportDecl imp : getImportDecls()) {
+			boolean importResolved = false;
+			// try to resolve the import by looking in all the import paths
+			for (String path : importPaths) {
+				Path impPath = Paths.get(path);
+				Path fullImpPath = impPath.resolve(imp.toPath());
+				File importedFile = fullImpPath.toFile();
+
+				if (importedFile.exists() && importedFile.isFile()) {
+					map.put(imp, importedFile);
+					importResolved = true;
+					break;
+				}
+			}
+
+			if (!importResolved) {
+				// the import has not been resolved
+				throw new RuntimeException("Could not resolve import " + imp.toPath());
+			}
+		}
+		return map;
+	}
+
+	inh Map<ImportDecl, File> ImportDecl.importToFileMap();
+	eq Module.getImportDecl().importToFileMap() = importToFileMap();
+
+	syn java.util.List<File> Module.importedFiles() {
+		return importToFileMap().entrySet().stream().map(e -> e.getValue()).collect(Collectors.toList());
+	}
+
+
+
+	private Map<File, Module> Program.moduleMap = new HashMap<>();
+	public Map<File, Module> Program.moduleMap() {
+		return moduleMap;
+	}
+
+	inh Map<File, Module> Module.moduleMap();
+	eq Program.getModule().moduleMap() = moduleMap();
+	inh Map<File, Module> ImportDecl.moduleMap();
+
+	private java.util.List<String> Module.name = Collections.emptyList();
+	public void Module.setNameFromFile(File f) {
+		Path p = f.toPath();
+		name = new ArrayList<>();
+		for (int i = 0; i < p.getNameCount(); ++i) {
+			String pathFrag = p.getName(i).toString();
+			if (i == p.getNameCount() - 1) {
+				name.add(pathFrag.substring(0, pathFrag.lastIndexOf('.')));
+			} else {
+				name.add(pathFrag);
+			}
+		}
+	}
+	public java.util.List<String> Module.getName() {
+		return name;
+	}
+}

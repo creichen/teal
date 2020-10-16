@@ -47,9 +47,18 @@ aspect IRGen {
 		return varDecls;
 	}
 
+	syn IRProgram Program.genIR() {
+		IRProgram p = new IRProgram();
+		for (Module m : getModules()) {
+			p.addIRModule(m.genIR());
+		}
+		return p;
+	}
+
 	syn IRModule Module.genIR() {
-		// single module support for now
-		IRModule m = new IRModule(new IRModuleName(new lang.ir.List(new IRName("main"))),
+		String name = getName().stream().collect(Collectors.joining("::"));
+
+		IRModule m = new IRModule(new IRModuleName(new lang.ir.List(new IRName(name))),
 								  new lang.ir.List<IRVar>(),
 								  new lang.ir.List<IRType>(),
 								  new lang.ir.List<IRClass>(),

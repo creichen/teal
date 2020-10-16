@@ -34,6 +34,10 @@ aspect IRPrint {
 		out.print("*** not implemented (" + getClass().toString() + ") ***");
 	}
 
+	public void IRProgram.print(PrintStream out) {
+		printCollection(getIRModules(), "", "", "\n\n", out);
+	}
+
 	public void IRModule.print(PrintStream out) {
 		out.print("module ");
 		printCollection(getIRModuleName().getIRNames(), "", "", ".", out);
@@ -51,7 +55,7 @@ aspect IRPrint {
 		for (IRFunction f : getIRFunctions())
 			f.print(out);
 
-		out.println();
+		out.println("end module");
 	}
 
 	public void IRClass.print(PrintStream out) {
@@ -65,7 +69,7 @@ aspect IRPrint {
 		printCollection(getSupers(), "", "", ", ", out);
 
 
-		out.println(" {");
+		out.println();
 
 		printCollection(getIRVars(), "", "\n", "\n", out);
 
@@ -73,7 +77,7 @@ aspect IRPrint {
 
 		printCollection(getIRFunctions(), "", "\n", "\n", out);
 
-		out.println("}");
+		out.println("end class\n");
 	}
 
 	public void IRFunction.print(PrintStream out) {
@@ -85,12 +89,17 @@ aspect IRPrint {
 
 		getSourceLocation().print(out);
 
-		out.print(" {\n\t");
-		printCollection(getLocals(), "", "", "\n\t", out);
-		out.print("\n");
-		printCollection(getIRCodeBBs(), "", "", "\n", out);
+		if (getNumLocal() != 0) {
+			out.print("\n\t");
+			printCollection(getLocals(), "", "", "\n\t", out);
+		}
 
-		out.println("\n}\n");
+		if (getNumIRCodeBB() != 0) {
+			out.print("\n");
+			printCollection(getIRCodeBBs(), "", "", "\n", out);
+		}
+
+		out.println("\nend function\n");
 	}
 
 	public void IRTypeInstanceRef.print(PrintStream out) {

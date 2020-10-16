@@ -258,6 +258,11 @@ aspect NameAnalysisPrivate {
 		for (Decl d : getBuiltinDeclList()) {
 			declMap.append(d.getIdDecl().getID(), d.getIdDecl());
 		}
+
+		for (ImportDecl i : getImportDecls()) {
+			declMap.append(i.getDecl().getIdDecl().getID(), i.getDecl().getIdDecl());
+		}
+
 		for (Decl d : getDecls()) {
 			declMap.append(d.getIdDecl().getID(), d.getIdDecl());
 		}

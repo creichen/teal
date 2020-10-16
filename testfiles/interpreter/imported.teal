@@ -1,0 +1,3 @@
+fun foo (x : int) = {
+    return 1001 * x;
+}

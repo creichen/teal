@@ -1,0 +1,5 @@
+import imported::foo;
+
+fun main (n : int) = {
+    return foo (n);
+}

@@ -270,6 +270,18 @@ aspect IRInterpreter {
 		}
 	}
 
+	public IRValue IRProgram.eval(java.util.List<IRValue> args) throws InterpreterException {
+		Storage s = new Storage();
+		for (IRModule m : getIRModules()) {
+			for (IRFunction f : m.getIRFunctions()) {
+				if (f.getIRName().getString().equals("main")) {
+					return f.eval(new IRFunctionEvalCtx(s, args));
+				}
+			}
+		}
+		return null;
+	}
+
 	public IRValue IRModule.eval(java.util.List<IRValue> args) throws InterpreterException {
 		Storage s = new Storage();
 		for (IRFunction f : getIRFunctions()) {

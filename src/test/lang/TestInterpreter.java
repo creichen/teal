@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Test;
@@ -20,6 +22,7 @@ import lang.ast.CompilerError;
 import lang.ast.LangScanner;
 import lang.ast.Program;
 import lang.ast.Module;
+import lang.ir.IRProgram;
 import lang.ir.IRModule;
 import lang.ir.IRValue;
 import lang.ir.IRIntegerValue;
@@ -30,45 +33,43 @@ import lang.ir.IRTypeRef;
 public class TestInterpreter {
 	private static final String TEST_DIRECTORY = "testfiles/interpreter";
 
-	private static IRModule loadAndCompileProgram(String name) {
+	private static IRProgram loadAndCompileProgram(String name) {
 		Path file = Paths.get(TEST_DIRECTORY, name);
-		try {
-			LangScanner scanner = new LangScanner(new FileReader(file.toString()));
-			TEALParser parser = new TEALParser();
-			Module module = (Module) parser.parse(scanner);
-			Program program = new Program();
-			program.addModule(module);
 
-			List<CompilerError> semaErrors = program.semanticErrors();
-			List<CompilerError> nameErrors = program.nameErrors();
+		List<CompilerError> compilerErrors = new LinkedList<>();
+		Program program = Compiler.createProgramFromFiles(Collections.singletonList(file.toString()),
+														  Collections.emptyList(), compilerErrors);
 
-			for (CompilerError e : nameErrors) {
-				System.err.println("ERROR " + e.report());
-			}
 
-			for (CompilerError e : semaErrors) {
-				System.err.println("ERROR " + e.report());
-			}
+		List<CompilerError> semaErrors = program.semanticErrors();
+		List<CompilerError> nameErrors = program.nameErrors();
 
-			if (semaErrors.size() != 0)
-				return null;
-
-			if (nameErrors.size() != 0)
-				return null;
-
-			IRModule irm = module.genIR();
-
-			return irm;
-		} catch (FileNotFoundException e) {
-			System.err.println("Could not load source file: " + name);
-			return null;
-		} catch (Exception e) {
-			System.err.println("Could not parse file: " + name);
-			return null;
+		for (CompilerError e : compilerErrors) {
+			System.err.println("ERROR " + e.report());
 		}
+
+		for (CompilerError e : nameErrors) {
+			System.err.println("ERROR " + e.report());
+		}
+
+		for (CompilerError e : semaErrors) {
+			System.err.println("ERROR " + e.report());
+		}
+
+		if (compilerErrors.size() != 0)
+			return null;
+
+		if (semaErrors.size() != 0)
+			return null;
+
+		if (nameErrors.size() != 0)
+			return null;
+
+		IRProgram p = program.genIR();
+		return p;
 	}
 
-	private static boolean checkResultNoCatch(IRModule m, Object expectedReturn, Object ... testInput) throws InterpreterException {
+	private static boolean checkResultNoCatch(IRProgram p, Object expectedReturn, Object ... testInput) throws InterpreterException {
 		ArrayList<IRValue> args = new ArrayList<>();
 		for (Object input : testInput) {
 			if (input instanceof String) {
@@ -82,7 +83,7 @@ public class TestInterpreter {
 		}
 
 
-		IRValue ret = m.eval(args);
+		IRValue ret = p.eval(args);
 		if (ret instanceof IRIntegerValue) {
 			if (((IRIntegerValue)ret).asLong() != (long)(int) expectedReturn) {
 				System.err.println("Expected: " + expectedReturn + " but got " + ret + ".");
@@ -100,9 +101,9 @@ public class TestInterpreter {
 		return false;
 	}
 
-	private static boolean checkResult(IRModule m, Object expectedReturn, Object ... testInput) {
+	private static boolean checkResult(IRProgram p, Object expectedReturn, Object ... testInput) {
 		try {
-			return checkResultNoCatch(m, expectedReturn, testInput);
+			return checkResultNoCatch(p, expectedReturn, testInput);
 		} catch (InterpreterException e) {
 			System.err.println("Error while intepreting program: " + e.toString());
 		}
@@ -111,14 +112,14 @@ public class TestInterpreter {
 
 	@Test
 	public void testAdd() {
-		IRModule m = loadAndCompileProgram("add.in");
+		IRProgram m = loadAndCompileProgram("add.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 0, -100, 100));
 	}
 
 	@Test
 	public void testEq() {
-		IRModule m = loadAndCompileProgram("eq.in");
+		IRProgram m = loadAndCompileProgram("eq.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 0, 10, 13));
 		assertTrue(checkResult(m, 1, 1001, 1001));
@@ -126,14 +127,14 @@ public class TestInterpreter {
 
 	@Test
 	public void testArith() {
-		IRModule m = loadAndCompileProgram("arith.in");
+		IRProgram m = loadAndCompileProgram("arith.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 0, 11, 8));
 	}
 
 	@Test
 	public void testWhile() {
-		IRModule m = loadAndCompileProgram("sum.in");
+		IRProgram m = loadAndCompileProgram("sum.in");
 		assertNotNull(m);
 
 		int n = 10000;
@@ -143,7 +144,7 @@ public class TestInterpreter {
 
 	@Test
 	public void testRecursiveCall() {
-		IRModule m = loadAndCompileProgram("sum_rec.in");
+		IRProgram m = loadAndCompileProgram("sum_rec.in");
 		assertNotNull(m);
 
 		int n = 20;
@@ -153,7 +154,7 @@ public class TestInterpreter {
 
 	@Test
 	public void testSingleClass() {
-		IRModule m = loadAndCompileProgram("single-class.in");
+		IRProgram m = loadAndCompileProgram("single-class.in");
 		assertNotNull(m);
 
 		int x = 5;
@@ -165,7 +166,7 @@ public class TestInterpreter {
 
 	@Test
 	public void testClassWithMemberInit() {
-		IRModule m = loadAndCompileProgram("class-with-init.in");
+		IRProgram m = loadAndCompileProgram("class-with-init.in");
 		assertNotNull(m);
 
 		assertTrue(checkResult(m, 1115));
@@ -173,21 +174,21 @@ public class TestInterpreter {
 
 	@Test
 	public void testMethodCall() {
-		IRModule m = loadAndCompileProgram("method-call.in");
+		IRProgram m = loadAndCompileProgram("method-call.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 1010, 10, 1000));
 	}
 
 	@Test
 	public void testGenericClass() {
-		IRModule m = loadAndCompileProgram("generic-class.in");
+		IRProgram m = loadAndCompileProgram("generic-class.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 50, 10, 15));
 	}
 
 	@Test
 	public void testConstructor() {
-		IRModule m = loadAndCompileProgram("constructor.in");
+		IRProgram m = loadAndCompileProgram("constructor.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 11, 10, 5));
 		assertTrue(checkResult(m, 5, 5, 10));
@@ -196,7 +197,7 @@ public class TestInterpreter {
 	@Test
 	public void testFactorial() {
 		// the test contains a circular function reference
-		IRModule m = loadAndCompileProgram("fact.in");
+		IRProgram m = loadAndCompileProgram("fact.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 1, 0));
 		assertTrue(checkResult(m, 720, 6));
@@ -205,7 +206,7 @@ public class TestInterpreter {
 	@Test
 	public void testPair() {
 		// the test contains a circular type reference
-		IRModule m = loadAndCompileProgram("pair.in");
+		IRProgram m = loadAndCompileProgram("pair.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 100, 5, 10));
 		assertTrue(checkResult(m, 100, 10, 5));
@@ -213,36 +214,43 @@ public class TestInterpreter {
 
 	@Test
 	public void testSubclass() {
-		IRModule m = loadAndCompileProgram("subclass.in");
+		IRProgram m = loadAndCompileProgram("subclass.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, "Dog"));
 	}
 
 	@Test
 	public void testStack() {
-		IRModule m = loadAndCompileProgram("stack.in");
+		IRProgram m = loadAndCompileProgram("stack.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 2));
 	}
 
 	@Test
 	public void testLocalVarQualifier() {
-		IRModule m = loadAndCompileProgram("qualifier.in");
+		IRProgram m = loadAndCompileProgram("qualifier.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 0, 11, 132));
 	}
 
 	@Test(expected=InterpreterException.class)
 	public void testLocalVarQualifierFail() throws InterpreterException {
-		IRModule m = loadAndCompileProgram("qualifier.in");
+		IRProgram m = loadAndCompileProgram("qualifier.in");
 		assertNotNull(m);
 		checkResultNoCatch(m, 0, 11, 12);
 	}
 
 	@Test
 	public void testArrays() {
-		IRModule m = loadAndCompileProgram("array.in");
+		IRProgram m = loadAndCompileProgram("array.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 55, 11));
+	}
+
+	@Test
+	public void testModules() {
+		IRProgram p = loadAndCompileProgram("import.in");
+		assertNotNull(p);
+		assertTrue(checkResult(p, 123123, 123));
 	}
 }
