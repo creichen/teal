@@ -25,7 +25,7 @@ aspect BuiltinTypes {
 	}
 
 
-	private Decl Program.makeBuiltinFunDecl(String name, String retType, String ...argTypes) {
+	private Decl Module.makeBuiltinFunDecl(String name, String retType, String ...argTypes) {
 		FunDecl f = new FunDecl();
 		f.setIdDecl(new IdDecl(name));
 		f.setType(new Type(new IdUse(retType), new List(), new List()));
@@ -42,7 +42,7 @@ aspect BuiltinTypes {
 	/**
 	   Introduce the int, string, any, array[T] as builtin types.
 	 **/
-	syn nta List<Decl> Program.getBuiltinDeclList() {
+	syn nta List<Decl> Module.getBuiltinDeclList() {
 		List<Decl> decls = new List<Decl>();
 		decls
 			.add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.INT)))
@@ -78,7 +78,7 @@ aspect BuiltinTypes {
 		return decls;
 	}
 
-	syn ClassDecl Program.getBuiltinClassDecl(String name) {
+	syn ClassDecl Module.getBuiltinClassDecl(String name) {
 		switch (name) {
 		case BuiltinNames.INT:
 			return (ClassDecl) getBuiltinDecl(0);
@@ -97,10 +97,10 @@ aspect BuiltinTypes {
 
 	inh ClassDecl Decl.getBuiltinClassDecl(String name);
 
-	eq Program.getDecl().getBuiltinClassDecl(String name) {
+	eq Module.getDecl().getBuiltinClassDecl(String name) {
 		return getBuiltinClassDecl(name);
 	}
-	eq Program.getBuiltinDecl().getBuiltinClassDecl(String name) {
+	eq Module.getBuiltinDecl().getBuiltinClassDecl(String name) {
 		return getBuiltinClassDecl(name);
 	}
 	inh ClassDecl Expr.getBuiltinClassDecl(String name);

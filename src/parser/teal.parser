@@ -11,12 +11,12 @@
         }
 :};
 
-%goal program;
+%goal module;
 
 
 // Package and import
-Program program = import_decl* decl* {: return new Program(import_decl, decl); :}
-                ;
+Module module = import_decl* decl* {: return new Module(import_decl, decl); :}
+              ;
 
 ImportDecl import_decl = IMPORT package_path SEMICOLON {: return new ImportDecl(package_path); :}
                        ;

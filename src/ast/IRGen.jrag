@@ -37,7 +37,7 @@ aspect IRGen {
 	// so we don't have to traverse the entire AST to collect them.
 	syn VarDecl Decl.getVarDecl() = null;
 	eq VarDecl.getVarDecl() = this;
-	syn ArrayList<VarDecl> Program.globalVars() {
+	syn ArrayList<VarDecl> Module.globalVars() {
 		ArrayList<VarDecl> varDecls = new ArrayList<>();
 		for (Decl d : getDecls()) {
 			VarDecl v = d.getVarDecl();
@@ -47,7 +47,7 @@ aspect IRGen {
 		return varDecls;
 	}
 
-	syn IRModule Program.genIR() {
+	syn IRModule Module.genIR() {
 		// single module support for now
 		IRModule m = new IRModule(new IRModuleName(new lang.ir.List(new IRName("main"))),
 								  new lang.ir.List<IRVar>(),

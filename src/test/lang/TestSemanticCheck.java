@@ -1,23 +1,17 @@
 package lang;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.Comparator;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-
-import lang.ast.Program;
-import lang.ast.IdUse;
 import lang.ast.CompilerError;
-import lang.ast.IdDecl;
+import lang.ast.Program;
+import lang.ast.Module;
 
 /**
  * Tests for AST printing (dumpTree).
@@ -36,7 +30,8 @@ public class TestSemanticCheck {
   }
 
   @Test public void runTest() throws Exception {
-    Program program = (Program) Util.parse(new File(TEST_DIRECTORY, filename));
+    Module module = (Module) Util.parse(new File(TEST_DIRECTORY, filename));
+	Program program = new Program().addModule(module);
     java.util.List<CompilerError> nameErrors = program.semanticErrors();
 	Collections.sort(nameErrors, new Comparator<CompilerError>() {
 			public int compare(CompilerError left, CompilerError right) {

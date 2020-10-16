@@ -19,6 +19,7 @@ import lang.ast.TEALParser;
 import lang.ast.CompilerError;
 import lang.ast.LangScanner;
 import lang.ast.Program;
+import lang.ast.Module;
 import lang.ir.IRModule;
 import lang.ir.IRValue;
 import lang.ir.IRIntegerValue;
@@ -34,7 +35,9 @@ public class TestInterpreter {
 		try {
 			LangScanner scanner = new LangScanner(new FileReader(file.toString()));
 			TEALParser parser = new TEALParser();
-			Program program = (Program) parser.parse(scanner);
+			Module module = (Module) parser.parse(scanner);
+			Program program = new Program();
+			program.addModule(module);
 
 			List<CompilerError> semaErrors = program.semanticErrors();
 			List<CompilerError> nameErrors = program.nameErrors();
@@ -53,7 +56,7 @@ public class TestInterpreter {
 			if (nameErrors.size() != 0)
 				return null;
 
-			IRModule irm = program.genIR();
+			IRModule irm = module.genIR();
 
 			return irm;
 		} catch (FileNotFoundException e) {

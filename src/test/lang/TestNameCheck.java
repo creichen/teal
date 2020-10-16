@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import lang.ast.Module;
 import lang.ast.Program;
 import lang.ast.IdUse;
 import lang.ast.CompilerError;
@@ -36,7 +37,8 @@ public class TestNameCheck {
   }
 
   @Test public void runTest() throws Exception {
-    Program program = (Program) Util.parse(new File(TEST_DIRECTORY, filename));
+    Module module = (Module) Util.parse(new File(TEST_DIRECTORY, filename));
+	Program program = new Program().addModule(module);
     java.util.List<CompilerError> nameErrors = program.nameErrors();
 	Collections.sort(nameErrors, new Comparator<CompilerError>() {
 			public int compare(CompilerError left, CompilerError right) {

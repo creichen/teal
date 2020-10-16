@@ -8,8 +8,8 @@ aspect IRGenExpr {
 	}
 
 	inh VariableScope Decl.getScope();
-	eq Program.getDecl().getScope() = VariableScope.GLOBAL;
-	eq Program.getBuiltinDecl().getScope() = VariableScope.GLOBAL;
+	eq Module.getDecl().getScope() = VariableScope.GLOBAL;
+	eq Module.getBuiltinDecl().getScope() = VariableScope.GLOBAL;
 	eq FunDecl.getFormal().getScope() = VariableScope.LOCAL;
 	eq VarDeclStmt.getVarDecl().getScope() = VariableScope.LOCAL;
 	eq ForStmt.getIterator().getScope() = VariableScope.LOCAL;

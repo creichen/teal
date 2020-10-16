@@ -16,6 +16,7 @@ import java.util.TreeMap;
 import lang.ast.Program;
 import lang.ast.IdUse;
 import lang.ast.IdDecl;
+import lang.ast.Module;
 
 /**
  * Tests for AST name analysis.
@@ -33,7 +34,8 @@ public class TestNameAnalysis {
   }
 
   @Test public void runTest() throws Exception {
-    Program program = (Program) Util.parse(new File(TEST_DIRECTORY, filename));
+	Module module = (Module) Util.parse(new File(TEST_DIRECTORY, filename));
+	Program program = new Program().addModule(module);
     HashMap<IdUse, IdDecl> symTable = program.globalSymbolTable();
 	ArrayList<String> lines = new ArrayList<>();
 	for (Map.Entry<IdUse, IdDecl> entry : symTable.entrySet()) {

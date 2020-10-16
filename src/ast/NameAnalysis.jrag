@@ -91,10 +91,10 @@ aspect NameAnalysis {
 	}
 
 	inh IdDecl TypeDecl.lookup(String s);
-	eq Program.getDecl().lookup(String s) {
+	eq Module.getDecl().lookup(String s) {
 		return lookup(s);
 	}
-	eq Program.getBuiltinDecl().lookup(String s) {
+	eq Module.getBuiltinDecl().lookup(String s) {
 		return lookup(s);
 	}
 	inh IdDecl FunDecl.lookup(String s);
@@ -108,7 +108,7 @@ aspect NameAnalysis {
 	eq ReturnStmt.getExpr().lookup(String s) = lookup(s);
 	eq AssertStmt.getExpr().lookup(String s) = lookup(s);
 
-	syn IdDecl Program.lookup(String s) {
+	syn IdDecl Module.lookup(String s) {
 		IdDecl d = globalDeclMap().getOne(s);
 		if (d != null)
 			return d;
@@ -121,11 +121,11 @@ aspect NameAnalysis {
 	eq QualifierDecl.getIdDecl().getDecl() = this;
 	eq TypeDecl.getIdDecl().getDecl() = this;
 	eq TypeVarDecl.getIdDecl().getDecl() = this;
-	eq Program.unknownDecl().getDecl() = null;
+	eq Module.unknownDecl().getDecl() = null;
 }
 
 aspect NameAnalysisPrivate {
-	syn nta UnknownDecl Program.unknownDecl() = new UnknownDecl("UnknownDecl");
+	syn nta UnknownDecl Module.unknownDecl() = new UnknownDecl("UnknownDecl");
 	syn boolean IdDecl.isUnknown() = false;
 	eq UnknownDecl.isUnknown() = true;
 
@@ -253,7 +253,7 @@ aspect NameAnalysisPrivate {
 	   Type declarations, qualifier declarations, function names and global
 	   variable declarations share a single namespace.
 	 **/
-	syn MultiHashMap<String, IdDecl> Program.globalDeclMap() {
+	syn MultiHashMap<String, IdDecl> Module.globalDeclMap() {
 		MultiHashMap<String, IdDecl> declMap = new MultiHashMap<>();
 		for (Decl d : getBuiltinDeclList()) {
 			declMap.append(d.getIdDecl().getID(), d.getIdDecl());
@@ -297,7 +297,7 @@ aspect NameAnalysisCheck {
 
 	coll ArrayList<CompilerError> Program.nameErrors() [new ArrayList<CompilerError>()] with addAll;
 	Decl contributes duplicateNameErrors() to Program.nameErrors();
-	Program contributes duplicateNameErrors() to Program.nameErrors();
+	Module contributes duplicateNameErrors() to Program.nameErrors();
 	BlockStmt contributes duplicateNameErrors() to Program.nameErrors();
 
 	syn ArrayList<CompilerError> Decl.duplicateNameErrors() {
@@ -310,7 +310,7 @@ aspect NameAnalysisCheck {
 		return errors;
 	}
 
-	syn ArrayList<CompilerError> Program.duplicateNameErrors() {
+	syn ArrayList<CompilerError> Module.duplicateNameErrors() {
 		ArrayList<CompilerError> errors = new ArrayList<>();
 		for (Map.Entry<String, HashSet<IdDecl>> entry : globalDeclMap().entrySet()) {
 			if (entry.getValue().size() > 1) {

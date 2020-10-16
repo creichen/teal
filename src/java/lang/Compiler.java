@@ -9,6 +9,7 @@ import java.util.List;
 import beaver.Parser.Exception;
 
 import lang.ast.Program;
+import lang.ast.Module;
 import lang.ast.TEALParser;
 import lang.ast.LangScanner;
 import lang.ast.CompilerError;
@@ -56,7 +57,9 @@ public class Compiler {
 
 			LangScanner scanner = new LangScanner(new FileReader(filename));
 			TEALParser parser = new TEALParser();
-			Program program = (Program) parser.parse(scanner);
+			Module module = (Module) parser.parse(scanner);
+			Program program = new Program();
+			program.addModule(module);
             DrAST_root_node = program; //Enable debugging with DrAST
 
 			// Report errors
@@ -77,7 +80,7 @@ public class Compiler {
 			}
 
 			// Do IR generation
-			IRModule m = program.genIR();
+			IRModule m = module.genIR();
 
 			// Dump the IR
 			m.print(System.out);

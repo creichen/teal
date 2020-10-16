@@ -1,5 +1,7 @@
 // Top level
-Program ::= ImportDecl* Decl* /BuiltinDecl:Decl*/;
+Program ::= Module*;
+
+Module ::= ImportDecl* Decl* /BuiltinDecl:Decl*/;
 
 // ImportDecl
 ImportDecl ::= PackagePathFragment* ;

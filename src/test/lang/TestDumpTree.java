@@ -8,6 +8,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import lang.ast.Program;
+import lang.ast.Module;
 
 /**
  * Tests for AST printing (dumpTree).
@@ -26,8 +27,8 @@ public class TestDumpTree {
   }
 
   @Test public void runTest() throws Exception {
-    Program program = (Program) Util.parse(new File(TEST_DIRECTORY, filename));
-    String actual = program.dumpTree();
+    Module module = (Module) Util.parse(new File(TEST_DIRECTORY, filename));
+    String actual = module.dumpTree();
     Util.compareOutput(actual,
         new File(TEST_DIRECTORY, Util.changeExtension(filename, ".out")),
         new File(TEST_DIRECTORY, Util.changeExtension(filename, ".expected")));
