@@ -1,0 +1,30 @@
+aspect Source {
+	private String Module.sourceFile;
+
+	public void Module.setSourceFile(String src) {
+		this.sourceFile = src;
+	}
+
+	public String Module.sourceFile() {
+		return sourceFile;
+	}
+
+	inh String ASTNode.sourceFile();
+	eq Module.getChild().sourceFile() = sourceFile();
+
+	public int ASTNode.startLine() {
+		return beaver.Symbol.getLine(getStart());
+	}
+
+	public int ASTNode.endLine() {
+		return beaver.Symbol.getLine(getEnd());
+	}
+
+	public int ASTNode.startColumn() {
+		return beaver.Symbol.getColumn(getStart());
+	}
+
+	public int ASTNode.endColumn() {
+		return beaver.Symbol.getColumn(getEnd());
+	}
+}

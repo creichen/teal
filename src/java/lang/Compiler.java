@@ -58,6 +58,7 @@ public class Compiler {
 			LangScanner scanner = new LangScanner(new FileReader(filename));
 			TEALParser parser = new TEALParser();
 			Module module = (Module) parser.parse(scanner);
+			module.setSourceFile(filename);
 			Program program = new Program();
 			program.addModule(module);
             DrAST_root_node = program; //Enable debugging with DrAST

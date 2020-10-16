@@ -81,7 +81,10 @@ aspect IRPrint {
 		getIRTypeRef().print(out);
 		out.print(" @" + getIRName().getString());
 
-		printCollection(getParamTypes(), "(", ")", ", ", out);
+		printCollection(getParamTypes(), "(", ") ", ", ", out);
+
+		getSourceLocation().print(out);
+
 		out.print(" {\n\t");
 		printCollection(getLocals(), "", "", "\n\t", out);
 		out.print("\n");
@@ -123,6 +126,8 @@ aspect IRPrint {
 		for (IRInsn i : getIRInsns()) {
 			out.print("\t");
 			i.print(out);
+			out.print("\t");
+			i.getSourceLocation().print(out);
 			out.println();
 		}
 		out.print("\t");

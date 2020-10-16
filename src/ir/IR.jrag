@@ -32,4 +32,12 @@ aspect IR {
 	inh IRModule IRFunction.getModule();
 	eq IRModule.getIRFunction().getModule() = this;
 	inh IRModule IRConstant.getModule();
+
+	private SourceLocation ASTNode.srcLoc = SourceLocation.UNKNOWN;
+	public void ASTNode.setSourceLocation(SourceLocation srcLoc) {
+		this.srcLoc = srcLoc;
+	}
+	public SourceLocation ASTNode.getSourceLocation() {
+		return srcLoc;
+	}
 }
