@@ -1,0 +1,5 @@
+import moduleA::x;
+
+fun set(v : int) = {
+    x := v;
+}

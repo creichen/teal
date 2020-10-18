@@ -260,4 +260,13 @@ public class TestInterpreter {
 		assertNotNull(p);
 		assertTrue(checkResult(p, 128, 123));
 	}
+
+	@Test
+	public void testModuleDiamond() {
+		// verify that if B imports A, C imports A, and P imports B and C,
+		// the program generated from P contains a single copy of the declarations of A
+		IRProgram p = loadAndCompileProgram("module_diamond.teal");
+		assertNotNull(p);
+		assertTrue(checkResult(p, 54, 27));
+	}
 }

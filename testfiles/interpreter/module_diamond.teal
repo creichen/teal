@@ -1,0 +1,8 @@
+import moduleB::set;
+import moduleC::get;
+
+fun main(n) = {
+    set(n * 2);
+    var r := get();
+    return r;
+}
