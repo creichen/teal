@@ -1,0 +1,9 @@
+var x;
+
+fun f(y) =
+    return x + y;
+
+fun main(n) = {
+    x := 5;
+    return f(n);
+}

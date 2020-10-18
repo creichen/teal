@@ -204,11 +204,18 @@ aspect IRGenExpr {
 			ctx.addInsn(new IRStoreInsn().setBase(ctx.getTempIRVar(this))
 						.setField(new IRVarRef(d.genIR()))
 						.setSrc(rhs));
-		case LOCAL:
-		case GLOBAL:
+			break;
+		case LOCAL: {
 			IRVarRef dst = ctx.getIRVarRef(d);
 			ctx.addInsn(new IRCopyInsn(dst, rhs));
 			d.genQualifierCheck(ctx);
+			break;
+		}
+		case GLOBAL: {
+			IRVarRef dst = new IRVarRef(d.genIR());
+			ctx.addInsn(new IRStoreStaticInsn().setDst(dst).setSrc(rhs));
+			break;
+		}
 		}
 		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
 	}
@@ -232,7 +239,9 @@ aspect IRGenExpr {
 			r = ctx.getIRVarRef(d);
 			break;
 		case GLOBAL:
-			r = new IRVarRef(d.genIR());
+			IRVarRef src = new IRVarRef(d.genIR());
+			ctx.addInsn(new IRLoadStaticInsn().setDst(ctx.getTempIRVar(this)).setSrc(src));
+			r = ctx.getTempIRVar(this);
 			break;
 		}
 		ctx.setSourceLocations(SourceLocation.fromASTNode(this));

@@ -26,7 +26,7 @@ aspect TypeAnalysis {
 			return (TypeDefinition) getType().getIdUse().lookup().getDecl();
 		if (hasInitializer())
 			return getInitializer().type();
-		return super.type();
+		return getBuiltinClassDecl(BuiltinNames.ANY);
 	}
 	eq FunDecl.type() {
 		if (hasType())

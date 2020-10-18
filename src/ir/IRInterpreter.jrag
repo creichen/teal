@@ -271,41 +271,43 @@ aspect IRInterpreter {
 	}
 
 	public IRValue IRProgram.eval(java.util.List<IRValue> args) throws InterpreterException {
-		Storage s = new Storage();
+		Storage g = new Storage();
+
+		// initialize all the globals
+		for (IRModule m : getIRModules()) {
+			for (IRVar v : m.getIRVars()) {
+				g.set(v, new IRNullValue(null));
+			}
+		}
+
+		// look for the first main function and execute it
 		for (IRModule m : getIRModules()) {
 			for (IRFunction f : m.getIRFunctions()) {
 				if (f.getIRName().getString().equals("main")) {
-					return f.eval(new IRFunctionEvalCtx(s, args));
+					return f.eval(new IRFunctionEvalCtx(new Storage(), g, args));
 				}
 			}
 		}
-		return null;
-	}
 
-	public IRValue IRModule.eval(java.util.List<IRValue> args) throws InterpreterException {
-		Storage s = new Storage();
-		for (IRFunction f : getIRFunctions()) {
-			if (f.getIRName().getString().equals("main")) {
-				return f.eval(new IRFunctionEvalCtx(s, args));
-			}
-		}
 		return null;
 	}
 
 	class IRFunctionEvalCtx {
 		java.util.List<IRValue> args;
 		Storage s;
+		Storage g;
 		IRValue self;
 
-		public IRFunctionEvalCtx(Storage s, java.util.List<IRValue> args) {
+		public IRFunctionEvalCtx(Storage s, Storage g, java.util.List<IRValue> args) {
 			this.s = s;
+			this.g = g;
 			this.args = args;
 			this.self = null;
 		}
 
-		public IRFunctionEvalCtx(Storage s, java.util.List<IRValue> args,
+		public IRFunctionEvalCtx(Storage s, Storage g, java.util.List<IRValue> args,
 								 IRValue self) {
-			this(s, args);
+			this(s, g, args);
 			this.self = self;
 		}
 
@@ -315,6 +317,10 @@ aspect IRInterpreter {
 
 		public Storage getStore()  {
 			return s;
+		}
+
+		public Storage getGlobalStore() {
+			return g;
 		}
 
 		public IRValue getSelf() {
@@ -476,7 +482,7 @@ aspect IRInterpreter {
 		}
 
 		// TODO: implement a storage for global variables
-		IRFunctionEvalCtx calleeCtx = new IRFunctionEvalCtx(new Storage(), actuals);
+		IRFunctionEvalCtx calleeCtx = new IRFunctionEvalCtx(new Storage(), ctx.getGlobalStore(), actuals);
 		IRValue retVal = callee.eval(calleeCtx);
 
 		ctx.getStore().set(getDst(), retVal);
@@ -498,7 +504,7 @@ aspect IRInterpreter {
 			actuals.add(v);
 		}
 
-		IRFunctionEvalCtx calleeCtx = new IRFunctionEvalCtx(new Storage(), actuals, self);
+		IRFunctionEvalCtx calleeCtx = new IRFunctionEvalCtx(new Storage(), ctx.getGlobalStore(), actuals, self);
 		IRValue retVal = callee.eval(calleeCtx);
 
 		ctx.getStore().set(getDst(), retVal);
@@ -576,6 +582,16 @@ aspect IRInterpreter {
 		IRObject instance = (IRObject) ctx.getStore().get(getBase());
 		// set the value in the instance storage
 		instance.getStore().set(getField(), ctx.getStore().get(getSrc()));
+	}
+
+	public void IRLoadStaticInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		// move a value from the global store to the local store
+		ctx.getStore().set(getDst(), ctx.getGlobalStore().get(getSrc()));
+	}
+
+	public void IRStoreStaticInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		// move a value from the local store to the global store
+		ctx.getGlobalStore().set(getDst(), ctx.getStore().get(getSrc()));
 	}
 
 	public void IRConstantInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {

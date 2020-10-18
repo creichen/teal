@@ -226,6 +226,12 @@ aspect IRPrint {
 		getField().print(out);
 	}
 
+	public void IRLoadStaticInsn.print(PrintStream out) {
+		getDst().print(out);
+		out.print(" = loadstatic ");
+		getSrc().print(out);
+	}
+
 	public void IRStoreInsn.print(PrintStream out) {
 		out.print("store ");
 		getSrc().print(out);
@@ -233,6 +239,13 @@ aspect IRPrint {
 		getBase().print(out);
 		out.print(" ");
 		getField().print(out);
+	}
+
+	public void IRStoreStaticInsn.print(PrintStream out) {
+		out.print("storestatic ");
+		getSrc().print(out);
+		out.print(" ");
+		getDst().print(out);
 	}
 
 	public void IRSelfInsn.print(PrintStream out) {

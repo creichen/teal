@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.Queue;
 
@@ -91,22 +92,11 @@ public class Compiler {
 
 		Program program = new Program();
 		TEALParser parser = new TEALParser();
-		for (String file : files) {
-			File f = new File(file);
-			if (program.moduleMap().containsKey(f))
-				continue;
-			Module m = createModuleFromFile(f, parser, errors);
-			m.setNameFromFile(f);
-			// add the module's current directory as import path
-			m.addImportPaths(Collections.singleton(f.getParentFile().getPath()));
-			m.addImportPaths(importPaths);
-			System.out.println(f);
-			program.moduleMap().put(f, m);
-			program.addModule(m);
 
-			unresolvedImports.addAll(m.importedFiles());
-		}
+		// seed the unresolved imports with the source files
+		files.stream().map(f -> new File(f)).collect(Collectors.toCollection(() -> unresolvedImports));
 
+		// now transitively import all the modules
 		while (!unresolvedImports.isEmpty()) {
 			File f = unresolvedImports.remove();
 			if (program.moduleMap().containsKey(f))
@@ -114,7 +104,10 @@ public class Compiler {
 			Module m = createModuleFromFile(f, parser, errors);
 			m.setNameFromFile(f);
 			// add the module's current directory as import path
-			m.addImportPaths(Collections.singleton(f.getParentFile().getPath()));
+			if (f.getParentFile() == null)
+				m.addImportPaths(Collections.singleton("."));
+			else
+				m.addImportPaths(Collections.singleton(f.getParentFile().getPath()));
 			m.addImportPaths(importPaths);
 			System.out.println(f);
 

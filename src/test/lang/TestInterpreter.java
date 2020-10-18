@@ -253,4 +253,11 @@ public class TestInterpreter {
 		assertNotNull(p);
 		assertTrue(checkResult(p, 123123, 123));
 	}
+
+	@Test
+	public void testNoExplicitTypes() {
+		IRProgram p = loadAndCompileProgram("notypes.teal");
+		assertNotNull(p);
+		assertTrue(checkResult(p, 128, 123));
+	}
 }

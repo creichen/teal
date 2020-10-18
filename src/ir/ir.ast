@@ -23,7 +23,7 @@ IRLoadInsn : IRAbstractLoadInsn ::= Base:IRVarRef Field:IRVarRef;
 IRLoadArrayInsn : IRAbstractLoadInsn ::= Base:IRVarRef Index:IRVarRef;
 
 abstract IRAbstractStoreInsn : IRInsn ::= Src:IRVarRef;
-IRStoreStaticInsn : IRAbstractStoreInsn ::= IRModuleName;
+IRStoreStaticInsn : IRAbstractStoreInsn ::= Dst:IRVarRef;
 IRStoreInsn : IRAbstractStoreInsn ::= Base:IRVarRef Field:IRVarRef;
 IRStoreArrayInsn : IRAbstractStoreInsn ::= Base:IRVarRef Index:IRVarRef;
 

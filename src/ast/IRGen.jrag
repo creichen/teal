@@ -69,6 +69,9 @@ aspect IRGen {
 		for (Decl d : getDecls()) {
 			if (d instanceof VarDecl) {
 				m.getIRVars().add(((VarDecl) d).genIR());
+				if (((VarDecl) d).hasInitializer()) {
+					throw new NotYetImplementedError("Cannot generate code for global variable initializers.");
+				}
 			} else if (d instanceof FunDecl) {
 				FunDecl fd = (FunDecl) d;
 				IRFunction f = fd.genIR();
