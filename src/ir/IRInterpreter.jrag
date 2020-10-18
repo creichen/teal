@@ -3,6 +3,9 @@ import java.util.Map;
 import java.util.ArrayList;
 import lang.ast.NotYetImplementedError;
 import lang.ast.BuiltinNames;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.io.IOException;
 import static lang.common.Debug.dbgi;
 
 aspect IRInterpreter {
@@ -413,6 +416,22 @@ aspect IRInterpreter {
 				// object identity equality for everything else
 				return new IRIntegerValue(ctx.getArg(0) == ctx.getArg(1) ? trueValue : falseValue);
 			}
+
+		case BuiltinNames.READ:
+			try {
+				// How many objects does one need to read a line from stdin in Java? ;)
+				String line = (new BufferedReader(new InputStreamReader(System.in))).readLine();
+				return new IRStringValue(line);
+			} catch (IOException e) {
+				throw new InterpreterException("Exception while executing read().");
+			}
+
+		case BuiltinNames.PRINT:
+			if (!(ctx.getArg(0) instanceof IRStringValue)) {
+				throw new IncompatibleTypeException(ctx.getArg(0), this);
+			}
+			System.out.print(((IRStringValue) ctx.getArg(0)).asString());
+			return new IRNullValue(null);
 		}
 	}
 

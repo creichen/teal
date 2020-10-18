@@ -22,6 +22,9 @@ aspect BuiltinTypes {
 
 		public static final String INT_AND = "__builtin_int_logical_and";
 		public static final String INT_OR = "__builtin_int_logical_or";
+
+		public static final String PRINT = "print";
+		public static final String READ = "read";
 	}
 
 
@@ -74,6 +77,9 @@ aspect BuiltinTypes {
 
 		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_AND, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
 		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_OR, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
+
+		decls.add(makeBuiltinFunDecl(BuiltinNames.PRINT, BuiltinNames.ANY, BuiltinNames.STRING));
+		decls.add(makeBuiltinFunDecl(BuiltinNames.READ, BuiltinNames.STRING));
 
 		return decls;
 	}
