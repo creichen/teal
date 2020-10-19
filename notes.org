@@ -66,7 +66,7 @@ class DivisibleBy2(m : int, n : int) <: DivisibleBy(expr1) DivisibleBy(expr2) in
 In what scope and when should expr1 and expr2 be evaluated? The names in expr1 and expr2 should be statically bound and the evaluation should be done at instantiation time. The lookup order for names is expr1 and expr2 is: formal function arguments for the class definition, global functions and global variables.
 
 ** Qualifiers as syntactic sugar
-If we restrict the number of types a qulifier can qualify to 1, we can have the qulifiers as classes implementing a qualifier interface:
+If we restrict the number of types a qualifier can qualify to 1, we can have the qualifiers as classes implementing a qualifier interface:
 #+BEGIN_SRC
 class Qualifier[T] = {
    fun check(v : T);
@@ -74,16 +74,19 @@ class Qualifier[T] = {
 #+END_SRC
 
 * Remaining
-** TODO Add source location to IR nodes
+** DONE Add source location to IR nodes
+   CLOSED: [2020-10-19 Mon 10:02]
 ** TODO Split the language in different version, e.g. TEAL-0, TEAL-1, ...
 This might not be feasible, because classes are needed to implement arrays. Qualifiers may be added separately.
 ** TODO For loops
 Desugaring of for loops.
-** TODO Arrays
+** DONE Arrays
+   CLOSED: [2020-10-19 Mon 10:01]
 Implement the array type and desugar array accesses and array types.
 ** TODO Explicit and implicit calls to constructors of superclasses
 The superclasses are not initialized when a class is built.
-** TODO Packages
+** DONE Packages
+   CLOSED: [2020-10-19 Mon 10:02]
 Support for import statement
 ** TODO Qualifiers for classes
 Qualifiers are supported only for variables.
