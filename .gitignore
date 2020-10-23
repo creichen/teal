@@ -13,5 +13,6 @@ tests/**/*.out
 tests/evaluation/bottomupout/*
 /out/
 /tmp/
+/src/gen
 *.*~
 *.out
