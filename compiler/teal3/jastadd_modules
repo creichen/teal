@@ -31,6 +31,10 @@ module("teal-3") {
     }
 
     parser {
-	include "parser/teal.parser"
+	include "parser/header.parser", [-1]
+	include "parser/module.parser"
+	include "parser/decl.parser"
+	include "parser/stmt.parser"
+	include "parser/expr.parser"
     }
 }

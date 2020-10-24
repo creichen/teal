@@ -1,0 +1,17 @@
+// Package and import
+Module module = import_decl* decl* {: return new Module(import_decl, decl); :}
+              ;
+
+ImportDecl import_decl = IMPORT package_path SEMICOLON {: return new ImportDecl(package_path); :}
+                       ;
+
+List package_path = package_path_fragment_list DOUBLE_COLON package_path_fragment {: return package_path_fragment_list.add(package_path_fragment); :}
+                  ;
+
+List package_path_fragment_list = package_path_fragment {: return new List(package_path_fragment); :}
+                                | package_path_fragment_list DOUBLE_COLON package_path_fragment {: return package_path_fragment_list.add(package_path_fragment); :}
+                                ;
+
+PackagePathFragment package_path_fragment = ID {: return new PackagePathFragment(ID); :}
+                                          ;
+

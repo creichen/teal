@@ -1,36 +1,3 @@
-%header {:
-        package lang.ast;
-:};
-
-%embed {:
-        static public class SyntaxError extends RuntimeException { public SyntaxError(String msg) {super(msg);}}
-        // Disable syntax error recovery
-        protected void recoverFromError(Symbol token, TokenStream in) {
-                throw new SyntaxError("Cannot recover from the syntax error at " +
-		Symbol.getLine(token.getStart()) + ":" + Symbol.getColumn(token.getStart()));
-        }
-:};
-
-%goal module;
-
-
-// Package and import
-Module module = import_decl* decl* {: return new Module(import_decl, decl); :}
-              ;
-
-ImportDecl import_decl = IMPORT package_path SEMICOLON {: return new ImportDecl(package_path); :}
-                       ;
-
-List package_path = package_path_fragment_list DOUBLE_COLON package_path_fragment {: return package_path_fragment_list.add(package_path_fragment); :}
-                  ;
-
-List package_path_fragment_list = package_path_fragment {: return new List(package_path_fragment); :}
-                                | package_path_fragment_list DOUBLE_COLON package_path_fragment {: return package_path_fragment_list.add(package_path_fragment); :}
-                                ;
-
-PackagePathFragment package_path_fragment = ID {: return new PackagePathFragment(ID); :}
-                                          ;
-
 Decl decl = var_decl
           | fun_decl
           | type_decl
@@ -100,44 +67,6 @@ List fun_actual_list = expr {: return new List(expr); :}
                      | fun_actual_list COMMA expr {: return fun_actual_list.add(expr); :}
                      ;
 
-Stmt stmt = var_decl_stmt
-          | expr_stmt
-          | assign_stmt
-          | block_stmt
-          | if_stmt
-          | for_stmt
-          | while_stmt
-          | return_stmt
-          | assert_stmt
-          ;
-
-VarDeclStmt var_decl_stmt = var_decl {: return new VarDeclStmt(var_decl); :}
-                          ;
-
-ExprStmt expr_stmt = expr SEMICOLON {: return new ExprStmt(expr); :}
-                   ;
-
-AssignStmt assign_stmt = expr.lvalue ASSIGN expr SEMICOLON {: return new AssignStmt(lvalue, expr); :}
-                       ;
-
-BlockStmt block_stmt = LBRACE stmt* RBRACE {: return new BlockStmt(stmt); :}
-                     ;
-
-IfStmt if_stmt = IF expr block_stmt {: return new IfStmt(expr, block_stmt, new SkipStmt()); :}
-               | IF expr block_stmt.t ELSE block_stmt.e {: return new IfStmt(expr, t, e); :}
-               ;
-
-ForStmt for_stmt = FOR var_id_decl IN expr block_stmt {: return new ForStmt(var_id_decl, expr, block_stmt); :}
-                 ;
-
-WhileStmt while_stmt = WHILE expr block_stmt {: return new WhileStmt(expr, block_stmt); :}
-                     ;
-
-ReturnStmt return_stmt = RETURN expr SEMICOLON {: return new ReturnStmt(expr); :}
-                       ;
-
-AssertStmt assert_stmt = ASSERT expr SEMICOLON {: return new AssertStmt(expr, ""); :}
-                       ;
 
 List type_formals = /* empty */ {: return new List(); :}
                   | LBRACK RBRACK {: return new List(); :}
@@ -188,61 +117,3 @@ List fun_actual_list_maybe_empty = /* empty */ {: return new List(); :}
                                  ;
 
 
-%left DOT;
-%right COLON;
-%right NOT;
-// %left STAR, SLASH, PERCENT;
-// %left PLUS, MINUS;
-// %left LT, GT, LTE, GTE, EQEQ, NEQ;
-// %left AND;
-// %left OR;
-%nonassoc BOTTOM;
-
-Expr expr = expr OR and_expr {: return new OrExpr(expr, and_expr); :}
-          | and_expr @BOTTOM
-          ;
-
-Expr and_expr = and_expr AND cmp_expr {: return new AndExpr(and_expr, cmp_expr); :}
-              | cmp_expr @BOTTOM
-              ;
-
-Expr cmp_expr = cmp_expr LT add_expr {: return new LTExpr(cmp_expr, add_expr); :}
-              | cmp_expr GT add_expr {: return new GTExpr(cmp_expr, add_expr); :}
-              | cmp_expr LTE add_expr {: return new LEQExpr(cmp_expr, add_expr); :}
-              | cmp_expr GTE add_expr {: return new GEQExpr(cmp_expr, add_expr); :}
-              | cmp_expr EQEQ add_expr {: return new EQExpr(cmp_expr, add_expr); :}
-              | cmp_expr NEQ add_expr {: return new NEQExpr(cmp_expr, add_expr); :}
-              | add_expr @BOTTOM
-              ;
-
-Expr add_expr = add_expr PLUS mul_expr {: return new AddExpr(add_expr, mul_expr); :}
-              | add_expr MINUS mul_expr {: return new SubExpr(add_expr, mul_expr); :}
-              | mul_expr @BOTTOM
-              ;
-
-Expr mul_expr = mul_expr STAR term {: return new MulExpr(mul_expr, term); :}
-              | mul_expr SLASH term {: return new DivExpr(mul_expr, term); :}
-              | mul_expr PERCENT term {: return new ModExpr(mul_expr, term); :}
-	      | unary_expr
-              ;
-
-Expr unary_expr = NOT term {: return new NotExpr(term); :}
-                | term @BOTTOM
-		;
-
-Expr term = LPAREN expr RPAREN {: return expr; :}
-          | INTEGER_LITERAL {: return new IntConstant((Long)INTEGER_LITERAL.value); :}
-          | STRING_LITERAL {: return new StringConstant((String)STRING_LITERAL.value); :}
-          | ID {: return new Access(new IdUse(ID)); :}
-          | package_path {: return new QualifiedAccess(package_path); :}
-          | LBRACK fun_actual_list_maybe_empty RBRACK {: return new ListExpr(fun_actual_list_maybe_empty); :}
-          | term DOT ID {: return new MemberAccess(term, ID); :}
-          | ID LPAREN fun_actual_list_maybe_empty RPAREN {: return new CallExpr(new IdUse(ID), fun_actual_list_maybe_empty); :}
-          | term DOT ID LPAREN fun_actual_list_maybe_empty RPAREN {: return new DispatchExpr(term, ID, fun_actual_list_maybe_empty); :}
-          | term.b LBRACK expr.i RBRACK {: return new IndexExpr(b, i); :}
-          | LPAREN expr COLON type RPAREN  {: return new TypedExpr(expr, type); :}
-          | NEW type_no_qual LPAREN fun_actual_list_maybe_empty RPAREN {: return new NewExpr(type_no_qual, fun_actual_list_maybe_empty); :}
-          | SELF {: return new Self(); :}
-	  | NULL {: return new Null(); :}
-
-          ;

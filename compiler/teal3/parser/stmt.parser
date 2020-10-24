@@ -1,0 +1,39 @@
+Stmt stmt = var_decl_stmt
+          | expr_stmt
+          | assign_stmt
+          | block_stmt
+          | if_stmt
+          | for_stmt
+          | while_stmt
+          | return_stmt
+          | assert_stmt
+          ;
+
+VarDeclStmt var_decl_stmt = var_decl {: return new VarDeclStmt(var_decl); :}
+                          ;
+
+ExprStmt expr_stmt = expr SEMICOLON {: return new ExprStmt(expr); :}
+                   ;
+
+AssignStmt assign_stmt = expr.lvalue ASSIGN expr SEMICOLON {: return new AssignStmt(lvalue, expr); :}
+                       ;
+
+BlockStmt block_stmt = LBRACE stmt* RBRACE {: return new BlockStmt(stmt); :}
+                     ;
+
+IfStmt if_stmt = IF expr block_stmt {: return new IfStmt(expr, block_stmt, new SkipStmt()); :}
+               | IF expr block_stmt.t ELSE block_stmt.e {: return new IfStmt(expr, t, e); :}
+               ;
+
+ForStmt for_stmt = FOR var_id_decl IN expr block_stmt {: return new ForStmt(var_id_decl, expr, block_stmt); :}
+                 ;
+
+WhileStmt while_stmt = WHILE expr block_stmt {: return new WhileStmt(expr, block_stmt); :}
+                     ;
+
+ReturnStmt return_stmt = RETURN expr SEMICOLON {: return new ReturnStmt(expr); :}
+                       ;
+
+AssertStmt assert_stmt = ASSERT expr SEMICOLON {: return new AssertStmt(expr, ""); :}
+                       ;
+

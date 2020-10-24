@@ -1,0 +1,52 @@
+%left DOT;
+%right COLON;
+%right NOT;
+%nonassoc BOTTOM;
+
+Expr expr = expr OR and_expr {: return new OrExpr(expr, and_expr); :}
+          | and_expr @BOTTOM
+          ;
+
+Expr and_expr = and_expr AND cmp_expr {: return new AndExpr(and_expr, cmp_expr); :}
+              | cmp_expr @BOTTOM
+              ;
+
+Expr cmp_expr = cmp_expr LT add_expr {: return new LTExpr(cmp_expr, add_expr); :}
+              | cmp_expr GT add_expr {: return new GTExpr(cmp_expr, add_expr); :}
+              | cmp_expr LTE add_expr {: return new LEQExpr(cmp_expr, add_expr); :}
+              | cmp_expr GTE add_expr {: return new GEQExpr(cmp_expr, add_expr); :}
+              | cmp_expr EQEQ add_expr {: return new EQExpr(cmp_expr, add_expr); :}
+              | cmp_expr NEQ add_expr {: return new NEQExpr(cmp_expr, add_expr); :}
+              | add_expr @BOTTOM
+              ;
+
+Expr add_expr = add_expr PLUS mul_expr {: return new AddExpr(add_expr, mul_expr); :}
+              | add_expr MINUS mul_expr {: return new SubExpr(add_expr, mul_expr); :}
+              | mul_expr @BOTTOM
+              ;
+
+Expr mul_expr = mul_expr STAR term {: return new MulExpr(mul_expr, term); :}
+              | mul_expr SLASH term {: return new DivExpr(mul_expr, term); :}
+              | mul_expr PERCENT term {: return new ModExpr(mul_expr, term); :}
+	      | unary_expr
+              ;
+
+Expr unary_expr = NOT term {: return new NotExpr(term); :}
+                | term @BOTTOM
+		;
+
+Expr term = LPAREN expr RPAREN {: return expr; :}
+          | INTEGER_LITERAL {: return new IntConstant((Long)INTEGER_LITERAL.value); :}
+          | STRING_LITERAL {: return new StringConstant((String)STRING_LITERAL.value); :}
+          | ID {: return new Access(new IdUse(ID)); :}
+          | package_path {: return new QualifiedAccess(package_path); :}
+          | LBRACK fun_actual_list_maybe_empty RBRACK {: return new ListExpr(fun_actual_list_maybe_empty); :}
+          | term DOT ID {: return new MemberAccess(term, ID); :}
+          | ID LPAREN fun_actual_list_maybe_empty RPAREN {: return new CallExpr(new IdUse(ID), fun_actual_list_maybe_empty); :}
+          | term DOT ID LPAREN fun_actual_list_maybe_empty RPAREN {: return new DispatchExpr(term, ID, fun_actual_list_maybe_empty); :}
+          | term.b LBRACK expr.i RBRACK {: return new IndexExpr(b, i); :}
+          | LPAREN expr COLON type RPAREN  {: return new TypedExpr(expr, type); :}
+          | NEW type_no_qual LPAREN fun_actual_list_maybe_empty RPAREN {: return new NewExpr(type_no_qual, fun_actual_list_maybe_empty); :}
+          | SELF {: return new Self(); :}
+	  | NULL {: return new Null(); :}
+          ;
