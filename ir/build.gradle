@@ -9,7 +9,7 @@ jastadd {
     modules "${projectDir}/teal3/jastadd_modules"
     module = "teal-3-ir"
 
-    astPackage = "lang.ir.ast"
+    astPackage = "lang.ir"
 
     dependencies {
 	testCompile 'junit:junit:4.12'

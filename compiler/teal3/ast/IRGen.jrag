@@ -201,7 +201,7 @@ aspect IRGen {
 		// return type, if any
 		func.setIRTypeRef(type().genIRTypeRef());
 
-		func.setSourceLocation(SourceLocation.fromASTNode(this));
+		func.setSourceLocation(this.sourceLocation());
 
 		return func;
 	}
@@ -258,7 +258,7 @@ aspect IRGen {
 			// Unclear where to generate the code to initialize globals
 			throw new NotYetImplementedError("Can't initialize global variable " + this + ".");
 		}
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 	}
 
 	public void VarDecl.genCode(IRFunctionCtx ctx) {

@@ -1,6 +1,7 @@
 import java.io.PrintStream;
 import java.util.Iterator;
 import java.io.ByteArrayOutputStream;
+import lang.common.SourceLocation;
 
 aspect IRPrint {
 	protected static <T extends ASTNode>

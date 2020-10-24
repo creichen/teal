@@ -7,7 +7,7 @@ jastadd {
     configureModuleBuild()
 
     modules "${projectDir}/teal3/jastadd_modules"
-    module = "teal-3-frontend"
+    module = "teal-3"
 
     astPackage = "lang.ast"
     parser.name = "TEALParser"
@@ -22,4 +22,17 @@ jastadd {
 	beaver 'org.extendj:nbfront:0.1.5'
 	jastadd2 "org.jastadd:jastadd:2.3.4" // Selects which JastAdd version to use (optional).
     }
+}
+
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'lang.Compiler'
+        )
+    }
+    baseName = jastadd.module.name
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    destinationDir = projectDir
 }

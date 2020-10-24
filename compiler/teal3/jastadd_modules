@@ -1,7 +1,6 @@
 // Teal-3 parsing and program representation
-module("teal-3-frontend") {
+module("teal-3") {
     moduleName "teal-3"
-    moduleVariant "frontend"
 
     java {
 	basedir "."
@@ -20,6 +19,11 @@ module("teal-3-frontend") {
 	include "ast/SrcLoc.jrag"
 	include "ast/TypeAnalysis.jrag"
 	include "ast/Util.jrag"
+
+	// Code generation
+	include "ast/IRGenExpr.jrag"
+	include "ast/IRGen.jrag"
+	include "ast/IRGenType.jrag"
     }
 
     scanner {
@@ -28,18 +32,5 @@ module("teal-3-frontend") {
 
     parser {
 	include "parser/teal.parser"
-    }
-}
-
-// Teal-3 backend
-module("teal-3-backend") {
-    moduleVariant "backend"
-
-    imports "teal-3-frontend"
-
-    jastadd {
-	include "ast/IRGenExpr.jrag"
-	include "ast/IRGen.jrag"
-	include "ast/IRGenType.jrag"
     }
 }

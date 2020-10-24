@@ -57,12 +57,6 @@ aspect Util {
 			return 0;
 		}
 	}
-
-	public class NotYetImplementedError extends Error {
-		public NotYetImplementedError(String msg) {
-			super(msg);
-		}
-	}
 }
 
 aspect CompilerError {

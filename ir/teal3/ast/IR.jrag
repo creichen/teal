@@ -1,3 +1,5 @@
+import lang.common.SourceLocation;
+
 aspect IR {
 	public IRClass IRModule.IntegerType = new IRClass().setIRName(new IRName("int"));
 	public IRClass IRModule.StringType = new IRClass().setIRName(new IRName("string"));

@@ -1,4 +1,6 @@
 import lang.ir.*;
+import lang.common.SourceLocation;
+import lang.common.NotYetImplementedError;
 
 aspect IRGenExpr {
 	public enum VariableScope {
@@ -48,6 +50,14 @@ aspect IRGenExpr {
 	eq OrExpr.builtin() = BuiltinNames.INT_OR;
 	eq AndExpr.builtin() = BuiltinNames.INT_AND;
 
+	public SourceLocation ASTNode.sourceLocation() {
+	    return new SourceLocation(this.sourceFile(),
+				      this.startLine(),
+				      this.startColumn(),
+				      this.endLine(),
+				      this.endColumn());
+	}
+
 	public IRVarRef BinExpr.genCode(IRFunctionCtx ctx) {
 		IdDecl dd = lookup(builtin());
 		IRFunRef builtinFunc = new IRFunRef(((FunDecl)dd.getDecl()).genIR());
@@ -59,7 +69,7 @@ aspect IRGenExpr {
 		call.addArg(left).addArg(right);
 
 		ctx.addInsn(call);
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 		return r;
 	}
 
@@ -91,7 +101,7 @@ aspect IRGenExpr {
 			}
 			ctx.addInsn(dispatch);
 		}
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 		return r;
 	}
 
@@ -116,7 +126,7 @@ aspect IRGenExpr {
 			dispatch.addArg(r);
 		}
 		ctx.addInsn(dispatch);
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 		return tmp;
 	}
 
@@ -126,7 +136,7 @@ aspect IRGenExpr {
 		IRNewArrayInsn newInsn = new IRNewArrayInsn().setDst(dst)
 			.setIRTypeRef(getType().getActual(0).genIR()).setSize(size);
 		ctx.addInsn(newInsn);
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 		return dst;
 	}
 
@@ -158,7 +168,7 @@ aspect IRGenExpr {
 		}
 		ctx.addInsn(dispatch);
 
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 
 		// return a reference to the allocated storage
 		return dst;
@@ -178,7 +188,7 @@ aspect IRGenExpr {
 					.setField(new IRVarRef(((VarDecl)memberDecl).genIR()))
 					.setSrc(rhs));
 
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 	}
 
 	public IRVarRef MemberAccess.genCode(IRFunctionCtx ctx) {
@@ -191,7 +201,7 @@ aspect IRGenExpr {
 		ctx.addInsn(new IRLoadInsn().setBase(base.genCode(ctx))
 					.setField(new IRVarRef(((VarDecl) memberDecl).genIR()))
 					.setDst(tmp));
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 		return tmp;
 	}
 
@@ -217,7 +227,7 @@ aspect IRGenExpr {
 			break;
 		}
 		}
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 	}
 
 	public IRVarRef Access.genCode(IRFunctionCtx ctx) {
@@ -244,7 +254,7 @@ aspect IRGenExpr {
 			r = ctx.getTempIRVar(this);
 			break;
 		}
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 		return r;
 	}
 
@@ -252,7 +262,7 @@ aspect IRGenExpr {
 		IRVarRef base = getBase().genCode(ctx);
 		IRVarRef index = getIndex().genCode(ctx);
 		ctx.addInsn(new IRStoreArrayInsn().setBase(base).setIndex(index).setSrc(rhs));
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 	}
 
 	public IRVarRef IndexExpr.genCode(IRFunctionCtx ctx) {
@@ -262,7 +272,7 @@ aspect IRGenExpr {
 		IRLoadArrayInsn load = new IRLoadArrayInsn()
 			.setBase(base).setIndex(index).setDst(dst);
 		ctx.addInsn(load);
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 		return dst;
 	}
 
@@ -274,21 +284,21 @@ aspect IRGenExpr {
 	public IRVarRef IntConstant.genCode(IRFunctionCtx ctx) {
 		IRVarRef r = ctx.getTempIRVar(this);
 		ctx.addInsn(new IRConstantInsn(r, new IRInteger(getValue())));
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 		return r;
 	}
 
 	public IRVarRef StringConstant.genCode(IRFunctionCtx ctx) {
 		IRVarRef r = ctx.getTempIRVar(this);
 		ctx.addInsn(new IRConstantInsn(r, new IRString(getValue())));
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 		return r;
 	}
 
 	public IRVarRef Null.genCode(IRFunctionCtx ctx) {
 		IRVarRef r = ctx.getTempIRVar(this);
 		ctx.addInsn(new IRConstantInsn(r, new IRNull()));
-		ctx.setSourceLocations(SourceLocation.fromASTNode(this));
+		ctx.setSourceLocations(this.sourceLocation());
 		return r;
 	}
 }

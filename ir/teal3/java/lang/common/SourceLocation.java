@@ -1,4 +1,4 @@
-package lang.ir;
+package lang.common;
 
 import java.io.PrintStream;
 
@@ -8,15 +8,17 @@ public class SourceLocation {
 
 	public static SourceLocation UNKNOWN = new SourceLocation();
 
-	public static SourceLocation fromASTNode(lang.ast.ASTNode n) {
-		SourceLocation s = new SourceLocation();
-		s.file = n.sourceFile();
-		s.startLine = n.startLine();
-		s.endLine = n.endLine();
-		s.startColumn = n.startColumn();
-		s.endColumn = n.endColumn();
-		return s;
-    }
+	private SourceLocation() {}
+
+	public SourceLocation(String fileInit,
+			      int startLineInit, int startColumnInit,
+			      int endLineInit, int endColumnInit) {
+		this.file = fileInit;
+		this.startLine = startLineInit;
+		this.startColumn = startColumnInit;
+		this.endLine = endLineInit;
+		this.endColumn = endColumnInit;
+	}
 
 	public void print(PrintStream out) {
 		out.print("!");

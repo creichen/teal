@@ -1,6 +1,6 @@
 aspect TypeAnalysis {
 	public interface TypeDefinition {
-		IRTypeRef genIRTypeRef();
+		lang.ir.IRTypeRef genIRTypeRef(); // code generation only
 		IdDecl memberLookup(String name);
 	}
 
