@@ -27,7 +27,10 @@ module("teal-3") {
     }
 
     scanner {
+	include "scanner/header.flex", [-1]
 	include "scanner/scanner.flex"
+	include "scanner/id.flex", [1]
+	include "scanner/footer.flex", [2]
     }
 
     parser {
