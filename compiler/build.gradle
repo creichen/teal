@@ -1,0 +1,25 @@
+plugins {
+    id "java"
+    id "org.jastadd" version "1.13.1"
+}
+
+jastadd {
+    configureModuleBuild()
+
+    modules "${projectDir}/teal3/jastadd_modules"
+    module = "teal-3-frontend"
+
+    astPackage = "lang.ast"
+    parser.name = "TEALParser"
+
+    dependencies {
+	implementation project(':ir') // import runtime for the compiler backend
+
+	// JastAdd-related dependencies
+	compile 'net.sf.beaver:beaver-rt:0.9.11'
+	testCompile 'junit:junit:4.12'
+	jflex 'de.jflex:jflex:1.6.1'
+	beaver 'org.extendj:nbfront:0.1.5'
+	jastadd2 "org.jastadd:jastadd:2.3.4" // Selects which JastAdd version to use (optional).
+    }
+}

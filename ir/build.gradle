@@ -1,0 +1,18 @@
+plugins {
+    id "java"
+    id "org.jastadd" version "1.13.1"
+}
+
+jastadd {
+    configureModuleBuild()
+
+    modules "${projectDir}/teal3/jastadd_modules"
+    module = "teal-3-ir"
+
+    astPackage = "lang.ir.ast"
+
+    dependencies {
+	testCompile 'junit:junit:4.12'
+	jastadd2 "org.jastadd:jastadd:2.3.4" // Selects which JastAdd version to use (optional).
+    }
+}

@@ -1,0 +1,3 @@
+
+rootProject.name = 'teal'
+include "ir", "compiler"

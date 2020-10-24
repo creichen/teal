@@ -1,0 +1,16 @@
+// Teal intermediate representation
+module("teal-3-ir") {
+    moduleName "teal-3-ir"
+    //moduleVariant "ir"
+    //    imports "teal-3 frontend"
+
+    java {
+	basedir "."
+	include "java/**/*.java"
+    }
+
+    jastadd {
+	include "ast/*.ast"
+	include "ast/*.jrag"
+    }
+}
