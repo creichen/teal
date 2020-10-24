@@ -2,42 +2,51 @@
 module("teal-3") {
     moduleName "teal-3"
 
+    imports "teal-0"
+
     java {
 	basedir "."
 	include "java/**/*.java"
     }
 
     jastadd {
-	include "ast/*.ast"
+	include "grammar/teal.ast"
+	excludeFrom "teal-0", "grammar/type.ast"
 
+	// Semantic Analysis
 	include "ast/BuiltinTypes.jrag"
-	include "ast/DumpTree.jrag"
-	include "ast/Modules.jrag"
+	excludeFrom "teal-0", "ast/BuiltinTypes.jrag"
+	excludeFrom "teal-0", "ast/TypeAnalysisBuiltinTypes.jrag"
+
 	include "ast/NameAnalysis.jrag"
 	include "ast/SemanticCheck.jrag"
-	include "ast/Source.jrag"
-	include "ast/SrcLoc.jrag"
 	include "ast/TypeAnalysis.jrag"
-	include "ast/Util.jrag"
 
 	// Code generation
-	include "ast/IRGenExpr.jrag"
-	include "ast/IRGen.jrag"
-	include "ast/IRGenType.jrag"
+	include "backend/IRGenExpr.jrag"
+	excludeFrom "teal-0", "backend/IRGenExpr.jrag"
+	include "backend/IRGen.jrag"
+	excludeFrom "teal-0", "backend/IRGen.jrag"
+	include "backend/IRGenType.jrag"
+	excludeFrom "teal-0", "backend/IRGenType.jrag"
     }
 
     scanner {
-	include "scanner/header.flex", [-1]
 	include "scanner/scanner.flex"
-	include "scanner/id.flex", [1]
-	include "scanner/footer.flex", [2]
     }
 
     parser {
-	include "parser/header.parser", [-1]
-	include "parser/module.parser"
-	include "parser/decl.parser"
+	include "parser/term.parser"
+	excludeFrom "teal-0", "parser/term.parser"
+
+	include "parser/stmt-base.parser"
 	include "parser/stmt.parser"
-	include "parser/expr.parser"
+	excludeFrom "teal-0", "parser/stmt.parser"
+
+	include "parser/decl.parser"
+	include "parser/decl-base.parser"
+	excludeFrom "teal-0", "parser/decl.parser"
+
+	excludeFrom "teal-0", "parser/type.parser"
     }
 }

@@ -1,0 +1,12 @@
+// Top level
+Program ::= Module*;
+
+Module ::= ImportDecl* Decl* /BuiltinDecl:Decl*/;
+
+// ImportDecl
+ImportDecl ::= PackagePathFragment* ;
+PackagePathFragment ::= <ID>;
+
+// Declarations
+abstract Decl;
+

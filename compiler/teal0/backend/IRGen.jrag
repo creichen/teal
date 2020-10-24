@@ -1,0 +1,340 @@
+import lang.ir.*;
+
+aspect IRGen {
+	coll ArrayList<VarDecl> FunDecl.localVars() root FunDecl;
+	VarDecl contributes this to FunDecl.localVars();
+	// local declarations
+	coll ArrayList<IdDecl> FunDecl.localDecls() root FunDecl;
+	IdDecl contributes this to FunDecl.localDecls();
+	syn HashMap<IdDecl, Integer> FunDecl.localDeclUIDs() {
+		HashMap<IdDecl, Integer> uids = new HashMap<>();
+		for (int i = 0; i < localDecls().size(); ++i)
+			uids.put(localDecls().get(i), i);
+		return uids;
+	}
+	// local expressions
+	coll ArrayList<Expr> FunDecl.localExprs() root FunDecl;
+	Expr contributes this to FunDecl.localExprs();
+	syn HashMap<Expr, Integer> FunDecl.localExprUIDs() {
+		HashMap<Expr, Integer> uids = new HashMap<>();
+		for (int i = 0; i < localExprs().size(); ++i)
+			uids.put(localExprs().get(i), i);
+		return uids;
+	}
+
+	inh int Stmt.getUID(Expr e);
+	inh int Expr.getUID(Expr e);
+	syn int Expr.getUID() = getUID(this);
+	eq FunDecl.getBody().getUID(Expr e) {
+		Integer uid = localExprUIDs().get(e);
+		assert uid != null;
+		return uid;
+	}
+
+	// Collect global variables; we could implement this
+	// as a collection attribute, but that might be expensive.
+	// We know that global variables are VarDecls at top-level,
+	// so we don't have to traverse the entire AST to collect them.
+	syn VarDecl Decl.getVarDecl() = null;
+	eq VarDecl.getVarDecl() = this;
+	syn ArrayList<VarDecl> Module.globalVars() {
+		ArrayList<VarDecl> varDecls = new ArrayList<>();
+		for (Decl d : getDecls()) {
+			VarDecl v = d.getVarDecl();
+			if (v != null)
+				varDecls.add(v);
+		}
+		return varDecls;
+	}
+
+	syn IRProgram Program.genIR() {
+		IRProgram p = new IRProgram();
+		for (Module m : getModules()) {
+			p.addIRModule(m.genIR());
+		}
+		return p;
+	}
+
+	syn IRModule Module.genIR() {
+		String name = getName().stream().collect(Collectors.joining("::"));
+
+		IRModule m = new IRModule(new IRModuleName(new lang.ir.List(new IRName(name))),
+								  new lang.ir.List<IRVar>(),
+								  new lang.ir.List<IRType>(),
+								  new lang.ir.List<IRClass>(),
+								  new lang.ir.List<IRQualifier>(),
+								  new lang.ir.List<IRTypeAlias>(),
+								  new lang.ir.List<IRFunction>());
+
+		for (Decl d : getDecls()) {
+			if (d instanceof VarDecl) {
+				m.getIRVars().add(((VarDecl) d).genIR());
+				if (((VarDecl) d).hasInitializer()) {
+					throw new NotYetImplementedError("Cannot generate code for global variable initializers.");
+				}
+			} else if (d instanceof FunDecl) {
+				FunDecl fd = (FunDecl) d;
+				IRFunction f = fd.genIR();
+				IRFunctionCtx fctx = new IRFunctionCtx(f);
+				if (fd.hasBody())
+					fd.genCode(fctx);
+				m.getIRFunctions().add(f);
+// TODO: ----------------_ REVISE
+			// } else if (d instanceof ClassDecl) {
+			// 	IRClass c = (IRClass) ((ClassDecl) d).genIR();
+			// 	((ClassDecl) d).genCode(c);
+			// 	m.addIRType(c);
+			} else {
+				throw new NotYetImplementedError("Cannot translate declaration " + d.getClass());
+			}
+		}
+
+		for (Decl d : getBuiltinDeclList()) {
+			if (d instanceof FunDecl) {
+				FunDecl fd = (FunDecl) d;
+				IRFunction f = fd.genIR();
+				IRFunctionCtx fctx = new IRFunctionCtx(f);
+				if (fd.hasBody())
+					fd.genCode(fctx);
+				m.getIRFunctions().add(f);
+// TODO: ----------------_ REVISE
+			// } else if (d == getBuiltinClassDecl(BuiltinNames.QUALIFIER)) {
+			// 	// generate code for the qualifier builtin type
+			// 	IRClass c = (IRClass) ((ClassDecl) d).genIR();
+			// 	((ClassDecl) d).genCode(c);
+			// 	m.addIRType(c);
+			}
+		}
+
+		return m;
+	}
+
+	public class IRFunctionCtx {
+		private IRFunction F;
+		private IRCodeBB BB;
+		private int counter = 0;
+		private HashMap<VarDecl, IRVar> locals;
+// TODO: ----------------_ REVISE
+		// private HashMap<TypeQualifier, IRVar> qualifiers;
+		private HashMap<Expr, IRVar> temps;
+
+		public IRFunctionCtx(IRFunction F) {
+			this.F = F;
+			locals = new HashMap<>();
+			temps = new HashMap<>();
+// TODO: ----------------_ REVISE
+			// qualifiers = new HashMap<>();
+		}
+
+		public IRCodeBB startBB() {
+			BB = new IRCodeBB(new lang.ir.List(), null);
+			F.getIRCodeBBList().add(BB);
+			return BB;
+		}
+
+		public IRCodeBB getCurrentBB() {
+			return BB;
+		}
+
+		public void addInsn(IRInsn I) {
+			BB.getIRInsnList().add(I);
+		}
+
+		public void setSourceLocations(SourceLocation srcLoc) {
+			for (int i = BB.getNumIRInsn() - 1; i >= 0; --i) {
+				if (!BB.getIRInsn(i).getSourceLocation().equals(SourceLocation.UNKNOWN))
+					break;
+				BB.getIRInsn(i).setSourceLocation(srcLoc);
+			}
+		}
+
+		public IRVarRef getTempIRVar(Expr e) {
+			IRVar tmp = temps.get(e);
+			if (tmp == null) {
+				tmp = getFreshTempIRVar(e);
+				temps.put(e, tmp);
+			}
+			return new IRVarRef(tmp);
+		}
+
+		public IRVar getFreshTempIRVar(Expr e) {
+			return getFreshTempIRVar(e.type().genIRTypeRef());
+		}
+
+		public IRVar getFreshTempIRVar(IRTypeRef t) {
+			IRVar tmp = new IRVar(new IRName("tmp" + counter++), t);
+			F.getLocals().add(tmp);
+			return tmp;
+		}
+
+		public IRVarRef getIRVarRef(VarDecl d) {
+			IRVar v = locals.get(d);
+			if (v == null) {
+				// Append an index to the name. We might have multiple variables with
+				// the same name at different scopes, and we want them to have a unique
+				// name inside the IR
+				v = new IRVar(new IRName(d.getIdDecl().getID() + counter++), d.type().genIRTypeRef());
+				F.getLocals().add(v);
+				locals.put(d, v);
+			}
+			return new IRVarRef(v);
+		}
+
+// TODO: ----------------_ REVISE
+		// public IRVar getQualifierIRVar(TypeQualifier qual) {
+		// 	IRVar v = qualifiers.get(qual);
+		// 	if (v == null) {
+		// 		v = new IRVar(new IRName("__qual_" + qual.getIdUse().getID() + counter++),
+		// 					  qual.genIR());
+		// 		F.addLocal(v);
+		// 		qualifiers.put(qual, v);
+		// 	}
+		// 	return v;
+		// }
+	}
+
+	syn IRFunction FunDecl.genIR() {
+		IRFunction func = new IRFunction();
+		// name
+		func.setIRName(getIdDecl().genIR());
+		// formal param types
+		lang.ir.List<IRTypeRef> irTypes = new lang.ir.List<>();
+		for (VarDecl d : getFormals()) {
+			irTypes.add(d.type().genIRTypeRef());
+		}
+		func.setParamTypeList(irTypes);
+		// return type, if any
+		func.setIRTypeRef(type().genIRTypeRef());
+
+		func.setSourceLocation(this.sourceLocation());
+
+		return func;
+	}
+
+	public void FunDecl.genCode(IRFunctionCtx fctx) {
+		fctx.startBB();
+		// generate code for the arguments
+		for (int i = 0; i < getNumFormal(); ++i) {
+			VarDecl d = getFormal(i);
+			IRVarRef v = fctx.getIRVarRef(d);
+			IRArgInsn iarg = new IRArgInsn(v, i);
+			fctx.addInsn(iarg);
+		}
+
+		getBody().genCode(fctx);
+
+		if (fctx.getCurrentBB().getIRCodeExit() == null) {
+			// no exit here
+			IRVar v = fctx.getFreshTempIRVar(new IRAnyTypeRef());
+			fctx.addInsn(new IRConstantInsn().setDst(new IRVarRef(v))
+										.setSrc(new IRNull()));
+			fctx.getCurrentBB().setIRCodeExit(new IRReturn(new IRVarRef(v)));
+		}
+	}
+
+	public void Stmt.genCode(IRFunctionCtx ctx) { }
+	public void BlockStmt.genCode(IRFunctionCtx ctx) {
+		// IRCodeBB currentBB = ctx.startBB();
+		for (Stmt s : getStmts()) {
+			s.genCode(ctx);
+		}
+	}
+
+	public void AssignStmt.genCode(IRFunctionCtx ctx) {
+		IRVarRef right = getRValue().genCode(ctx);
+		getLValue().genAssignment(right, ctx);
+	}
+
+	public void VarDecl.genCodeInitializer(IRFunctionCtx ctx) {
+		if (!hasInitializer())
+			return;
+		IRVarRef src = getVarDecl().getInitializer().genCode(ctx);
+		// generate code for the initializer
+		if (getScope() == VariableScope.LOCAL) {
+			IRVarRef dst = ctx.getIRVarRef(getVarDecl());
+			IRCopyInsn copy = new IRCopyInsn(dst, src);
+			ctx.addInsn(copy);
+		} else if (getScope() == VariableScope.MEMBER) {
+			ctx.addInsn(new IRSelfInsn().setDst(ctx.getIRVarRef(this)));
+			ctx.addInsn(new IRStoreInsn().setBase(ctx.getIRVarRef(this))
+						.setField(new IRVarRef(genIR()))
+						.setSrc(src));
+		} else {
+			// Unclear where to generate the code to initialize globals
+			throw new NotYetImplementedError("Can't initialize global variable " + this + ".");
+		}
+		ctx.setSourceLocations(this.sourceLocation());
+	}
+
+	public void VarDecl.genCode(IRFunctionCtx ctx) {
+		genCodeInitializer(ctx);
+// TODO: ----------------_ REVISE
+		//genCodeQualifiers(ctx);
+	}
+
+	public void VarDeclStmt.genCode(IRFunctionCtx ctx) {
+		getVarDecl().genCode(ctx);
+	}
+
+	public void ExprStmt.genCode(IRFunctionCtx ctx) {
+		getExpr().genCode(ctx);
+	}
+
+	public void IfStmt.genCode(IRFunctionCtx ctx) {
+		IRVarRef cond = getCond().genCode(ctx);
+		IRCodeBB currentBB = ctx.getCurrentBB();
+
+		IRCodeBB thenEntry = ctx.startBB();
+		getThen().genCode(ctx);
+		IRCodeBB thenExit = ctx.getCurrentBB();
+
+
+		IRCodeBB elseEntry = ctx.startBB();
+		getElse().genCode(ctx);
+		IRCodeBB elseExit = ctx.getCurrentBB();
+
+		IRCodeBB joinBB = ctx.startBB();
+
+		// set the terminators
+		currentBB.setIRCodeExit(new IRBranch(cond, new IRCodeBBRef(thenEntry), new IRCodeBBRef(elseEntry)));
+		thenExit.setIRCodeExit(new IRJump(new IRCodeBBRef(joinBB)));
+		elseExit.setIRCodeExit(new IRJump(new IRCodeBBRef(joinBB)));
+	}
+
+	public void WhileStmt.genCode(IRFunctionCtx ctx) {
+		IRCodeBB currentBB = ctx.getCurrentBB();
+
+		// header block
+		IRCodeBB headerBB = ctx.startBB();
+		IRVarRef cond = getCond().genCode(ctx);
+
+		// body block
+		IRCodeBB bodyBB = ctx.startBB();
+		getBody().genCode(ctx);
+
+		IRCodeBB exitBB = ctx.startBB();
+
+		currentBB.setIRCodeExit(new IRJump(new IRCodeBBRef(headerBB)));
+		headerBB.setIRCodeExit(new IRBranch(cond, new IRCodeBBRef(bodyBB), new IRCodeBBRef(exitBB)));
+		// and the loop back-edge
+		bodyBB.setIRCodeExit(new IRJump(new IRCodeBBRef(headerBB)));
+	}
+
+	public void ReturnStmt.genCode(IRFunctionCtx ctx) {
+		// generate the code to compute the return value
+		IRVarRef retVal = getExpr().genCode(ctx);
+		IRCodeBB currentBB = ctx.getCurrentBB();
+		currentBB.setIRCodeExit(new IRReturn(retVal));
+		// start a new basic block to hold the translation
+		// of any (unreachable) statements following the return.
+		ctx.startBB();
+	}
+
+	// public void AssertStmt.genCode(IRFunctionCtx ctx) {
+	// 	IRVarRef test = getExpr().genCode(ctx);
+	// 	ctx.addInsn(new IRAssertInsn(test));
+	// }
+
+	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), type().genIRTypeRef());
+	syn IRName IdDecl.genIR() = new IRName(getID());
+}

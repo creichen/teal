@@ -1,40 +1,11 @@
-// Top level
-Program ::= Module*;
-
-Module ::= ImportDecl* Decl* /BuiltinDecl:Decl*/;
-
-// ImportDecl
-ImportDecl ::= PackagePathFragment* ;
-PackagePathFragment ::= <ID>;
-
-// Declarations
-abstract Decl;
-
 // Variables
 VarDecl : Decl ::= IdDecl [Type] [Initializer:Expr];
 
 // Functions
 FunDecl : Decl ::= IdDecl [Type] Formal:VarDecl* [Body:Stmt];
 
-TypeVarDecl : Decl ::= IdDecl ;
-
-// Type declarations
-TypeDecl : Decl ::= IdDecl TypeFormal:TypeVarDecl* SuperType:Type* StructElt*;
-
-abstract StructElt;
-VarDeclElt : StructElt ::= VarDecl;
-FunDeclElt : StructElt ::= FunDecl;
-StmtElt : StructElt ::= Stmt;
-
-// Class declarations
-ClassDecl : TypeDecl ::= FunFormal:VarDecl*;
-
-// Qualifier declarations
-QualifierDecl : TypeDecl ::= FunFormal:VarDecl*;
-
-// Type uses
-TypeQualifier ::= IdUse TypeActual:Type* FunActual:Expr* ;
-Type ::= IdUse Actual:Type* TypeQualifier*;
+// Type Variables (not allowed as source elements in TEAL-0 and TEAL-1), but may be useful internally
+TypeVarDecl : Decl ::= IdDecl;
 
 // Expressions
 abstract Expr;
@@ -57,14 +28,11 @@ AndExpr : BinExpr;
 
 // Other expressions
 CallExpr : Expr ::= IdUse Actual:Expr*;
-DispatchExpr : Expr ::= Expr <ID> Actual:Expr*;
-Self : Expr ;
 Null : Expr ;
 ListExpr : Expr ::= Expr* ;
 IndexExpr : Expr ::= Base:Expr Index:Expr ;
 NotExpr : Expr ::= Expr ;
 TypedExpr : Expr ::= Expr Type;
-NewExpr : Expr ::= Type Actual:Expr*;
 
 // Constants
 Constant : Expr ;
@@ -73,7 +41,6 @@ StringConstant : Constant ::= <Value:String> ;
 
 // Access
 Access : Expr ::= IdUse ;
-MemberAccess : Expr ::= Expr <ID> ;
 QualifiedAccess : Expr ::= PackagePathFragment* ;
 
 // Statements
@@ -83,10 +50,8 @@ ExprStmt : Stmt ::= Expr ;
 AssignStmt : Stmt ::= LValue:Expr RValue:Expr ;
 BlockStmt : Stmt ::= Stmt* ;
 IfStmt : Stmt ::= Cond:Expr Then:Stmt Else:Stmt ;
-ForStmt : Stmt ::= Iterator:VarDecl Rang:Expr Body:Stmt ;
 WhileStmt : Stmt ::= Cond:Expr Body:Stmt ;
 ReturnStmt : Stmt ::= Expr ;
-AssertStmt : Stmt ::= Expr <Message:String> ;
 SkipStmt : Stmt;
 
 // Identifiers

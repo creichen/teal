@@ -1,0 +1,25 @@
+VarDecl var_id_decl = ID type_opt? {: return new VarDecl(new IdDecl(ID), type_opt, new Opt()); :}
+                    ;
+
+VarDecl var_decl = VAR var_id_decl SEMICOLON {: return var_id_decl; :}
+                 | VAR var_id_decl ASSIGN expr SEMICOLON {: var_id_decl.setInitializerOpt(new Opt(expr)); return var_id_decl; :}
+                 ;
+
+Type type_opt = COLON type {: return type; :}
+	      ;
+
+FunDecl concrete_fun_decl = FUN ID LPAREN fun_formals RPAREN type_opt? EQ stmt {: return new FunDecl(new IdDecl(ID), type_opt, fun_formals, new Opt(stmt)); :}
+                          ;
+
+List fun_formals = /* empty */ {: return new List(); :}
+		 | fun_formal_list
+		 ;
+
+List fun_formal_list = fun_formal {: return new List(fun_formal); :}
+                     | fun_formal_list COMMA fun_formal {: return fun_formal_list.add(fun_formal); :}
+                     ;
+
+VarDecl fun_formal = var_id_decl
+                   ;
+
+

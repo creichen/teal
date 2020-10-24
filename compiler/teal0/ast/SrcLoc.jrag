@@ -44,8 +44,12 @@ aspect SrcLoc {
 	}
 
 	syn int ASTNode.getStartLoc() {
-		if (getStart() != 0)
+		if (getStart() != 0) {
 			return getStart();
+		}
+		if (getParent() == null) {
+			return 0;
+		}
 		return getParentStartLoc();
 	}
 
@@ -56,8 +60,12 @@ aspect SrcLoc {
 	}
 
 	syn int ASTNode.getEndLoc() {
-		if (getEnd() != 0)
+		if (getEnd() != 0) {
 			return getEnd();
+		}
+		if (getParent() == null) {
+			return 0;
+		}
 		return getParentEndLoc();
 	}
 

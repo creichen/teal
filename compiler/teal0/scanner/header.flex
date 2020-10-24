@@ -1,3 +1,4 @@
+// Header for the Teal scanner specification
 package lang.ast; // The generated scanner will belong to the package lang.ast
 
 import lang.ast.TEALParser.Terminals; // The terminals are implicitly defined in the parser

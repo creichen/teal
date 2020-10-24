@@ -1,0 +1,7 @@
+aspect TypeAnalysis {
+	public interface TypeDefinition {
+		lang.ir.IRTypeRef genIRTypeRef(); // code generation only
+	}
+
+	BuiltinTypeCon implements TypeDefinition;
+}

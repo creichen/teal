@@ -1,4 +1,4 @@
-// Package and import
+// Toplevel: Package and import
 Module module = import_decl* decl* {: return new Module(import_decl, decl); :}
               ;
 

@@ -5,6 +5,9 @@ import java.lang.reflect.InvocationTargetException;
 // We have been careful to not import many types here because the imports are added for
 // _ALL_ AST nodes and can cause collisions in the abstract grammar namespace.
 
+/**
+ * General-purpose reflexive AST printer
+ */
 aspect DumpTree {
 	private static final String ASTNode.DUMP_TREE_INDENT = "  ";
 

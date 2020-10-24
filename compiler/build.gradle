@@ -33,7 +33,7 @@ test {
 jastadd {
     configureModuleBuild()
 
-    modules "${projectDir}/teal3/jastadd_modules"
+    modules "${projectDir}/teal0/jastadd_modules", "${projectDir}/teal3/jastadd_modules"
     module = "teal-3"
 
     astPackage = "lang.ast"

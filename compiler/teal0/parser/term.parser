@@ -1,0 +1,11 @@
+Expr term = LPAREN expr RPAREN {: return expr; :}
+          | INTEGER_LITERAL {: return new IntConstant((Long)INTEGER_LITERAL.value); :}
+          | STRING_LITERAL {: return new StringConstant((String)STRING_LITERAL.value); :}
+          | ID {: return new Access(new IdUse(ID)); :}
+          | package_path {: return new QualifiedAccess(package_path); :}
+          | LBRACK fun_actual_list_maybe_empty RBRACK {: return new ListExpr(fun_actual_list_maybe_empty); :}
+          | ID LPAREN fun_actual_list_maybe_empty RPAREN {: return new CallExpr(new IdUse(ID), fun_actual_list_maybe_empty); :}
+          | term.b LBRACK expr.i RBRACK {: return new IndexExpr(b, i); :}
+          | LPAREN expr COLON type RPAREN  {: return new TypedExpr(expr, type); :}
+	  | NULL {: return new Null(); :}
+          ;

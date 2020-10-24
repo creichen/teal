@@ -1,0 +1,308 @@
+import lang.ir.*;
+import lang.common.SourceLocation;
+import lang.common.NotYetImplementedError;
+
+aspect IRGenExpr {
+	public enum VariableScope {
+		LOCAL,
+		GLOBAL,
+		MEMBER
+	}
+
+	inh VariableScope Decl.getScope();
+	eq Module.getDecl().getScope() = VariableScope.GLOBAL;
+	eq Module.getBuiltinDecl().getScope() = VariableScope.GLOBAL;
+	eq FunDecl.getFormal().getScope() = VariableScope.LOCAL;
+	eq VarDeclStmt.getVarDecl().getScope() = VariableScope.LOCAL;
+	// eq ForStmt.getIterator().getScope() = VariableScope.LOCAL;
+
+	// eq VarDeclElt.getVarDecl().getScope() = VariableScope.MEMBER;
+	// eq FunDeclElt.getFunDecl().getScope() = VariableScope.MEMBER;
+	// eq ClassDecl.getFunFormal().getScope() = VariableScope.MEMBER;
+	// eq QualifierDecl.getFunFormal().getScope() = VariableScope.MEMBER;
+	// eq TypeDecl.getTypeFormal().getScope() = VariableScope.MEMBER;
+
+	syn IRVar Expr.getIRVar() {
+		int uid = getUID();
+		return new IRVar(new IRName("$" + uid), type().genIRTypeRef());
+	}
+
+	syn IRVarRef Expr.getIRVarRef() {
+		return new IRVarRef(getIRVar());
+	}
+
+	public IRVarRef Expr.genCode(IRFunctionCtx ctx) {
+		throw new NotYetImplementedError("Can't translate expression " + this.getClass());
+	}
+
+	syn String BinExpr.builtin();
+	eq AddExpr.builtin() = BuiltinNames.INT_ADD;
+	eq SubExpr.builtin() = BuiltinNames.INT_SUB;
+	eq MulExpr.builtin() = BuiltinNames.INT_MUL;
+	eq DivExpr.builtin() = BuiltinNames.INT_DIV;
+	eq ModExpr.builtin() = BuiltinNames.INT_MOD;
+	eq EQExpr.builtin() = BuiltinNames.ANY_EQ;
+	eq NEQExpr.builtin() = BuiltinNames.ANY_NEQ;
+	eq LTExpr.builtin() = BuiltinNames.INT_LT;
+	eq GTExpr.builtin() = BuiltinNames.INT_GT;
+	eq LEQExpr.builtin() = BuiltinNames.INT_LEQ;
+	eq GEQExpr.builtin() = BuiltinNames.INT_GEQ;
+	eq OrExpr.builtin() = BuiltinNames.INT_OR;
+	eq AndExpr.builtin() = BuiltinNames.INT_AND;
+
+	public SourceLocation ASTNode.sourceLocation() {
+	    return new SourceLocation(this.sourceFile(),
+				      this.startLine(),
+				      this.startColumn(),
+				      this.endLine(),
+				      this.endColumn());
+	}
+
+	public IRVarRef BinExpr.genCode(IRFunctionCtx ctx) {
+		IdDecl dd = lookup(builtin());
+		IRFunRef builtinFunc = new IRFunRef(((FunDecl)dd.getDecl()).genIR());
+		IRVarRef r = ctx.getTempIRVar(this);
+
+		IRCallInsn call = new IRCallInsn().setDst(r).setIRFunRef(builtinFunc);
+		IRVarRef left = getLeft().genCode(ctx);
+		IRVarRef right = getRight().genCode(ctx);
+		call.addArg(left).addArg(right);
+
+		ctx.addInsn(call);
+		ctx.setSourceLocations(this.sourceLocation());
+		return r;
+	}
+
+	public IRVarRef CallExpr.genCode(IRFunctionCtx ctx) {
+		IdUse fun = getIdUse();
+		FunDecl fd = (FunDecl) fun.lookup().getDecl();
+		IRFunRef funCallTarget = new IRFunRef(fd.genIR());
+		IRVarRef r = ctx.getTempIRVar(this);
+		if (fd.getScope() == VariableScope.GLOBAL) {
+			IRCallInsn call = new IRCallInsn().setDst(r);
+			call.setIRFunRef(funCallTarget);
+			for (Expr e : getActuals()) {
+				IRVarRef arg = e.genCode(ctx);
+				call.addArg(arg);
+			}
+			ctx.addInsn(call);
+// TODO: ----------------_ REVISE
+		// } else {
+		// 	assert fd.getScope() == VariableScope.MEMBER;
+		// 	IRVar selfVar = ctx.getFreshTempIRVar(this);
+		// 	IRSelfInsn self = new IRSelfInsn().setDst(new IRVarRef(selfVar));
+		// 	ctx.addInsn(self);
+
+		// 	IRDispatchInsn dispatch = new IRDispatchInsn().setDst(r);
+		// 	dispatch.setIRFunRef(funCallTarget);
+		// 	dispatch.setBase(new IRVarRef(selfVar));
+		// 	for (Expr e : getActuals()) {
+		// 		IRVarRef arg = e.genCode(ctx);
+		// 		dispatch.addArg(arg);
+		// 	}
+		// 	ctx.addInsn(dispatch);
+		}
+		ctx.setSourceLocations(this.sourceLocation());
+		return r;
+	}
+
+	// public IRVarRef DispatchExpr.genCode(IRFunctionCtx ctx) {
+	// 	Expr base = getExpr();
+	// 	TypeDefinition type = base.type();
+	// 	if (type == null)
+	// 		throw new RuntimeException("Can't generate dispatch from unknown base type, " + this + ".");
+	// 	IdDecl memberIdDecl = type.memberLookup(getID());
+	// 	if (memberIdDecl == null)
+	// 		throw new RuntimeException("Can't generate dispatch to unknown member, " + this + ".");
+	// 	Decl memberDecl = memberIdDecl.getDecl();
+	// 	if (!(memberDecl instanceof FunDecl))
+	// 		throw new RuntimeException("Can't call a member that is not a method, " + this + ".");
+	// 	IRVarRef tmp = ctx.getTempIRVar(this);
+	// 	IRDispatchInsn dispatch = new IRDispatchInsn()
+	// 		.setBase(base.genCode(ctx))
+	// 		.setIRFunRef(new IRFunRef(((FunDecl) memberDecl).genIR()))
+	// 		.setDst(tmp);
+	// 	for (Expr arg : getActuals()) {
+	// 		IRVarRef r = arg.genCode(ctx);
+	// 		dispatch.addArg(r);
+	// 	}
+	// 	ctx.addInsn(dispatch);
+	// 	ctx.setSourceLocations(this.sourceLocation());
+	// 	return tmp;
+	// }
+
+	// public IRVarRef NewExpr.genCodeArray(IRFunctionCtx ctx) {
+	// 	IRVarRef dst = ctx.getTempIRVar(this);
+	// 	IRVarRef size = getActual(0).genCode(ctx);
+	// 	IRNewArrayInsn newInsn = new IRNewArrayInsn().setDst(dst)
+	// 		.setIRTypeRef(getType().getActual(0).genIR()).setSize(size);
+	// 	ctx.addInsn(newInsn);
+	// 	ctx.setSourceLocations(this.sourceLocation());
+	// 	return dst;
+	// }
+
+	// public IRVarRef NewExpr.genCode(IRFunctionCtx ctx) {
+	// 	// generate special IR instructions for arrays
+	// 	if (((ClassDecl) getType().getIdUse().lookup().getDecl()).isArray()) {
+	// 		return genCodeArray(ctx);
+	// 	}
+
+	// 	// allocate storage for the object
+	// 	IRVarRef dst = ctx.getTempIRVar(this);
+	// 	IRNewInsn newInsn = new IRNewInsn().setDst(dst)
+	// 		.setIRTypeRef(getType().genIR());
+	// 	ctx.addInsn(newInsn);
+
+	// 	// call the constructor to initialize the object
+	// 	IRDispatchInsn dispatch = new IRDispatchInsn()
+	// 		.setDst(new IRVarRef(ctx.getFreshTempIRVar(this)) /*unused*/)
+	// 		.setBase(ctx.getTempIRVar(this));
+	// 	IRTypeRef irType = getType().genIR();
+
+	// 	// TODO: ensure that new is called only on classes
+	// 	IRClass klass = (IRClass) ((IRTypeInstanceRef) irType).getIRType();
+	// 	IRFunction constructor = klass.getConstructor();
+	// 	dispatch.setIRFunRef(new IRFunRef(constructor));
+	// 	for (Expr arg : getActuals()) {
+	// 		IRVarRef r = arg.genCode(ctx);
+	// 		dispatch.addArg(r);
+	// 	}
+	// 	ctx.addInsn(dispatch);
+
+	// 	ctx.setSourceLocations(this.sourceLocation());
+
+	// 	// return a reference to the allocated storage
+	// 	return dst;
+	// }
+
+	public void Expr.genAssignment(IRVarRef rhs, IRFunctionCtx ctx) { throw new RuntimeException(getClass() + " not allowed as LValue."); }
+
+	// public void MemberAccess.genAssignment(IRVarRef rhs, IRFunctionCtx ctx) {
+	// 	Expr base = getExpr();
+	// 	TypeDefinition type = base.type();
+	// 	Decl memberDecl = type.memberLookup(getID()).getDecl();
+	// 	if (!(memberDecl instanceof VarDecl)) {
+	// 		super.genAssignment(rhs, ctx);
+	// 	}
+
+	// 	ctx.addInsn(new IRStoreInsn().setBase(base.genCode(ctx))
+	// 				.setField(new IRVarRef(((VarDecl)memberDecl).genIR()))
+	// 				.setSrc(rhs));
+
+	// 	ctx.setSourceLocations(this.sourceLocation());
+	// }
+
+	// public IRVarRef MemberAccess.genCode(IRFunctionCtx ctx) {
+	// 	Expr base = getExpr();
+	// 	TypeDefinition type = base.type();
+	// 	Decl memberDecl = type.memberLookup(getID()).getDecl();
+	// 	if (!(memberDecl instanceof VarDecl))
+	// 		throw new RuntimeException("Can't load a member that is not a field, " + this + ".");
+	// 	IRVarRef tmp = ctx.getTempIRVar(this);
+	// 	ctx.addInsn(new IRLoadInsn().setBase(base.genCode(ctx))
+	// 				.setField(new IRVarRef(((VarDecl) memberDecl).genIR()))
+	// 				.setDst(tmp));
+	// 	ctx.setSourceLocations(this.sourceLocation());
+	// 	return tmp;
+	// }
+
+	public void Access.genAssignment(IRVarRef rhs, IRFunctionCtx ctx) {
+		IdDecl idDecl = getIdUse().lookup();
+		VarDecl d = (VarDecl) idDecl.getDecl();
+		switch (d.getScope()) {
+// TODO: ----------------_ REVISE
+		// case MEMBER:
+		// 	ctx.addInsn(new IRSelfInsn().setDst(ctx.getTempIRVar(this)));
+		// 	ctx.addInsn(new IRStoreInsn().setBase(ctx.getTempIRVar(this))
+		// 				.setField(new IRVarRef(d.genIR()))
+		// 				.setSrc(rhs));
+		// 	break;
+		case LOCAL: {
+			IRVarRef dst = ctx.getIRVarRef(d);
+			ctx.addInsn(new IRCopyInsn(dst, rhs));
+// TODO: ----------------_ REVISE
+			//d.genQualifierCheck(ctx);
+			break;
+		}
+		case GLOBAL: {
+			IRVarRef dst = new IRVarRef(d.genIR());
+			ctx.addInsn(new IRStoreStaticInsn().setDst(dst).setSrc(rhs));
+			break;
+		}
+		}
+		ctx.setSourceLocations(this.sourceLocation());
+	}
+
+	public IRVarRef Access.genCode(IRFunctionCtx ctx) {
+		// this can be a local variable load, global variable load or member access
+		IdDecl idDecl = getIdUse().lookup();
+		VarDecl d = (VarDecl) idDecl.getDecl();
+		IRVarRef r;
+		switch (d.getScope()) {
+		default:
+// TODO: ----------------_ REVISE
+		// case MEMBER:
+		// 	IRVar tmp = ctx.getFreshTempIRVar(this);
+		// 	ctx.addInsn(new IRSelfInsn().setDst(new IRVarRef(tmp)));
+		// 	ctx.addInsn(new IRLoadInsn().setBase(new IRVarRef(tmp))
+		// 				.setField(new IRVarRef(d.genIR()))
+		// 				.setDst(ctx.getTempIRVar(this)));
+		// 	r = ctx.getTempIRVar(this);
+		// 	break;
+		case LOCAL:
+			r = ctx.getIRVarRef(d);
+			break;
+		case GLOBAL:
+			IRVarRef src = new IRVarRef(d.genIR());
+			ctx.addInsn(new IRLoadStaticInsn().setDst(ctx.getTempIRVar(this)).setSrc(src));
+			r = ctx.getTempIRVar(this);
+			break;
+		}
+		ctx.setSourceLocations(this.sourceLocation());
+		return r;
+	}
+
+	public void IndexExpr.genAssignment(IRVarRef rhs, IRFunctionCtx ctx) {
+		IRVarRef base = getBase().genCode(ctx);
+		IRVarRef index = getIndex().genCode(ctx);
+		ctx.addInsn(new IRStoreArrayInsn().setBase(base).setIndex(index).setSrc(rhs));
+		ctx.setSourceLocations(this.sourceLocation());
+	}
+
+	public IRVarRef IndexExpr.genCode(IRFunctionCtx ctx) {
+		IRVarRef base = getBase().genCode(ctx);
+		IRVarRef index = getIndex().genCode(ctx);
+		IRVarRef dst = ctx.getTempIRVar(this);
+		IRLoadArrayInsn load = new IRLoadArrayInsn()
+			.setBase(base).setIndex(index).setDst(dst);
+		ctx.addInsn(load);
+		ctx.setSourceLocations(this.sourceLocation());
+		return dst;
+	}
+
+	public IRVarRef TypedExpr.genCode(IRFunctionCtx ctx) {
+		// TODO: generate an assertion too
+		return getExpr().genCode(ctx);
+	}
+
+	public IRVarRef IntConstant.genCode(IRFunctionCtx ctx) {
+		IRVarRef r = ctx.getTempIRVar(this);
+		ctx.addInsn(new IRConstantInsn(r, new IRInteger(getValue())));
+		ctx.setSourceLocations(this.sourceLocation());
+		return r;
+	}
+
+	public IRVarRef StringConstant.genCode(IRFunctionCtx ctx) {
+		IRVarRef r = ctx.getTempIRVar(this);
+		ctx.addInsn(new IRConstantInsn(r, new IRString(getValue())));
+		ctx.setSourceLocations(this.sourceLocation());
+		return r;
+	}
+
+	public IRVarRef Null.genCode(IRFunctionCtx ctx) {
+		IRVarRef r = ctx.getTempIRVar(this);
+		ctx.addInsn(new IRConstantInsn(r, new IRNull()));
+		ctx.setSourceLocations(this.sourceLocation());
+		return r;
+	}
+}

@@ -1,0 +1,2 @@
+Type type = ID {: return new Type(new IdUse(ID), new List<>()); :}
+          | ID LBRACK type RBRACK {: return new Type(new IdUse(ID), new List<>(type)); :}

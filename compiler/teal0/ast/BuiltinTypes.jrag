@@ -2,10 +2,10 @@ import lang.common.BuiltinNames;
 
 aspect BuiltinTypes {
 	public class BuiltinTypes {
-		public static final ClassDecl INT = new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.INT));
-		public static final ClassDecl STRING = new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.STRING));
-		public static final ClassDecl ANY = new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.ANY));
-		public static final ClassDecl ARRAY = new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
+		public static final BuiltinTypeCon INT = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.INT));
+		public static final BuiltinTypeCon STRING = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.STRING));
+		public static final BuiltinTypeCon ANY = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.ANY));
+		public static final BuiltinTypeCon ARRAY = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
 			.setTypeFormalList(new List<TypeVarDecl>(new TypeVarDecl(new IdDecl("T"))));
 
 		public static final List<Decl> BUILTINS = new List<Decl>();
@@ -18,33 +18,26 @@ aspect BuiltinTypes {
 		}
 	}
 
+	// FIXME: use explicit type references!
 	private Decl Module.makeBuiltinFunDecl(String name, String retType, String ...argTypes) {
 		FunDecl f = new FunDecl();
 		f.setIdDecl(new IdDecl(name));
-		f.setType(new Type(new IdUse(retType), new List(), new List()));
+		f.setType(new Type(new IdUse(retType), new List()/*, new List()*/));
 
 		int count = 0;
 		for (String t : argTypes)  {
 			String argName = "a" + (count++);
-			f.addFormal(new VarDecl(new IdDecl(argName), new Opt(new Type(new IdUse(t), new List(), new List())), new Opt()));
+			f.addFormal(new VarDecl(new IdDecl(argName), new Opt(new Type(new IdUse(t), new List()/*, new List()*/)), new Opt()));
 		}
 
 		return f;
 	}
 
 	/**
-	   Introduce the int, string, any, array[T] as builtin types.
+	 * Introduce the int, string, any, array[T] as builtin types.
 	 **/
 	syn nta List<Decl> Module.getBuiltinDeclList() {
 		List<Decl> decls = BuiltinTypes.BUILTINS.copy();
-		decls
-			.add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.QUALIFIER))
-				 .setTypeFormalList(new List<TypeVarDecl>().add(new TypeVarDecl(new IdDecl("T"))))
-				 .setSuperTypeList(new List<Type>())
-				 .setStructEltList(new List<StructElt>())
-				 .setFunFormalList(new List<VarDecl>()));
-
-
 
 		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_ADD, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
 		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_SUB, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
@@ -69,43 +62,28 @@ aspect BuiltinTypes {
 		return decls;
 	}
 
-	syn ClassDecl Module.getBuiltinClassDecl(String name) {
+	syn BuiltinTypeCon Module.getBuiltinBuiltinTypeCon(String name) {
 		switch (name) {
 		case BuiltinNames.INT:
-			return (ClassDecl) getBuiltinDecl(0);
+			return (BuiltinTypeCon) getBuiltinDecl(0);
 		case BuiltinNames.STRING:
-			return (ClassDecl) getBuiltinDecl(1);
+			return (BuiltinTypeCon) getBuiltinDecl(1);
 		case BuiltinNames.ANY:
-			return (ClassDecl) getBuiltinDecl(2);
+			return (BuiltinTypeCon) getBuiltinDecl(2);
 		case BuiltinNames.ARRAY:
-			return (ClassDecl) getBuiltinDecl(3);
-		case BuiltinNames.QUALIFIER:
-			return (ClassDecl) getBuiltinDecl(4);
+			return (BuiltinTypeCon) getBuiltinDecl(3);
 		default:
 			return null;
 		}
 	}
 
-	inh ClassDecl Decl.getBuiltinClassDecl(String name);
+	inh BuiltinTypeCon Decl.getBuiltinBuiltinTypeCon(String name);
 
-	eq Module.getDecl().getBuiltinClassDecl(String name) {
-		return getBuiltinClassDecl(name);
+	eq Module.getDecl().getBuiltinBuiltinTypeCon(String name) {
+		return getBuiltinBuiltinTypeCon(name);
 	}
-	eq Module.getBuiltinDecl().getBuiltinClassDecl(String name) {
-		return getBuiltinClassDecl(name);
+	eq Module.getBuiltinDecl().getBuiltinBuiltinTypeCon(String name) {
+		return getBuiltinBuiltinTypeCon(name);
 	}
-	inh ClassDecl Expr.getBuiltinClassDecl(String name);
-	inh ClassDecl TypeQualifier.getBuiltinClassDecl(String name);
-
-	syn boolean TypeDecl.isInt() {
-		return equals(getBuiltinClassDecl(BuiltinNames.INT));
-	}
-
-	syn boolean TypeDecl.isString() {
-		return equals(getBuiltinClassDecl(BuiltinNames.STRING));
-	}
-
-	syn boolean TypeDecl.isArray() {
-		return equals(getBuiltinClassDecl(BuiltinNames.ARRAY));
-	}
+	inh BuiltinTypeCon Expr.getBuiltinBuiltinTypeCon(String name);
 }

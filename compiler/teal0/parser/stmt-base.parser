@@ -1,0 +1,23 @@
+
+VarDeclStmt var_decl_stmt = var_decl {: return new VarDeclStmt(var_decl); :}
+                          ;
+
+ExprStmt expr_stmt = expr SEMICOLON {: return new ExprStmt(expr); :}
+                   ;
+
+AssignStmt assign_stmt = expr.lvalue ASSIGN expr SEMICOLON {: return new AssignStmt(lvalue, expr); :}
+                       ;
+
+BlockStmt block_stmt = LBRACE stmt* RBRACE {: return new BlockStmt(stmt); :}
+                     ;
+
+IfStmt if_stmt = IF expr block_stmt {: return new IfStmt(expr, block_stmt, new SkipStmt()); :}
+               | IF expr block_stmt.t ELSE block_stmt.e {: return new IfStmt(expr, t, e); :}
+               ;
+
+WhileStmt while_stmt = WHILE expr block_stmt {: return new WhileStmt(expr, block_stmt); :}
+                     ;
+
+ReturnStmt return_stmt = RETURN expr SEMICOLON {: return new ReturnStmt(expr); :}
+                       ;
+
