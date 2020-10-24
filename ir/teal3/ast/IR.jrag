@@ -1,9 +1,15 @@
 import lang.common.SourceLocation;
 
 aspect IR {
-	public IRClass IRModule.IntegerType = new IRClass().setIRName(new IRName("int"));
-	public IRClass IRModule.StringType = new IRClass().setIRName(new IRName("string"));
-	public IRClass IRModule.AnyType = new IRClass().setIRName(new IRName("any"));
+	public static IRClass IRClass.newBuiltinIRClass(String name) {
+		IRClass c = new IRClass().setIRName(new IRName(name));
+		c.setSourceLocation(SourceLocation.BUILTIN);
+		return c;
+	}
+
+	public IRClass IRModule.IntegerType = IRClass.newBuiltinIRClass("int");
+	public IRClass IRModule.StringType = IRClass.newBuiltinIRClass("string");
+	public IRClass IRModule.AnyType = IRClass.newBuiltinIRClass("any");
 
 	public IRTypeRef IRModule.makeIntegerTypeRef() {
 		return new IRTypeInstanceRef(IntegerType, new List());

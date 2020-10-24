@@ -15,4 +15,6 @@ jastadd {
 	testCompile 'junit:junit:4.12'
 	jastadd2 "org.jastadd:jastadd:2.3.4" // Selects which JastAdd version to use (optional).
     }
+
+    jastaddOptions = [ "--cache=all" ]
 }

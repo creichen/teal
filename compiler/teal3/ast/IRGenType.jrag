@@ -67,6 +67,7 @@ aspect IRGenType {
 	eq ClassDecl.genIR() {
 		// class with a name
 		IRClass klass = new IRClass().setIRName(new IRName(getIdDecl().getID()));
+		klass.setSourceLocation(this.sourceLocation());
 		// set formal type parameters
 		for (TypeVarDecl d : getTypeFormals()) {
 			klass.addIRTypeFormal(d.genIR());

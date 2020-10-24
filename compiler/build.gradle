@@ -3,6 +3,33 @@ plugins {
     id "org.jastadd" version "1.13.1"
 }
 
+// ========================================
+// Testing
+
+dependencies {
+  testCompile 'junit:junit:4.12'
+}
+
+sourceSets {
+    test.java.srcDirs = [ 'teal3/test' ]
+}
+
+// Configuration for the test running.
+test {
+    print "testing!"
+    print sourceSets.test.java.srcDirs
+  // Log passed/failed tests in the console (see also build/reports/tests):
+  testLogging.events 'passed', 'failed'
+
+  testLogging.exceptionFormat = 'full' // Full error output for test failures.
+
+  dependsOn 'cleanTest'  // This causes tests to always be re-run.
+}
+
+
+// ========================================
+// JastAdd
+
 jastadd {
     configureModuleBuild()
 
@@ -22,6 +49,8 @@ jastadd {
 	beaver 'org.extendj:nbfront:0.1.5'
 	jastadd2 "org.jastadd:jastadd:2.3.4" // Selects which JastAdd version to use (optional).
     }
+
+    jastaddOptions = [ "--cache=all" ]
 }
 
 jar {

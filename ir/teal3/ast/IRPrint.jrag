@@ -302,6 +302,9 @@ aspect IRPrint {
 	}
 
 	public void IRFunRef.print(PrintStream out) {
+		if (getIRFunction() == null) {
+			throw new RuntimeException("wA");
+		}
 		getIRFunction().getIRName().print(out);
 	}
 }

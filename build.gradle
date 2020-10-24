@@ -13,3 +13,7 @@ task teal {
         }
     }
 }
+
+test {
+    dependsOn ':compiler:test'
+}
