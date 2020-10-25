@@ -99,9 +99,14 @@ public class Compiler {
 		// now transitively import all the modules
 		while (!unresolvedImports.isEmpty()) {
 			File f = unresolvedImports.remove();
-			if (program.moduleMap().containsKey(f))
+			if (program.moduleMap().containsKey(f)) {
 				continue;
+			}
 			Module m = createModuleFromFile(f, parser, errors);
+			if (m == null) {
+			    System.err.println("Skipping file due to errors.");
+			    continue;
+			}
 			m.setNameFromFile(f);
 			// add the module's current directory as import path
 			if (f.getParentFile() == null)

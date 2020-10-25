@@ -1,7 +1,7 @@
 aspect TypeAnalysis {
-	syn TypeDefinition Expr.type() = BuiltinTypes.ANY;
-	eq IntConstant.type() = BuiltinTypes.INT;
-	eq StringConstant.type() = BuiltinTypes.STRING;
+	syn TypeDefinition Expr.type() = program().ANY();
+	eq IntConstant.type() = program().INT();
+	eq StringConstant.type() = program().STRING();
 	eq TypedExpr.type() {
 		return (TypeDefinition) getType().getIdUse().lookup().getDecl();
 	}
@@ -12,11 +12,11 @@ aspect TypeAnalysis {
 			return (TypeDefinition) getType().getIdUse().lookup().getDecl();
 		if (hasInitializer())
 			return getInitializer().type();
-		return BuiltinTypes.ANY;
+		return program().ANY();
 	}
 	eq FunDecl.type() {
 		if (hasType())
 			return (TypeDefinition) getType().getIdUse().lookup().getDecl();
-		return BuiltinTypes.ANY;
+		return program().ANY();
 	}
 }

@@ -73,9 +73,9 @@ aspect IRGenType {
 			klass.addIRTypeFormal(d.genIR());
 		}
 
-		if (getNumSuperType() == 0 && getBuiltinClassDecl(BuiltinNames.ANY) != this) {
+		if (getNumSuperType() == 0 && program().ANY() != this) {
 			// no declared supertypes, add the default: any
-			klass.addSuper(getBuiltinClassDecl(BuiltinNames.ANY).genIRTypeRef());
+			klass.addSuper(program().ANY().genIRTypeRef());
 		}
 		// set supertypes
 		for (Type t : getSuperTypes()) {
@@ -120,7 +120,13 @@ aspect IRGenType {
 	}
 
 	@Override public IRTypeRef TypeDecl.genIRTypeRef() {
-		return new IRTypeInstanceRef().setIRType(genIR());
+		if (this.genIR_visited) {
+			this.genIR_visited = false;
+		}
+		this.genIR_computed = true;
+		this.genIR();
+		IRTypeRef retval = new IRTypeInstanceRef().setIRType(genIR());
+		return retval;
 	}
 
 	public IRTypeRef Type.genIR() {

@@ -1,6 +1,14 @@
 import lang.common.BuiltinNames;
 
 aspect BuiltinTypes {
+	inh Program ASTNode.program();
+	eq Program.getChild().program() = this;
+
+	syn nta ClassDecl Program.INT() = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.INT));
+	syn nta ClassDecl Program.ANY() = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.ANY));
+	syn nta ClassDecl Program.STRING() = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.STRING));
+
+	// FIXME, duplicate notions of types!
 	public class BuiltinTypes {
 		public static final BuiltinTypeCon INT = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.INT));
 		public static final BuiltinTypeCon STRING = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.STRING));
@@ -37,7 +45,13 @@ aspect BuiltinTypes {
 	 * Introduce the int, string, any, array[T] as builtin types.
 	 **/
 	syn nta List<Decl> Module.getBuiltinDeclList() {
-		List<Decl> decls = BuiltinTypes.BUILTINS.copy();
+		List<Decl> decls = new List<Decl>()
+			.add(program().INT())
+			.add(program().ANY())
+			.add(program().STRING())
+			.add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
+			     .setTypeFormalList(new List<TypeVarDecl>(new TypeVarDecl(new IdDecl("T")))));
+		// List<Decl> decls = BuiltinTypes.BUILTINS.copy();
 
 		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_ADD, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
 		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_SUB, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));

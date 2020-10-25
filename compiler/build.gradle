@@ -1,6 +1,6 @@
 plugins {
     id "java"
-    id "org.jastadd" version "1.13.1"
+    id "org.jastadd" version "1.13.3"
 }
 
 // ========================================

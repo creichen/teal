@@ -10,6 +10,6 @@ aspect TypeAnalysis {
 		VarDecl d = (VarDecl) getIdUse().lookup().getDecl();
 		if (d.hasType())
 			return (TypeDefinition) d.getType().decl();
-		return getBuiltinClassDecl(BuiltinNames.ANY);
+		return program().ANY();
 	}
 }

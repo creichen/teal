@@ -96,7 +96,7 @@ aspect IRGen {
 				if (fd.hasBody())
 					fd.genCode(fctx);
 				m.getIRFunctions().add(f);
-			} else if (d == getBuiltinClassDecl(BuiltinNames.QUALIFIER)) {
+			} else if (d == program().QUALIFIER()) {
 				// generate code for the qualifier builtin type
 				IRClass c = (IRClass) ((ClassDecl) d).genIR();
 				((ClassDecl) d).genCode(c);
