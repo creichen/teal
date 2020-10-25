@@ -20,15 +20,6 @@ aspect BuiltinTypes {
 		return refined().add(QUALIFIERDecl());
 	}
 
-	// FIXME: dead code?
-	// syn boolean TypeDecl.isInt() {
-	// 	return equals(program().INT());
-	// }
-
-	// syn boolean TypeDecl.isString() {
-	// 	return equals(program().STRING());
-	// }
-
 	// FIXME: is that really what we want to check here?
 	syn boolean TypeDecl.isArray() {
 		return equals(program().ARRAY());

@@ -9,12 +9,12 @@ module("teal-3") {
 	excludeFrom "teal-0", "grammar/type.ast"
 
 	// Semantic Analysis
-	include "ast/BuiltinTypes.jrag"
-	excludeFrom "teal-0", "ast/TypeAnalysisBuiltinTypes.jrag"
+	include "frontend/BuiltinTypes.jrag"
+	excludeFrom "teal-0", "frontend/TypeAnalysisBuiltinTypes.jrag"
 
-	include "ast/NameAnalysis.jrag"
-	include "ast/SemanticCheck.jrag"
-	include "ast/TypeAnalysis.jrag"
+	include "frontend/NameAnalysis.jrag"
+	include "frontend/SemanticCheck.jrag"
+	include "frontend/TypeAnalysis.jrag"
 
 	// Code generation
 	include "backend/IRGenExpr.jrag"
