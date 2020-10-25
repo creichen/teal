@@ -1,3 +1,4 @@
 var int := 0;
 type array[T] = {}
 type string = string;
+var __foo := 0;

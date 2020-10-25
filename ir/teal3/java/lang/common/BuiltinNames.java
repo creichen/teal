@@ -3,7 +3,7 @@ package lang.common;
 import java.util.ArrayList;
 
 /**
- * Names of predefined types and operations
+ * Names of predefined types and operations.  See "Builtins" for implementations of builtin operations.
  */
 public final class BuiltinNames {
     // Predefined types
