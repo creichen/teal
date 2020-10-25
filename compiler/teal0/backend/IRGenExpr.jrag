@@ -1,6 +1,7 @@
 import lang.ir.*;
 import lang.common.SourceLocation;
 import lang.common.NotYetImplementedError;
+import lang.common.BuiltinNames;
 
 aspect IRGenExpr {
 	public enum VariableScope {
@@ -36,7 +37,7 @@ aspect IRGenExpr {
 		throw new NotYetImplementedError("Can't translate expression " + this.getClass());
 	}
 
-	syn String BinExpr.builtin();
+	syn BuiltinNames.Operation BinExpr.builtin();
 	eq AddExpr.builtin() = BuiltinNames.INT_ADD;
 	eq SubExpr.builtin() = BuiltinNames.INT_SUB;
 	eq MulExpr.builtin() = BuiltinNames.INT_MUL;
@@ -52,15 +53,15 @@ aspect IRGenExpr {
 	eq AndExpr.builtin() = BuiltinNames.INT_AND;
 
 	public SourceLocation ASTNode.sourceLocation() {
-	    return new SourceLocation(this.sourceFile(),
-				      this.startLine(),
-				      this.startColumn(),
-				      this.endLine(),
-				      this.endColumn());
+		return new SourceLocation(this.sourceFile(),
+					  this.startLine(),
+					  this.startColumn(),
+					  this.endLine(),
+					  this.endColumn());
 	}
 
 	public IRVarRef BinExpr.genCode(IRFunctionCtx ctx) {
-		IdDecl dd = lookup(builtin());
+		IdDecl dd = lookup(builtin().getName());
 		IRFunRef builtinFunc = new IRFunRef(((FunDecl)dd.getDecl()).genIR());
 		IRVarRef r = ctx.getTempIRVar(this);
 

@@ -1,9 +1,11 @@
 package lang.common;
 
+import java.util.ArrayList;
+
 /**
  * Names of predefined types and operations
  */
-public class BuiltinNames {
+public final class BuiltinNames {
     // Predefined types
     public static final String INT = "int";
     public static final String STRING = "string";
@@ -12,24 +14,73 @@ public class BuiltinNames {
     // Reserved type Qualifier (for general-purpose type qualifiers)
     public static final String QUALIFIER = "Qualifier";
 
+
     // Built-in operations
-    public static final String INT_ADD = "__builtin_int_add";
-    public static final String INT_SUB = "__builtin_int_sub";
-    public static final String INT_MUL = "__builtin_int_mul";
-    public static final String INT_DIV = "__builtin_int_div";
-    public static final String INT_MOD = "__builtin_int_mod";
+    public static final Operation INT_ADD = ARITHMETIC_BINOP("__builtin_int_add");
+    public static final Operation INT_SUB = ARITHMETIC_BINOP("__builtin_int_sub");
+    public static final Operation INT_MUL = ARITHMETIC_BINOP("__builtin_int_mul");
+    public static final Operation INT_DIV = ARITHMETIC_BINOP("__builtin_int_div");
+    public static final Operation INT_MOD = ARITHMETIC_BINOP("__builtin_int_mod");
 
-    public static final String ANY_EQ = "__builtin_any_eq";
-    public static final String ANY_NEQ = "__builtin_any_neq";
+    public static final Operation ANY_EQ = new Operation("__builtin_any_eq", INT, ANY, ANY);
+    public static final Operation ANY_NEQ = new Operation("__builtin_any_neq", INT, ANY, ANY);
 
-    public static final String INT_LEQ = "__builtin_int_leq";
-    public static final String INT_GEQ = "__builtin_int_geq";
-    public static final String INT_LT = "__builtin_int_lt";
-    public static final String INT_GT = "__builtin_int_gt";
+    public static final Operation INT_LEQ = ARITHMETIC_BINOP("__builtin_int_leq");
+    public static final Operation INT_GEQ = ARITHMETIC_BINOP("__builtin_int_geq");
+    public static final Operation INT_LT = ARITHMETIC_BINOP("__builtin_int_lt");
+    public static final Operation INT_GT = ARITHMETIC_BINOP("__builtin_int_gt");
 
-    public static final String INT_AND = "__builtin_int_logical_and";
-    public static final String INT_OR = "__builtin_int_logical_or";
+    public static final Operation INT_AND = ARITHMETIC_BINOP("__builtin_int_logical_and");
+    public static final Operation INT_OR = ARITHMETIC_BINOP("__builtin_int_logical_or");
 
-    public static final String PRINT = "print";
-    public static final String READ = "read";
+    public static final Operation PRINT = new Operation("print", ANY, STRING);
+    public static final Operation READ = new Operation("read", STRING);
+
+    private static ArrayList<Operation> operations;
+    static void addOperation(Operation op) {
+	if (BuiltinNames.operations == null) {
+	    BuiltinNames.operations = new ArrayList<>();
+	}
+	BuiltinNames.operations.add(op);
+    }
+    public static ArrayList<? extends Operation> getOperations() {
+	return BuiltinNames.operations;
+    }
+
+    /**
+     * Encodes a built-in operation along with its types
+     */
+    public static final class Operation {
+	private String name;
+	private String ret_type;
+	private String[] arg_types;
+
+	public Operation(String name, String ret_type, String ... arg_types) {
+	    this.name = name;
+	    this.ret_type = ret_type;
+	    this.arg_types = arg_types;
+	    BuiltinNames.addOperation(this);
+	}
+
+	public String getName() {
+	    return this.name;
+	}
+
+	public String getReturnType() {
+	    return this.ret_type;
+	}
+
+	public String[] getArgumentTypes() {
+	    return this.arg_types;
+	}
+    }
+
+    public static Operation BINOP(String name, String ret_type, String lhs_type, String rhs_type) {
+	return new Operation(name, ret_type, lhs_type, rhs_type);
+    }
+
+    public static Operation ARITHMETIC_BINOP(String name) {
+	return new Operation(name, INT, INT, INT);
+    }
+
 }

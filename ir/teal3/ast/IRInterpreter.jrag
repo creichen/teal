@@ -1,11 +1,9 @@
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.Arrays;
 import lang.common.NotYetImplementedError;
 import lang.common.BuiltinNames;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.io.IOException;
 import static lang.common.Debug.dbgi;
 
 aspect IRInterpreter {
@@ -81,6 +79,10 @@ aspect IRInterpreter {
 					return false;
 			}
 			return true;
+		}
+
+		@Override public String toString() {
+			return type.getIRName().getString();
 		}
 	}
 
@@ -162,6 +164,17 @@ aspect IRInterpreter {
 		public IRConcreteType getType() {
 			return type;
 		}
+
+		@Override public String toString() {
+			return "<IRValue:" + this.type + ">";
+		}
+
+		/**
+		 * Teal Equality for objects: defaults to reference equality
+		 */
+		public boolean equalsIR(IRValue other) {
+			return other == this;
+		}
 	}
 
 	public class IRObject extends IRValue {
@@ -194,6 +207,17 @@ aspect IRInterpreter {
 		@Override public String toString() {
 			return val + " : " + "int";
 		}
+
+		/**
+		 * Check integer equality
+		 */
+		@Override
+		public boolean equalsIR(IRValue other) {
+			if (other instanceof IRIntegerValue) {
+				return ((IRIntegerValue) other).asLong() == this.asLong();
+			}
+			return false;
+		}
 	}
 
 	public class IRStringValue extends IRValue {
@@ -208,6 +232,17 @@ aspect IRInterpreter {
 		@Override public String toString() {
 			return "\"" + val + "\" : " + "string";
 		}
+
+		/**
+		 * Check string equality
+		 */
+		@Override
+		public boolean equalsIR(IRValue other) {
+			if (other instanceof IRStringValue) {
+				return ((IRStringValue) other).asString().equals(this.asString());
+			}
+			return false;
+		}
 	}
 
 	public class IRNullValue extends IRValue {
@@ -216,6 +251,17 @@ aspect IRInterpreter {
 		}
 		public boolean isNull() {
 			return true;
+		}
+		@Override public String toString() {
+			return "<null>";
+		}
+
+		/**
+		 * Check nullness
+		 */
+		@Override
+		public boolean equalsIR(IRValue other) {
+			return other.isNull();
 		}
 	}
 
@@ -236,6 +282,9 @@ aspect IRInterpreter {
 
 		public long getSize() {
 			return values.length;
+		}
+		@Override public String toString() {
+			return Arrays.toString(this.values);
 		}
 	}
 
@@ -318,6 +367,10 @@ aspect IRInterpreter {
 			return args.get(i);
 		}
 
+		public int getArgsNr() {
+			return args.size();
+		}
+
 		public Storage getStore()  {
 			return s;
 		}
@@ -335,109 +388,111 @@ aspect IRInterpreter {
 		}
 	}
 
-	private long IRFunction.evalBuiltin(String op, long l, long r) throws InterpreterException {
-		switch (op) {
-		case BuiltinNames.INT_ADD:
-			return l + r;
-		case BuiltinNames.INT_SUB:
-			return l - r;
-		case BuiltinNames.INT_MUL:
-			return l * r;
-		case BuiltinNames.INT_DIV:
-			if (r != 0) return l / r;
-			else throw new InterpreterException("Division by 0");
-		case BuiltinNames.INT_MOD:
-			if (r != 0) return l % r;
-			else throw new InterpreterException("Division by 0");
-		case BuiltinNames.INT_LEQ:
-			return l <= r ? 1 : 0;
-		case BuiltinNames.INT_GEQ:
-			return l >= r ? 1 : 0;
-		case BuiltinNames.INT_LT:
-			return l < r ? 1 : 0;
-		case BuiltinNames.INT_GT:
-			return l > r ? 1 : 0;
-		case BuiltinNames.INT_AND:
-			return (l != 0 && r != 0) ? 1 : 0;
-		case BuiltinNames.INT_OR:
-			return (l == 0 && r == 0) ? 0 : 1;
-		default:
-			throw new InterpreterException("Builtin function " + op + " cannot be evaluated.");
+	// private long IRFunction.evalBuiltin(String op, long l, long r) throws InterpreterException {
+	// 	switch (op) {
+	// 	case BuiltinNames.INT_ADD:
+	// 		return l + r;
+	// 	case BuiltinNames.INT_SUB:
+	// 		return l - r;
+	// 	case BuiltinNames.INT_MUL:
+	// 		return l * r;
+	// 	case BuiltinNames.INT_DIV:
+	// 		if (r != 0) return l / r;
+	// 		else throw new InterpreterException("Division by 0");
+	// 	case BuiltinNames.INT_MOD:
+	// 		if (r != 0) return l % r;
+	// 		else throw new InterpreterException("Division by 0");
+	// 	case BuiltinNames.INT_LEQ:
+	// 		return l <= r ? 1 : 0;
+	// 	case BuiltinNames.INT_GEQ:
+	// 		return l >= r ? 1 : 0;
+	// 	case BuiltinNames.INT_LT:
+	// 		return l < r ? 1 : 0;
+	// 	case BuiltinNames.INT_GT:
+	// 		return l > r ? 1 : 0;
+	// 	case BuiltinNames.INT_AND:
+	// 		return (l != 0 && r != 0) ? 1 : 0;
+	// 	case BuiltinNames.INT_OR:
+	// 		return (l == 0 && r == 0) ? 0 : 1;
+	// 	default:
+	// 		throw new InterpreterException("Builtin function " + op + " cannot be evaluated.");
 
-		}
-	}
+	// 	}
+	// }
 
 	public IRValue IRFunction.evalBuiltin(IRFunctionEvalCtx ctx) throws InterpreterException {
-		switch (getIRName().getString()) {
-		default:
-			throw new InterpreterException("Can't evaluate builtin, " + getIRName() + ".");
-		case BuiltinNames.INT_ADD:
-		case BuiltinNames.INT_SUB:
-		case BuiltinNames.INT_MUL:
-		case BuiltinNames.INT_DIV:
-		case BuiltinNames.INT_MOD:
-		case BuiltinNames.INT_LEQ:
-		case BuiltinNames.INT_GEQ:
-		case BuiltinNames.INT_LT:
-		case BuiltinNames.INT_GT:
-		case BuiltinNames.INT_AND:
-		case BuiltinNames.INT_OR : {
-			if (!(ctx.getArg(0) instanceof IRIntegerValue)) {
-				throw new IncompatibleTypeException(ctx.getArg(0), this);
-			}
-			if (!(ctx.getArg(1) instanceof IRIntegerValue)) {
-				throw new IncompatibleTypeException(ctx.getArg(1), this);
-			}
-			long a = ((IRIntegerValue) ctx.getArg(0)).asLong();
-			long b = ((IRIntegerValue) ctx.getArg(1)).asLong();
-			return new IRIntegerValue(evalBuiltin(getIRName().getString(), a, b));
-		}
-		case BuiltinNames.ANY_EQ:
-		case BuiltinNames.ANY_NEQ:
-			long trueValue = (getIRName().getString() == BuiltinNames.ANY_EQ) ? 1 : 0;
-			long falseValue = 1 - trueValue;
+		return Builtins.translateOperation(this.getIRName().getString()).eval(ctx);
+		// switch (getIRName().getString()) {
+		// default:
+		// 	throw new InterpreterException("Can't evaluate builtin, " + getIRName() + ".");
+		// case BuiltinNames.INT_ADD:
+		// case BuiltinNames.INT_SUB:
+		// case BuiltinNames.INT_MUL:
+		// case BuiltinNames.INT_DIV:
+		// case BuiltinNames.INT_MOD:
+		// case BuiltinNames.INT_LEQ:
+		// case BuiltinNames.INT_GEQ:
+		// case BuiltinNames.INT_LT:
+		// case BuiltinNames.INT_GT:
+		// case BuiltinNames.INT_AND:
+		// case BuiltinNames.INT_OR : {
+		// 	if (!(ctx.getArg(0) instanceof IRIntegerValue)) {
+		// 		throw new IncompatibleTypeException(ctx.getArg(0), this);
+		// 	}
+		// 	if (!(ctx.getArg(1) instanceof IRIntegerValue)) {
+		// 		throw new IncompatibleTypeException(ctx.getArg(1), this);
+		// 	}
+		// 	long a = ((IRIntegerValue) ctx.getArg(0)).asLong();
+		// 	long b = ((IRIntegerValue) ctx.getArg(1)).asLong();
+		// 	return new IRIntegerValue(evalBuiltin(getIRName().getString(), a, b));
+		// }
+		// case BuiltinNames.ANY_EQ:
+		// case BuiltinNames.ANY_NEQ:
+		// 	long trueValue = (getIRName().getString() == BuiltinNames.ANY_EQ) ? 1 : 0;
+		// 	long falseValue = 1 - trueValue;
 
-			if (ctx.getArg(0).isNull() != ctx.getArg(1).isNull()) {
-				// one argument is null, the other is not
-				// null != non-null
-				return new IRIntegerValue(falseValue);
-			}
-			if (ctx.getArg(1).isNull()) {
-				// both arguments are null, return true
-				// null == null
-				return new IRIntegerValue(trueValue);
-			}
-			// both are not null
-			if (ctx.getArg(0) instanceof IRIntegerValue && ctx.getArg(1) instanceof IRIntegerValue) {
-				// value equality for integers
-				return new IRIntegerValue(((IRIntegerValue) ctx.getArg(0)).asLong() ==
-										  ((IRIntegerValue) ctx.getArg(1)).asLong() ? trueValue : falseValue);
-			} else {
-				// object identity equality for everything else
-				return new IRIntegerValue(ctx.getArg(0) == ctx.getArg(1) ? trueValue : falseValue);
-			}
+		// 	if (ctx.getArg(0).isNull() != ctx.getArg(1).isNull()) {
+		// 		// one argument is null, the other is not
+		// 		// null != non-null
+		// 		return new IRIntegerValue(falseValue);
+		// 	}
+		// 	if (ctx.getArg(1).isNull()) {
+		// 		// both arguments are null, return true
+		// 		// null == null
+		// 		return new IRIntegerValue(trueValue);
+		// 	}
+		// 	// both are not null
+		// 	if (ctx.getArg(0) instanceof IRIntegerValue && ctx.getArg(1) instanceof IRIntegerValue) {
+		// 		// value equality for integers
+		// 		return new IRIntegerValue(((IRIntegerValue) ctx.getArg(0)).asLong() ==
+		// 								  ((IRIntegerValue) ctx.getArg(1)).asLong() ? trueValue : falseValue);
+		// 	} else {
+		// 		// object identity equality for everything else
+		// 		return new IRIntegerValue(ctx.getArg(0) == ctx.getArg(1) ? trueValue : falseValue);
+		// 	}
 
-		case BuiltinNames.READ:
-			try {
-				// How many objects does one need to read a line from stdin in Java? ;)
-				String line = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-				return new IRStringValue(line);
-			} catch (IOException e) {
-				throw new InterpreterException("Exception while executing read().");
-			}
+		// case BuiltinNames.READ:
+		// 	try {
+		// 		// How many objects does one need to read a line from stdin in Java? ;)
+		// 		String line = (new BufferedReader(new InputStreamReader(System.in))).readLine();
+		// 		return new IRStringValue(line);
+		// 	} catch (IOException e) {
+		// 		throw new InterpreterException("Exception while executing read().");
+		// 	}
 
-		case BuiltinNames.PRINT:
-			if (!(ctx.getArg(0) instanceof IRStringValue)) {
-				throw new IncompatibleTypeException(ctx.getArg(0), this);
-			}
-			System.out.print(((IRStringValue) ctx.getArg(0)).asString());
-			return new IRNullValue(null);
-		}
+		// case BuiltinNames.PRINT:
+		// 	if (!(ctx.getArg(0) instanceof IRStringValue)) {
+		// 		throw new IncompatibleTypeException(ctx.getArg(0), this);
+		// 	}
+		// 	System.out.print(((IRStringValue) ctx.getArg(0)).asString());
+		// 	return new IRNullValue(null);
+		// }
 	}
 
 	public IRValue IRFunction.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
-		if (getNumIRCodeBB() == 0)
+		if (getNumIRCodeBB() == 0) {
 			return evalBuiltin(ctx);
+		}
 
 		dbgi("entering function");
 		dbgi(toString());

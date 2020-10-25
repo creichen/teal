@@ -23,13 +23,14 @@ aspect BuiltinTypes {
 	}
 
 	// FIXME: use explicit type references!
-	private Decl Program.makeBuiltinFunDecl(String name, String retType, String ...argTypes) {
+	private Decl Program.makeBuiltinFunDecl(BuiltinNames.Operation op) {
+	    //String name, String retType, String ...argTypes) {
 		FunDecl f = new FunDecl();
-		f.setIdDecl(new IdDecl(name));
-		f.setType(simpleTypeFromName(retType));
+		f.setIdDecl(new IdDecl(op.getName()));
+		f.setType(simpleTypeFromName(op.getReturnType()));
 
 		int count = 0;
-		for (String t : argTypes)  {
+		for (String t : op.getArgumentTypes())  {
 			String argName = "a" + (count++);
 			f.addFormal(new VarDecl(new IdDecl(argName), new Opt(simpleTypeFromName(t)), new Opt()));
 		}
@@ -49,26 +50,10 @@ aspect BuiltinTypes {
 			.add(STRINGDecl())
 			.add(ARRAYDecl());
 
-		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_ADD, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_SUB, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_MUL, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_DIV, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_MOD, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-
-		decls.add(makeBuiltinFunDecl(BuiltinNames.ANY_EQ, BuiltinNames.INT, BuiltinNames.ANY, BuiltinNames.ANY));
-		decls.add(makeBuiltinFunDecl(BuiltinNames.ANY_NEQ, BuiltinNames.INT, BuiltinNames.ANY, BuiltinNames.ANY));
-
-		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_LEQ, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_GEQ, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_LT, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_GT, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-
-		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_AND, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_OR, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-
-		decls.add(makeBuiltinFunDecl(BuiltinNames.PRINT, BuiltinNames.ANY, BuiltinNames.STRING));
-		decls.add(makeBuiltinFunDecl(BuiltinNames.READ, BuiltinNames.STRING));
-
+		// Extract builtin operations directly from their specification
+		for (BuiltinNames.Operation op : BuiltinNames.getOperations()) {
+		    decls.add(makeBuiltinFunDecl(op));
+		}
 		return decls;
 	}
 }
