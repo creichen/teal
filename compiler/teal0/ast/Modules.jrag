@@ -27,7 +27,7 @@ aspect Modules {
 		File importedFile = importToFileMap().get(this);
 		Module importedModule = moduleMap().get(importedFile);
 		String importedName = getPackagePathFragment(getNumPackagePathFragment() - 1).getID();
-		return importedModule.lookup(importedName).getDecl();
+		return importedModule.localLookup(importedName).getDecl();
 	}
 
 	private java.util.List<String> Module.importPaths = new ArrayList<>();

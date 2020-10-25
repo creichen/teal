@@ -90,22 +90,23 @@ aspect IRGen {
 			}
 		}
 
-		for (Decl d : getBuiltinDeclList()) {
-			if (d instanceof FunDecl) {
-				FunDecl fd = (FunDecl) d;
-				IRFunction f = fd.genIR();
-				IRFunctionCtx fctx = new IRFunctionCtx(f);
-				if (fd.hasBody())
-					fd.genCode(fctx);
-				m.getIRFunctions().add(f);
+		//for (Decl d : getBuiltinDeclList()) {
+// TODO: ----------------_ REVISE (I don't see why we would need this?)
+			// if (d instanceof FunDecl) {
+			// 	FunDecl fd = (FunDecl) d;
+			// 	IRFunction f = fd.genIR();
+			// 	IRFunctionCtx fctx = new IRFunctionCtx(f);
+			// 	if (fd.hasBody())
+			// 		fd.genCode(fctx);
+			// 	m.getIRFunctions().add(f);
 // TODO: ----------------_ REVISE
 			// } else if (d == getBuiltinClassDecl(BuiltinNames.QUALIFIER)) {
 			// 	// generate code for the qualifier builtin type
 			// 	IRClass c = (IRClass) ((ClassDecl) d).genIR();
 			// 	((ClassDecl) d).genCode(c);
 			// 	m.addIRType(c);
-			}
-		}
+			// }
+		//}
 
 		return m;
 	}

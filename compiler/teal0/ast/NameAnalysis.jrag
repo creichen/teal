@@ -14,8 +14,9 @@ aspect NameAnalysis {
 
 	eq BlockStmt.getStmt(int i).lookup(String s) {
 		IndexedDecl d = localLookup(s);
-		if (d != null && d.index < i)
+		if (d != null && d.index < i) {
 			return d.decl;
+		}
 		return lookup(s);
 	}
 
@@ -85,34 +86,70 @@ aspect NameAnalysis {
 
 	eq FunDecl.getBody().lookup(String s) {
 		IdDecl d = localLookup(s);
-		if (d != null)
+		if (d != null) {
 			return d;
+		}
 		return lookup(s);
 	}
 
 	// inh IdDecl TypeDecl.lookup(String s);
+	syn IdDecl Module.localLookup(String s) {
+		IdDecl d = moduleDeclMap().getOne(s);
+		if (d != null) {
+			return d;
+		}
+		return lookup(s);
+	}
+
 	eq Module.getDecl().lookup(String s) {
+		IdDecl d = moduleDeclMap().getOne(s);
+		if (d != null) {
+			return d;
+		}
 		return lookup(s);
 	}
-	eq Module.getBuiltinDecl().lookup(String s) {
-		return lookup(s);
-	}
+	// eq Module.getBuiltins().lookup(String s) {
+	// 	return lookup(s);
+	// }
 	inh IdDecl FunDecl.lookup(String s);
+	inh IdDecl Module.lookup(String s);
 	// eq FunDeclElt.getFunDecl().lookup(String s) {
 	// 	return lookup(s);
 	// }
 
 	inh IdDecl Expr.lookup(String s);
 	eq ExprStmt.getExpr().lookup(String s) = lookup(s);
-	eq AssignStmt.getLValue().lookup(String s) = lookup(s);
+	eq AssignStmt.getLValue().lookup(String s)  = lookup(s);
 	eq ReturnStmt.getExpr().lookup(String s) = lookup(s);
 	// eq AssertStmt.getExpr().lookup(String s) = lookup(s);
 
-	syn IdDecl Module.lookup(String s) {
-		IdDecl d = globalDeclMap().getOne(s);
-		if (d != null)
+	eq Program.getModule().lookup(String s) {
+		IdDecl d = localLookup(s);
+		if (d != null) {
 			return d;
+		}
+		return toplevelLookup(s);
+	}
+
+
+	eq Program.getBuiltinDecls().lookup(String s) {
+		IdDecl d = localLookup(s);
+		if (d != null) {
+			return d;
+		}
+		return toplevelLookup(s);
+	}
+
+	syn IdDecl Program.localLookup(String s) {
+		IdDecl d = globalDeclMap().getOne(s);
+		if (d != null) {
+			return d;
+		}
 		return unknownDecl();
+	}
+
+	syn IdDecl Program.toplevelLookup(String s) {
+		return localLookup(s);
 	}
 
 	inh Decl IdDecl.getDecl();
@@ -121,12 +158,12 @@ aspect NameAnalysis {
 	// eq QualifierDecl.getIdDecl().getDecl() = this;
 	// eq TypeDecl.getIdDecl().getDecl() = this;
 	// eq TypeVarDecl.getIdDecl().getDecl() = this;
-	eq Module.unknownDecl().getDecl() = null;
+	eq Program.unknownDecl().getDecl() = null;
 }
 
 // Implementation details
 aspect NameAnalysisPrivate {
-	syn nta UnknownDecl Module.unknownDecl() = new UnknownDecl("UnknownDecl");
+	syn nta UnknownDecl Program.unknownDecl() = new UnknownDecl("UnknownDecl");
 	syn boolean IdDecl.isUnknown() = false;
 	eq UnknownDecl.isUnknown() = true;
 
@@ -148,16 +185,18 @@ aspect NameAnalysisPrivate {
 		for (int i = 0; i < getNumStmt(); i++) {
 			Stmt s = getStmt(i);
 			IdDecl decl = s.declaredVar();
-			if (decl != null)
+			if (decl != null) {
 				declMap.append(decl.getID(), new IndexedDecl(i, decl));
+			}
 		}
 		return declMap;
 	}
 
 	syn IndexedDecl BlockStmt.localLookup(String s) {
 		IndexedDecl d = localDeclMap().getOne(s);
-		if (d != null)
+		if (d != null) {
 			return d;
+		}
 		return null;
 	}
 
@@ -180,6 +219,7 @@ aspect NameAnalysisPrivate {
 		IdDecl d = localDeclMap().getOne(s);
 		return d;
 	}
+
 
 	// syn IdDecl StructElt.getMemberDecl() = null;
 	// eq VarDeclElt.getMemberDecl() = getVarDecl().getIdDecl();
@@ -254,17 +294,32 @@ aspect NameAnalysisPrivate {
 	   function names and global variable declarations share a single namespace.
 	   [TEAL-2+]: So do type declarations and qualifier declarations.
 	 **/
-	syn MultiHashMap<String, IdDecl> Module.globalDeclMap() {
+	syn MultiHashMap<String, IdDecl> Module.moduleDeclMap() {
 		MultiHashMap<String, IdDecl> declMap = new MultiHashMap<>();
-		for (Decl d : getBuiltinDeclList()) {
-			declMap.append(d.getIdDecl().getID(), d.getIdDecl());
-		}
-
 		for (ImportDecl i : getImportDecls()) {
+			System.err.println("Processing import: " + i.dumpTree());
+			System.err.println("Of class: " + i.getClass());
+			System.err.println("  decl: " + i.getDecl());
+			System.err.println("  prop0: " + i.getDecl().getIdDecl());
+			System.err.println("  prop1: " + i.getDecl().getIdDecl().getId());
 			declMap.append(i.getDecl().getIdDecl().getID(), i.getDecl().getIdDecl());
 		}
 
 		for (Decl d : getDecls()) {
+			declMap.append(d.getIdDecl().getID(), d.getIdDecl());
+		}
+		return declMap;
+	}
+
+	// syn IdDecl Module.lookup(String s) {
+	// 	System.err.println("X");
+	// 	IdDecl d = moduleDeclMap().getOne(s);
+	// 	return d;
+	// }
+
+	syn MultiHashMap<String, IdDecl> Program.globalDeclMap() {
+		MultiHashMap<String, IdDecl> declMap = new MultiHashMap<>();
+		for (Decl d : getBuiltinDeclsList()) {
 			declMap.append(d.getIdDecl().getID(), d.getIdDecl());
 		}
 		return declMap;
@@ -318,7 +373,7 @@ aspect NameAnalysisCheck {
 
 	syn ArrayList<CompilerError> Module.duplicateNameErrors() {
 		ArrayList<CompilerError> errors = new ArrayList<>();
-		for (Map.Entry<String, HashSet<IdDecl>> entry : globalDeclMap().entrySet()) {
+		for (Map.Entry<String, HashSet<IdDecl>> entry : moduleDeclMap().entrySet()) {
 			if (entry.getValue().size() > 1) {
 				errors.add(new DuplicateSymbolDeclaration(entry.getValue()));
 			}

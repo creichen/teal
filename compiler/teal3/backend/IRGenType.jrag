@@ -75,7 +75,12 @@ aspect IRGenType {
 
 		if (getNumSuperType() == 0 && program().ANY() != this) {
 			// no declared supertypes, add the default: any
+			System.err.println("Breakage imminent");
+			System.err.println(program());
+			System.err.println(program().ANY());
+			System.err.println(program().ANY().genIRTypeRef());
 			klass.addSuper(program().ANY().genIRTypeRef());
+			System.err.println("No reach");
 		}
 		// set supertypes
 		for (Type t : getSuperTypes()) {

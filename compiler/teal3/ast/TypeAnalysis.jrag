@@ -4,6 +4,8 @@ aspect TypeAnalysis {
 		IdDecl memberLookup(String name);
 	}
 
+	eq ClassDecl.typeDefinition() = this;
+
 	TypeDecl implements TypeDefinition;
 	TypeVarDecl implements TypeDefinition;
 	eq Access.type() {

@@ -10,7 +10,6 @@ module("teal-3") {
 
 	// Semantic Analysis
 	include "ast/BuiltinTypes.jrag"
-	//excludeFrom "teal-0", "ast/BuiltinTypes.jrag"
 	excludeFrom "teal-0", "ast/TypeAnalysisBuiltinTypes.jrag"
 
 	include "ast/NameAnalysis.jrag"

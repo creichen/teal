@@ -1,13 +1,6 @@
 import lang.common.BuiltinNames;
 
 aspect BuiltinTypes {
-	// syn nta ClassDecl Program.INT() = new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.INT));
-	// syn nta ClassDecl Program.ANY() = new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.ANY));
-	// syn nta ClassDecl Program.STRING() = new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.STRING));
-	// syn nta ClassDecl Program.ARRAY() = 
-	// 	 new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
-	// 		.setTypeFormalList(new List<TypeVarDecl>(new TypeVarDecl(new IdDecl("T"))));
-
 	syn nta Decl Program.QUALIFIERDecl() = builtinType(BuiltinNames.QUALIFIER)
 		.setTypeFormalList(new List<TypeVarDecl>().add(new TypeVarDecl(new IdDecl("T"))))
 		.setSuperTypeList(new List<Type>())
@@ -15,127 +8,26 @@ aspect BuiltinTypes {
 		.setFunFormalList(new List<VarDecl>());
 
 	syn TypeDefinition Program.QUALIFIER() = this.QUALIFIERDecl().typeDefinition();
-	Program contributes QUALIFIERDecl() to Program.builtins();
 
-	// Constructs a built-in type.  In Teal-2+, we represent builtin types as classes.
+	// Constructs a built-in type.  For Teal-2+, built-in types are classes.
 	syn nta ClassDecl Program.builtinType(String name) = new ClassDecl().setIdDecl(new IdDecl(name));
 
-
-//	public class BuiltinTypes {
-		// public static final ClassDecl ARRAY = new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
-		// 	.setTypeFormalList(new List<TypeVarDecl>(new TypeVarDecl(new IdDecl("T"))));
-		// public static final ClassDecl QUALIFIER =
-		// 	new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.QUALIFIER))
-		// 	.setTypeFormalList(new List<TypeVarDecl>().add(new TypeVarDecl(new IdDecl("T"))))
-		// 	.setSuperTypeList(new List<Type>())
-		// 	.setStructEltList(new List<StructElt>())
-		// 	.setFunFormalList(new List<VarDecl>());
-
-		// public static final List<Decl> BUILTINS = new List<Decl>();
-		// static {
-		// 	BUILTINS
-		// 		.add(INT)
-		// 		.add(STRING)
-		// 		.add(ANY)
-		// 		.add(ARRAY)
-		// 		.add(QUALIFIER)
-		// 			 ;
-		// }
-//	}
-
-	// private Decl Module.makeBuiltinFunDecl(String name, String retType, String ...argTypes) {
-	// 	FunDecl f = new FunDecl();
-	// 	f.setIdDecl(new IdDecl(name));
-	// 	f.setType(new Type(new IdUse(retType), new List(), new List()));
-
-	// 	int count = 0;
-	// 	for (String t : argTypes)  {
-	// 		String argName = "a" + (count++);
-	// 		f.addFormal(new VarDecl(new IdDecl(argName), new Opt(new Type(new IdUse(t), new List(), new List())), new Opt()));
-	// 	}
-
-	// 	return f;
-	// }
-
-	// /**
-	//    Introduce the int, string, any, array[T] as builtin types.
-	//  **/
-	// syn nta List<Decl> Module.getBuiltinDeclList() {
-	// 	List<Decl> decls = new List<Decl>()
-	// 		.add(program().INT())
-	// 		.add(program().ANY())
-	// 		.add(program().STRING())
-	// 		.add(program().ARRAY())
-	// 		.add(program().QUALIFIER());
-
-	// 		// .add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
-	// 		//      .setTypeFormalList(new List<TypeVarDecl>(new TypeVarDecl(new IdDecl("T")))))
-	// 		// .add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.QUALIFIER))
-	// 		//      .setTypeFormalList(new List<TypeVarDecl>().add(new TypeVarDecl(new IdDecl("T"))))
-	// 		//      .setSuperTypeList(new List<Type>())
-	// 		//      .setStructEltList(new List<StructElt>())
-	// 		//      .setFunFormalList(new List<VarDecl>()));
-	// 	//List<Decl> decls = BuiltinTypes.BUILTINS.copy(); // not safe for nta use
-	// 	//List<Decl> decls = BuiltinTypes.BUILTINS.fullCopy(); // this gives the original semantics
-
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.INT_ADD, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.INT_SUB, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.INT_MUL, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.INT_DIV, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.INT_MOD, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.ANY_EQ, BuiltinNames.INT, BuiltinNames.ANY, BuiltinNames.ANY));
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.ANY_NEQ, BuiltinNames.INT, BuiltinNames.ANY, BuiltinNames.ANY));
-
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.INT_LEQ, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.INT_GEQ, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.INT_LT, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.INT_GT, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.INT_AND, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.INT_OR, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
-
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.PRINT, BuiltinNames.ANY, BuiltinNames.STRING));
-	// 	decls.add(makeBuiltinFunDecl(BuiltinNames.READ, BuiltinNames.STRING));
-
-	// 	return decls;
-	// }
-
-	// syn ClassDecl Module.getBuiltinClassDecl(String name) {
-	// 	switch (name) {
-	// 	case BuiltinNames.INT:
-	// 		return (ClassDecl) getBuiltinDecl(0);
-	// 	case BuiltinNames.STRING:
-	// 		return (ClassDecl) getBuiltinDecl(1);
-	// 	case BuiltinNames.ANY:
-	// 		return (ClassDecl) getBuiltinDecl(2);
-	// 	case BuiltinNames.ARRAY:
-	// 		return (ClassDecl) getBuiltinDecl(3);
-	// 	case BuiltinNames.QUALIFIER:
-	// 		return (ClassDecl) getBuiltinDecl(4);
-	// 	default:
-	// 		return null;
-	// 	}
-	// }
-
-	// inh ClassDecl Decl.getBuiltinClassDecl(String name);
-
-	// eq Module.getDecl().getBuiltinClassDecl(String name) {
-	// 	return getBuiltinClassDecl(name);
-	// }
-	// eq Module.getBuiltinDecl().getBuiltinClassDecl(String name) {
-	// 	return getBuiltinClassDecl(name);
-	// }
-	// inh ClassDecl Expr.getBuiltinClassDecl(String name);
-	// inh ClassDecl TypeQualifier.getBuiltinClassDecl(String name);
-
-	syn boolean TypeDecl.isInt() {
-		return equals(program().INT());
+	refine BuiltinTypes eq Program.simpleTypeFromName(String typename) {
+		return new Type(new IdUse(typename), new List(), new List());
 	}
 
-	syn boolean TypeDecl.isString() {
-		return equals(program().STRING());
+	refine BuiltinTypes eq Program.getBuiltinDeclsList() {
+		return refined().add(QUALIFIERDecl());
 	}
+
+	// FIXME: dead code?
+	// syn boolean TypeDecl.isInt() {
+	// 	return equals(program().INT());
+	// }
+
+	// syn boolean TypeDecl.isString() {
+	// 	return equals(program().STRING());
+	// }
 
 	// FIXME: is that really what we want to check here?
 	syn boolean TypeDecl.isArray() {

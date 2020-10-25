@@ -3,8 +3,8 @@ import lang.common.BuiltinNames;
 aspect BuiltinTypes {
 	inh Program ASTNode.program();
 	eq Program.getChild().program() = this;
+	eq Program.getBuiltinDecls().program() = this;
 
-	coll ArrayList<Decl> Program.builtins();
 	syn TypeDefinition Decl.typeDefinition() = null; // Extract type definition if the decl is a type
 
 	syn TypeDefinition Program.INT() = this.INTDecl().typeDefinition();
@@ -18,41 +18,36 @@ aspect BuiltinTypes {
 	syn nta Decl Program.ARRAYDecl() = builtinType(BuiltinNames.ARRAY)
 		.setTypeFormalList(new List<TypeVarDecl>(new TypeVarDecl(new IdDecl("T"))));
 
-	Program contributes INTDecl() to Program.builtins();
-	Program contributes ANYDecl() to Program.builtins();
-	Program contributes STRINGDecl() to Program.builtins();
-	Program contributes ARRAYDecl() to Program.builtins();
+	syn Type Program.simpleTypeFromName(String typename) {
+		return new Type(new IdUse(typename), new List());
+	}
 
 	// FIXME: use explicit type references!
-	private Decl Module.makeBuiltinFunDecl(String name, String retType, String ...argTypes) {
+	private Decl Program.makeBuiltinFunDecl(String name, String retType, String ...argTypes) {
 		FunDecl f = new FunDecl();
 		f.setIdDecl(new IdDecl(name));
-		f.setType(new Type(new IdUse(retType), new List()/*, new List()*/));
+		f.setType(simpleTypeFromName(retType));
 
 		int count = 0;
 		for (String t : argTypes)  {
 			String argName = "a" + (count++);
-			f.addFormal(new VarDecl(new IdDecl(argName), new Opt(new Type(new IdUse(t), new List()/*, new List()*/)), new Opt()));
+			f.addFormal(new VarDecl(new IdDecl(argName), new Opt(simpleTypeFromName(t)), new Opt()));
 		}
 
 		return f;
 	}
 
-	// /**
-	//  * Introduce the int, string, any, array[T] as builtin types.
-	//  **/
-	syn nta List<Decl> Module.getBuiltinDeclList() {
+	/**
+	 * Introduce the builtin types int, string, any, array[T], and the builtin operations
+	 **/
+	syn nta List<Decl> Program.getBuiltinDeclsList() {
 		List<Decl> decls = new List<Decl>();
-			// .add(program().INT())
-			// .add(program().ANY())
-			// .add(program().STRING())
-			// .add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
-			//      .setTypeFormalList(new List<TypeVarDecl>(new TypeVarDecl(new IdDecl("T")))));
-		// List<Decl> decls = BuiltinTypes.BUILTINS.copy();
 
-		for (Decl d : program().builtins()) {
-			decls.add(d);
-		}
+		decls
+			.add(INTDecl())
+			.add(ANYDecl())
+			.add(STRINGDecl())
+			.add(ARRAYDecl());
 
 		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_ADD, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
 		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_SUB, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
@@ -76,29 +71,4 @@ aspect BuiltinTypes {
 
 		return decls;
 	}
-
-	// syn BuiltinTypeCon Module.getBuiltinBuiltinTypeCon(String name) {
-	// 	switch (name) {
-	// 	case BuiltinNames.INT:
-	// 		return (BuiltinTypeCon) getBuiltinDecl(0);
-	// 	case BuiltinNames.STRING:
-	// 		return (BuiltinTypeCon) getBuiltinDecl(1);
-	// 	case BuiltinNames.ANY:
-	// 		return (BuiltinTypeCon) getBuiltinDecl(2);
-	// 	case BuiltinNames.ARRAY:
-	// 		return (BuiltinTypeCon) getBuiltinDecl(3);
-	// 	default:
-	// 		return null;
-	// 	}
-	// }
-
-	// inh BuiltinTypeCon Decl.getBuiltinBuiltinTypeCon(String name);
-
-	// eq Module.getDecl().getBuiltinBuiltinTypeCon(String name) {
-	// 	return getBuiltinBuiltinTypeCon(name);
-	// }
-	// eq Module.getBuiltinDecl().getBuiltinBuiltinTypeCon(String name) {
-	// 	return getBuiltinBuiltinTypeCon(name);
-	// }
-	// inh BuiltinTypeCon Expr.getBuiltinBuiltinTypeCon(String name);
 }

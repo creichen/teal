@@ -10,7 +10,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 aspect DumpTree {
 	private static final String ASTNode.DUMP_TREE_INDENT = "  ";
-	private static final boolean ASTNode.PRINT_NODE_IDS = true; // generate unique AST node IDs
+	private static final boolean ASTNode.PRINT_NODE_IDS = false; // generate unique AST node IDs
 	private static int ASTNode.uniqueNodeIdCounter = 0;
 
 	// Thanks to attribute caching, this will generate unique node IDs

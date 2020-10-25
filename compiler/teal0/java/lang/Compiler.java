@@ -145,10 +145,6 @@ public class Compiler {
 
 		DrAST_root_node = program; //Enable debugging with DrAST
 		program.dumpTree(System.out);
-		System.out.println("Builtins:");
-		for (lang.ast.Decl d: program.builtins()) {
-		    System.out.println(" - " + d.dumpTree());
-		}
 
 		// Report errors
 		List<CompilerError> semaErrors = program.semanticErrors();

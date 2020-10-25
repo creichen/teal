@@ -10,6 +10,8 @@ aspect Source {
 	}
 
 	inh String ASTNode.sourceFile();
+	eq Program.getChild().sourceFile() = null;
+	eq Program.getBuiltinDecls().sourceFile() = "(BUILTIN)";
 	eq Module.getChild().sourceFile() = sourceFile();
 
 	public int ASTNode.startLine() {

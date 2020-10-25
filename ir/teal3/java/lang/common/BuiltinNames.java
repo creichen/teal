@@ -1,12 +1,18 @@
 package lang.common;
 
+/**
+ * Names of predefined types and operations
+ */
 public class BuiltinNames {
+    // Predefined types
     public static final String INT = "int";
     public static final String STRING = "string";
     public static final String ANY = "any";
     public static final String ARRAY = "array";
+    // Reserved type Qualifier (for general-purpose type qualifiers)
     public static final String QUALIFIER = "Qualifier";
 
+    // Built-in operations
     public static final String INT_ADD = "__builtin_int_add";
     public static final String INT_SUB = "__builtin_int_sub";
     public static final String INT_MUL = "__builtin_int_mul";
