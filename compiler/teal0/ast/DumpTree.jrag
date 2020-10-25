@@ -10,6 +10,11 @@ import java.lang.reflect.InvocationTargetException;
  */
 aspect DumpTree {
 	private static final String ASTNode.DUMP_TREE_INDENT = "  ";
+	private static final boolean ASTNode.PRINT_NODE_IDS = true; // generate unique AST node IDs
+	private static int ASTNode.uniqueNodeIdCounter = 0;
+
+	// Thanks to attribute caching, this will generate unique node IDs
+	syn int ASTNode.uniqueNodeId() { return uniqueNodeIdCounter++; }
 
 	public String ASTNode.dumpTree() {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -23,7 +28,11 @@ aspect DumpTree {
 	}
 
 	public void ASTNode.dumpTree(PrintStream out, String indent) {
-		out.print(indent + getClass().getSimpleName());
+		String prefix = indent;
+		if (ASTNode.PRINT_NODE_IDS) {
+			prefix += String.format("#%x:", this.uniqueNodeId());
+		}
+		out.print(prefix + getClass().getSimpleName());
 		out.println(getTokens());
 		String childIndent = indent + DUMP_TREE_INDENT;
 		for (ASTNode child : astChildren()) {

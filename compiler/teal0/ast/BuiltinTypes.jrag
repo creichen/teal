@@ -4,27 +4,24 @@ aspect BuiltinTypes {
 	inh Program ASTNode.program();
 	eq Program.getChild().program() = this;
 
-	syn nta ClassDecl Program.INT() = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.INT));
-	syn nta ClassDecl Program.ANY() = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.ANY));
-	syn nta ClassDecl Program.STRING() = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.STRING));
+	coll ArrayList<Decl> Program.builtins();
+	syn TypeDefinition Decl.typeDefinition() = null; // Extract type definition if the decl is a type
 
-	// FIXME, duplicate notions of types!
-	public class BuiltinTypes {
-		public static final BuiltinTypeCon INT = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.INT));
-		public static final BuiltinTypeCon STRING = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.STRING));
-		public static final BuiltinTypeCon ANY = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.ANY));
-		public static final BuiltinTypeCon ARRAY = new BuiltinTypeCon().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
-			.setTypeFormalList(new List<TypeVarDecl>(new TypeVarDecl(new IdDecl("T"))));
+	syn TypeDefinition Program.INT() = this.INTDecl().typeDefinition();
+	syn TypeDefinition Program.ANY() = this.ANYDecl().typeDefinition();
+	syn TypeDefinition Program.STRING() = this.STRINGDecl().typeDefinition();
+	syn TypeDefinition Program.ARRAY() = this.ARRAYDecl().typeDefinition();
 
-		public static final List<Decl> BUILTINS = new List<Decl>();
-		static {
-			BUILTINS
-				.add(INT)
-				.add(STRING)
-				.add(ANY)
-				.add(ARRAY);
-		}
-	}
+	syn nta Decl Program.INTDecl() = builtinType(BuiltinNames.INT);
+	syn nta Decl Program.ANYDecl() = builtinType(BuiltinNames.ANY);
+	syn nta Decl Program.STRINGDecl() = builtinType(BuiltinNames.STRING);
+	syn nta Decl Program.ARRAYDecl() = builtinType(BuiltinNames.ARRAY)
+		.setTypeFormalList(new List<TypeVarDecl>(new TypeVarDecl(new IdDecl("T"))));
+
+	Program contributes INTDecl() to Program.builtins();
+	Program contributes ANYDecl() to Program.builtins();
+	Program contributes STRINGDecl() to Program.builtins();
+	Program contributes ARRAYDecl() to Program.builtins();
 
 	// FIXME: use explicit type references!
 	private Decl Module.makeBuiltinFunDecl(String name, String retType, String ...argTypes) {
@@ -41,17 +38,21 @@ aspect BuiltinTypes {
 		return f;
 	}
 
-	/**
-	 * Introduce the int, string, any, array[T] as builtin types.
-	 **/
+	// /**
+	//  * Introduce the int, string, any, array[T] as builtin types.
+	//  **/
 	syn nta List<Decl> Module.getBuiltinDeclList() {
-		List<Decl> decls = new List<Decl>()
-			.add(program().INT())
-			.add(program().ANY())
-			.add(program().STRING())
-			.add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
-			     .setTypeFormalList(new List<TypeVarDecl>(new TypeVarDecl(new IdDecl("T")))));
+		List<Decl> decls = new List<Decl>();
+			// .add(program().INT())
+			// .add(program().ANY())
+			// .add(program().STRING())
+			// .add(new ClassDecl().setIdDecl(new IdDecl(BuiltinNames.ARRAY))
+			//      .setTypeFormalList(new List<TypeVarDecl>(new TypeVarDecl(new IdDecl("T")))));
 		// List<Decl> decls = BuiltinTypes.BUILTINS.copy();
+
+		for (Decl d : program().builtins()) {
+			decls.add(d);
+		}
 
 		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_ADD, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
 		decls.add(makeBuiltinFunDecl(BuiltinNames.INT_SUB, BuiltinNames.INT, BuiltinNames.INT, BuiltinNames.INT));
@@ -76,28 +77,28 @@ aspect BuiltinTypes {
 		return decls;
 	}
 
-	syn BuiltinTypeCon Module.getBuiltinBuiltinTypeCon(String name) {
-		switch (name) {
-		case BuiltinNames.INT:
-			return (BuiltinTypeCon) getBuiltinDecl(0);
-		case BuiltinNames.STRING:
-			return (BuiltinTypeCon) getBuiltinDecl(1);
-		case BuiltinNames.ANY:
-			return (BuiltinTypeCon) getBuiltinDecl(2);
-		case BuiltinNames.ARRAY:
-			return (BuiltinTypeCon) getBuiltinDecl(3);
-		default:
-			return null;
-		}
-	}
+	// syn BuiltinTypeCon Module.getBuiltinBuiltinTypeCon(String name) {
+	// 	switch (name) {
+	// 	case BuiltinNames.INT:
+	// 		return (BuiltinTypeCon) getBuiltinDecl(0);
+	// 	case BuiltinNames.STRING:
+	// 		return (BuiltinTypeCon) getBuiltinDecl(1);
+	// 	case BuiltinNames.ANY:
+	// 		return (BuiltinTypeCon) getBuiltinDecl(2);
+	// 	case BuiltinNames.ARRAY:
+	// 		return (BuiltinTypeCon) getBuiltinDecl(3);
+	// 	default:
+	// 		return null;
+	// 	}
+	// }
 
-	inh BuiltinTypeCon Decl.getBuiltinBuiltinTypeCon(String name);
+	// inh BuiltinTypeCon Decl.getBuiltinBuiltinTypeCon(String name);
 
-	eq Module.getDecl().getBuiltinBuiltinTypeCon(String name) {
-		return getBuiltinBuiltinTypeCon(name);
-	}
-	eq Module.getBuiltinDecl().getBuiltinBuiltinTypeCon(String name) {
-		return getBuiltinBuiltinTypeCon(name);
-	}
-	inh BuiltinTypeCon Expr.getBuiltinBuiltinTypeCon(String name);
+	// eq Module.getDecl().getBuiltinBuiltinTypeCon(String name) {
+	// 	return getBuiltinBuiltinTypeCon(name);
+	// }
+	// eq Module.getBuiltinDecl().getBuiltinBuiltinTypeCon(String name) {
+	// 	return getBuiltinBuiltinTypeCon(name);
+	// }
+	// inh BuiltinTypeCon Expr.getBuiltinBuiltinTypeCon(String name);
 }

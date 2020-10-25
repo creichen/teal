@@ -204,7 +204,11 @@ aspect IRGen {
 		}
 		func.setParamTypeList(irTypes);
 		// return type, if any
-		func.setIRTypeRef(type().genIRTypeRef());
+		IRTypeRef typeref = type().genIRTypeRef();
+		if (typeref == null) {
+		    throw new RuntimeException("Internal error: null null type ref generated for " + ((ASTNode)type()).dumpTree());
+		}
+		func.setIRTypeRef(typeref);
 
 		func.setSourceLocation(this.sourceLocation());
 

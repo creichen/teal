@@ -1,7 +1,15 @@
 aspect TypeAnalysis {
 	public interface TypeDefinition {
-		lang.ir.IRTypeRef genIRTypeRef(); // code generation only
+		lang.ir.IRTypeRef genIRTypeRef(); // code generation
 	}
 
 	BuiltinTypeCon implements TypeDefinition;
+
+	eq BuiltinTypeCon.typeDefinition() = this;
+
+	// Constructs a built-in type.  In Teal-2+, we represent builtin types as classes.
+	syn nta BuiltinTypeCon Program.builtinType(String name) = new BuiltinTypeCon().setIdDecl(new IdDecl(name));
+}
+aspect NameAnalysis {
+	eq BuiltinTypeCon.getIdDecl().getDecl() = this;
 }

@@ -3,9 +3,9 @@ aspect IRGenType {
 	// 	throw new NotYetImplementedError("Translation of types not fully implemented");
 	// }
 
-	// syn IRTypeFormal TypeVarDecl.genIR() {
-	// 	return new IRTypeFormal(new IRName(getIdDecl().getID()));
-	// }
+	syn IRTypeFormal TypeVarDecl.genIR() {
+		return new IRTypeFormal(new IRName(getIdDecl().getID()));
+	}
 
 	// syn IRVar VarDeclElt.genIR() {
 	// 	return getVarDecl().genIR();
@@ -111,7 +111,14 @@ aspect IRGenType {
 	// 	}
 	// }
 
-	syn IRTypeRef BuiltinTypeCon.genIRTypeRef() = null; // FIXME
+	syn IRTypeRef BuiltinTypeCon.genIRTypeRef() {
+		IRType ty = new IRClass().setIRName(new IRName(getIdDecl().getID()));
+		ty.setSourceLocation(this.sourceLocation());
+		for (TypeVarDecl d : getTypeFormals()) {
+			ty.addIRTypeFormal(d.genIR());
+		}
+		return new IRTypeInstanceRef().setIRType(ty);
+	}
 
     // 	public IRTypeRef Decl.genIRTypeRef() {
     // 		return null;

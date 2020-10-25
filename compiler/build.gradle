@@ -34,7 +34,7 @@ jastadd {
     configureModuleBuild()
 
     modules "${projectDir}/teal0/jastadd_modules", "${projectDir}/teal3/jastadd_modules"
-    module = "teal-3"
+    module = "teal-0"
 
     astPackage = "lang.ast"
     parser.name = "TEALParser"

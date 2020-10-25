@@ -1,4 +1,4 @@
-// Type
+// Type use
 // For TEAL-0 input programs: "Actual" has zero or one element, only used for array[ty]
 Type ::= IdUse Actual:Type*;
 

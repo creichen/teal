@@ -144,6 +144,11 @@ public class Compiler {
 												 compilerErrors);
 
 		DrAST_root_node = program; //Enable debugging with DrAST
+		program.dumpTree(System.out);
+		System.out.println("Builtins:");
+		for (lang.ast.Decl d: program.builtins()) {
+		    System.out.println(" - " + d.dumpTree());
+		}
 
 		// Report errors
 		List<CompilerError> semaErrors = program.semanticErrors();
@@ -171,7 +176,7 @@ public class Compiler {
 		IRProgram p = program.genIR();
 
 		// Dump the IR
-		p.print(System.out);
+		p.print(System.err);
 
 		if (args.length > 1 && args[1].equals("--run"))
 			// this all the compilation pipeline for now, interpret

@@ -37,9 +37,10 @@ aspect IR {
 	eq IRFunction.getIRCodeBB(int i).getNumber() = i;
 	syn String IRCodeBB.label() = "bb" + getNumber();
 
-	inh IRModule IRFunction.getModule();
-	eq IRModule.getIRFunction().getModule() = this;
-	inh IRModule IRConstant.getModule();
+	// FIXME: dead code?
+	// inh IRModule IRFunction.getModule();
+	// eq IRModule.getIRFunction().getModule() = this;
+	// inh IRModule IRConstant.getModule();
 
 	private SourceLocation ASTNode.srcLoc = SourceLocation.UNKNOWN;
 	public void ASTNode.setSourceLocation(SourceLocation srcLoc) {

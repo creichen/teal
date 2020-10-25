@@ -4,18 +4,13 @@ module("teal-3") {
 
     imports "teal-0"
 
-    java {
-	basedir "."
-	include "java/**/*.java"
-    }
-
     jastadd {
 	include "grammar/teal.ast"
 	excludeFrom "teal-0", "grammar/type.ast"
 
 	// Semantic Analysis
 	include "ast/BuiltinTypes.jrag"
-	excludeFrom "teal-0", "ast/BuiltinTypes.jrag"
+	//excludeFrom "teal-0", "ast/BuiltinTypes.jrag"
 	excludeFrom "teal-0", "ast/TypeAnalysisBuiltinTypes.jrag"
 
 	include "ast/NameAnalysis.jrag"

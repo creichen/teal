@@ -3,8 +3,8 @@ module("teal-0") {
     moduleName "teal-0"
 
     java {
-	// basedir "."
-	// include "java/**/*.java"
+	basedir "."
+	include "java/**/*.java"
     }
 
     jastadd {

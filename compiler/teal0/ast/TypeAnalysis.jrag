@@ -8,15 +8,19 @@ aspect TypeAnalysis {
 
 	syn TypeDefinition Decl.type() = null;
 	eq VarDecl.type() {
-		if (hasType())
+
+		if (hasType()) {
 			return (TypeDefinition) getType().getIdUse().lookup().getDecl();
-		if (hasInitializer())
+		}
+		if (hasInitializer()) {
 			return getInitializer().type();
+		}
 		return program().ANY();
 	}
 	eq FunDecl.type() {
-		if (hasType())
+		if (hasType()) {
 			return (TypeDefinition) getType().getIdUse().lookup().getDecl();
+		}
 		return program().ANY();
 	}
 }
