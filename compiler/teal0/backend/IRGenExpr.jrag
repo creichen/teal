@@ -5,8 +5,9 @@ import lang.common.NotYetImplementedError;
 aspect IRGenExpr {
 	public enum VariableScope {
 		LOCAL,
-		GLOBAL,
-		MEMBER
+		GLOBAL
+// TODO: ----------------_ REVISE
+//		,MEMBER
 	}
 
 	inh VariableScope Decl.getScope();

@@ -1,6 +1,7 @@
 import lang.ir.*;
 
 aspect IRGen {
+
 	coll ArrayList<VarDecl> FunDecl.localVars() root FunDecl;
 	VarDecl contributes this to FunDecl.localVars();
 	// local declarations
@@ -258,11 +259,12 @@ aspect IRGen {
 			IRVarRef dst = ctx.getIRVarRef(getVarDecl());
 			IRCopyInsn copy = new IRCopyInsn(dst, src);
 			ctx.addInsn(copy);
-		} else if (getScope() == VariableScope.MEMBER) {
-			ctx.addInsn(new IRSelfInsn().setDst(ctx.getIRVarRef(this)));
-			ctx.addInsn(new IRStoreInsn().setBase(ctx.getIRVarRef(this))
-						.setField(new IRVarRef(genIR()))
-						.setSrc(src));
+// TODO: ----------------_ REVISE
+		// } else if (getScope() == VariableScope.MEMBER) {
+		// 	ctx.addInsn(new IRSelfInsn().setDst(ctx.getIRVarRef(this)));
+		// 	ctx.addInsn(new IRStoreInsn().setBase(ctx.getIRVarRef(this))
+		// 				.setField(new IRVarRef(genIR()))
+		// 				.setSrc(src));
 		} else {
 			// Unclear where to generate the code to initialize globals
 			throw new NotYetImplementedError("Can't initialize global variable " + this + ".");

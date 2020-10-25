@@ -13,3 +13,6 @@ aspect TypeAnalysis {
 aspect NameAnalysis {
 	eq BuiltinTypeCon.getIdDecl().getDecl() = this;
 }
+aspect IRGenExpr {
+	eq BuiltinTypeCon.getTypeFormal().getScope() = VariableScope.LOCAL;
+}
