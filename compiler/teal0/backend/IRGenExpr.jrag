@@ -10,13 +10,6 @@ aspect IRGenExpr {
 	eq Program.getBuiltinDecls().getScope() = VariableScope.GLOBAL;
 	eq FunDecl.getFormal().getScope() = VariableScope.LOCAL;
 	eq VarDeclStmt.getVarDecl().getScope() = VariableScope.LOCAL;
-	// eq ForStmt.getIterator().getScope() = VariableScope.LOCAL;
-
-	// eq VarDeclElt.getVarDecl().getScope() = VariableScope.MEMBER;
-	// eq FunDeclElt.getFunDecl().getScope() = VariableScope.MEMBER;
-	// eq ClassDecl.getFunFormal().getScope() = VariableScope.MEMBER;
-	// eq QualifierDecl.getFunFormal().getScope() = VariableScope.MEMBER;
-	// eq TypeDecl.getTypeFormal().getScope() = VariableScope.MEMBER;
 
 	syn IRVar Expr.getIRVar() {
 		int uid = getUID();
@@ -69,38 +62,38 @@ aspect IRGenExpr {
 		return r;
 	}
 
-	public IRVarRef CallExpr.genCode(IRFunctionCtx ctx) {
-		IdUse fun = getIdUse();
-		FunDecl fd = (FunDecl) fun.lookup().getDecl();
-		IRFunRef funCallTarget = new IRFunRef(fd.genIR());
-		IRVarRef r = ctx.getTempIRVar(this);
-		if (fd.getScope() == VariableScope.GLOBAL) {
-			IRCallInsn call = new IRCallInsn().setDst(r);
-			call.setIRFunRef(funCallTarget);
-			for (Expr e : getActuals()) {
-				IRVarRef arg = e.genCode(ctx);
-				call.addArg(arg);
-			}
-			ctx.addInsn(call);
-// TODO: ----------------_ REVISE
-		// } else {
-		// 	assert fd.getScope() == VariableScope.MEMBER;
-		// 	IRVar selfVar = ctx.getFreshTempIRVar(this);
-		// 	IRSelfInsn self = new IRSelfInsn().setDst(new IRVarRef(selfVar));
-		// 	ctx.addInsn(self);
+// 	public IRVarRef CallExpr.genCode(IRFunctionCtx ctx) {
+// 		IdUse fun = getIdUse();
+// 		FunDecl fd = (FunDecl) fun.lookup().getDecl();
+// 		IRFunRef funCallTarget = new IRFunRef(fd.genIR());
+// 		IRVarRef r = ctx.getTempIRVar(this);
+// 		if (fd.getScope() == VariableScope.GLOBAL) {
+// 			IRCallInsn call = new IRCallInsn().setDst(r);
+// 			call.setIRFunRef(funCallTarget);
+// 			for (Expr e : getActuals()) {
+// 				IRVarRef arg = e.genCode(ctx);
+// 				call.addArg(arg);
+// 			}
+// 			ctx.addInsn(call);
+// // TODO: ----------------_ REVISE
+// 		// } else {
+// 		// 	assert fd.getScope() == VariableScope.MEMBER;
+// 		// 	IRVar selfVar = ctx.getFreshTempIRVar(this);
+// 		// 	IRSelfInsn self = new IRSelfInsn().setDst(new IRVarRef(selfVar));
+// 		// 	ctx.addInsn(self);
 
-		// 	IRDispatchInsn dispatch = new IRDispatchInsn().setDst(r);
-		// 	dispatch.setIRFunRef(funCallTarget);
-		// 	dispatch.setBase(new IRVarRef(selfVar));
-		// 	for (Expr e : getActuals()) {
-		// 		IRVarRef arg = e.genCode(ctx);
-		// 		dispatch.addArg(arg);
-		// 	}
-		// 	ctx.addInsn(dispatch);
-		}
-		ctx.setSourceLocations(this.sourceLocation());
-		return r;
-	}
+// 		// 	IRDispatchInsn dispatch = new IRDispatchInsn().setDst(r);
+// 		// 	dispatch.setIRFunRef(funCallTarget);
+// 		// 	dispatch.setBase(new IRVarRef(selfVar));
+// 		// 	for (Expr e : getActuals()) {
+// 		// 		IRVarRef arg = e.genCode(ctx);
+// 		// 		dispatch.addArg(arg);
+// 		// 	}
+// 		// 	ctx.addInsn(dispatch);
+// 		}
+// 		ctx.setSourceLocations(this.sourceLocation());
+// 		return r;
+// 	}
 
 	// public IRVarRef DispatchExpr.genCode(IRFunctionCtx ctx) {
 	// 	Expr base = getExpr();
@@ -205,27 +198,7 @@ aspect IRGenExpr {
 	public void Access.genAssignment(IRVarRef rhs, IRFunctionCtx ctx) {
 		IdDecl idDecl = getIdUse().lookup();
 		VarDecl d = (VarDecl) idDecl.getDecl();
-		switch (d.getScope()) {
-// TODO: ----------------_ REVISE
-		// case MEMBER:
-		// 	ctx.addInsn(new IRSelfInsn().setDst(ctx.getTempIRVar(this)));
-		// 	ctx.addInsn(new IRStoreInsn().setBase(ctx.getTempIRVar(this))
-		// 				.setField(new IRVarRef(d.genIR()))
-		// 				.setSrc(rhs));
-		// 	break;
-		case LOCAL: {
-			IRVarRef dst = ctx.getIRVarRef(d);
-			ctx.addInsn(new IRCopyInsn(dst, rhs));
-// TODO: ----------------_ REVISE
-			//d.genQualifierCheck(ctx);
-			break;
-		}
-		case GLOBAL: {
-			IRVarRef dst = new IRVarRef(d.genIR());
-			ctx.addInsn(new IRStoreStaticInsn().setDst(dst).setSrc(rhs));
-			break;
-		}
-		}
+		d.getScope().genAssignmentIR(d, this, rhs, ctx);
 		ctx.setSourceLocations(this.sourceLocation());
 	}
 
@@ -233,27 +206,7 @@ aspect IRGenExpr {
 		// this can be a local variable load, global variable load or member access
 		IdDecl idDecl = getIdUse().lookup();
 		VarDecl d = (VarDecl) idDecl.getDecl();
-		IRVarRef r;
-		switch (d.getScope()) {
-		default:
-// TODO: ----------------_ REVISE
-		// case MEMBER:
-		// 	IRVar tmp = ctx.getFreshTempIRVar(this);
-		// 	ctx.addInsn(new IRSelfInsn().setDst(new IRVarRef(tmp)));
-		// 	ctx.addInsn(new IRLoadInsn().setBase(new IRVarRef(tmp))
-		// 				.setField(new IRVarRef(d.genIR()))
-		// 				.setDst(ctx.getTempIRVar(this)));
-		// 	r = ctx.getTempIRVar(this);
-		// 	break;
-		case LOCAL:
-			r = ctx.getIRVarRef(d);
-			break;
-		case GLOBAL:
-			IRVarRef src = new IRVarRef(d.genIR());
-			ctx.addInsn(new IRLoadStaticInsn().setDst(ctx.getTempIRVar(this)).setSrc(src));
-			r = ctx.getTempIRVar(this);
-			break;
-		}
+		IRVarRef r = d.getScope().genLoadIR(d, this, ctx);
 		ctx.setSourceLocations(this.sourceLocation());
 		return r;
 	}

@@ -18,7 +18,7 @@ module("teal-3") {
 
 	// Code generation
 	include "backend/IRGenExpr.jrag"
-	excludeFrom "teal-0", "backend/IRGenExpr.jrag"
+	//excludeFrom "teal-0", "backend/IRGenExpr.jrag"
 	include "backend/IRGen.jrag"
 	// excludeFrom "teal-0", "backend/IRGen.jrag"
 	include "backend/IRGenType.jrag"

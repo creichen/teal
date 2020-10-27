@@ -1,5 +1,4 @@
 import lang.ir.*;
-import java.util.function.Consumer;
 
 
 aspect IRGen {
@@ -19,10 +18,24 @@ aspect IRGen {
 	 * FIXME: rename to VariableBindingIR
 	 */
 	interface VariableScope {
+		/**
+		 * Init variable contents
+		 */
 		public void genInitializerIR(VarDecl var, IRFunctionCtx ctx);
+
+		/**
+		 * Assign the contens of an IR variable to this variable
+		 */
+		public void genAssignmentIR(VarDecl var, Access access, IRVarRef rhs, IRFunctionCtx ctx);
+
+		/**
+		 * Load the contents of such a variable
+		 */
+		public IRVarRef genLoadIR(VarDecl var, Access access, IRFunctionCtx ctx);
 	}
 
 	public static final VariableScope VariableScope.LOCAL = new VariableScope() {
+			@Override
 			public void genInitializerIR(VarDecl var, IRFunctionCtx ctx) {
 				IRVarRef src = var.getVarDecl().getInitializer().genCode(ctx);
 
@@ -30,11 +43,37 @@ aspect IRGen {
 				IRCopyInsn copy = new IRCopyInsn(dst, src);
 				ctx.addInsn(copy);
 			}
+
+			@Override
+			public void genAssignmentIR(VarDecl var, Access access, IRVarRef rhs, IRFunctionCtx ctx) {
+				IRVarRef dst = ctx.getIRVarRef(var);
+				ctx.addInsn(new IRCopyInsn(dst, rhs));
+				var.genPostUpdateIR(ctx);
+			}
+
+			@Override
+			public IRVarRef genLoadIR(VarDecl var, Access access, IRFunctionCtx ctx) {
+				return ctx.getIRVarRef(var);
+			}
 		};
 
 	public static final VariableScope VariableScope.GLOBAL = new VariableScope() {
+			@Override
 			public void genInitializerIR(VarDecl var, IRFunctionCtx ctx) {
 				throw new NotYetImplementedError("Can't initialize global variable " + this + ".");
+			}
+
+			@Override
+			public void genAssignmentIR(VarDecl var, Access access, IRVarRef rhs, IRFunctionCtx ctx) {
+				IRVarRef dst = new IRVarRef(var.genIR());
+				ctx.addInsn(new IRStoreStaticInsn().setDst(dst).setSrc(rhs));
+			}
+
+			@Override
+			public IRVarRef genLoadIR(VarDecl var, Access access, IRFunctionCtx ctx) {
+				IRVarRef src = new IRVarRef(var.genIR());
+				ctx.addInsn(new IRLoadStaticInsn().setDst(ctx.getTempIRVar(access)).setSrc(src));
+				return ctx.getTempIRVar(access);
 			}
 		};
 
@@ -314,19 +353,45 @@ aspect IRGen {
 		ctx.setSourceLocations(this.sourceLocation());
 	}
 
+
+	/**
+	 * Code generation to apply after initialising / updating a variable
+	 *
+	 */
+	interface VarPostprocessingIR {
+		// after initialisation
+		public void
+		genPostInitIR(IRFunctionCtx ctx);
+
+		// after update
+		public void
+		genPostUpdateIR(IRFunctionCtx ctx);
+	}
+
 	/**
 	 * Extension point for deeper layers of Teal to add more code after initialisation
 	 */
-	syn Consumer<IRFunctionCtx> VarDecl.postInitializerIRGen() {
+	syn VarPostprocessingIR VarDecl.postprocessingIRGen() {
 		return null;
 	}
 
-	public void VarDecl.genCode(IRFunctionCtx ctx) {
-		genCodeInitializer(ctx);
-		Consumer<IRFunctionCtx> postInitCode = this.postInitializerIRGen();
-		if (postInitCode != null) {
-			postInitCode.accept(ctx);
+	protected void VarDecl.genPostInitIR(IRFunctionCtx ctx) {
+		VarPostprocessingIR postCodeGen = this.postprocessingIRGen();
+		if (postCodeGen != null) {
+			postCodeGen.genPostInitIR(ctx);
 		}
+	}
+
+	protected void VarDecl.genPostUpdateIR(IRFunctionCtx ctx) {
+		VarPostprocessingIR postCodeGen = this.postprocessingIRGen();
+		if (postCodeGen != null) {
+			postCodeGen.genPostUpdateIR(ctx);
+		}
+	}
+
+	public void VarDecl.genCode(IRFunctionCtx ctx) {
+		this.genCodeInitializer(ctx);
+		this.genPostInitIR(ctx);
 	}
 
 	public void VarDeclStmt.genCode(IRFunctionCtx ctx) {

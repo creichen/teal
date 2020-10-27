@@ -10,6 +10,24 @@ aspect IRGen {
 					    .setField(new IRVarRef(var.genIR()))
 					    .setSrc(src));
 			}
+
+			@Override
+			public void genAssignmentIR(VarDecl var, Access access, IRVarRef rhs, IRFunctionCtx ctx) {
+				ctx.addInsn(new IRSelfInsn().setDst(ctx.getTempIRVar(access)));
+				ctx.addInsn(new IRStoreInsn().setBase(ctx.getTempIRVar(access))
+					    .setField(new IRVarRef(var.genIR()))
+					    .setSrc(rhs));
+			}
+
+			@Override
+			public IRVarRef genLoadIR(VarDecl var, Access access, IRFunctionCtx ctx) {
+				 	IRVar tmp = ctx.getFreshTempIRVar(access);
+					ctx.addInsn(new IRSelfInsn().setDst(new IRVarRef(tmp)));
+					ctx.addInsn(new IRLoadInsn().setBase(new IRVarRef(tmp))
+						    .setField(new IRVarRef(var.genIR()))
+						    .setDst(ctx.getTempIRVar(access)));
+					return ctx.getTempIRVar(access);
+			}
 		};
 
 	public void TypeDecl.addIRToModule(IRModule m) { throw new NotYetImplementedError("Cannot translate declaration " + this.getClass()); }
@@ -46,13 +64,18 @@ aspect IRGen {
 	}
 
 	/**
-	 * Postprocess variable initialisation: apply qualifier checks
+	 * Postprocess variable initialisation and updates: apply qualifier checks
 	 */
-        refine IRGen eq VarDecl.postInitializerIRGen() {
-		return new Consumer<IRFunctionCtx>() {
+        refine IRGen eq VarDecl.postprocessingIRGen() {
+		return new VarPostprocessingIR() {
 			@Override
-			public void accept(IRFunctionCtx ctx) {
+			public void genPostInitIR(IRFunctionCtx ctx) {
 				VarDecl.this.genCodeQualifiers(ctx);
+			}
+
+			@Override
+			public void genPostUpdateIR(IRFunctionCtx ctx) {
+				VarDecl.this.genQualifierCheck(ctx);
 			}
 		};
 	}
