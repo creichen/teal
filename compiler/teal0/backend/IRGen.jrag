@@ -1,6 +1,50 @@
 import lang.ir.*;
+import java.util.function.Consumer;
+
 
 aspect IRGen {
+	interface ModuleMemberIR {
+		/**
+		 * Emit IR code for self into module
+		 */
+		public void addIRToModule(IRModule module);
+	}
+
+	Decl implements ModuleMemberIR;
+
+	public void TypeVarDecl.addIRToModule(IRModule m) { throw new NotYetImplementedError("Cannot translate declaration " + this.getClass()); }
+
+	/**
+	 * Code generation details for different storage bindings of variables
+	 * FIXME: rename to VariableBindingIR
+	 */
+	interface VariableScope {
+		public void genInitializerIR(VarDecl var, IRFunctionCtx ctx);
+	}
+
+	public static final VariableScope VariableScope.LOCAL = new VariableScope() {
+			public void genInitializerIR(VarDecl var, IRFunctionCtx ctx) {
+				IRVarRef src = var.getVarDecl().getInitializer().genCode(ctx);
+
+				IRVarRef dst = ctx.getIRVarRef(var.getVarDecl());
+				IRCopyInsn copy = new IRCopyInsn(dst, src);
+				ctx.addInsn(copy);
+			}
+		};
+
+	public static final VariableScope VariableScope.GLOBAL = new VariableScope() {
+			public void genInitializerIR(VarDecl var, IRFunctionCtx ctx) {
+				throw new NotYetImplementedError("Can't initialize global variable " + this + ".");
+			}
+		};
+
+// 	public enum VariableScope {
+// 		LOCAL,
+// 		GLOBAL
+// // TODO: ----------------_ REVISE
+// //		,MEMBER
+// 	}
+
 
 	coll ArrayList<VarDecl> FunDecl.localVars() root FunDecl;
 	VarDecl contributes this to FunDecl.localVars();
@@ -9,8 +53,9 @@ aspect IRGen {
 	IdDecl contributes this to FunDecl.localDecls();
 	syn HashMap<IdDecl, Integer> FunDecl.localDeclUIDs() {
 		HashMap<IdDecl, Integer> uids = new HashMap<>();
-		for (int i = 0; i < localDecls().size(); ++i)
+		for (int i = 0; i < localDecls().size(); ++i) {
 			uids.put(localDecls().get(i), i);
+		}
 		return uids;
 	}
 	// local expressions
@@ -18,8 +63,9 @@ aspect IRGen {
 	Expr contributes this to FunDecl.localExprs();
 	syn HashMap<Expr, Integer> FunDecl.localExprUIDs() {
 		HashMap<Expr, Integer> uids = new HashMap<>();
-		for (int i = 0; i < localExprs().size(); ++i)
+		for (int i = 0; i < localExprs().size(); ++i) {
 			uids.put(localExprs().get(i), i);
+		}
 		return uids;
 	}
 
@@ -42,8 +88,9 @@ aspect IRGen {
 		ArrayList<VarDecl> varDecls = new ArrayList<>();
 		for (Decl d : getDecls()) {
 			VarDecl v = d.getVarDecl();
-			if (v != null)
+			if (v != null) {
 				varDecls.add(v);
+			}
 		}
 		return varDecls;
 	}
@@ -54,6 +101,25 @@ aspect IRGen {
 			p.addIRModule(m.genIR());
 		}
 		return p;
+	}
+
+	// Helper methods for Module.genIR()
+	@Override
+	public void VarDecl.addIRToModule(IRModule m) {
+		m.getIRVars().add(this.genIR());
+		if (this.hasInitializer()) {
+			throw new NotYetImplementedError("Cannot generate code for global variable initializers.");
+		}
+	}
+
+	@Override
+	public void FunDecl.addIRToModule(IRModule m) {
+		IRFunction f = this.genIR();
+		IRFunctionCtx fctx = new IRFunctionCtx(f);
+		if (this.hasBody()) {
+			this.genCode(fctx);
+		}
+		m.getIRFunctions().add(f);
 	}
 
 	syn IRModule Module.genIR() {
@@ -67,30 +133,13 @@ aspect IRGen {
 								  new lang.ir.List<IRTypeAlias>(),
 								  new lang.ir.List<IRFunction>());
 
+		// Add code for all class elements
 		for (Decl d : getDecls()) {
-			if (d instanceof VarDecl) {
-				m.getIRVars().add(((VarDecl) d).genIR());
-				if (((VarDecl) d).hasInitializer()) {
-					throw new NotYetImplementedError("Cannot generate code for global variable initializers.");
-				}
-			} else if (d instanceof FunDecl) {
-				FunDecl fd = (FunDecl) d;
-				IRFunction f = fd.genIR();
-				IRFunctionCtx fctx = new IRFunctionCtx(f);
-				if (fd.hasBody())
-					fd.genCode(fctx);
-				m.getIRFunctions().add(f);
-// TODO: ----------------_ REVISE
-			// } else if (d instanceof ClassDecl) {
-			// 	IRClass c = (IRClass) ((ClassDecl) d).genIR();
-			// 	((ClassDecl) d).genCode(c);
-			// 	m.addIRType(c);
-			} else {
-				throw new NotYetImplementedError("Cannot translate declaration " + d.getClass());
-			}
+			d.addIRToModule(m);
 		}
 
-		//for (Decl d : getBuiltinDeclList()) {
+		// FIXME: do we still need this code?  What does it do that the loop above doesn't do already?
+		// for (Decl d : getBuiltinDeclList()) {
 // TODO: ----------------_ REVISE (I don't see why we would need this?)
 			// if (d instanceof FunDecl) {
 			// 	FunDecl fd = (FunDecl) d;
@@ -111,89 +160,6 @@ aspect IRGen {
 		return m;
 	}
 
-	public class IRFunctionCtx {
-		private IRFunction F;
-		private IRCodeBB BB;
-		private int counter = 0;
-		private HashMap<VarDecl, IRVar> locals;
-// TODO: ----------------_ REVISE
-		// private HashMap<TypeQualifier, IRVar> qualifiers;
-		private HashMap<Expr, IRVar> temps;
-
-		public IRFunctionCtx(IRFunction F) {
-			this.F = F;
-			locals = new HashMap<>();
-			temps = new HashMap<>();
-// TODO: ----------------_ REVISE
-			// qualifiers = new HashMap<>();
-		}
-
-		public IRCodeBB startBB() {
-			BB = new IRCodeBB(new lang.ir.List(), null);
-			F.getIRCodeBBList().add(BB);
-			return BB;
-		}
-
-		public IRCodeBB getCurrentBB() {
-			return BB;
-		}
-
-		public void addInsn(IRInsn I) {
-			BB.getIRInsnList().add(I);
-		}
-
-		public void setSourceLocations(SourceLocation srcLoc) {
-			for (int i = BB.getNumIRInsn() - 1; i >= 0; --i) {
-				if (!BB.getIRInsn(i).getSourceLocation().equals(SourceLocation.UNKNOWN))
-					break;
-				BB.getIRInsn(i).setSourceLocation(srcLoc);
-			}
-		}
-
-		public IRVarRef getTempIRVar(Expr e) {
-			IRVar tmp = temps.get(e);
-			if (tmp == null) {
-				tmp = getFreshTempIRVar(e);
-				temps.put(e, tmp);
-			}
-			return new IRVarRef(tmp);
-		}
-
-		public IRVar getFreshTempIRVar(Expr e) {
-			return getFreshTempIRVar(e.type().genIRTypeRef());
-		}
-
-		public IRVar getFreshTempIRVar(IRTypeRef t) {
-			IRVar tmp = new IRVar(new IRName("tmp" + counter++), t);
-			F.getLocals().add(tmp);
-			return tmp;
-		}
-
-		public IRVarRef getIRVarRef(VarDecl d) {
-			IRVar v = locals.get(d);
-			if (v == null) {
-				// Append an index to the name. We might have multiple variables with
-				// the same name at different scopes, and we want them to have a unique
-				// name inside the IR
-				v = new IRVar(new IRName(d.getIdDecl().getID() + counter++), d.type().genIRTypeRef());
-				F.getLocals().add(v);
-				locals.put(d, v);
-			}
-			return new IRVarRef(v);
-		}
-
-// TODO: ----------------_ REVISE
-		// public IRVar getQualifierIRVar(TypeQualifier qual) {
-		// 	IRVar v = qualifiers.get(qual);
-		// 	if (v == null) {
-		// 		v = new IRVar(new IRName("__qual_" + qual.getIdUse().getID() + counter++),
-		// 					  qual.genIR());
-		// 		F.addLocal(v);
-		// 		qualifiers.put(qual, v);
-		// 	}
-		// 	return v;
-		// }
-	}
 
 	syn IRFunction FunDecl.genIR() {
 		IRFunction func = new IRFunction();
@@ -252,31 +218,27 @@ aspect IRGen {
 	}
 
 	public void VarDecl.genCodeInitializer(IRFunctionCtx ctx) {
-		if (!hasInitializer())
+		if (!hasInitializer()) {
 			return;
-		IRVarRef src = getVarDecl().getInitializer().genCode(ctx);
-		// generate code for the initializer
-		if (getScope() == VariableScope.LOCAL) {
-			IRVarRef dst = ctx.getIRVarRef(getVarDecl());
-			IRCopyInsn copy = new IRCopyInsn(dst, src);
-			ctx.addInsn(copy);
-// TODO: ----------------_ REVISE
-		// } else if (getScope() == VariableScope.MEMBER) {
-		// 	ctx.addInsn(new IRSelfInsn().setDst(ctx.getIRVarRef(this)));
-		// 	ctx.addInsn(new IRStoreInsn().setBase(ctx.getIRVarRef(this))
-		// 				.setField(new IRVarRef(genIR()))
-		// 				.setSrc(src));
-		} else {
-			// Unclear where to generate the code to initialize globals
-			throw new NotYetImplementedError("Can't initialize global variable " + this + ".");
 		}
+		// generate code for the initializer
+		this.getScope().genInitializerIR(this, ctx);
 		ctx.setSourceLocations(this.sourceLocation());
+	}
+
+	/**
+	 * Extension point for deeper layers of Teal to add more code after initialisation
+	 */
+	syn Consumer<IRFunctionCtx> VarDecl.postInitializerIRGen() {
+		return null;
 	}
 
 	public void VarDecl.genCode(IRFunctionCtx ctx) {
 		genCodeInitializer(ctx);
-// TODO: ----------------_ REVISE
-		//genCodeQualifiers(ctx);
+		Consumer<IRFunctionCtx> postInitCode = this.postInitializerIRGen();
+		if (postInitCode != null) {
+			postInitCode.accept(ctx);
+		}
 	}
 
 	public void VarDeclStmt.genCode(IRFunctionCtx ctx) {
@@ -336,11 +298,6 @@ aspect IRGen {
 		// of any (unreachable) statements following the return.
 		ctx.startBB();
 	}
-
-	// public void AssertStmt.genCode(IRFunctionCtx ctx) {
-	// 	IRVarRef test = getExpr().genCode(ctx);
-	// 	ctx.addInsn(new IRAssertInsn(test));
-	// }
 
 	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), type().genIRTypeRef());
 	syn IRName IdDecl.genIR() = new IRName(getID());

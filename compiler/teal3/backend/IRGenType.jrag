@@ -65,6 +65,11 @@ aspect IRGenType {
 	}
 
 	eq ClassDecl.genIR() {
+		return this.genIRClass();
+	}
+
+	syn IRClass ClassDecl.genIRClass() {
+		// FIXME: easier get-name for everything
 		// class with a name
 		IRClass klass = new IRClass().setIRName(new IRName(getIdDecl().getID()));
 		klass.setSourceLocation(this.sourceLocation());
@@ -75,12 +80,7 @@ aspect IRGenType {
 
 		if (getNumSuperType() == 0 && program().ANY() != this) {
 			// no declared supertypes, add the default: any
-			System.err.println("Breakage imminent");
-			System.err.println(program());
-			System.err.println(program().ANY());
-			System.err.println(program().ANY().genIRTypeRef());
 			klass.addSuper(program().ANY().genIRTypeRef());
-			System.err.println("No reach");
 		}
 		// set supertypes
 		for (Type t : getSuperTypes()) {
@@ -148,7 +148,7 @@ aspect IRGenType {
 		} else {
 			throw new RuntimeException("Can't generate a type reference to something that is not a type, " + d + ".");
 		}
-    }
+	}
 
 
 	inh Type TypeQualifier.getQualifiedType();
@@ -187,8 +187,9 @@ aspect IRGenType {
 	}
 
 	public void VarDecl.genCodeQualifiers(IRFunctionCtx ctx) {
-		if (!hasType())
+		if (!hasType()) {
 			return;
+		}
 		if (getScope() == VariableScope.LOCAL) {
 			for (TypeQualifier q : getType().getTypeQualifiers()) {
 				q.genCode(ctx);
@@ -209,6 +210,9 @@ aspect IRGenType {
 		ctx.addInsn(dispatch);
 	}
 
+	/**
+	 * Generates code to check all qualifiers for this variable
+	 */
 	public void VarDecl.genQualifierCheck(IRFunctionCtx ctx) {
 		if (!hasType())
 			return ;

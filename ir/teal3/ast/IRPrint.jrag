@@ -141,7 +141,11 @@ aspect IRPrint {
 			out.println();
 		}
 		out.print("\t");
-		getIRCodeExit().print(out);
+		if (getIRCodeExit() != null) {
+		    getIRCodeExit().print(out);
+		} else {
+		    out.print("<INCOMPLETE:NO_EXIT>");
+		}
 		// out.println();
 	}
 
