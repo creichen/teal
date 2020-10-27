@@ -5,8 +5,8 @@ module("teal-3") {
     imports "teal-0"
 
     jastadd {
-	include "grammar/teal.ast"
-	excludeFrom "teal-0", "grammar/type.ast"
+	include "ast/teal.ast"
+	excludeFrom "teal-0", "ast/type.ast"
 
 	// Semantic Analysis
 	include "frontend/BuiltinTypes.jrag"
@@ -18,9 +18,7 @@ module("teal-3") {
 
 	// Code generation
 	include "backend/IRGenExpr.jrag"
-	//excludeFrom "teal-0", "backend/IRGenExpr.jrag"
 	include "backend/IRGen.jrag"
-	// excludeFrom "teal-0", "backend/IRGen.jrag"
 	include "backend/IRGenType.jrag"
 	excludeFrom "teal-0", "backend/IRGenBuiltinType.jrag"
     }

@@ -8,9 +8,9 @@ module("teal-0") {
     }
 
     jastadd {
-	include "grammar/toplevel.ast", [-1]
-	include "grammar/type.ast"
-	include "grammar/teal0.ast"
+	include "ast/toplevel.ast", [-1]
+	include "ast/type.ast"
+	include "ast/teal0.ast"
 
 	include "frontend/BuiltinTypes.jrag"
 	include "frontend/DumpTree.jrag"
