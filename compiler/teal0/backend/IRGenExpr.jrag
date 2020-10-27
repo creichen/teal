@@ -111,20 +111,6 @@ aspect IRGenExpr {
 				call.addArg(arg);
 			}
 			ctx.addInsn(call);
-		// } else {
-		// 	assert fd.getScope() == VariableScope.MEMBER;
-		// 	IRVar selfVar = ctx.getFreshTempIRVar(this);
-		// 	IRSelfInsn self = new IRSelfInsn().setDst(new IRVarRef(selfVar));
-		// 	ctx.addInsn(self);
-
-		// 	IRDispatchInsn dispatch = new IRDispatchInsn().setDst(r);
-		// 	dispatch.setIRFunRef(funCallTarget);
-		// 	dispatch.setBase(new IRVarRef(selfVar));
-		// 	for (Expr e : getActuals()) {
-		// 		IRVarRef arg = e.genCode(ctx);
-		// 		dispatch.addArg(arg);
-		// 	}
-		// 	ctx.addInsn(dispatch);
 		}
 		ctx.setSourceLocations(this.sourceLocation());
 		return r;
