@@ -8,4 +8,8 @@ aspect IRGenType {
 		return new IRTypeInstanceRef().setIRType(ty);
 	}
 
+	public void BuiltinTypeCon.addIRToModule(IRModule module) {
+		throw new RuntimeException("Should never try to generate code for built-in type");
+	}
+
 }

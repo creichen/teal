@@ -6,13 +6,13 @@ class C(x : int, y : int) = {
 	       m := x;
       }
 
-      doInitM();
+      self.doInitM();
 
       fun doInitN(x : int) = {
       	  n := x;
       }
 
-      doInitN(y % 2 == 1);
+      self.doInitN(y % 2 == 1);
 }
 
 fun main(x : int, y : int) = {

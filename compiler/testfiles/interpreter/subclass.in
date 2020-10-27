@@ -1,6 +1,6 @@
 class Animal = {
       fun move() = {
-      	  return kind();
+      	  return self.kind();
       }
 
       fun kind() = {

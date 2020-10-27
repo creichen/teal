@@ -10,12 +10,12 @@ class D = {
       	  y := 1000;
       }
 
-      init_x();
-      init_y();
+      self.init_x();
+      self.init_y();
 }
 
 class C = {
-      var x : int := init_x();
+      var x : int := self.init_x();
       var y : int := 10;
 
       fun init_x() = {

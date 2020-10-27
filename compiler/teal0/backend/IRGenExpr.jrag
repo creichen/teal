@@ -98,6 +98,38 @@ aspect IRGenExpr {
 		return dst;
 	}
 
+	public IRVarRef CallExpr.genCode(IRFunctionCtx ctx) {
+		IdUse fun = getIdUse();
+		FunDecl fd = (FunDecl) fun.lookup().getDecl();
+		IRFunRef funCallTarget = new IRFunRef(fd.genIR());
+		IRVarRef r = ctx.getTempIRVar(this);
+		if (fd.getScope() == VariableScope.GLOBAL) {
+			IRCallInsn call = new IRCallInsn().setDst(r);
+			call.setIRFunRef(funCallTarget);
+			for (Expr e : getActuals()) {
+				IRVarRef arg = e.genCode(ctx);
+				call.addArg(arg);
+			}
+			ctx.addInsn(call);
+		// } else {
+		// 	assert fd.getScope() == VariableScope.MEMBER;
+		// 	IRVar selfVar = ctx.getFreshTempIRVar(this);
+		// 	IRSelfInsn self = new IRSelfInsn().setDst(new IRVarRef(selfVar));
+		// 	ctx.addInsn(self);
+
+		// 	IRDispatchInsn dispatch = new IRDispatchInsn().setDst(r);
+		// 	dispatch.setIRFunRef(funCallTarget);
+		// 	dispatch.setBase(new IRVarRef(selfVar));
+		// 	for (Expr e : getActuals()) {
+		// 		IRVarRef arg = e.genCode(ctx);
+		// 		dispatch.addArg(arg);
+		// 	}
+		// 	ctx.addInsn(dispatch);
+		}
+		ctx.setSourceLocations(this.sourceLocation());
+		return r;
+	}
+
 	public IRVarRef TypedExpr.genCode(IRFunctionCtx ctx) {
 		// TODO: generate an assertion too
 		return getExpr().genCode(ctx);
