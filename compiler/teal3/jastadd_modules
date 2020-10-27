@@ -22,7 +22,7 @@ module("teal-3") {
 	include "backend/IRGen.jrag"
 	// excludeFrom "teal-0", "backend/IRGen.jrag"
 	include "backend/IRGenType.jrag"
-	excludeFrom "teal-0", "backend/IRGenType.jrag"
+	excludeFrom "teal-0", "backend/IRGenBuiltinType.jrag"
     }
 
     scanner {

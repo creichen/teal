@@ -26,6 +26,7 @@ module("teal-0") {
 	// Code generation
 	include "backend/IRGen.jrag"
 	include "backend/IRGenType.jrag"
+	include "backend/IRGenBuiltinType.jrag"
 	include "backend/IRGenExpr.jrag"
     }
 

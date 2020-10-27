@@ -1,0 +1,11 @@
+aspect IRGenType {
+	syn IRTypeRef BuiltinTypeCon.genIRTypeRef() {
+		IRType ty = new IRClass().setIRName(new IRName(getIdDecl().getID()));
+		ty.setSourceLocation(this.sourceLocation());
+		for (TypeVarDecl d : getTypeFormals()) {
+			ty.addIRTypeFormal(d.genIR());
+		}
+		return new IRTypeInstanceRef().setIRType(ty);
+	}
+
+}
