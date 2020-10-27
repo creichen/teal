@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -12,6 +13,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Arrays;
 
 import beaver.Parser.Exception;
 
@@ -27,6 +29,14 @@ import lang.ir.IRProgram;
 import lang.ir.InterpreterException;
 import lang.ir.IRIntegerValue;
 
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.OptionGroup;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.CommandLine;
+
 public class Compiler {
     public static Object DrAST_root_node; //Enable debugging with DrAST
 
@@ -34,6 +44,19 @@ public class Compiler {
 		ArrayList<IRValue> args = new ArrayList<>();
 		for (int i = 2; i < strings.length; ++i) {
 			args.add(new IRIntegerValue(Long.parseLong(strings[i])));
+		}
+		try {
+			IRValue ret = p.eval(args);
+			System.out.println("Program returned " + ret);
+		} catch (InterpreterException e) {
+			System.err.println("Error while intepreting program: " + e.toString());
+		}
+	}
+
+	public static void interpret(IRProgram p, List<String> strings) {
+		ArrayList<IRValue> args = new ArrayList<>();
+		for (String s : strings) {
+			args.add(new IRIntegerValue(Long.parseLong(s)));
 		}
 		try {
 			IRValue ret = p.eval(args);
@@ -114,7 +137,6 @@ public class Compiler {
 			else
 				m.addImportPaths(Collections.singleton(f.getParentFile().getPath()));
 			m.addImportPaths(importPaths);
-			System.out.println(f);
 
 			program.moduleMap().put(f, m);
 			program.addModule(m);
@@ -125,34 +147,127 @@ public class Compiler {
 		return program;
 	}
 
-	public static void main(String[] args) {
-
-		if (args.length < 1) {
-			System.err.println(
-							   "You must specify a source file on the command line!");
-			printUsage();
-			System.exit(1);
-			return;
+	static class CmdLineOpts {
+		enum Pass {
+			PARSE,
+			CHECK,
+			IRGEN,
+			INTERP
 		}
 
-		String filename = args[0];
+		Pass pass = Pass.IRGEN;
+		String outputFile;
+		String inputFile;
+		List<String> importPaths;
+		List<String> progArgs;
+	}
 
+	private static void printHelp(Options options) {
+		new HelpFormatter().printHelp("teal MODULE",
+									  "Compile and run a TEAL module.\n\n",
+									  options,
+									  "", true);
+	}
+
+	public static CmdLineOpts parseCmdLineArgs(String[] args) {
+		DefaultParser parser = new DefaultParser();
+		CmdLineOpts ret = new CmdLineOpts();
+
+		Option parse = Option.builder("p").longOpt("parse").hasArg(false)
+			.desc("Parse the program and build the AST.").build();
+		Option check = Option.builder("c").longOpt("check").hasArg(false)
+			.desc("Perform semantic and type checks.").build();
+		Option codegen = Option.builder("g").longOpt("codegen").hasArg(false)
+			.desc("Generate IR code.").build();
+		Option run = Option.builder("r").longOpt("run").hasArgs()
+			.desc("Interpret the IR code.").build();
+
+		OptionGroup pass = new OptionGroup().addOption(parse).addOption(check).addOption(codegen).addOption(run);
+
+		Option outputFile = Option.builder("o").longOpt("output").hasArg()
+			.desc("Write the compiler's output to FILE.").argName("FILE").build();
+
+		Option importPaths = Option.builder("i").longOpt("path").hasArg()
+			.desc("Directories where to search for imported modules.").argName("DIR1:DIR2:...").build();
+
+		Options options = new Options().addOptionGroup(pass).addOption(outputFile).addOption(importPaths);
+
+		try {
+			CommandLine cmd = parser.parse(options, args);
+			if (cmd.getArgs().length != 1) {
+				System.err.println("Missing MODULE argument.");
+				printHelp(options);
+				throw new RuntimeException();
+			} else {
+				ret.inputFile = cmd.getArgs()[0];
+			}
+
+			if (cmd.hasOption("p")) {
+				ret.pass = CmdLineOpts.Pass.PARSE;
+			} else if (cmd.hasOption("c")) {
+				ret.pass = CmdLineOpts.Pass.CHECK;
+			} else if (cmd.hasOption("g")) {
+				ret.pass = CmdLineOpts.Pass.IRGEN;
+			} else if (cmd.hasOption("r")) {
+				ret.pass = CmdLineOpts.Pass.INTERP;
+				ret.progArgs = Arrays.asList(cmd.getOptionValues("r"));
+			}
+
+			if (cmd.hasOption("o")) {
+				ret.outputFile = cmd.getOptionValue("o");
+			}
+
+			if (cmd.hasOption("i")) {
+				ret.importPaths = Arrays.asList(cmd.getOptionValue("i").split(":"));
+			} else {
+				ret.importPaths = List.of(".");
+			}
+
+		} catch (ParseException e) {
+			printHelp(options);
+			throw new RuntimeException(e);
+		}
+
+		return ret;
+	}
+
+	public static boolean run(CmdLineOpts opts) {
 		List<CompilerError> compilerErrors = new ArrayList<>();
 
-		Program program = createProgramFromFiles(Collections.singletonList(filename),
-												 Collections.singletonList("."),
+		// open the output file / stdout
+		PrintStream out = System.out;
+		if (opts.outputFile != null) {
+			try {
+				out = new PrintStream(opts.outputFile);
+			} catch (FileNotFoundException e) {
+				System.err.println("ERROR Can't open output file '" + opts.outputFile + "'.");
+			}
+		}
+
+		// parse the program and all its imported modules
+		Program program = createProgramFromFiles(Collections.singletonList(opts.inputFile),
+												 opts.importPaths,
 												 compilerErrors);
 
-		DrAST_root_node = program; //Enable debugging with DrAST
-		program.dumpTree(System.out);
 
-		// Report errors
-		List<CompilerError> semaErrors = program.semanticErrors();
-		List<CompilerError> nameErrors = program.nameErrors();
-
+		// print any errors so far
 		for (CompilerError e : compilerErrors) {
 			System.err.println("ERROR " + e.report());
 		}
+
+		// fail if there are compiler erorrs
+		if (!compilerErrors.isEmpty())
+			return false;
+
+		// if this is all what's requested, return
+		if (opts.pass == CmdLineOpts.Pass.PARSE) {
+			out.print(program.dumpTree());
+			return true;
+		}
+
+		// run the semantic checks
+		List<CompilerError> semaErrors = program.semanticErrors();
+		List<CompilerError> nameErrors = program.nameErrors();
 
 		for (CompilerError e : nameErrors) {
 			System.err.println("ERROR " + e.report());
@@ -162,25 +277,36 @@ public class Compiler {
 			System.err.println("ERROR " + e.report());
 		}
 
-		if (nameErrors.size() != 0 ||
-			semaErrors.size() != 0 ||
-			compilerErrors.size() != 0) {
-			System.exit(1);
+		// fail if there are any errors
+		if (!nameErrors.isEmpty() || !semaErrors.isEmpty()) {
+			return false;
 		}
 
-		// Generate the IR
-		IRProgram p = program.genIR();
+		if (opts.pass == CmdLineOpts.Pass.CHECK) {
+			out.print(program.dumpTree());
+			return true;
+		}
 
-		// Dump the IR
-		p.print(System.err);
+		// Generate the IR program
+		IRProgram irProg = program.genIR();
+		if (opts.pass == CmdLineOpts.Pass.IRGEN) {
+			irProg.print(out);
+			return true;
+		}
 
-		if (args.length > 1 && args[1].equals("--run"))
-			// this all the compilation pipeline for now, interpret
-			interpret(p, args);
+		// Interpret the program
+		interpret(irProg, opts.progArgs);
+
+		return true;
+
 	}
 
-	private static void printUsage() {
-		System.err.println("Usage: DumpTree FILE");
-		System.err.println("  where FILE is the file to be parsed");
+	public static void main(String[] args) {
+		CmdLineOpts opts = parseCmdLineArgs(args);
+		if (run(opts)) {
+			System.exit(0);
+		} else {
+			System.exit(1);
+		}
 	}
 }
