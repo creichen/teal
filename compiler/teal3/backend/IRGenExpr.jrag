@@ -74,7 +74,10 @@ aspect IRGenExpr {
 		return tmp;
 	}
 
-	refine IRGenExpr NewExpr.genCode(IRFunctionCtx ctx) {
+	// FIXME: this oddity is only needed for NewExpr.genCode()
+	syn IRTypeRef Type.genIRTypeRef() = genIR();
+
+	refine IRGenExpr eq NewExpr.genCode(IRFunctionCtx ctx) {
 		// generate special IR instructions for arrays
 		if (((ClassDecl) getType().getIdUse().lookup().getDecl()).isArray()) {
 			return genCodeArray(ctx);

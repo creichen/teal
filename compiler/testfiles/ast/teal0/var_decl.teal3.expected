@@ -1,0 +1,38 @@
+Module
+  List
+  List
+    VarDecl
+      IdDecl ID="a"
+      Opt
+        Type
+          IdUse ID="any"
+          List
+          List
+      Opt
+    VarDecl
+      IdDecl ID="b"
+      Opt
+        Type
+          IdUse ID="int"
+          List
+          List
+      Opt
+        IntConstant Value="64"
+    VarDecl
+      IdDecl ID="c"
+      Opt
+        Type
+          IdUse ID="int"
+          List
+          List
+      Opt
+        IntConstant Value="10"
+    VarDecl
+      IdDecl ID="d"
+      Opt
+        Type
+          IdUse ID="string"
+          List
+          List
+      Opt
+        StringConstant Value="escaped\" string"

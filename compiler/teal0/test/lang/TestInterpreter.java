@@ -155,7 +155,7 @@ public class TestInterpreter {
 	@Test
 	public void testSingleClass() {
 		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("single-class.in");
+		IRProgram m = loadAndCompileProgram("single-class.in"); // FIXME: in teal3/ subdir now
 		assertNotNull(m);
 
 		int x = 5;
@@ -168,7 +168,7 @@ public class TestInterpreter {
 	@Test
 	public void testClassWithMemberInit() {
 		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("class-with-init.in");
+		IRProgram m = loadAndCompileProgram("class-with-init.in"); // FIXME: in teal3/ subdir now
 		assertNotNull(m);
 
 		assertTrue(checkResult(m, 1115));
@@ -177,7 +177,7 @@ public class TestInterpreter {
 	@Test
 	public void testMethodCall() {
 		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("method-call.in");
+		IRProgram m = loadAndCompileProgram("method-call.in"); // FIXME: in teal3/ subdir now
 		assertNotNull(m);
 		assertTrue(checkResult(m, 1010, 10, 1000));
 	}
@@ -185,7 +185,7 @@ public class TestInterpreter {
 	@Test
 	public void testGenericClass() {
 		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("generic-class.in");
+		IRProgram m = loadAndCompileProgram("generic-class.in"); // FIXME: in teal3/ subdir now
 		assertNotNull(m);
 		assertTrue(checkResult(m, 50, 10, 15));
 	}
@@ -193,7 +193,7 @@ public class TestInterpreter {
 	@Test
 	public void testConstructor() {
 		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("constructor.in");
+		IRProgram m = loadAndCompileProgram("constructor.in"); // FIXME: in teal3/ subdir now
 		assertNotNull(m);
 		assertTrue(checkResult(m, 11, 10, 5));
 		assertTrue(checkResult(m, 5, 5, 10));
@@ -212,7 +212,7 @@ public class TestInterpreter {
 	public void testPair() {
 		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
 		// the test contains a circular type reference
-		IRProgram m = loadAndCompileProgram("pair.in");
+		IRProgram m = loadAndCompileProgram("pair.in"); // FIXME: in teal3/ subdir now
 		assertNotNull(m);
 		assertTrue(checkResult(m, 100, 5, 10));
 		assertTrue(checkResult(m, 100, 10, 5));
@@ -221,7 +221,7 @@ public class TestInterpreter {
 	@Test
 	public void testSubclass() {
 		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("subclass.in");
+		IRProgram m = loadAndCompileProgram("subclass.in"); // FIXME: in teal3/ subdir now
 		assertNotNull(m);
 		assertTrue(checkResult(m, "Dog"));
 	}
@@ -229,7 +229,7 @@ public class TestInterpreter {
 	@Test
 	public void testStack() {
 		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("stack.in");
+		IRProgram m = loadAndCompileProgram("stack.in"); // FIXME: in teal3/ subdir now
 		assertNotNull(m);
 		assertTrue(checkResult(m, 2));
 	}
@@ -237,7 +237,7 @@ public class TestInterpreter {
 	@Test
 	public void testLocalVarQualifier() {
 		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("qualifier.in");
+		IRProgram m = loadAndCompileProgram("qualifier.in"); // FIXME: in teal3/ subdir now
 		assertNotNull(m);
 		assertTrue(checkResult(m, 0, 11, 132));
 	}
