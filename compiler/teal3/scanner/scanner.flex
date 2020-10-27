@@ -5,7 +5,6 @@
 "for"         { return sym(Terminals.FOR); }
 "assert"      { return sym(Terminals.ASSERT); }
 "self"        { return sym(Terminals.SELF); }
-"new"         { return sym(Terminals.NEW); }
 "in"          { return sym(Terminals.IN); }
 "."           { return sym(Terminals.DOT); }
 "<:"          { return sym(Terminals.SUBTYPE); }

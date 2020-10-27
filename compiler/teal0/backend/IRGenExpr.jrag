@@ -116,6 +116,24 @@ aspect IRGenExpr {
 		return r;
 	}
 
+	public IRVarRef NewExpr.genCodeArray(IRFunctionCtx ctx) {
+		IRVarRef dst = ctx.getTempIRVar(this);
+		IRVarRef size = getActual(0).genCode(ctx);
+		IRNewArrayInsn newInsn = new IRNewArrayInsn().setDst(dst)
+			.setIRTypeRef(getType().getActual(0).genIRTypeRef()).setSize(size);
+		ctx.addInsn(newInsn);
+		ctx.setSourceLocations(this.sourceLocation());
+		return dst;
+	}
+
+	// This is an attribute so that we can extend it in later layers of Teal
+	syn IRVarRef NewExpr.genCode(IRFunctionCtx ctx) {
+		if (((BuiltinTypeCon) getType().getIdUse().lookup().getDecl()).isArray()) {
+			return genCodeArray(ctx);
+		}
+		return null;
+	}
+
 	public IRVarRef TypedExpr.genCode(IRFunctionCtx ctx) {
 		// TODO: generate an assertion too
 		return getExpr().genCode(ctx);

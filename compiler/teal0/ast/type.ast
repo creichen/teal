@@ -1,7 +1,9 @@
 // Type use
 // For TEAL-0 input programs: "Actual" has zero or one element, only used for array[ty]
+// FIXME: should be TypeRef?
 Type ::= IdUse Actual:Type*;
 
 // Type constructor for a built-in type
 // For TEAL-0 input programs: "Formal" has zero or one element, only used for array[ty]
+// Fixme: should we add a TypeDecl layer, to include TypeVarDecl?
 BuiltinTypeCon : Decl ::= IdDecl TypeFormal:TypeVarDecl*;

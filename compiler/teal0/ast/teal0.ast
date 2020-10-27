@@ -1,3 +1,4 @@
+// FIXME: inconsistent yse of Id vs ID (always ID!)
 // Variables
 VarDecl : Decl ::= IdDecl [Type] [Initializer:Expr];
 
@@ -28,16 +29,17 @@ AndExpr : BinExpr;
 
 // Other expressions
 CallExpr : Expr ::= IdUse Actual:Expr*;
-Null : Expr ;
-ListExpr : Expr ::= Expr* ;
-IndexExpr : Expr ::= Base:Expr Index:Expr ;
-NotExpr : Expr ::= Expr ;
+Null : Expr;
+ListExpr : Expr ::= Expr*;
+IndexExpr : Expr ::= Base:Expr Index:Expr;
+NotExpr : Expr ::= Expr;
 TypedExpr : Expr ::= Expr Type;
+NewExpr : Expr ::= Type Actual:Expr*; // Array allocation.  In later layers of Teal we generalise this to object allocation.
 
 // Constants
-Constant : Expr ;
-IntConstant : Constant ::= <Value:Long> ;
-StringConstant : Constant ::= <Value:String> ;
+Constant : Expr;
+IntConstant : Constant ::= <Value:Long>;
+StringConstant : Constant ::= <Value:String>;
 
 // Access
 Access : Expr ::= IdUse ;
@@ -45,17 +47,17 @@ QualifiedAccess : Expr ::= PackagePathFragment* ;
 
 // Statements
 abstract Stmt;
-VarDeclStmt : Stmt ::= VarDecl ;
-ExprStmt : Stmt ::= Expr ;
-AssignStmt : Stmt ::= LValue:Expr RValue:Expr ;
-BlockStmt : Stmt ::= Stmt* ;
-IfStmt : Stmt ::= Cond:Expr Then:Stmt Else:Stmt ;
-WhileStmt : Stmt ::= Cond:Expr Body:Stmt ;
-ReturnStmt : Stmt ::= Expr ;
+VarDeclStmt : Stmt ::= VarDecl;
+ExprStmt : Stmt ::= Expr;
+AssignStmt : Stmt ::= LValue:Expr RValue:Expr;
+BlockStmt : Stmt ::= Stmt*;
+IfStmt : Stmt ::= Cond:Expr Then:Stmt Else:Stmt;
+WhileStmt : Stmt ::= Cond:Expr Body:Stmt;
+ReturnStmt : Stmt ::= Expr;
 SkipStmt : Stmt;
 
 // Identifiers
-IdUse ::= <ID> ;
-IdDecl ::= <ID> ;
+IdUse ::= <ID>;
+IdDecl ::= <ID>;
 // Unknown
 UnknownDecl : IdDecl;

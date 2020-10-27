@@ -74,17 +74,7 @@ aspect IRGenExpr {
 		return tmp;
 	}
 
-	public IRVarRef NewExpr.genCodeArray(IRFunctionCtx ctx) {
-		IRVarRef dst = ctx.getTempIRVar(this);
-		IRVarRef size = getActual(0).genCode(ctx);
-		IRNewArrayInsn newInsn = new IRNewArrayInsn().setDst(dst)
-			.setIRTypeRef(getType().getActual(0).genIR()).setSize(size);
-		ctx.addInsn(newInsn);
-		ctx.setSourceLocations(this.sourceLocation());
-		return dst;
-	}
-
-	public IRVarRef NewExpr.genCode(IRFunctionCtx ctx) {
+	refine IRGenExpr NewExpr.genCode(IRFunctionCtx ctx) {
 		// generate special IR instructions for arrays
 		if (((ClassDecl) getType().getIdUse().lookup().getDecl()).isArray()) {
 			return genCodeArray(ctx);

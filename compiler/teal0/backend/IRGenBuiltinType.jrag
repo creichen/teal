@@ -1,4 +1,5 @@
 aspect IRGenType {
+	// FIXME: use int / any special types as appropriate
 	syn IRTypeRef BuiltinTypeCon.genIRTypeRef() {
 		IRType ty = new IRClass().setIRName(new IRName(getIdDecl().getID()));
 		ty.setSourceLocation(this.sourceLocation());
@@ -6,6 +7,10 @@ aspect IRGenType {
 			ty.addIRTypeFormal(d.genIR());
 		}
 		return new IRTypeInstanceRef().setIRType(ty);
+	}
+
+	syn IRTypeRef Type.genIRTypeRef() {
+		return ((BuiltinTypeCon) getIdUse().lookup().getDecl()).genIRTypeRef();
 	}
 
 	public void BuiltinTypeCon.addIRToModule(IRModule module) {

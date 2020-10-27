@@ -6,6 +6,7 @@ Expr term = LPAREN expr RPAREN {: return expr; :}
           | LBRACK fun_actual_list_maybe_empty RBRACK {: return new ListExpr(fun_actual_list_maybe_empty); :}
           | ID LPAREN fun_actual_list_maybe_empty RPAREN {: return new CallExpr(new IdUse(ID), fun_actual_list_maybe_empty); :}
           | term.b LBRACK expr.i RBRACK {: return new IndexExpr(b, i); :}
+          | NEW type LPAREN expr RPAREN {: return new NewExpr(type, new List<>(expr)); :}
           | LPAREN expr COLON type RPAREN  {: return new TypedExpr(expr, type); :}
 	  | NULL {: return new Null(); :}
           ;

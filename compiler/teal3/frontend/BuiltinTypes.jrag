@@ -20,9 +20,13 @@ aspect BuiltinTypes {
 		return refined().add(QUALIFIERDecl());
 	}
 
-	// FIXME: is that really what we want to check here?
 	syn boolean TypeDecl.isArray() {
 		return equals(program().ARRAY());
-
 	}
+
+	// FIXME: general lookupDecl() and more convenient interface for that?
+	syn ClassDecl Type.baseType() {
+	    return (ClassDecl) getIdUse().lookup().getDecl();
+	}
+
 }

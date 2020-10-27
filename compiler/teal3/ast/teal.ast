@@ -19,7 +19,6 @@ Type ::= IdUse Actual:Type* TypeQualifier*;
 // Expressions for OO
 DispatchExpr : Expr ::= Expr <ID> Actual:Expr*;
 Self : Expr ;
-NewExpr : Expr ::= Type Actual:Expr*;
 MemberAccess : Expr ::= Expr <ID>;
 ForStmt : Stmt ::= Iterator:VarDecl Rang:Expr Body:Stmt;
 AssertStmt : Stmt ::= Expr <Message:String>;
