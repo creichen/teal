@@ -38,24 +38,23 @@ public class TestNameCheck {
 
   @Test public void runTest() throws Exception {
     Module module = (Module) Util.parse(new File(TEST_DIRECTORY, filename));
-	Program program = new Program().addModule(module);
+    Program program = new Program().addModule(module);
     java.util.List<CompilerError> nameErrors = program.nameErrors();
-	Collections.sort(nameErrors, new Comparator<CompilerError>() {
-			public int compare(CompilerError left, CompilerError right) {
-				int c = Integer.compare(left.getStartLoc(), right.getStartLoc());
-				if (c != 0)
-					return c;
-				return left.report().compareTo(right.report());
-			}
-		});
+    Collections.sort(nameErrors, new Comparator<CompilerError>() {
+	public int compare(CompilerError left, CompilerError right) {
+	  int c = Integer.compare(left.getStartLoc(), right.getStartLoc());
+	  if (c != 0)
+	    return c;
+	  return left.report().compareTo(right.report());
+	}
+      });
 
-	String actual = "";
-	for (CompilerError e : nameErrors)
-		actual += e.report() + "\n";
+    String actual = "";
+    for (CompilerError e : nameErrors) {
+      actual += e.report() + "\n";
+    }
 
-    Util.compareOutput(actual,
-        new File(TEST_DIRECTORY, Util.changeExtension(filename, ".out")),
-        new File(TEST_DIRECTORY, Util.changeExtension(filename, ".expected")));
+    Util.compareOutput(actual, TEST_DIRECTORY, filename);
   }
 
   @Parameters(name = "{0}")

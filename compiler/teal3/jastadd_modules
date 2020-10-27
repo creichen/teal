@@ -8,6 +8,9 @@ module("teal-3") {
 	include "ast/teal.ast"
 	excludeFrom "teal-0", "ast/type.ast"
 
+	// Meta-information
+	include "frontend/Version.jrag"
+
 	// Semantic Analysis
 	include "frontend/BuiltinTypes.jrag"
 	excludeFrom "teal-0", "frontend/TypeAnalysisBuiltinTypes.jrag"

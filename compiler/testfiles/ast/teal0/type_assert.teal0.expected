@@ -1,0 +1,50 @@
+Module
+  List
+  List
+    FunDecl
+      IdDecl ID="f"
+      Opt
+      List
+        VarDecl
+          IdDecl ID="x"
+          Opt
+            Type
+              IdUse ID="int"
+              List
+              List
+          Opt
+      Opt
+        ReturnStmt
+          TypedExpr
+            Access
+              IdUse ID="x"
+            Type
+              IdUse ID="int"
+              List
+              List
+    FunDecl
+      IdDecl ID="f"
+      Opt
+      List
+        VarDecl
+          IdDecl ID="x"
+          Opt
+            Type
+              IdUse ID="array"
+              List
+                Type
+                  IdUse ID="int"
+                  List
+                  List
+          Opt
+      Opt
+        ReturnStmt
+          TypedExpr
+            Access
+              IdUse ID="x"
+            Type
+              IdUse ID="array"
+              List
+                Type
+                  IdUse ID="any"
+                  List

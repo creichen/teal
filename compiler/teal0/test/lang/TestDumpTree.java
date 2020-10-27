@@ -29,9 +29,7 @@ public class TestDumpTree {
   @Test public void runTest() throws Exception {
     Module module = (Module) Util.parse(new File(TEST_DIRECTORY, filename));
     String actual = module.dumpTree();
-    Util.compareOutput(actual,
-        new File(TEST_DIRECTORY, Util.changeExtension(filename, ".out")),
-        new File(TEST_DIRECTORY, Util.changeExtension(filename, ".expected")));
+    Util.compareOutput(actual, TEST_DIRECTORY, filename);
   }
 
   @Parameters(name = "{0}")

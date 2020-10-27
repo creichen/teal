@@ -1,0 +1,7 @@
+// Meta-information
+aspect Version {
+    syn int Program.tealLayer() = 0; // Teal-0
+
+    public static final int Program.LAYER = (new Program()).tealLayer();
+    public static final String Program.VERSION = "0.1.0";
+}

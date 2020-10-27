@@ -1,0 +1,86 @@
+Module
+  List
+  List
+    FunDecl
+      IdDecl ID="f"
+      Opt
+      List
+        VarDecl
+          IdDecl ID="x"
+          Opt
+          Opt
+      Opt
+        IfStmt
+          Access
+            IdUse ID="x"
+          BlockStmt
+            List
+              ReturnStmt
+                IntConstant Value="5"
+          BlockStmt
+            List
+              ReturnStmt
+                AddExpr
+                  Access
+                    IdUse ID="x"
+                  IntConstant Value="5"
+    FunDecl
+      IdDecl ID="g"
+      Opt
+        Type
+          IdUse ID="T"
+          List
+          List
+      List
+        VarDecl
+          IdDecl ID="x"
+          Opt
+          Opt
+      Opt
+        IfStmt
+          AddExpr
+            MulExpr
+              Access
+                IdUse ID="x"
+              IntConstant Value="4"
+            CallExpr
+              IdUse ID="g"
+              List
+                Access
+                  IdUse ID="x"
+          BlockStmt
+            List
+              ReturnStmt
+                IntConstant Value="6"
+          BlockStmt
+            List
+              ReturnStmt
+                IntConstant Value="5"
+    FunDecl
+      IdDecl ID="h"
+      Opt
+      List
+        VarDecl
+          IdDecl ID="x"
+          Opt
+          Opt
+        VarDecl
+          IdDecl ID="y"
+          Opt
+          Opt
+      Opt
+        BlockStmt
+          List
+            IfStmt
+              GTExpr
+                Access
+                  IdUse ID="x"
+                Access
+                  IdUse ID="y"
+              BlockStmt
+                List
+                  ReturnStmt
+                    IntConstant Value="5"
+              SkipStmt
+            ReturnStmt
+              IntConstant Value="6"

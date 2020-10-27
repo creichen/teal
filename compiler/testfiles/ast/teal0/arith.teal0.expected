@@ -1,0 +1,147 @@
+Module
+  List
+  List
+    VarDecl
+      IdDecl ID="f1"
+      Opt
+      Opt
+        CallExpr
+          IdUse ID="f"
+          List
+            Access
+              IdUse ID="y"
+    VarDecl
+      IdDecl ID="f2"
+      Opt
+      Opt
+        OrExpr
+          Access
+            IdUse ID="a"
+          Access
+            IdUse ID="b"
+    VarDecl
+      IdDecl ID="f3"
+      Opt
+      Opt
+        OrExpr
+          NotExpr
+            Access
+              IdUse ID="a"
+          Access
+            IdUse ID="b"
+    VarDecl
+      IdDecl ID="f4"
+      Opt
+      Opt
+        OrExpr
+          Access
+            IdUse ID="a"
+          NotExpr
+            Access
+              IdUse ID="b"
+    VarDecl
+      IdDecl ID="f5"
+      Opt
+      Opt
+        AddExpr
+          Access
+            IdUse ID="a"
+          Access
+            IdUse ID="c"
+    VarDecl
+      IdDecl ID="f7"
+      Opt
+      Opt
+        AndExpr
+          Access
+            IdUse ID="a"
+          AndExpr
+            Access
+              IdUse ID="b"
+            Access
+              IdUse ID="c"
+    VarDecl
+      IdDecl ID="f8"
+      Opt
+      Opt
+        AndExpr
+          AndExpr
+            Access
+              IdUse ID="a"
+            Access
+              IdUse ID="b"
+          Access
+            IdUse ID="c"
+    VarDecl
+      IdDecl ID="f9"
+      Opt
+      Opt
+        AddExpr
+          MulExpr
+            Access
+              IdUse ID="a"
+            Access
+              IdUse ID="b"
+          Access
+            IdUse ID="c"
+    VarDecl
+      IdDecl ID="f10"
+      Opt
+      Opt
+        AddExpr
+          Access
+            IdUse ID="a"
+          MulExpr
+            Access
+              IdUse ID="b"
+            Access
+              IdUse ID="c"
+    VarDecl
+      IdDecl ID="f11"
+      Opt
+      Opt
+        Access
+          IdUse ID="a"
+    VarDecl
+      IdDecl ID="f12"
+      Opt
+      Opt
+        OrExpr
+          Access
+            IdUse ID="a"
+          Access
+            IdUse ID="b"
+    VarDecl
+      IdDecl ID="f13"
+      Opt
+      Opt
+        OrExpr
+          EQExpr
+            Access
+              IdUse ID="a"
+            Access
+              IdUse ID="b"
+          GTExpr
+            Access
+              IdUse ID="c"
+            Access
+              IdUse ID="d"
+    VarDecl
+      IdDecl ID="f14"
+      Opt
+      Opt
+        NotExpr
+          IndexExpr
+            Access
+              IdUse ID="a"
+            Access
+              IdUse ID="i"
+    VarDecl
+      IdDecl ID="f15"
+      Opt
+      Opt
+        NotExpr
+          CallExpr ID="f"
+            List
+              Access
+                IdUse ID="i"

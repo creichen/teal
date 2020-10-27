@@ -34,27 +34,25 @@ public class TestNameAnalysis {
   }
 
   @Test public void runTest() throws Exception {
-	Module module = (Module) Util.parse(new File(TEST_DIRECTORY, filename));
-	Program program = new Program().addModule(module);
+    Module module = (Module) Util.parse(new File(TEST_DIRECTORY, filename));
+    Program program = new Program().addModule(module);
     HashMap<IdUse, IdDecl> symTable = program.globalSymbolTable();
-	ArrayList<String> lines = new ArrayList<>();
-	for (Map.Entry<IdUse, IdDecl> entry : symTable.entrySet()) {
-		String line = "";
-		line += entry.getKey().getID() + "\t";
-		line += entry.getKey().prettySrcLoc() + "\t";
-		line += entry.getValue().prettySrcLoc() + "\n";
-		lines.add(line);
-	}
+    ArrayList<String> lines = new ArrayList<>();
+    for (Map.Entry<IdUse, IdDecl> entry : symTable.entrySet()) {
+      String line = "";
+      line += entry.getKey().getID() + "\t";
+      line += entry.getKey().prettySrcLoc() + "\t";
+      line += entry.getValue().prettySrcLoc() + "\n";
+      lines.add(line);
+    }
 
-	Collections.sort(lines);
-	String actual = "";
-	for (String line : lines) {
-		actual += line;
-	}
+    Collections.sort(lines);
+    String actual = "";
+    for (String line : lines) {
+      actual += line;
+    }
 
-    Util.compareOutput(actual,
-        new File(TEST_DIRECTORY, Util.changeExtension(filename, ".out")),
-        new File(TEST_DIRECTORY, Util.changeExtension(filename, ".expected")));
+    Util.compareOutput(actual, TEST_DIRECTORY, filename);
   }
 
   @Parameters(name = "{0}")

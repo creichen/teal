@@ -154,6 +154,7 @@ public class TestInterpreter {
 
 	@Test
 	public void testSingleClass() {
+		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
 		IRProgram m = loadAndCompileProgram("single-class.in");
 		assertNotNull(m);
 
@@ -166,6 +167,7 @@ public class TestInterpreter {
 
 	@Test
 	public void testClassWithMemberInit() {
+		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
 		IRProgram m = loadAndCompileProgram("class-with-init.in");
 		assertNotNull(m);
 
@@ -174,6 +176,7 @@ public class TestInterpreter {
 
 	@Test
 	public void testMethodCall() {
+		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
 		IRProgram m = loadAndCompileProgram("method-call.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 1010, 10, 1000));
@@ -181,6 +184,7 @@ public class TestInterpreter {
 
 	@Test
 	public void testGenericClass() {
+		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
 		IRProgram m = loadAndCompileProgram("generic-class.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 50, 10, 15));
@@ -188,6 +192,7 @@ public class TestInterpreter {
 
 	@Test
 	public void testConstructor() {
+		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
 		IRProgram m = loadAndCompileProgram("constructor.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 11, 10, 5));
@@ -205,6 +210,7 @@ public class TestInterpreter {
 
 	@Test
 	public void testPair() {
+		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
 		// the test contains a circular type reference
 		IRProgram m = loadAndCompileProgram("pair.in");
 		assertNotNull(m);
@@ -214,6 +220,7 @@ public class TestInterpreter {
 
 	@Test
 	public void testSubclass() {
+		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
 		IRProgram m = loadAndCompileProgram("subclass.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, "Dog"));
@@ -221,6 +228,7 @@ public class TestInterpreter {
 
 	@Test
 	public void testStack() {
+		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
 		IRProgram m = loadAndCompileProgram("stack.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 2));
@@ -228,6 +236,7 @@ public class TestInterpreter {
 
 	@Test
 	public void testLocalVarQualifier() {
+		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
 		IRProgram m = loadAndCompileProgram("qualifier.in");
 		assertNotNull(m);
 		assertTrue(checkResult(m, 0, 11, 132));
@@ -235,6 +244,7 @@ public class TestInterpreter {
 
 	@Test(expected=InterpreterException.class)
 	public void testLocalVarQualifierFail() throws InterpreterException {
+		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
 		IRProgram m = loadAndCompileProgram("qualifier.in");
 		assertNotNull(m);
 		checkResultNoCatch(m, 0, 11, 12);

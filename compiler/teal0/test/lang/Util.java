@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Scanner;
 
+import lang.ast.Program;
 import lang.ast.TEALParser;
 import lang.ast.LangScanner;
 
@@ -35,13 +36,34 @@ public final class Util {
 
   /**
    * Check that the string matches the contents of the given file.
+   *
    * Also writes the actual output to file.
+   * To support multiple Teal layers, this method automatically loads
+   * alternative expected outputs.  For filename="foo" and Teal layer 1, it
+   * first tries "foo.teal1.expected", then "foo.teal0.expected", and
+   * finally "foo.expected".
+   *
    * @param actual actual output
-   * @param out file where output should be written
-   * @param expected file containing expected output
+   * @param test_directory directory containing the expected output
+   * @param filename filename prefix for expected and actual output.  The actual output
+   *   is written to filename + ".out", and the expected input is read from
+   *   filename + ".teal{X}.expected" or filename + ".expected" (see above).
    */
-  public static void compareOutput(String actual, File out, File expected) {
+  public static void compareOutput(String actual, File test_directory, String filename) {
     try {
+      File out = new File(test_directory, Util.changeExtension(filename, ".out"));
+      File expected = null;
+      // first try ".teal{X}.exists" for current-to-lower layers
+      for (int layer = Program.LAYER; layer >= 0; --layer) {
+	expected = new File(test_directory, Util.changeExtension(filename, ".teal" + layer + ".expected"));
+	if (expected.exists()) {
+	  break;
+	}
+      }
+      if (expected == null || !expected.exists()) {
+	expected = new File(test_directory, Util.changeExtension(filename, ".expected"));
+      }
+
       Files.write(out.toPath(), actual.getBytes());
       assertEquals("Output differs.",
         readFileToString(expected),
@@ -115,16 +137,32 @@ public final class Util {
     }
   }
 
+  private static void addTestsInDir(Collection<Object[]> tests, File testDirectory, String extension) {
+    if (!testDirectory.isDirectory()) {
+      return;
+    }
+    for (File f: testDirectory.listFiles()) {
+      if (f.getName().endsWith(extension)) {
+        tests.add(new Object[] {f.getName()});
+      }
+    }
+  }
+
+  /**
+   * Gets all files from <tt>testDirectory</tt> that have suffix <tt>extension</tt>
+   *
+   * Also checks the <tt>teal0</tt>...<tt>teal3</tt> subdirectories, if running on
+   * that layer of Teal or newer
+   */
   @SuppressWarnings("javadoc")
   public static Iterable<Object[]> getTestParameters(File testDirectory, String extension) {
     Collection<Object[]> tests = new LinkedList<Object[]>();
     if (!testDirectory.isDirectory()) {
       throw new Error("Could not find '" + testDirectory + "' directory!");
     }
-    for (File f: testDirectory.listFiles()) {
-      if (f.getName().endsWith(extension)) {
-        tests.add(new Object[] {f.getName()});
-      }
+    addTestsInDir(tests, testDirectory, extension);
+    for (int i = 0; i <= Program.LAYER; i++) {
+      addTestsInDir(tests, new File(testDirectory, "teal" + i), extension);
     }
     return tests;
   }

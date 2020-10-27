@@ -1,0 +1,48 @@
+Module
+  List
+  List
+    FunDecl
+      IdDecl ID="f"
+      Opt
+        Type
+          IdUse ID="int"
+          List
+          List
+      List
+        VarDecl
+          IdDecl ID="a"
+          Opt
+            Type
+              IdUse ID="int"
+              List
+              List
+          Opt
+        VarDecl
+          IdDecl ID="b"
+          Opt
+          Opt
+      Opt
+        BlockStmt
+          List
+            WhileStmt
+              Access
+                IdUse ID="a"
+              BlockStmt
+                List
+                  AssignStmt
+                    Access
+                      IdUse ID="b"
+                    AddExpr
+                      Access
+                        IdUse ID="b"
+                      IntConstant Value="1"
+                  AssignStmt
+                    Access
+                      IdUse ID="a"
+                    SubExpr
+                      Access
+                        IdUse ID="a"
+                      IntConstant Value="1"
+            ReturnStmt
+              Access
+                IdUse ID="b"

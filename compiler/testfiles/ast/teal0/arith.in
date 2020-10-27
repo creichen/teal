@@ -1,0 +1,27 @@
+var f1 := f(y);
+
+var f2 := a or b;
+
+var f3 := not a or b;
+
+var f4 := a or not b;
+
+var f5 := a + c;
+
+var f7 := a and (b and c);
+
+var f8 := a and b and c;
+
+var f9 := a * b + c;
+
+var f10 := a + b * c;
+
+var f11 := a;
+
+var f12 := a or b;
+
+var f13 := a == b or c > d;
+
+var f14 := not a [i];
+
+var f15 := not f(i);

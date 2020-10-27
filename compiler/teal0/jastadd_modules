@@ -12,6 +12,10 @@ module("teal-0") {
 	include "ast/type.ast"
 	include "ast/teal0.ast"
 
+	// Meta-information
+	include "frontend/Version.jrag"
+
+	// Semantic analysis
 	include "frontend/BuiltinTypes.jrag"
 	include "frontend/DumpTree.jrag"
 	include "frontend/Modules.jrag"

@@ -1,0 +1,7 @@
+fun f(a : int, b) : int = {
+    while a {
+	  b := b + 1;
+	  a := a - 1;
+    }
+    return b;
+}

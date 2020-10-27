@@ -1,0 +1,10 @@
+// uninitilized variable declaration
+var a  : any ;
+/*
+	initialized variable declarations
+ */
+var b : int := 0x40 ;
+
+var c : int := 10 ;
+
+var d : string := "escaped\" string" ;
