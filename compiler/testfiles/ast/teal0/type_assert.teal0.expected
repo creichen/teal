@@ -11,7 +11,6 @@ Module
             Type
               IdUse ID="int"
               List
-              List
           Opt
       Opt
         ReturnStmt
@@ -20,7 +19,6 @@ Module
               IdUse ID="x"
             Type
               IdUse ID="int"
-              List
               List
     FunDecl
       IdDecl ID="f"
@@ -34,7 +32,6 @@ Module
               List
                 Type
                   IdUse ID="int"
-                  List
                   List
           Opt
       Opt

@@ -1,0 +1,19 @@
+fun not_lvalue() = {
+    3 := a;
+    "acb" := a;
+    x::y::z := "abc";
+    x + y := b;
+    not a := b;
+    [a, 1] := d;
+    f(x) := 1;
+    self := 5;
+    null := 10;
+}
+
+fun lval() = {
+    f(x) := 1;
+    [a, 1] [3] := 1;
+    x::y::z := 1;
+    (a:int) := 1;
+    x := 1;
+}

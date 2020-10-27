@@ -141,7 +141,8 @@ Module
       Opt
       Opt
         NotExpr
-          CallExpr ID="f"
+          CallExpr
+            IdUse ID="f"
             List
               Access
                 IdUse ID="i"

@@ -7,14 +7,12 @@ Module
         Type
           IdUse ID="int"
           List
-          List
       List
         VarDecl
           IdDecl ID="a"
           Opt
             Type
               IdUse ID="int"
-              List
               List
           Opt
         VarDecl

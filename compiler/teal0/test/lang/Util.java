@@ -137,13 +137,13 @@ public final class Util {
     }
   }
 
-  private static void addTestsInDir(Collection<Object[]> tests, File testDirectory, String extension) {
+  private static void addTestsInDir(Collection<Object[]> tests, File testDirectory, String filePrefix, String extension) {
     if (!testDirectory.isDirectory()) {
       return;
     }
     for (File f: testDirectory.listFiles()) {
       if (f.getName().endsWith(extension)) {
-        tests.add(new Object[] {f.getName()});
+        tests.add(new Object[] {filePrefix + f.getName()});
       }
     }
   }
@@ -160,9 +160,10 @@ public final class Util {
     if (!testDirectory.isDirectory()) {
       throw new Error("Could not find '" + testDirectory + "' directory!");
     }
-    addTestsInDir(tests, testDirectory, extension);
+    addTestsInDir(tests, testDirectory, "", extension);
     for (int i = 0; i <= Program.LAYER; i++) {
-      addTestsInDir(tests, new File(testDirectory, "teal" + i), extension);
+      final String filePrefix = "teal" + i; 
+      addTestsInDir(tests, new File(testDirectory, filePrefix), filePrefix + File.separator, extension);
     }
     return tests;
   }

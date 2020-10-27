@@ -242,13 +242,13 @@ public class TestInterpreter {
 		assertTrue(checkResult(m, 0, 11, 132));
 	}
 
-	@Test(expected=InterpreterException.class)
-	public void testLocalVarQualifierFail() throws InterpreterException {
-		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("qualifier.in");
-		assertNotNull(m);
-		checkResultNoCatch(m, 0, 11, 12);
-	}
+	// FIXME: this one is important for later layers of Teal but not for Teal-0
+	// @Test(expected=InterpreterException.class)
+	// public void testLocalVarQualifierFail() throws InterpreterException {
+	// 	IRProgram m = loadAndCompileProgram("qualifier.in");
+	// 	assertNotNull(m);
+	// 	checkResultNoCatch(m, 0, 11, 12);
+	// }
 
 	@Test
 	public void testArrays() {

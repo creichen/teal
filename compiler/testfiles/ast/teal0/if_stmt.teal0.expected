@@ -30,7 +30,6 @@ Module
         Type
           IdUse ID="T"
           List
-          List
       List
         VarDecl
           IdDecl ID="x"
