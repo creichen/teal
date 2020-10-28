@@ -149,6 +149,7 @@ public class Compiler {
 
 	static class CmdLineOpts {
 		enum Pass {
+			// Compiler passes
 			PARSE,
 			CHECK,
 			IRGEN,
@@ -169,6 +170,10 @@ public class Compiler {
 									  "", true);
 	}
 
+	private static void printVersion() {
+		System.out.println("Teal layer " + Program.LAYER + ", version " + Program.VERSION);
+	}
+
 	public static CmdLineOpts parseCmdLineArgs(String[] args) {
 		DefaultParser parser = new DefaultParser();
 		CmdLineOpts ret = new CmdLineOpts();
@@ -181,8 +186,18 @@ public class Compiler {
 			.desc("Generate IR code.").build();
 		Option run = Option.builder("r").longOpt("run").hasArgs()
 			.desc("Interpret the IR code.").build();
+		Option help = Option.builder("h").longOpt("help")
+			.desc("Display this help.").build();
+		Option version = Option.builder("V").longOpt("version")
+			.desc("Print out version information.").build();
 
-		OptionGroup pass = new OptionGroup().addOption(parse).addOption(check).addOption(codegen).addOption(run);
+		OptionGroup pass = new OptionGroup()
+			.addOption(parse)
+			.addOption(check)
+			.addOption(codegen)
+			.addOption(run)
+			.addOption(help)
+			.addOption(version);
 
 		Option outputFile = Option.builder("o").longOpt("output").hasArg()
 			.desc("Write the compiler's output to FILE.").argName("FILE").build();
@@ -194,10 +209,22 @@ public class Compiler {
 
 		try {
 			CommandLine cmd = parser.parse(options, args);
+
+			// Informative actions (don't use the compiler)
+			if (cmd.hasOption("h")) {
+				printVersion();
+				printHelp(options);
+				System.exit(0);
+			} else if (cmd.hasOption("V")) {
+				printVersion();
+				System.exit(0);
+			}
+
+			// Assume that the user wants us to run the compiler
 			if (cmd.getArgs().length != 1) {
 				System.err.println("Missing MODULE argument.");
 				printHelp(options);
-				throw new RuntimeException();
+				System.exit(1);
 			} else {
 				ret.inputFile = cmd.getArgs()[0];
 			}
