@@ -42,7 +42,7 @@ public class TestNameCheck {
     java.util.List<CompilerError> nameErrors = program.nameErrors();
     Collections.sort(nameErrors, new Comparator<CompilerError>() {
 	public int compare(CompilerError left, CompilerError right) {
-	  int c = Integer.compare(left.getStartLoc(), right.getStartLoc());
+	  int c = left.getSrcLoc().compareTo(right.getSrcLoc());
 	  if (c != 0)
 	    return c;
 	  return left.report().compareTo(right.report());

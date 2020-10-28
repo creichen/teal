@@ -39,14 +39,6 @@ aspect IRGenExpr {
 	eq OrExpr.builtin() = BuiltinNames.INT_OR;
 	eq AndExpr.builtin() = BuiltinNames.INT_AND;
 
-	public SourceLocation ASTNode.sourceLocation() {
-		return new SourceLocation(this.sourceFile(),
-					  this.startLine(),
-					  this.startColumn(),
-					  this.endLine(),
-					  this.endColumn());
-	}
-
 	public IRVarRef BinExpr.genCode(IRFunctionCtx ctx) {
 		IdDecl dd = lookup(builtin().getName());
 		IRFunRef builtinFunc = new IRFunRef(((FunDecl)dd.getDecl()).genIR());

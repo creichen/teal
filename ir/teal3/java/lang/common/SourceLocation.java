@@ -2,7 +2,7 @@ package lang.common;
 
 import java.io.PrintStream;
 
-public class SourceLocation {
+public class SourceLocation implements Comparable<SourceLocation> {
 	private String file = "UNKNOWN";
 	private int startLine, endLine, startColumn, endColumn;
 
@@ -42,5 +42,25 @@ public class SourceLocation {
 			+ "-"
 			+ this.endLine + ":" + this.endColumn
 			+ "]";
+	}
+
+	@Override
+	public int compareTo(SourceLocation r) {
+		if (!this.file.equals(r.file))
+			return this.file.compareTo(r.file);
+
+		if (this.startLine != r.startLine)
+			return Integer.compare(this.startLine, r.startLine);
+
+		if (this.startColumn != r.startColumn)
+			return Integer.compare(this.startColumn, r.startColumn);
+
+		if (this.endLine != r.endLine)
+			return Integer.compare(this.endLine, r.endLine);
+
+		if (this.endColumn != r.endColumn)
+			return Integer.compare(this.endColumn, r.endColumn);
+
+		return 0;
 	}
 }

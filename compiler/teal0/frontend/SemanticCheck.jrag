@@ -1,25 +1,20 @@
 aspect SemanticCheck {
-	class SemanticError implements CompilerError {
-		SrcLoc loc;
+	class SemanticError extends CompilerError {
 		String msg;
 
-		public SemanticError(SrcLoc loc, String msg) {
-			this.loc = loc;
+		public SemanticError(SourceLocation loc, String msg) {
+			super(loc);
 			this.msg = msg;
 		}
 
 		@Override public String report() {
-			return loc.pretty() + ": " + msg;
-		}
-
-		@Override public int getStartLoc() {
-			return loc.getStartLoc();
+			return getSrcLoc() + ": " + msg;
 		}
 	}
 
 	class LValueError extends SemanticError {
-		public LValueError(SrcLoc loc) {
-			super(loc, "Illegal target extends for assignment.");
+		public LValueError(SourceLocation loc) {
+			super(loc, "Illegal target expression for assignment.");
 		}
 	}
 
@@ -31,8 +26,8 @@ aspect SemanticCheck {
 	eq IndexExpr.isLValue() = true;
 	eq TypedExpr.isLValue() = getExpr().isLValue();
 
-	AssignStmt contributes new LValueError(getLValue().getSrcLoc()) when !getLValue().isLValue() to Program.semanticErrors();
+	AssignStmt contributes new LValueError(getLValue().sourceLocation()) when !getLValue().isLValue() to Program.semanticErrors();
 
-	VarDecl contributes new SemanticError(getSrcLoc(), "Global variable does not allow explicit initialization. Its initial value is always null.")
+	VarDecl contributes new SemanticError(sourceLocation(), "Global variable does not allow explicit initialization. Its initial value is always null.")
 		when hasInitializer() && getScope() == VariableScope.GLOBAL to Program.semanticErrors();
 }

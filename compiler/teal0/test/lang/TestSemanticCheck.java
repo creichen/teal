@@ -34,9 +34,9 @@ public class TestSemanticCheck {
     Program program = new Program().addModule(module);
     java.util.List<CompilerError> nameErrors = program.semanticErrors();
     Collections.sort(nameErrors, new Comparator<CompilerError>() {
-	    public int compare(CompilerError left, CompilerError right) {
-		return Integer.compare(left.getStartLoc(), right.getStartLoc());
-	    }
+			public int compare(CompilerError left, CompilerError right) {
+				return left.getSrcLoc().compareTo(right.getSrcLoc());
+			}
 	});
 
     String actual = "";

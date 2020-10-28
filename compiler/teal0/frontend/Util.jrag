@@ -60,8 +60,14 @@ aspect Util {
 }
 
 aspect CompilerError {
-	public interface CompilerError {
-		String report();
-		int getStartLoc();
+	public abstract class CompilerError {
+		private SourceLocation loc;
+		public abstract String report();
+		public CompilerError(SourceLocation loc) {
+			this.loc = loc;
+		}
+		public SourceLocation getSrcLoc() {
+			return loc;
+		}
 	}
 }

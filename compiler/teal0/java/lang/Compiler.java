@@ -29,6 +29,8 @@ import lang.ir.IRProgram;
 import lang.ir.InterpreterException;
 import lang.ir.IRIntegerValue;
 
+import lang.common.SourceLocation;
+
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -74,15 +76,10 @@ public class Compiler {
 		try {
 			scanner = new LangScanner(new FileReader(f));
 		} catch (FileNotFoundException e) {
-			errors.add(new CompilerError() {
+			errors.add(new CompilerError(SourceLocation.UNKNOWN) {
 					@Override
 					public String report() {
 						return "Missing input file '" + f + "'";
-					}
-
-					@Override
-					public int getStartLoc() {
-						return 0;
 					}
 				});
 			return null;
@@ -92,15 +89,10 @@ public class Compiler {
 			m = (Module) parser.parse(scanner);
 			m.setSourceFile(f.getPath());
 		} catch (IOException | Exception e) {
-			errors.add(new CompilerError() {
+			errors.add(new CompilerError(SourceLocation.UNKNOWN) {
 					@Override
 					public String report() {
 						return "Parsing error in file '" + f + "': " + e;
-					}
-
-					@Override
-					public int getStartLoc() {
-						return 0;
 					}
 				});
 			return null;

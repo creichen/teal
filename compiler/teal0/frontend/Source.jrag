@@ -1,5 +1,5 @@
 aspect Source {
-	private String Module.sourceFile;
+	private String Module.sourceFile = "";
 
 	public void Module.setSourceFile(String src) {
 		this.sourceFile = src;
@@ -15,18 +15,57 @@ aspect Source {
 	eq Module.getChild().sourceFile() = sourceFile();
 
 	public int ASTNode.startLine() {
-		return beaver.Symbol.getLine(getStart());
+		return beaver.Symbol.getLine(getStartLoc());
 	}
 
 	public int ASTNode.endLine() {
-		return beaver.Symbol.getLine(getEnd());
+		return beaver.Symbol.getLine(getEndLoc());
 	}
 
 	public int ASTNode.startColumn() {
-		return beaver.Symbol.getColumn(getStart());
+		return beaver.Symbol.getColumn(getStartLoc());
 	}
 
 	public int ASTNode.endColumn() {
-		return beaver.Symbol.getColumn(getEnd());
+		return beaver.Symbol.getColumn(getEndLoc());
+	}
+
+	inh int ASTNode.getParentStartLoc();
+	eq ASTNode.getChild().getParentStartLoc() {
+		return getStartLoc();
+	}
+
+	syn int ASTNode.getStartLoc() {
+		if (getStart() != 0) {
+			return getStart();
+		}
+		if (getParent() == null) {
+			return 0;
+		}
+		return getParentStartLoc();
+	}
+
+
+	inh int ASTNode.getParentEndLoc();
+	eq ASTNode.getChild().getParentEndLoc() {
+		return getEndLoc();
+	}
+
+	syn int ASTNode.getEndLoc() {
+		if (getEnd() != 0) {
+			return getEnd();
+		}
+		if (getParent() == null) {
+			return 0;
+		}
+		return getParentEndLoc();
+	}
+
+	public SourceLocation ASTNode.sourceLocation() {
+		return new SourceLocation(this.sourceFile(),
+					  this.startLine(),
+					  this.startColumn(),
+					  this.endLine(),
+					  this.endColumn());
 	}
 }

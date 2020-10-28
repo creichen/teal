@@ -188,19 +188,17 @@ aspect NameAnalysisPrivate {
 
 aspect NameAnalysisCheck {
 	// Check for duplicate symbols
-	class DuplicateSymbolDeclaration implements CompilerError {
+	class DuplicateSymbolDeclaration extends CompilerError {
 		private ArrayList<IdDecl> declarations;
 		DuplicateSymbolDeclaration(Collection<IdDecl> declarations) {
+			super(declarations.iterator().next().sourceLocation());
 			this.declarations = new ArrayList<>(declarations);
 			Collections.sort(this.declarations,
 							 new Comparator<IdDecl>() {
 								 public int compare(IdDecl left, IdDecl right) {
-									 return left.getSrcLoc().compareTo(right.getSrcLoc());
+									 return left.sourceLocation().compareTo(right.sourceLocation());
 								 }
 							 });
-		}
-		public int getStartLoc() {
-			return declarations.iterator().next().getStartLoc();
 		}
 		public String report() {
 			String name = declarations.iterator().next().getID();
@@ -209,7 +207,7 @@ aspect NameAnalysisCheck {
 				IdDecl d = declarations.get(i);
 				if (i != 0)
 					err += ", ";
-				err += d.prettySrcLoc();
+				err += d.sourceLocation().toString();
 			}
 			err += ".";
 			return err;
@@ -255,22 +253,20 @@ aspect NameAnalysisCheck {
 	}
 
 	// Check for undeclared symbols
-	class UndeclaredSymbol implements CompilerError {
-		String name;
-		SrcLoc loc;
-		UndeclaredSymbol(String name, SrcLoc loc) {
+	class UndeclaredSymbol extends CompilerError {
+		private String name;
+
+		UndeclaredSymbol(String name, SourceLocation loc) {
+			super(loc);
 			this.name = name;
-			this.loc = loc;
+
 		}
 		public String report() {
-			return "Undeclared symbol '" + name + "' at " + loc.pretty() + ".";
-		}
-		public int getStartLoc() {
-			return loc.getStartLoc();
+			return "Undeclared symbol '" + name + "' at " + getSrcLoc().toString() + ".";
 		}
 	}
 
-	IdUse contributes Collections.singleton(new UndeclaredSymbol(getID(), getSrcLoc()))
+	IdUse contributes Collections.singleton(new UndeclaredSymbol(getID(), sourceLocation()))
 		when lookup().isUnknown() to Program.nameErrors();
 }
 

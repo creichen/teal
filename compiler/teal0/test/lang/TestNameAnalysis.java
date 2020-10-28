@@ -41,8 +41,8 @@ public class TestNameAnalysis {
     for (Map.Entry<IdUse, IdDecl> entry : symTable.entrySet()) {
       String line = "";
       line += entry.getKey().getID() + "\t";
-      line += entry.getKey().prettySrcLoc() + "\t";
-      line += entry.getValue().prettySrcLoc() + "\n";
+      line += entry.getKey().sourceLocation().toString() + "\t";
+      line += entry.getValue().sourceLocation().toString() + "\n";
       lines.add(line);
     }
 
