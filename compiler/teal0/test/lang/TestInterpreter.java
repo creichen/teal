@@ -279,4 +279,12 @@ public class TestInterpreter {
 		assertNotNull(p);
 		assertTrue(checkResult(p, 54, 27));
 	}
+
+	@Test
+	public void testGlobalVarInit() {
+		// verify that global variables are initialized to null;
+		IRProgram p = loadAndCompileProgram("global-init.teal");
+		assertNotNull(p);
+		assertTrue(checkResult(p, 6));
+	}
 }

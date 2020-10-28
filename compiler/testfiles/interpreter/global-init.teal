@@ -1,0 +1,16 @@
+import gvar::g;
+
+var x;
+var y : any;
+var z : int;
+var w : string;
+var a : array[string];
+
+fun main() = {
+    return (x == null) +
+	   (y == null) +
+	   (z == null) +
+	   (w == null) +
+	   (a == null) +
+	   (g == null);
+}
