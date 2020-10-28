@@ -220,7 +220,8 @@ public class Compiler {
 			if (cmd.hasOption("i")) {
 				ret.importPaths = Arrays.asList(cmd.getOptionValue("i").split(":"));
 			} else {
-				ret.importPaths = List.of(".");
+				ret.importPaths = new ArrayList<>();
+				ret.importPaths.add(".");
 			}
 
 		} catch (ParseException e) {
