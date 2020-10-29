@@ -288,10 +288,7 @@ public class TestInterpreter {
         public void testWhile() {
                 IRProgram m = loadAndCompileProgram("sum.in");
                 assertNotNull(m);
-
-                int n = 10000;
-                int r = (n - 1) * n / 2;
-                assertTrue(checkResult(m, r, n));
+                checkTestSpec(m, readTestSpec("sum.in"));
         }
 
         @Test
