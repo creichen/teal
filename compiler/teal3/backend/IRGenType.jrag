@@ -121,13 +121,12 @@ aspect IRGenType {
 	}
 
 	@Override public IRTypeRef TypeDecl.genIRTypeRef() {
-		if (this.genIR_visited) {
-			this.genIR_visited = false;
-		}
-		this.genIR_computed = true;
-		this.genIR();
 		IRTypeRef retval = new IRTypeInstanceRef().setIRType(genIR());
 		return retval;
+	}
+
+	@Override public IRTypeRef TypeVarDecl.genIRTypeRef() {
+		return new IRTypeFormalRef(genIR());
 	}
 
 	public IRTypeRef Type.genIR() {

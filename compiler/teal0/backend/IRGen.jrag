@@ -299,7 +299,7 @@ aspect IRGen {
 		// return type, if any
 		IRTypeRef typeref = type().genIRTypeRef();
 		if (typeref == null) {
-		    throw new RuntimeException("Internal error: null null type ref generated for " + ((ASTNode)type()).dumpTree());
+			throw new RuntimeException("Internal error: null type ref generated for " + ((ASTNode)type()).dumpTree());
 		}
 		func.setIRTypeRef(typeref);
 
