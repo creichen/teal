@@ -46,6 +46,13 @@ aspect IRGenExpr {
 	// 	return r;
 	// }
 
+	public IRVarRef Self.genCode(IRFunctionCtx ctx) {
+		IRVarRef selfVar = ctx.getTempIRVar(this);
+		IRSelfInsn self = new IRSelfInsn().setDst(selfVar);
+		ctx.addInsn(self);
+		return selfVar;
+	}
+
 	public IRVarRef DispatchExpr.genCode(IRFunctionCtx ctx) {
 		Expr base = getExpr();
 		TypeDefinition type = base.type();

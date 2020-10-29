@@ -16,9 +16,13 @@ aspect TypeAnalysis {
 		return (TypeDefinition) getType().getIdUse().lookup().getDecl();
 	}
 
+	inh TypeDefinition StructElt.enclosingType();
+	eq TypeDecl.getStructElt().enclosingType() = this;
+	inh TypeDefinition Self.enclosingType();
+	eq Self.type() = enclosingType();
+
 	syn TypeDefinition Decl.type() = null;
 	eq VarDecl.type() {
-
 		if (hasType()) {
 			return (TypeDefinition) getType().getIdUse().lookup().getDecl();
 		}
