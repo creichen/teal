@@ -11,8 +11,6 @@ aspect IRGen {
 
 	Decl implements ModuleMemberIR;
 
-	public void TypeVarDecl.addIRToModule(IRModule m) { throw new NotYetImplementedError("Cannot translate declaration " + this.getClass()); }
-
 	/**
 	 * Code generation details for different storage bindings of variables
 	 * FIXME: rename to VariableBindingIR

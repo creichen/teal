@@ -14,6 +14,7 @@ module("teal-3") {
 	// Semantic Analysis
 	include "frontend/BuiltinTypes.jrag"
 	excludeFrom "teal-0", "frontend/TypeAnalysisBuiltinTypes.jrag"
+	excludeFrom "teal-0", "frontend/TypeAnalysis.jrag"
 
 	include "frontend/NameAnalysis.jrag"
 	include "frontend/SemanticCheck.jrag"
@@ -27,6 +28,7 @@ module("teal-3") {
     }
 
     scanner {
+	excludeFrom "teal-0", "scanner/type.flex"
 	include "scanner/scanner.flex"
     }
 

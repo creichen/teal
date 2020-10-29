@@ -7,3 +7,5 @@
 [8:5-8:8]: Illegal target expression for assignment.
 [9:5-9:8]: Illegal target expression for assignment.
 [10:5-10:8]: Illegal target expression for assignment.
+[14:5-14:8]: Illegal target expression for assignment.
+[16:5-16:11]: Illegal target expression for assignment.

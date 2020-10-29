@@ -34,7 +34,8 @@ module("teal-0") {
     }
 
     scanner {
-	include "scanner/header.flex", [-1]
+	include "scanner/header.flex", [-2]
+	include "scanner/type.flex", [-1]
 	include "scanner/scanner.flex"
 	include "scanner/id.flex", [1]
 	include "scanner/footer.flex", [2]

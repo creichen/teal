@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Collection;
 
 aspect NameAnalysis {
+	syn Decl Type.decl() = getIdUse().lookup().getDecl();
+
 	eq ForStmt.getBody().lookup(String s) {
 		IdDecl d = localLookup(s);
 		if (d != null)

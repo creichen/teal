@@ -8,10 +8,36 @@ aspect TypeAnalysis {
 
 	TypeDecl implements TypeDefinition;
 	TypeVarDecl implements TypeDefinition;
+
+	syn TypeDefinition Expr.type() = program().ANY();
+	eq IntConstant.type() = program().INT();
+	eq StringConstant.type() = program().STRING();
+	eq TypedExpr.type() {
+		return (TypeDefinition) getType().getIdUse().lookup().getDecl();
+	}
+
+	syn TypeDefinition Decl.type() = null;
+	eq VarDecl.type() {
+
+		if (hasType()) {
+			return (TypeDefinition) getType().getIdUse().lookup().getDecl();
+		}
+		if (hasInitializer()) {
+			return getInitializer().type();
+		}
+		return program().ANY();
+	}
+	eq FunDecl.type() {
+		if (hasType()) {
+			return (TypeDefinition) getType().getIdUse().lookup().getDecl();
+		}
+		return program().ANY();
+	}
 	eq Access.type() {
 		VarDecl d = (VarDecl) getIdUse().lookup().getDecl();
 		if (d.hasType())
 			return (TypeDefinition) d.getType().decl();
 		return program().ANY();
 	}
+
 }

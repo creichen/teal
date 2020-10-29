@@ -5,9 +5,6 @@ VarDecl : Decl ::= IdDecl [Type] [Initializer:Expr];
 // Functions
 FunDecl : Decl ::= IdDecl [Type] Formal:VarDecl* [Body:Stmt];
 
-// Type Variables (not allowed as source elements in TEAL-0 and TEAL-1), but may be useful internally
-TypeVarDecl : Decl ::= IdDecl;
-
 // Expressions
 abstract Expr;
 

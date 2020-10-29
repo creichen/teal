@@ -1,26 +1,31 @@
 aspect TypeAnalysis {
-	syn TypeDefinition Expr.type() = program().ANY();
-	eq IntConstant.type() = program().INT();
-	eq StringConstant.type() = program().STRING();
+	public interface TypeDefinition {
+		lang.ir.IRTypeRef genIRTypeRef(); // code generation
+	}
+
+	Type implements TypeDefinition;
+
+	syn TypeDefinition Expr.type() = new AnyType();
+	eq IntConstant.type() = new IntType();
+	eq StringConstant.type() = new StringType();
 	eq TypedExpr.type() {
-		return (TypeDefinition) getType().getIdUse().lookup().getDecl();
+		return getType();
 	}
 
 	syn TypeDefinition Decl.type() = null;
 	eq VarDecl.type() {
-
 		if (hasType()) {
-			return (TypeDefinition) getType().getIdUse().lookup().getDecl();
+			return getType();
 		}
 		if (hasInitializer()) {
 			return getInitializer().type();
 		}
-		return program().ANY();
+		return new AnyType();
 	}
 	eq FunDecl.type() {
 		if (hasType()) {
-			return (TypeDefinition) getType().getIdUse().lookup().getDecl();
+			return getType();
 		}
-		return program().ANY();
+		return new AnyType();
 	}
 }

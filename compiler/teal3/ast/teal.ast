@@ -1,3 +1,6 @@
+// Type Variables
+TypeVarDecl : Decl ::= IdDecl;
+
 // Type declarations
 TypeDecl : Decl ::= IdDecl TypeFormal:TypeVarDecl* SuperType:Type* StructElt*;
 

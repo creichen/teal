@@ -30,6 +30,8 @@ aspect IRGen {
 			}
 		};
 
+	public void TypeVarDecl.addIRToModule(IRModule m) { throw new NotYetImplementedError("Cannot translate declaration " + this.getClass()); }
+
 	public void TypeDecl.addIRToModule(IRModule m) { throw new NotYetImplementedError("Cannot translate declaration " + this.getClass()); }
 
 	public class IRFunctionCtxWithQualifiers extends IRFunctionCtx {

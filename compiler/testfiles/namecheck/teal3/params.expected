@@ -1,5 +1,5 @@
-Multiple declarations for symbol 'dup_a' at locations: 1:7-1:11, 1:14-1:24.
-Multiple declarations for symbol 'DupT' at locations: 3:11-3:14, 3:17-3:20.
-Multiple declarations for symbol 'DupFunc' at locations: 3:32-3:38, 3:42-3:48.
-Multiple declarations for symbol 'dupMember' at locations: 3:63-3:71, 4:7-4:25.
-Multiple declarations for symbol 'dupMethod' at locations: 3:74-3:82, 5:7-5:33.
+Multiple declarations for symbol 'dup_a' at locations: [1:7-1:11], [1:14-1:24].
+Multiple declarations for symbol 'DupT' at locations: [3:11-3:14], [3:17-3:20].
+Multiple declarations for symbol 'DupFunc' at locations: [3:32-3:38], [3:42-3:48].
+Multiple declarations for symbol 'dupMember' at locations: [3:63-3:71], [4:7-4:25].
+Multiple declarations for symbol 'dupMethod' at locations: [3:74-3:82], [5:7-5:33].

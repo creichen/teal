@@ -1,28 +1,13 @@
 aspect TypeAnalysis {
-	public interface TypeDefinition {
-		lang.ir.IRTypeRef genIRTypeRef(); // code generation
-	}
+	syn boolean Type.isInt() = false;
+	eq IntType.isInt() = true;
 
-	BuiltinTypeCon implements TypeDefinition;
+	syn boolean Type.isString() = false;
+	eq StringType.isString() = true;
 
-	eq BuiltinTypeCon.typeDefinition() = this;
+	syn boolean Type.isAny() = false;
+	eq AnyType.isAny() = true;
 
-	// Constructs a built-in type.  In Teal-2+, we represent builtin types as classes.
-	syn nta BuiltinTypeCon Program.builtinType(String name) = new BuiltinTypeCon().setIdDecl(new IdDecl(name));
-
-	syn boolean BuiltinTypeCon.isArray() {
-		return equals(program().ARRAY());
-	}
-
-	// FIXME: general lookupDecl() and more convenient interface for that?
-	// FIXME: how does this relate to type() ?
-	syn BuiltinTypeCon Type.baseType() {
-		return (BuiltinTypeCon) getIdUse().lookup().getDecl();
-	}
-}
-aspect NameAnalysis {
-	eq BuiltinTypeCon.getIdDecl().getDecl() = this;
-}
-aspect IRGenExpr {
-	eq BuiltinTypeCon.getTypeFormal().getScope() = VariableScope.LOCAL;
+	syn boolean Type.isArray() = false;
+	eq ArrayType.isArray() = true;
 }

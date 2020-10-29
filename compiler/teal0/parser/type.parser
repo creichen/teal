@@ -1,3 +1,5 @@
-Type type = ID {: return new Type(new IdUse(ID), new List<>()); :}
-          | ID LBRACK type RBRACK {: return new Type(new IdUse(ID), new List<>(type)); :}
+Type type = INT {: return new IntType(); :}
+          | STRING {: return new StringType(); :}
+          | ARRAY LBRACK type RBRACK {: return new ArrayType(type); :}
+          | ANY {: return new AnyType(); :}
 	  ;

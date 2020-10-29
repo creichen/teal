@@ -28,7 +28,7 @@ Module
       IdDecl ID="g"
       Opt
         Type
-          IdUse ID="T"
+          IdUse ID="int"
           List
           List
       List

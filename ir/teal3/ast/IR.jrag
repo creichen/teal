@@ -10,17 +10,19 @@ aspect IR {
 	public IRClass IRModule.IntegerType = IRClass.newBuiltinIRClass("int");
 	public IRClass IRModule.StringType = IRClass.newBuiltinIRClass("string");
 	public IRClass IRModule.AnyType = IRClass.newBuiltinIRClass("any");
+	public IRClass IRModule.ArrayType = IRClass.newBuiltinIRClass("array")
+		.addIRTypeFormal(new IRTypeFormal(new IRName("T")));
 
-	public IRTypeRef IRModule.makeIntegerTypeRef() {
-		return new IRTypeInstanceRef(IntegerType, new List());
+	public static IRTypeRef IRModule.makeIntegerTypeRef() {
+		return new IRTypeInstanceRef(IRClass.newBuiltinIRClass("int"), new List());
 	}
 
-	public IRTypeRef IRModule.makeStringTypeRef() {
-		return new IRTypeInstanceRef(StringType, new List());
+	public static IRTypeRef IRModule.makeStringTypeRef() {
+		return new IRTypeInstanceRef(IRClass.newBuiltinIRClass("string"), new List());
 	}
 
-	public IRTypeRef IRModule.makeAnyTypeRef() {
-		return new IRTypeInstanceRef(AnyType, new List());
+	public static IRTypeRef IRModule.makeAnyTypeRef() {
+		return new IRTypeInstanceRef(IRClass.newBuiltinIRClass("any"), new List());
 	}
 
 	public String IRModule.defaultName = "main";

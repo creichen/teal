@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.Collection;
 
 aspect NameAnalysis {
-	syn Decl Type.decl() = getIdUse().lookup().getDecl();
-
 	inh IdDecl IdUse.lookup(String s);
 	syn IdDecl IdUse.lookup() = lookup(getID());
 
@@ -190,16 +188,13 @@ aspect NameAnalysisCheck {
 	// Check for duplicate symbols
 	class DuplicateSymbolDeclaration extends CompilerError {
 		private ArrayList<IdDecl> declarations;
+
 		DuplicateSymbolDeclaration(Collection<IdDecl> declarations) {
-			super(declarations.iterator().next().sourceLocation());
+			super(declarations.stream().map(d -> d.sourceLocation()).min(Comparator.naturalOrder()).get());
 			this.declarations = new ArrayList<>(declarations);
-			Collections.sort(this.declarations,
-							 new Comparator<IdDecl>() {
-								 public int compare(IdDecl left, IdDecl right) {
-									 return left.sourceLocation().compareTo(right.sourceLocation());
-								 }
-							 });
+			Collections.sort(this.declarations, Comparator.comparing(d -> d.sourceLocation()));
 		}
+
 		public String report() {
 			String name = declarations.iterator().next().getID();
 			String err = "Multiple declarations for symbol '" + name + "' at locations: ";

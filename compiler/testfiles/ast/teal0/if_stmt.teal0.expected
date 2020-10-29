@@ -27,9 +27,7 @@ Module
     FunDecl
       IdDecl ID="g"
       Opt
-        Type
-          IdUse ID="T"
-          List
+        IntType
       List
         VarDecl
           IdDecl ID="x"

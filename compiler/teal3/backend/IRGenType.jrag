@@ -1,4 +1,8 @@
 aspect IRGenType {
+	syn IRTypeFormal TypeVarDecl.genIR() {
+		return new IRTypeFormal(new IRName(getIdDecl().getID()));
+	}
+
 	syn IRType TypeDecl.genIR() {
 		throw new NotYetImplementedError("Translation of types not fully implemented");
 	}

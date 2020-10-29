@@ -1,7 +1,7 @@
 fun f(x) = if x { return 5; } else { return x + 5; }
 
 
-fun g(x) : T = if x * 4 + g(x) { return 6; } else { return 5; }
+fun g(x) : int = if x * 4 + g(x) { return 6; } else { return 5; }
 
 
 fun h(x, y) = {
