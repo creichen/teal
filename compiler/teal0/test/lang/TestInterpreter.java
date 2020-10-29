@@ -281,7 +281,7 @@ public class TestInterpreter {
         public void testArith() {
                 IRProgram m = loadAndCompileProgram("arith.in");
                 assertNotNull(m);
-                assertTrue(checkResult(m, 0, 11, 8));
+                checkTestSpec(m, readTestSpec("arith.in"));
         }
 
         @Test
