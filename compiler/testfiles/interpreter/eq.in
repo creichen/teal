@@ -1,1 +1,5 @@
+// IN: 10 13
+// OUT: 0
+// IN: 1001 1001
+// OUT: 1
 fun main(x : int, y : int) : int = return x == y;

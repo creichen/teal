@@ -228,27 +228,32 @@ public class TestInterpreter {
          * and expected outputs or exceptions
          * @param programName the file where the program
          */
-        public List<TestSpec> readTestSpec(String name) throws IOException {
+        public List<TestSpec> readTestSpec(String name) {
                 Path file = Paths.get(TEST_DIRECTORY, name);
-                List<String> contents = Files.lines(file, StandardCharsets.UTF_8).collect(Collectors.toList());
-                TestSpec currentSpec = new TestSpec();
-                List<TestSpec> results = new ArrayList();
-                for (String l : contents) {
-                        currentSpec.combineWith(TestSpec.parseInputs(l));
-                        currentSpec.combineWith(TestSpec.parseOutput(l));
-                        currentSpec.combineWith(TestSpec.parseException(l));
-                        if(currentSpec.isComplete()) {
-                                results.add(currentSpec);
-                                currentSpec = new TestSpec();
-                                break;
+                try {
+                        List<String> contents = Files.lines(file, StandardCharsets.UTF_8).collect(Collectors.toList());
+                        TestSpec currentSpec = new TestSpec();
+                        List<TestSpec> results = new ArrayList();
+                        for (String l : contents) {
+                                currentSpec.combineWith(TestSpec.parseInputs(l));
+                                currentSpec.combineWith(TestSpec.parseOutput(l));
+                                currentSpec.combineWith(TestSpec.parseException(l));
+                                if(currentSpec.isComplete()) {
+                                        results.add(currentSpec);
+                                        currentSpec = new TestSpec();
+                                }
                         }
+
+                        if (!currentSpec.isBlank()) {
+                                throw new RuntimeException("Incomplete spec: " + currentSpec.toString());
+                        }
+
+                        return results;
+                } catch (IOException e) {
+                        e.printStackTrace();
+                        throw new RuntimeException("Failed to read file: " + name);
                 }
 
-                if (!currentSpec.isBlank()) {
-                        throw new RuntimeException("Incomplete spec: " + currentSpec.toString());
-                }
-
-                return results;
         }
 
         public void checkTestSpec(IRProgram p, List<TestSpec> testCases) {
@@ -269,8 +274,7 @@ public class TestInterpreter {
         public void testEq() {
                 IRProgram m = loadAndCompileProgram("eq.in");
                 assertNotNull(m);
-                assertTrue(checkResult(m, 0, 10, 13));
-                assertTrue(checkResult(m, 1, 1001, 1001));
+                checkTestSpec(m, readTestSpec("eq.in"));
         }
 
         @Test
