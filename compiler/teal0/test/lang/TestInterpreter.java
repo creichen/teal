@@ -295,10 +295,7 @@ public class TestInterpreter {
         public void testRecursiveCall() {
                 IRProgram m = loadAndCompileProgram("sum_rec.in");
                 assertNotNull(m);
-
-                int n = 20;
-                int r = (n + 1) * n / 2;
-                assertTrue(checkResult(m, r, n));
+                checkTestSpec(m, readTestSpec("sum_rec.in"));
         }
 
         @Test
