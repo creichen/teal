@@ -121,18 +121,99 @@ public class TestInterpreter {
 	}
 
 
-        public class TestSpec {
-                public Object[] inputs;
+        public static class TestSpec {
+                public Optional<Object[]> inputs;
                 public Optional<Object> output;
                 public Optional<Object> exception;
 
-                public TestSpec(Object[] inputs,
-                                Optional<Object> output,
-                                Optional<Object> exceptions) {
+                public TestSpec() {
+                        this.inputs = Optional.empty();
+                        this.output = Optional.empty();
+                        this.exception = Optional.empty();
+                }
 
+                public TestSpec(Optional<Object[]> inputs,
+                                Optional<Object> output,
+                                Optional<Object> exception) {
+                        this.inputs = inputs;
+                        this.output = output;
+                        this.exception = exception;
+                }
+
+                public static String INPUT_PATTERN = "IN: ([-0-9] ?)+";
+                public static String OUTPUT_PATTERN = "OUT: ([-0-9]+)";
+                public static String EXCEPTION_PATTERN = "EXCEPTION: [-0-9]+";
+
+                public static TestSpec parseInputs(String line) {
+                        Pattern p = Pattern.compile(INPUT_PATTERN);
+                        Matcher m = p.matcher(line);
+
+                        if (m.find()) {
+                                Object[] results = new Object[m.groupCount()];
+                                for (int i = 0; i < m.groupCount(); ++i) {
+                                        results[i] = m.group(i);
+                                }
+                                return new TestSpec(Optional.of(results),
+                                                    Optional.empty(),
+                                                    Optional.empty());
+                        } else {
+                                return new TestSpec();
+                        }
+                }
+
+                public static TestSpec parseOutput(String line) {
+                        Pattern p = Pattern.compile(OUTPUT_PATTERN);
+                        Matcher m = p.matcher(line);
+
+                        if (m.find()) {
+                                return new TestSpec(Optional.empty(),
+                                                    Optional.of(m.group()),
+                                                    Optional.empty());
+                        } else {
+                                return new TestSpec();
+                        }
+                }
+
+                public static TestSpec parseException(String line) {
+                        Pattern p = Pattern.compile(EXCEPTION_PATTERN);
+                        Matcher m = p.matcher(line);
+
+                        if (m.find()) {
+                                return new TestSpec(Optional.empty(),
+                                                    Optional.of(m.group()),
+                                                    Optional.empty());
+                        } else {
+                                return new TestSpec();
+                        }
+                }
+
+                private <T> Optional<T> combineOptionals(Optional<T> o1, Optional<T> o2) {
+                        if (o1.isPresent() & !o2.isPresent()) {
+                                return o1;
+                        }
+                        if (!o1.isPresent() & o2.isPresent()) {
+                                return o2;
+                        } else {
+                                throw new RuntimeException("Cannot combine values: %d and %d".format(o1.toString(),
+                                                                                                     o2.toString()));
+                        }
+                }
+
+                public void combineWith(TestSpec other) {
+                        if (other.isBlank()) { return; }
+                        this.inputs = combineOptionals(this.inputs, other.inputs);
+                        this.output = combineOptionals(this.output, other.output);
+                        this.exception = combineOptionals(this.exception, other.exception);
                 }
 
 
+                public Boolean isComplete() {
+                        return inputs != null & (!output.isPresent() | !exception.isPresent());
+                }
+
+                public Boolean isBlank() {
+                        return inputs == null & output.isPresent() & exception.isPresent();
+                }
         }
 
         /**
@@ -143,8 +224,25 @@ public class TestInterpreter {
         public List<TestSpec> readTestSpec(String name) throws IOException {
                 Path file = Paths.get(TEST_DIRECTORY, name);
                 List<String> contents = Files.lines(file, StandardCharsets.UTF_8).collect(Collectors.toList());
+                TestSpec currentSpec = new TestSpec();
+                List<TestSpec> results = new ArrayList();
+                for (String l : contents) {
+                        if(currentSpec.isComplete()) {
+                                results.add(currentSpec);
+                                currentSpec = new TestSpec();
+                                break;
+                        }
 
-                return new ArrayList();
+                        if(currentSpec.isBlank()) {
+                                currentSpec.combineWith(TestSpec.parseInputs(l));
+                                break;
+                        }
+
+                        // Else
+                        currentSpec.combineWith(TestSpec.parseOutput(l));
+                        currentSpec.combineWith(TestSpec.parseException(l));
+                }
+                return results;
         }
 
         public List<Boolean> checkTestSpec(IRProgram p, List<TestSpec> testCases) {
