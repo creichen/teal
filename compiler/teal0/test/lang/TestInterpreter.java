@@ -252,24 +252,18 @@ public class TestInterpreter {
                 return results;
         }
 
-        public List<Boolean> checkTestSpec(IRProgram p, List<TestSpec> testCases) {
-                List<Boolean> result = new ArrayList();
+        public void checkTestSpec(IRProgram p, List<TestSpec> testCases) {
                 for (TestSpec t : testCases) {
                         assertTrue(t.isComplete());
-                        result.add(checkResult(p, t.output.get(), t.inputs.get()));
+                        assertTrue(checkResult(p, t.output.get(), t.inputs.get()));
                 }
-                return result;
         }
 
         @Test
         public void testAdd() throws IOException {
                 IRProgram m = loadAndCompileProgram("add.in");
                 assertNotNull(m);
-                List<Boolean> results = checkTestSpec(m, readTestSpec("add.in"));
-                assertFalse(results.isEmpty());
-                for (Boolean b : results) {
-                        assertTrue(b);
-                }
+                checkTestSpec(m, readTestSpec("add.in"));
         }
 
         @Test
