@@ -1,0 +1,15 @@
+class C[T] = {
+      T := 0;
+      T();
+}
+
+fun f() = {
+    C := 100;
+    C(100);
+}
+
+var v;
+fun g() : v = {
+    var tmp := new C[v]();
+    tmp := new C[g]();
+}

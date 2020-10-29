@@ -1,0 +1,11 @@
+aspect Decl {
+	syn boolean Decl.isTypeVarDecl() = false;
+	syn boolean TypeVarDecl.isTypeVarDecl() = true;
+	syn TypeVarDecl Decl.asTypeVarDecl() { throw new RuntimeException("Attempt to use " + getClass() + " as " + TypeVarDecl.class); }
+	eq TypeVarDecl.asTypeVarDecl() = this;
+
+	syn boolean Decl.isTypeDecl() = false;
+	syn boolean TypeDecl.isTypeDecl() = true;
+	syn TypeDecl Decl.asTypeDecl() { throw new RuntimeException("Attempt to use " + getClass() + " as " + TypeDecl.class); }
+	eq TypeDecl.asTypeDecl() = this;
+}

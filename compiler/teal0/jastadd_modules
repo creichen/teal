@@ -20,6 +20,7 @@ module("teal-0") {
 	include "frontend/DumpTree.jrag"
 	include "frontend/Modules.jrag"
 	include "frontend/Util.jrag"
+	include "frontend/Decl.jrag"
 	include "frontend/Source.jrag"
 	include "frontend/NameAnalysis.jrag"
 	include "frontend/SemanticCheck.jrag"
