@@ -235,28 +235,28 @@ public class TestInterpreter {
                 TestSpec currentSpec = new TestSpec();
                 List<TestSpec> results = new ArrayList();
                 for (String l : contents) {
+                        currentSpec.combineWith(TestSpec.parseInputs(l));
+                        currentSpec.combineWith(TestSpec.parseOutput(l));
+                        currentSpec.combineWith(TestSpec.parseException(l));
                         if(currentSpec.isComplete()) {
                                 results.add(currentSpec);
                                 currentSpec = new TestSpec();
                                 break;
                         }
-
-                        if(currentSpec.isBlank()) {
-                                currentSpec.combineWith(TestSpec.parseInputs(l));
-                                break;
-                        }
-
-                        // Else
-                        currentSpec.combineWith(TestSpec.parseOutput(l));
-                        currentSpec.combineWith(TestSpec.parseException(l));
                 }
+
+                if (!currentSpec.isBlank()) {
+                        throw new RuntimeException("Incomplete spec: " + currentSpec.toString());
+                }
+
                 return results;
         }
 
         public List<Boolean> checkTestSpec(IRProgram p, List<TestSpec> testCases) {
                 List<Boolean> result = new ArrayList();
                 for (TestSpec t : testCases) {
-                        result.add(checkResult(p, t.output, t.inputs));
+                        assertTrue(t.isComplete());
+                        result.add(checkResult(p, t.output.get(), t.inputs.get()));
                 }
                 return result;
         }
