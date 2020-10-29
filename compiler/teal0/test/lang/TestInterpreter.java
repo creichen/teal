@@ -153,7 +153,6 @@ public class TestInterpreter {
                                 Object[] results = new Object[values.length];
                                 int i = 1;
                                 for (String val : values) {
-                                        System.out.println(val);
                                         results[i-1] = Integer.parseInt(val);
                                         i++;
                                 }
