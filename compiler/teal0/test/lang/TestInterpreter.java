@@ -6,10 +6,17 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +37,9 @@ import lang.ir.IRStringValue;
 import lang.ir.InterpreterException;
 import lang.ir.IRTypeRef;
 
+/**
+ * Test class for the IR Interpreter
+ */
 public class TestInterpreter {
 	private static final String TEST_DIRECTORY = "testfiles/interpreter";
 
@@ -110,11 +120,50 @@ public class TestInterpreter {
 		return false;
 	}
 
+
+        public class TestSpec {
+                public Object[] inputs;
+                public Optional<Object> output;
+                public Optional<Object> exception;
+
+                public TestSpec(Object[] inputs,
+                                Optional<Object> output,
+                                Optional<Object> exceptions) {
+
+                }
+
+
+        }
+
+        /**
+         * Reads comments from a program to find inputs to the test
+         * and expected outputs or exceptions
+         * @param programName the file where the program
+         */
+        public List<TestSpec> readTestSpec(String name) throws IOException {
+                Path file = Paths.get(TEST_DIRECTORY, name);
+                List<String> contents = Files.lines(file, StandardCharsets.UTF_8).collect(Collectors.toList());
+
+                return new ArrayList();
+        }
+
+        public List<Boolean> checkTestSpec(IRProgram p, List<TestSpec> testCases) {
+                List<Boolean> result = new ArrayList();
+                for (TestSpec t : testCases) {
+                        result.add(checkResult(p, t.output, t.inputs));
+                }
+                return result;
+        }
+
 	@Test
-	public void testAdd() {
+        public void testAdd() throws IOException {
 		IRProgram m = loadAndCompileProgram("add.in");
 		assertNotNull(m);
-		assertTrue(checkResult(m, 0, -100, 100));
+                List<Boolean> results = checkTestSpec(m, readTestSpec("add.in"));
+                assertFalse(results.isEmpty());
+                for (Boolean b : results) {
+                        assertTrue(b);
+                }
 	}
 
 	@Test
