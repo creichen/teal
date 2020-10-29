@@ -33,7 +33,13 @@ jastadd {
     configureModuleBuild()
 
     modules "${projectDir}/teal0/jastadd_modules", "${projectDir}/teal3/jastadd_modules"
-    module = "teal-0"
+
+    if (project.hasProperty("langVersion")) {
+	println "Building language version " + project.getProperty("langVersion")
+	module = project.getProperty("langVersion")
+    } else {
+	module = "teal-0"
+    }
 
     astPackage = "lang.ast"
     parser.name = "TEALParser"

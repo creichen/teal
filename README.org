@@ -1,7 +1,9 @@
 #+TITLE: TEAL - typed, easily analyzable language
 
 * Building
+To build TEAL-0 (default) run:
 ~./gradlew jar test~
+and ~./gradlew -PlangVersion=teal-3 jar test~ for TEAL-3.
 
 * Generate and dump the IR
 ~java -jar compiler.jar program.teal~
