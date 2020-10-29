@@ -140,19 +140,24 @@ public class TestInterpreter {
                         this.exception = exception;
                 }
 
-                public static String INPUT_PATTERN = "IN: ([-0-9] ?)+";
-                public static String OUTPUT_PATTERN = "OUT: ([-0-9]+)";
-                public static String EXCEPTION_PATTERN = "EXCEPTION: [-0-9]+";
+                public static String INPUT_PATTERN = "// IN: (.+)";
+                public static String OUTPUT_PATTERN = "// OUT: ([-0-9]+)";
+                public static String EXCEPTION_PATTERN = "// EXCEPTION: [-0-9]+";
 
                 public static TestSpec parseInputs(String line) {
                         Pattern p = Pattern.compile(INPUT_PATTERN);
                         Matcher m = p.matcher(line);
 
                         if (m.find()) {
-                                Object[] results = new Object[m.groupCount()];
-                                for (int i = 0; i < m.groupCount(); ++i) {
-                                        results[i] = m.group(i);
+                                String[] values = m.group(1).split(" ");
+                                Object[] results = new Object[values.length];
+                                int i = 1;
+                                for (String val : values) {
+                                        System.out.println(val);
+                                        results[i-1] = Integer.parseInt(val);
+                                        i++;
                                 }
+
                                 return new TestSpec(Optional.of(results),
                                                     Optional.empty(),
                                                     Optional.empty());
@@ -167,7 +172,7 @@ public class TestInterpreter {
 
                         if (m.find()) {
                                 return new TestSpec(Optional.empty(),
-                                                    Optional.of(m.group()),
+                                                    Optional.of(Integer.parseInt(m.group(1))),
                                                     Optional.empty());
                         } else {
                                 return new TestSpec();
@@ -180,7 +185,7 @@ public class TestInterpreter {
 
                         if (m.find()) {
                                 return new TestSpec(Optional.empty(),
-                                                    Optional.of(m.group()),
+                                                    Optional.of(Integer.parseInt(m.group())),
                                                     Optional.empty());
                         } else {
                                 return new TestSpec();
