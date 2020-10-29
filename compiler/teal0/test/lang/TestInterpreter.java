@@ -193,9 +193,12 @@ public class TestInterpreter {
                         }
                         if (!o1.isPresent() & o2.isPresent()) {
                                 return o2;
+                        } if (!o1.isPresent() & !o2.isPresent()) {
+                                return Optional.empty();
                         } else {
-                                throw new RuntimeException("Cannot combine values: %d and %d".format(o1.toString(),
-                                                                                                     o2.toString()));
+                                throw new RuntimeException(String.format("Cannot combine values: %s and %s",
+                                                                         o1.toString(),
+                                                                         o2.toString()));
                         }
                 }
 
