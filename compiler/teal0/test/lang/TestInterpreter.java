@@ -211,11 +211,11 @@ public class TestInterpreter {
 
 
                 public Boolean isComplete() {
-                        return inputs != null & (!output.isPresent() | !exception.isPresent());
+                        return inputs.isPresent() & (output.isPresent() | exception.isPresent());
                 }
 
                 public Boolean isBlank() {
-                        return inputs == null & output.isPresent() & exception.isPresent();
+                        return !inputs.isPresent() & !output.isPresent() & !exception.isPresent();
                 }
         }
 
