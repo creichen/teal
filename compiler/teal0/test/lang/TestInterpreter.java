@@ -431,10 +431,11 @@ public class TestInterpreter {
 
         @Test
         public void testSubclass() {
+                // This test here does not have inputs and it has a string as output
                 if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
                 IRProgram m = loadAndCompileProgram("subclass.in"); // FIXME: in teal3/ subdir now
                 assertNotNull(m);
-                assertTrue(checkResult(m, "Dog"));
+                checkTestSpec(m, readTestSpec("subclass.in"));
         }
 
         @Test

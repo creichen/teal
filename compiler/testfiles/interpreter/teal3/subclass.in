@@ -1,29 +1,30 @@
+// OUT: "Dog"
 class Animal = {
       fun move() = {
-      	  return self.kind();
+          return self.kind();
       }
 
       fun kind() = {
-      	  return "Animal";
+          return "Animal";
       }
 }
 
 class Chordata <: Animal = {
       fun kind() = {
-      	  return "Chordata";
+          return "Chordata";
       }
 }
 
 class Mammal <: Chordata = {
       fun kind() = {
-      	  return "Mammal";
+          return "Mammal";
       }
 }
 
 
 class Dog <: Mammal = {
       fun kind() = {
-      	  return "Dog";
+          return "Dog";
       }
 }
 
