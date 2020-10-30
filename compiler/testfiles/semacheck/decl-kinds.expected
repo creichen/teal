@@ -1,2 +1,2 @@
-[4:5-4:5]: 'g' is declared as a function, but used as a variable.
-[5:5-5:7]: 'v' is declared as a variable, but used as a function.
+testfiles/semacheck/decl-kinds.in[4:5-4:5]: 'g' is declared as a function, but used as a variable.
+testfiles/semacheck/decl-kinds.in[5:5-5:7]: 'v' is declared as a variable, but used as a function.
