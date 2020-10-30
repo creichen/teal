@@ -271,6 +271,13 @@ public class TestInterpreter {
                 assertEquals("Dog", i.output.get());
         }
 
+        @Test
+        public void testExceptionSpec() {
+                TestSpec e = TestSpec.parseException("// EXCEPTION: lang.ir.InterpreterException");
+                assertNotEquals(e.exception, Optional.empty());
+                assertEquals(lang.ir.InterpreterException.class, e.exception.get());
+        }
+
         /**
          * Reads comments from a program to find inputs to the test
          * and expected outputs or exceptions
