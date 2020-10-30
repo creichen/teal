@@ -223,6 +223,28 @@ public class TestInterpreter {
                 }
         }
 
+        @Test
+        public void testReadInputSpec() {
+                TestSpec i = TestSpec.parseInputs("// IN: 0");
+                assertNotEquals(i.inputs, Optional.empty());
+                assertTrue(i.inputs.get().length == 1);
+                assertEquals(0, i.inputs.get()[0]);
+        }
+
+        @Test
+        public void testOutputSpec() {
+                TestSpec i = TestSpec.parseOutput("// OUT: 0");
+                assertNotEquals(i.output, Optional.empty());
+                assertEquals(0, i.output.get());
+        }
+
+        @Test
+        public void testOutputSpecString() {
+                TestSpec i = TestSpec.parseOutput("// OUT: \"Dog\"");
+                assertNotEquals(i.output, Optional.empty());
+                assertEquals("Dog", i.output.get());
+        }
+
         /**
          * Reads comments from a program to find inputs to the test
          * and expected outputs or exceptions
