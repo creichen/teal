@@ -141,8 +141,8 @@ public class TestInterpreter {
                 }
 
                 public static String INPUT_PATTERN = "// IN: (.+)";
-                public static String OUTPUT_PATTERN = "// OUT: ([-0-9]+)";
-                public static String EXCEPTION_PATTERN = "// EXCEPTION: [-0-9]+";
+                public static String OUTPUT_PATTERN = "// OUT: (([-0-9]+)|(\".*\"))$";
+                public static String EXCEPTION_PATTERN = "// EXCEPTION: (.+)";
 
                 public static TestSpec parseInputs(String line) {
                         Pattern p = Pattern.compile(INPUT_PATTERN);
@@ -165,13 +165,30 @@ public class TestInterpreter {
                         }
                 }
 
+                /**
+                 * Parses a value for outputs or inputs
+                 * Supports Integers and String
+                 */
+                public static Object parseValue(String valueString) {
+                        try {
+                                return Integer.parseInt(valueString);
+                        } catch (java.lang.NumberFormatException e) {
+                                Boolean isQuoted = valueString.startsWith("\"") & valueString.endsWith("\"");
+                                if (!isQuoted) {
+                                        throw new RuntimeException("Invalid value in test spec: " + valueString);
+                                } else {
+                                        return valueString.subSequence(1, valueString.length() - 1);
+                                }
+                        }
+                }
+
                 public static TestSpec parseOutput(String line) {
                         Pattern p = Pattern.compile(OUTPUT_PATTERN);
                         Matcher m = p.matcher(line);
 
                         if (m.find()) {
                                 return new TestSpec(Optional.empty(),
-                                                    Optional.of(Integer.parseInt(m.group(1))),
+                                                    Optional.of(parseValue(m.group(1))),
                                                     Optional.empty());
                         } else {
                                 return new TestSpec();
