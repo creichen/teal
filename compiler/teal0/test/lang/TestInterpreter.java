@@ -195,14 +195,24 @@ public class TestInterpreter {
                         }
                 }
 
+
+                public static Class parseExceptionValue(String valueString) {
+                        try {
+                                return Class.forName(valueString);
+                        } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
+                                throw new RuntimeException("Parsing exception name failed for: " + valueString);
+                        }
+                }
+
                 public static TestSpec parseException(String line) {
                         Pattern p = Pattern.compile(EXCEPTION_PATTERN);
                         Matcher m = p.matcher(line);
 
                         if (m.find()) {
                                 return new TestSpec(Optional.empty(),
-                                                    Optional.of(Integer.parseInt(m.group())),
-                                                    Optional.empty());
+                                                    Optional.empty(),
+                                                    Optional.of(parseExceptionValue(m.group(1))));
                         } else {
                                 return new TestSpec();
                         }
