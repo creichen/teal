@@ -249,6 +249,15 @@ public class TestInterpreter {
         }
 
         @Test
+        public void testReadInputSpecString() {
+                TestSpec i = TestSpec.parseInputs("// IN: 0 \"Cat\"");
+                assertNotEquals(i.inputs, Optional.empty());
+                assertTrue(i.inputs.get().length == 2);
+                assertEquals(0, i.inputs.get()[0]);
+                assertEquals("Cat", i.inputs.get()[1]);
+        }
+
+        @Test
         public void testOutputSpec() {
                 TestSpec i = TestSpec.parseOutput("// OUT: 0");
                 assertNotEquals(i.output, Optional.empty());
