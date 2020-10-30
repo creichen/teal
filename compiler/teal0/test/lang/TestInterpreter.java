@@ -124,7 +124,7 @@ public class TestInterpreter {
         public static class TestSpec {
                 public Optional<Object[]> inputs;
                 public Optional<Object> output;
-                public Optional<Object> exception;
+                public Optional<Class> exception;
 
                 public TestSpec() {
                         this.inputs = Optional.empty();
@@ -134,7 +134,7 @@ public class TestInterpreter {
 
                 public TestSpec(Optional<Object[]> inputs,
                                 Optional<Object> output,
-                                Optional<Object> exception) {
+                                Optional<Class> exception) {
                         this.inputs = inputs;
                         this.output = output;
                         this.exception = exception;
