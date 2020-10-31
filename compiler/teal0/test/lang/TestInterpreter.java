@@ -339,6 +339,10 @@ public class TestInterpreter {
                 if (!currentSpec.isBlank()) {
                         throw new RuntimeException("Incomplete spec: " + currentSpec.toString());
                 }
+
+                if (results.isEmpty()) {
+                        throw new RuntimeException("No spec found in lines");
+                }
                 return results;
         }
 
