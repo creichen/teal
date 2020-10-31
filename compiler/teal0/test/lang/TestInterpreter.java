@@ -376,30 +376,22 @@ public class TestInterpreter {
 
         @Test
         public void testEq() {
-                IRProgram m = loadAndCompileProgram("eq.in");
-                assertNotNull(m);
-                checkTestSpec(m, readTestSpec("eq.in"));
+                runTestWithSpec("eq.in");
         }
 
         @Test
         public void testArith() {
-                IRProgram m = loadAndCompileProgram("arith.in");
-                assertNotNull(m);
-                checkTestSpec(m, readTestSpec("arith.in"));
+                runTestWithSpec("arith.in");
         }
 
         @Test
         public void testWhile() {
-                IRProgram m = loadAndCompileProgram("sum.in");
-                assertNotNull(m);
-                checkTestSpec(m, readTestSpec("sum.in"));
+                runTestWithSpec("sum.in");
         }
 
         @Test
         public void testRecursiveCall() {
-                IRProgram m = loadAndCompileProgram("sum_rec.in");
-                assertNotNull(m);
-                checkTestSpec(m, readTestSpec("sum_rec.in"));
+                runTestWithSpec("sum_rec.in");
         }
 
         @Test
