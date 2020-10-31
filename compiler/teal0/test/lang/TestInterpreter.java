@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import java.util.stream.Collectors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Scanner;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -288,6 +289,51 @@ public class TestInterpreter {
                 assertEquals(lang.ir.InterpreterException.class, e.exception.get());
         }
 
+        @Test
+        public void testMultipleSpecs() {
+                String text = "// IN: 10 10\n// OUT: 5\n// IN: 2 3\n// OUT: 0\n";
+                Scanner scanner = new Scanner(text);
+                List<String> lines = new ArrayList();
+                while (scanner.hasNextLine()) {
+                        lines.add(scanner.nextLine());
+                }
+                List<TestSpec> testSpecs = readTestSpecLines(lines);
+                assertTrue(testSpecs.size() == 2);
+                assertEquals(10,
+                             testSpecs.get(0).inputs.get()[0]);
+                assertEquals(10,
+                             testSpecs.get(0).inputs.get()[1]);
+
+                assertEquals(Optional.of(5),
+                             testSpecs.get(0).output);
+
+                assertEquals(2,
+                             testSpecs.get(1).inputs.get()[0]);
+                assertEquals(3,
+                             testSpecs.get(1).inputs.get()[1]);
+                assertEquals(Optional.of(0),
+                             testSpecs.get(1).output);
+        }
+
+        public List<TestSpec> readTestSpecLines(List<String> lines) {
+                TestSpec currentSpec = new TestSpec();
+                List<TestSpec> results = new ArrayList();
+                for (String l : lines) {
+                        currentSpec.combineWith(TestSpec.parseInputs(l));
+                        currentSpec.combineWith(TestSpec.parseOutput(l));
+                        currentSpec.combineWith(TestSpec.parseException(l));
+                        if(currentSpec.isComplete()) {
+                                results.add(currentSpec);
+                                currentSpec = new TestSpec();
+                        }
+                }
+                if (!currentSpec.isBlank()) {
+                        throw new RuntimeException("Incomplete spec: " + currentSpec.toString());
+                }
+                return results;
+        }
+
+
         /**
          * Reads comments from a program to find inputs to the test
          * and expected outputs or exceptions
@@ -297,23 +343,7 @@ public class TestInterpreter {
                 Path file = Paths.get(TEST_DIRECTORY, name);
                 try {
                         List<String> contents = Files.lines(file, StandardCharsets.UTF_8).collect(Collectors.toList());
-                        TestSpec currentSpec = new TestSpec();
-                        List<TestSpec> results = new ArrayList();
-                        for (String l : contents) {
-                                currentSpec.combineWith(TestSpec.parseInputs(l));
-                                currentSpec.combineWith(TestSpec.parseOutput(l));
-                                currentSpec.combineWith(TestSpec.parseException(l));
-                                if(currentSpec.isComplete()) {
-                                        results.add(currentSpec);
-                                        currentSpec = new TestSpec();
-                                }
-                        }
-
-                        if (!currentSpec.isBlank()) {
-                                throw new RuntimeException("Incomplete spec: " + currentSpec.toString());
-                        }
-
-                        return results;
+                        return readTestSpecLines(contents);
                 } catch (IOException e) {
                         e.printStackTrace();
                         throw new RuntimeException("Failed to read file: " + name);
