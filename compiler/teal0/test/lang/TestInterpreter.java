@@ -315,6 +315,15 @@ public class TestInterpreter {
                              testSpecs.get(1).output);
         }
 
+        @Test(expected=RuntimeException.class)
+        public void testAbsentSpec() {
+                List<String> lines = new ArrayList();
+                lines.add("Some text with IN: and OUT: and stuff.");
+                lines.add("// even has comments and EXCEPTION: and stuff.");
+                lines.add("But yet no spec to be seen");
+                List<TestSpec> testSpecs = readTestSpecLines(lines);
+        }
+
         public List<TestSpec> readTestSpecLines(List<String> lines) {
                 TestSpec currentSpec = new TestSpec();
                 List<TestSpec> results = new ArrayList();
