@@ -451,7 +451,7 @@ public class TestInterpreter {
                 if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
                 IRProgram m = loadAndCompileProgram("qualifier.in"); // FIXME: in teal3/ subdir now
                 assertNotNull(m);
-                assertTrue(checkResult(m, 0, 11, 132));
+                checkTestSpec(m, readTestSpec("qualifier.in"));
         }
 
         // FIXME: this one is important for later layers of Teal but not for Teal-0
