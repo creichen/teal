@@ -328,11 +328,20 @@ public class TestInterpreter {
                 }
         }
 
+        /**
+         * Function that runs a test which contains an inline test
+         * spec (In the comments).
+         * filename: String: name of the file to load and test
+         */
+        public void runTestWithSpec(String filename) {
+                IRProgram m = loadAndCompileProgram(filename);
+                assertNotNull(m);
+                checkTestSpec(m, readTestSpec(filename));
+        }
+
         @Test
         public void testAdd() throws IOException {
-                IRProgram m = loadAndCompileProgram("add.in");
-                assertNotNull(m);
-                checkTestSpec(m, readTestSpec("add.in"));
+                runTestWithSpec("add.in");
         }
 
         @Test
