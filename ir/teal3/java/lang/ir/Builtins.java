@@ -49,6 +49,7 @@ public final class Builtins {
 		    throw new InterpreterException("Exception while executing read().");
 		}
 	    });
+        OP(BuiltinNames.STRING_TO_INT, ctx -> new IRIntegerValue(Integer.parseInt(ctx.getString(0))));
     }
 
     private static Type<?> translateType(String typename) {

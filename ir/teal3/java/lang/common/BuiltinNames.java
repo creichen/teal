@@ -36,6 +36,9 @@ public final class BuiltinNames {
     public static final Operation PRINT = new Operation("print", ANY, STRING);
     public static final Operation READ = new Operation("read", STRING);
 
+    // Additional builtins
+    public static final Operation STRING_TO_INT = new Operation("string_to_int", INT, STRING);
+
     private static ArrayList<Operation> operations;
     static void addOperation(Operation op) {
 	if (BuiltinNames.operations == null) {
