@@ -50,6 +50,7 @@ public final class Builtins {
 		}
 	    });
         OP(BuiltinNames.STRING_TO_INT, ctx -> new IRIntegerValue(Integer.parseInt(ctx.getString(0))));
+        OP(BuiltinNames.INT_TO_STRING, ctx -> new IRStringValue(Long.toString(ctx.getInt(0))));
     }
 
     private static Type<?> translateType(String typename) {

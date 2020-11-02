@@ -38,6 +38,7 @@ public final class BuiltinNames {
 
     // Additional builtins
     public static final Operation STRING_TO_INT = new Operation("string_to_int", INT, STRING);
+    public static final Operation INT_TO_STRING = new Operation("int_to_string", STRING, INT);
 
     private static ArrayList<Operation> operations;
     static void addOperation(Operation op) {
