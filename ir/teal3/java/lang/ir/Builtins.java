@@ -51,6 +51,15 @@ public final class Builtins {
 	    });
         OP(BuiltinNames.STRING_TO_INT, ctx -> new IRIntegerValue(Integer.parseInt(ctx.getString(0))));
         OP(BuiltinNames.INT_TO_STRING, ctx -> new IRStringValue(Long.toString(ctx.getInt(0))));
+        OP(BuiltinNames.CAN_CONVERT_TO_INT, ctx -> {
+                // Regex copied from the scanner specification
+                Boolean can_convert = ctx.getString(0).matches("-?(0|[1-9][0-9]*)");
+                if (can_convert) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
     }
 
     private static Type<?> translateType(String typename) {
