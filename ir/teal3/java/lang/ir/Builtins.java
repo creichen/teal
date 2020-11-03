@@ -55,9 +55,9 @@ public final class Builtins {
                 // Regex copied from the scanner specification
                 Boolean can_convert = ctx.getString(0).matches("-?(0|[1-9][0-9]*)");
                 if (can_convert) {
-                    return 1;
+                    return new IRIntegerValue(1);
                 } else {
-                    return 0;
+                    return new IRIntegerValue(0);
                 }
             });
     }
