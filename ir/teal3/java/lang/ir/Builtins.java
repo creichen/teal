@@ -60,6 +60,7 @@ public final class Builtins {
                     return new IRIntegerValue(0);
                 }
             });
+        OP(BuiltinNames.ARRAY_LENGTH, ctx -> new IRIntegerValue(ctx.getArraySize(0)));
     }
 
     private static Type<?> translateType(String typename) {
@@ -172,6 +173,13 @@ public final class Builtins {
 	    public long getInt(int offset) {
 		return ((IRIntegerValue) this.get(offset)).asLong();
 	    }
+
+            /**
+             * Returns the length of an array argument
+             */
+            public long getArraySize(int offset) {
+                return ((IRArray) this.get(offset)).getSize();
+            }
 
 	    /**
 	     * Returns one of the arguments and translates it to long
