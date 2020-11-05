@@ -16,7 +16,8 @@ public final class BuiltinNames {
 
 
     // Built-in operations
-    public static final Operation INT_ADD = ARITHMETIC_BINOP("__builtin_int_add");
+    // Plus can be used for strings and integer alike.
+    public static final Operation BUILTIN_ADD = new Operation("__builtin_int_add", ANY, ANY, ANY);
     public static final Operation INT_SUB = ARITHMETIC_BINOP("__builtin_int_sub");
     public static final Operation INT_MUL = ARITHMETIC_BINOP("__builtin_int_mul");
     public static final Operation INT_DIV = ARITHMETIC_BINOP("__builtin_int_div");
