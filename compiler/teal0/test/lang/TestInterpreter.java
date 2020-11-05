@@ -287,4 +287,11 @@ public class TestInterpreter {
 		assertNotNull(p);
 		assertTrue(checkResult(p, 6));
 	}
+
+        @Test
+        public void testStringConcatenation() {
+                IRProgram p = loadAndCompileProgram("string-concat.in");
+                assertNotNull(p);
+                assertTrue(checkResult(p, "Hello World"));
+        }
 }
