@@ -95,6 +95,12 @@ aspect NameAnalysis {
 	eq FunDecl.getIdDecl().getDecl() = this;
 	eq VarDecl.getIdDecl().getDecl() = this;
 	eq Program.unknownDecl().getDecl() = null;
+
+        // An attribute to have the name of a function
+        // or variable.
+        syn String Decl.name() {
+                return getIdDecl().getID();
+        }
 }
 
 // Implementation details
