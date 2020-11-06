@@ -45,7 +45,7 @@ aspect IRGen {
 		public IRVar getQualifierIRVar(TypeQualifier qual) {
 			IRVar v = qualifiers.get(qual);
 			if (v == null) {
-				v = new IRVar(new IRName("__qual_" + qual.getIdUse().getID() + counter++),
+				v = new IRVar(new IRName("__qual_" + qual.name() + counter++),
 							  qual.genIR());
 				F.addLocal(v);
 				qualifiers.put(qual, v);

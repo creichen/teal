@@ -3,12 +3,12 @@ aspect SemanticCheck {
 	eq TypeVarDecl.kind() = "type variable";
 	eq TypeDecl.kind() = "type";
 
-	Type contributes new DeclKindError("type", getIdUse().lookup().getDecl().kind(), getIdUse().getID(), sourceLocation())
+	Type contributes new DeclKindError("type", getIdUse().lookup().getDecl().kind(), name(), sourceLocation())
 		when !getIdUse().lookup().isUnknown()
 		  && !(getIdUse().lookup().getDecl().isTypeDecl() || getIdUse().lookup().getDecl().isTypeVarDecl())
 		to Program.semanticErrors();
 
-	TypeQualifier contributes new DeclKindError("type", getIdUse().lookup().getDecl().kind(), getIdUse().getID(), sourceLocation())
+	TypeQualifier contributes new DeclKindError("type", getIdUse().lookup().getDecl().kind(), name(), sourceLocation())
 		when !getIdUse().lookup().isUnknown()
 		  && !(getIdUse().lookup().getDecl().isTypeDecl() || getIdUse().lookup().getDecl().isTypeVarDecl())
 		to Program.semanticErrors();
