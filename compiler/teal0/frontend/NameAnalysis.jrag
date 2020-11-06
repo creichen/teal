@@ -101,6 +101,14 @@ aspect NameAnalysis {
         syn String Decl.name() {
                 return getIdDecl().getID();
         }
+
+        syn String CallExpr.name() {
+                return getIdUse().getID();
+        }
+
+        syn String Access.name() {
+                return getIdUse().getID();
+        }
 }
 
 // Implementation details
