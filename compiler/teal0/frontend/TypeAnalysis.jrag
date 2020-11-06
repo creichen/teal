@@ -5,6 +5,7 @@ aspect TypeAnalysis {
 
 	Type implements TypeDefinition;
 
+        // Should be UnknownType
 	syn TypeDefinition Expr.type() = new AnyType();
 	eq IntConstant.type() = new IntType();
 	eq StringConstant.type() = new StringType();
