@@ -209,7 +209,7 @@ aspect IRGen {
 				// Append an index to the name. We might have multiple variables with
 				// the same name at different scopes, and we want them to have a unique
 				// name inside the IR
-				v = new IRVar(new IRName(d.getIdDecl().getID() + counter++), d.type().genIRTypeRef());
+				v = new IRVar(new IRName(d.name() + counter++), d.type().genIRTypeRef());
 				F.getLocals().add(v);
 				locals.put(d, v);
 			}

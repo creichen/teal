@@ -5,6 +5,21 @@ import java.util.Collections;
 import java.util.Collection;
 
 aspect NameAnalysis {
+        // An attribute to have the name of a function
+        // or variable.
+        syn String Decl.name() {
+                return getIdDecl().getID();
+        }
+
+        syn String CallExpr.name() {
+                return getIdUse().getID();
+        }
+
+        syn String Access.name() {
+                return getIdUse().getID();
+        }
+
+        // Lookup the declaration matching an use.
 	inh IdDecl IdUse.lookup(String s);
 	syn IdDecl IdUse.lookup() = lookup(getID());
 
@@ -141,7 +156,7 @@ aspect NameAnalysisPrivate {
 	eq FunDecl.localDeclMap() {
 		MultiHashMap<String, IdDecl> declMap = new MultiHashMap<>();
 		for (VarDecl d : getFormals())
-			declMap.append(d.getIdDecl().getID(), d.getIdDecl());
+			declMap.append(d.name(), d.getIdDecl());
 		return declMap;
 	}
 
@@ -166,11 +181,11 @@ aspect NameAnalysisPrivate {
 			System.err.println("  decl: " + i.getDecl());
 			System.err.println("  prop0: " + i.getDecl().getIdDecl());
 			System.err.println("  prop1: " + i.getDecl().getIdDecl().getId());
-			declMap.append(i.getDecl().getIdDecl().getID(), i.getDecl().getIdDecl());
+			declMap.append(i.getDecl().name(), i.getDecl().getIdDecl());
 		}
 
 		for (Decl d : getDecls()) {
-			declMap.append(d.getIdDecl().getID(), d.getIdDecl());
+			declMap.append(d.name(), d.getIdDecl());
 		}
 		return declMap;
 	}
@@ -178,7 +193,7 @@ aspect NameAnalysisPrivate {
 	syn MultiHashMap<String, IdDecl> Program.globalDeclMap() {
 		MultiHashMap<String, IdDecl> declMap = new MultiHashMap<>();
 		for (Decl d : getBuiltinDeclsList()) {
-			declMap.append(d.getIdDecl().getID(), d.getIdDecl());
+			declMap.append(d.name(), d.getIdDecl());
 		}
 		return declMap;
 	}

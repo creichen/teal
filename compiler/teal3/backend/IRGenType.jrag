@@ -1,6 +1,6 @@
 aspect IRGenType {
 	syn IRTypeFormal TypeVarDecl.genIR() {
-		return new IRTypeFormal(new IRName(getIdDecl().getID()));
+		return new IRTypeFormal(new IRName(name()));
 	}
 
 	syn IRType TypeDecl.genIR() {
@@ -71,7 +71,7 @@ aspect IRGenType {
 	syn IRClass ClassDecl.genIRClass() {
 		// FIXME: easier get-name for everything
 		// class with a name
-		IRClass klass = new IRClass().setIRName(new IRName(getIdDecl().getID()));
+		IRClass klass = new IRClass().setIRName(new IRName(name()));
 		klass.setSourceLocation(this.sourceLocation());
 		// set formal type parameters
 		for (TypeVarDecl d : getTypeFormals()) {

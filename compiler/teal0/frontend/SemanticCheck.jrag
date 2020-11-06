@@ -41,9 +41,9 @@ aspect SemanticCheck {
 		}
 	}
 
-	Access contributes new DeclKindError("variable", getIdUse().lookup().getDecl().kind(), getIdUse().getID(), sourceLocation())
+	Access contributes new DeclKindError("variable", getIdUse().lookup().getDecl().kind(), name(), sourceLocation())
 		when !getIdUse().lookup().isUnknown() && !getIdUse().lookup().getDecl().isVarDecl() to Program.semanticErrors();
 
-	CallExpr contributes new DeclKindError("function", getIdUse().lookup().getDecl().kind(), getIdUse().getID(), sourceLocation())
+	CallExpr contributes new DeclKindError("function", getIdUse().lookup().getDecl().kind(), name(), sourceLocation())
 		when !getIdUse().lookup().isUnknown() && !getIdUse().lookup().getDecl().isFunDecl() to Program.semanticErrors();
 }
