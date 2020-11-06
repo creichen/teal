@@ -37,11 +37,11 @@ public class TestInterpreter {
 		Path file = Paths.get(TEST_DIRECTORY, name);
 
 		List<CompilerError> compilerErrors = new LinkedList<>();
-		Program program = Compiler.createProgramFromFiles(Collections.singletonList(file.toString()),
-														  Collections.emptyList(), compilerErrors);
+                Program program = Compiler.createProgramFromFiles(Collections.singletonList(file.toString()),
+                                                                  Collections.emptyList(), compilerErrors);
 
 
-		List<CompilerError> semaErrors = program.semanticErrors();
+                List<CompilerError> semaErrors = program.semanticErrors();
 		List<CompilerError> nameErrors = program.nameErrors();
 
 		for (CompilerError e : compilerErrors) {
@@ -293,5 +293,12 @@ public class TestInterpreter {
                 IRProgram p = loadAndCompileProgram("string-concat.in");
                 assertNotNull(p);
                 assertTrue(checkResult(p, "Hello World"));
+        }
+
+        @Test(expected=InterpreterException.class)
+        public void testInvalidPlus() throws InterpreterException {
+                IRProgram p = loadAndCompileProgram("invalid-plus.in");
+                assertNotNull(p);
+                assertTrue(checkResultNoCatch(p, "HELLO"));
         }
 }
