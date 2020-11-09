@@ -1,0 +1,6 @@
+fun main() = {
+    var a : array[int] := new array[int](2);
+    a[0] := 0;
+    a[1] := 1;
+    return array_length(a);
+}
