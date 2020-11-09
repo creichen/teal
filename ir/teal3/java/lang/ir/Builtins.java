@@ -24,7 +24,9 @@ public final class Builtins {
     // Declare method implementations
     static {
 	// If you want to add a new builtin operation, declare it below.
-	INT_OP(BuiltinNames.INT_ADD, ctx -> ctx.getInt(0) + ctx.getInt(1));
+	OVERLOADED_OP(BuiltinNames.BUILTIN_ADD,
+                      ctx -> ctx.getInt(0) + ctx.getInt(1),
+                      ctx -> ctx.getString(0).concat(ctx.getString(1)));
 	INT_OP(BuiltinNames.INT_SUB, ctx -> ctx.getInt(0) - ctx.getInt(1));
 	INT_OP(BuiltinNames.INT_MUL, ctx -> ctx.getInt(0) * ctx.getInt(1));
 	INT_OP(BuiltinNames.INT_DIV, ctx -> ctx.getInt(0) / ctx.getNonzeroInt(1, "Division by 0"));
@@ -49,6 +51,18 @@ public final class Builtins {
 		    throw new InterpreterException("Exception while executing read().");
 		}
 	    });
+        OP(BuiltinNames.STRING_TO_INT, ctx -> new IRIntegerValue(Integer.parseInt(ctx.getString(0))));
+        OP(BuiltinNames.INT_TO_STRING, ctx -> new IRStringValue(Long.toString(ctx.getInt(0))));
+        OP(BuiltinNames.CAN_CONVERT_TO_INT, ctx -> {
+                // Regex copied from the scanner specification
+                Boolean can_convert = ctx.getString(0).matches("-?(0|[1-9][0-9]*)");
+                if (can_convert) {
+                    return new IRIntegerValue(1);
+                } else {
+                    return new IRIntegerValue(0);
+                }
+            });
+        OP(BuiltinNames.ARRAY_LENGTH, ctx -> new IRIntegerValue(ctx.getArraySize(0)));
     }
 
     private static Type<?> translateType(String typename) {
@@ -162,6 +176,13 @@ public final class Builtins {
 		return ((IRIntegerValue) this.get(offset)).asLong();
 	    }
 
+            /**
+             * Returns the length of an array argument
+             */
+            public long getArraySize(int offset) {
+                return ((IRArray) this.get(offset)).getSize();
+            }
+
 	    /**
 	     * Returns one of the arguments and translates it to long
 	     */
@@ -216,6 +237,24 @@ public final class Builtins {
      */
     private static void VOID_OP(BuiltinNames.Operation op, BuiltinConsumerImplementation impl) {
 	new Operation(op, ctx -> { impl.apply(ctx); return new IRNullValue(null); });
+    }
+
+    private static void OVERLOADED_OP(BuiltinNames.Operation op,
+                                      BuiltinImplementation<Long> impl1,
+                                      BuiltinImplementation<String> impl2) {
+        new Operation(op,
+                      ctx -> {
+                          IRValue a, b;
+                          a = ctx.get(0);
+                          b = ctx.get(1);
+                          if (a instanceof IRIntegerValue && b instanceof IRIntegerValue) {
+                              return new IRIntegerValue(impl1.apply(ctx));
+                          } else if (a instanceof IRStringValue && b instanceof IRStringValue) {
+                              return new IRStringValue(impl2.apply(ctx));
+                          } else {
+                              throw new InterpreterException("Type of operands does not match.");
+                          }
+        });
     }
 
     static interface BuiltinImplementation<T> {

@@ -16,7 +16,8 @@ public final class BuiltinNames {
 
 
     // Built-in operations
-    public static final Operation INT_ADD = ARITHMETIC_BINOP("__builtin_int_add");
+    // Plus can be used for strings and integer alike.
+    public static final Operation BUILTIN_ADD = new Operation("__builtin_int_add", ANY, ANY, ANY);
     public static final Operation INT_SUB = ARITHMETIC_BINOP("__builtin_int_sub");
     public static final Operation INT_MUL = ARITHMETIC_BINOP("__builtin_int_mul");
     public static final Operation INT_DIV = ARITHMETIC_BINOP("__builtin_int_div");
@@ -35,6 +36,16 @@ public final class BuiltinNames {
 
     public static final Operation PRINT = new Operation("print", ANY, STRING);
     public static final Operation READ = new Operation("read", STRING);
+
+    // Additional builtins
+    public static final Operation STRING_TO_INT = new Operation("string_to_int", INT, STRING);
+    public static final Operation INT_TO_STRING = new Operation("int_to_string", STRING, INT);
+    public static final Operation CAN_CONVERT_TO_INT = new Operation("can_convert_to_int", INT, STRING);
+    // Array_length takes an ANY because ARRAY takes a type parameter
+    // And that's not supported yet.
+    // TODO: It would be better if it took an array of anything
+    public static final Operation ARRAY_LENGTH = new Operation("array_length", INT, ANY);
+    
 
     private static ArrayList<Operation> operations;
     static void addOperation(Operation op) {

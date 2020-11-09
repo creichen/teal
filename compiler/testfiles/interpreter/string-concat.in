@@ -1,0 +1,6 @@
+fun main() = {
+    var a := "Hello ";
+    var b := "World";
+
+    return a + b;
+}

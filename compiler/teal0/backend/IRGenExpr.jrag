@@ -25,7 +25,7 @@ aspect IRGenExpr {
 	}
 
 	syn BuiltinNames.Operation BinExpr.builtin();
-	eq AddExpr.builtin() = BuiltinNames.INT_ADD;
+	eq AddExpr.builtin() = BuiltinNames.BUILTIN_ADD;
 	eq SubExpr.builtin() = BuiltinNames.INT_SUB;
 	eq MulExpr.builtin() = BuiltinNames.INT_MUL;
 	eq DivExpr.builtin() = BuiltinNames.INT_DIV;
