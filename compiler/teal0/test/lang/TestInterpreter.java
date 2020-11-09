@@ -287,4 +287,11 @@ public class TestInterpreter {
 		assertNotNull(p);
 		assertTrue(checkResult(p, 6));
 	}
+
+        @Test(expected=InterpreterException.class)
+        public void testArrayNegativeSize() throws InterpreterException {
+		IRProgram p = loadAndCompileProgram("array-negative-size.in");
+		assertNotNull(p);
+		checkResultNoCatch(p, 0);
+        }
 }

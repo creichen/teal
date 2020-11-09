@@ -1,0 +1,5 @@
+// EXCEPTION: lang.ir.InterpreterException
+fun main() = {
+    var a : array[int] := new array[int](-2);
+    print(a[0]);
+}
