@@ -143,6 +143,14 @@ aspect NameAnalysisPrivate {
 		return null;
 	}
 
+
+        syn String TypeQualifier.name() {
+            return getIdUse().getID();
+        }
+
+        syn String Type.name() {
+            return getIdUse().getID();
+        }
 }
 
 aspect NameAnalysisCheck {
