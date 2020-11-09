@@ -1,0 +1,24 @@
+// Computes the sum of all the elements of an array
+// Works in TEAL-0
+fun main() = {
+    var a : array[int] := init_arr(10);
+    return sum(a);
+}
+
+fun init_arr(n : int) = {
+    var a : array[int] := new array[int](n);
+    var i := 0;
+    while(i < n) {
+        a[i] := i;
+    }
+    return a;
+}
+
+fun sum(a : array[int]) = {
+    var i := 0;
+    var s := 0;
+    while(i < array_length(a)) {
+        s := s + a[i];
+    }
+    return s;
+}

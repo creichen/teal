@@ -294,4 +294,11 @@ public class TestInterpreter {
 		assertNotNull(p);
 		checkResultNoCatch(p, 0);
         }
+
+        @Test
+        public void testArraySum() throws InterpreterException {
+		IRProgram p = loadAndCompileProgram("array-sum.in");
+		assertNotNull(p);
+		assertTrue(checkResult(p, 45));
+        }
 }
