@@ -10,6 +10,7 @@ fun init_arr(n : int) = {
     var i := 0;
     while(i < n) {
         a[i] := i;
+        i := i + 1;
     }
     return a;
 }
@@ -19,6 +20,7 @@ fun sum(a : array[int]) = {
     var s := 0;
     while(i < array_length(a)) {
         s := s + a[i];
+        i := i + 1;
     }
     return s;
 }
