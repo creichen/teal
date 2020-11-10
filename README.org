@@ -8,7 +8,7 @@ and ~./gradlew -PlangVersion=teal-3 jar test~ for TEAL-3.
 * Structure
   The ~compiler~ directory contains the implementation of the compiler.
   It's divided into three parts:
-  1. ~compiler/<teal-variant>/frontend~: A compiler frontend that parses code, creates an AST, runs analyses, and generates TEAL IR (intermediate representation).
+  1. ~compiler/<teal-variant>/frontend~: A compiler frontend that parses code, creates an AST, runs name and type analyses.
   2. ~compiler/<teal-variant>/backend~: A compiler backend which takes and AST and generates TEAL IR code (the intermediate representation for TEAL).
   3. ~ir/~: An interpreter that takes some code in intermediate representation form and executes it. All variants of TEAL use the same interpreter.
 
