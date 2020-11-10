@@ -315,4 +315,11 @@ public class TestInterpreter {
                 assertNotNull(p);
                 assertTrue(checkResultNoCatch(p, "HELLO"));
         }
+
+        @Test(expected=InterpreterException.class)
+        public void testInvalidArrayAssignment() throws InterpreterException {
+                IRProgram p = loadAndCompileProgram("array-invalid-assignment.in");
+                assertNotNull(p);
+                assertTrue(checkResult(p, "Oh no!"));
+        }
 }
