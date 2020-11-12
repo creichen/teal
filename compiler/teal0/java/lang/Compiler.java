@@ -166,7 +166,16 @@ public class Compiler {
 		String outputFile;
 		String inputFile;
 		List<String> importPaths;
-		List<String> progArgs;
+		List<String> progArgs; // arguments for the interpreted program
+
+		public void
+		setProgArgs(String[] args) {
+			if (args == null) {
+				this.progArgs = new ArrayList<>();
+			} else {
+				this.progArgs = Arrays.asList(args);
+			}
+		}
 	}
 
 	private static void printHelp(Options options) {
@@ -190,11 +199,11 @@ public class Compiler {
 			.desc("Perform semantic and type checks.").build();
 		Option codegen = Option.builder("g").longOpt("codegen").hasArg(false)
 			.desc("Generate IR code.").build();
-		Option run = Option.builder("r").longOpt("run").hasArgs()
+		Option run = Option.builder("r").longOpt("run").hasArgs().optionalArg(true)
 			.desc("Interpret the IR code.").build();
 		Option custom1 = Option.builder("Y").longOpt("custom-ast").hasArg(false)
 			.desc("Custom analysis on the AST").build();
-		Option custom2 = Option.builder("Z").longOpt("custom-ir").hasArg(false)
+		Option custom2 = Option.builder("Z").longOpt("custom-ir").hasArgs().optionalArg(true)
 			.desc("Custom analysis on the IR").build();
 		Option help = Option.builder("h").longOpt("help")
 			.desc("Display this help.").build();
@@ -234,7 +243,11 @@ public class Compiler {
 
 			// Assume that the user wants us to run the compiler
 			if (cmd.getArgs().length != 1) {
-				System.err.println("Missing MODULE argument.");
+				if (cmd.getArgs().length > 1) {
+					System.err.println("Please specify only one MODULE argument.");
+				} else {
+					System.err.println("Missing MODULE argument.");
+				}
 				printHelp(options);
 				System.exit(1);
 			} else {
@@ -251,9 +264,10 @@ public class Compiler {
 				ret.action = CmdLineOpts.Action.CUSTOM_AST;
 			} else if (cmd.hasOption("Z")) {
 				ret.action = CmdLineOpts.Action.CUSTOM_IR;
+				ret.setProgArgs(cmd.getOptionValues("Z"));
 			} else if (cmd.hasOption("r")) {
 				ret.action = CmdLineOpts.Action.INTERP;
-				ret.progArgs = Arrays.asList(cmd.getOptionValues("r"));
+				ret.setProgArgs(cmd.getOptionValues("r"));
 			}
 
 			if (cmd.hasOption("o")) {
