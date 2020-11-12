@@ -143,7 +143,7 @@ public class Compiler {
 		enum Pass {
 			// Compiler passes
 			PARSE,
-			CHECK,
+			CUSTOM,
 			IRGEN,
 			INTERP
 		}

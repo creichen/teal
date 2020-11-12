@@ -1,28 +1,47 @@
-#+TITLE: TEAL - typed, easily analyzable language
+# TEAL - Typed, Easily Analyzable Language
 
 * Building
-To build TEAL-0 (default) run:
-~./gradlew jar test~
-and ~./gradlew -PlangVersion=teal-3 jar test~ for TEAL-3.
+
+To build Teal-0 (the default) run:
+
+#+BEGIN_SRC sh
+./gradlew jar test
+#+END_SRC
+
+For other layers of Teal, set suitable parameters; e.g., for Teal-3, run:
+#+BEGIN_SRC sh
+~./gradlew -PlangVersion=teal-3 jar test
+#+END_SRC
+If you are using Teal as part of a course, you may be using a distribution of Teal that does not
+include all Teal layers (possibly only Teal-0).
 
 * Structure
   The ~compiler~ directory contains the implementation of the compiler.
-  It's divided into three parts:
-  1. ~compiler/<teal-variant>/frontend~: A compiler frontend that parses code, creates an AST, runs name and type analyses.
-  2. ~compiler/<teal-variant>/backend~: A compiler backend which takes and AST and generates TEAL IR code (the intermediate representation for TEAL).
-  3. ~ir/~: An interpreter that takes some code in intermediate representation form and executes it. All variants of TEAL use the same interpreter.
+  It iss divided into three parts:
+  1. ~compiler/<teal-variant>/frontend~: A compiler frontend that parses code, creates an AST, runs name and type analyses (where available).
+  2. ~compiler/<teal-variant>/backend~: A compiler backend that takes an AST and generates Teal IR code (the intermediate representation for Teal).
+  3. ~ir/~: An interpreter that takes Teal IR code and executes it (via interpretation)(. All variants of Teal currently use the same interpreter.
 
-** Variants of TEAL
-   In the ~compiler~ directory, there are two directories ~compiler/teal0~ and ~compiler/teal3~.
-   ~teal3~ the full implementation of TEAL, with all it's features (classes, inheritance, etc.).
-   TEAL-0, TEAL-1, and TEAL-2 are variants of TEAL with some features not implemented.
+** Layers of Teal
+   Depending on your distribution, the ~compiler~ directory may contain multiple subdirectories,
+   from ~compiler/teal0~ to ~compiler/teal3~.
+   Lower layers of Teal contain fewer language features.
 
-** What is an intermediate representation?
-   An intermediate representation is some kind of "simplified" programming language, which is usually more verbose than
-   the front language, because it's not made for humans to read, but for a program to read.
+** Documentation
 
-   If you compare with more well-known languages, TEAL IR is like Java Bytecode. A programming language which
-   can do the same things but doesn't have all the nice features to make it readable to humans.
+   The ~docs/~ directory contains a description of the Teal language
+   (possibly limited to your current Teal distribution).  This
+   definition takes precedence over the implementation; if the
+   implementation disagrees with the documentation, you should assume
+   that this is a bug in the implementation.
+
+** Teal Intermediate Language (Teal IR)
+   Intermediate representations are simplified representations of a programming langauge
+   that make it easier to analyse and/or optimise the program.
+   The IR tends to be more verbose than the source code, since it isn't intended for humans to read
+   but only for the machine to analyse and execute.
+
+   Teal IR is most closely related to register transfer IRs such as GIMPLE, LLVM bitcode, or WebAssembly
 
 ** Test files
   The ~testfiles~ directory contains test files for various parts of the compiler and interpreter.
@@ -36,17 +55,24 @@ and ~./gradlew -PlangVersion=teal-3 jar test~ for TEAL-3.
 
   These files are loaded and tested by the various test classes in:
   - ~compiler/teal0/test/lang~
-  - ~compiler/teal3/test/lang~: *NOTE: not yet the case*
 
-* Generate and dump the IR
-~java -jar compiler.jar program.teal~
+* Using Teal
+The Teal compiler and runtime use the same entry point.  You can start
+them with the following, which will print out help:
+~java -jar build/teal-0.jar~
 
-* Generate and interpret the IR
-~java -jar compiler.jar program.teal --run arg1 arg2 ...~
-The arguments to the program can be integers or strings. Prints out the value returned by main.
+You can find this main entry point in: ~teal/compiler/teal0/java/lang/Compiler.java~
+
+* Running Teal programs
+~java -jar build/teal-0.jar program.teal --run arg1 arg2 ...~
+The arguments to the program can be integers or strings. This will call the ~main~ function (which must
+take matching formal parameters) and print out the ~main~ function's return value.
 
 * Logging
-Enabled by the ~TEAL_DEBUG~ environment variable, ~export TEAL_DEBUG=interp,irgen~.
+Can be enabled by the ~TEAL_DEBUG~ environment variable:
+  - ~export TEAL_DEBUG=interp~ enables interpreter debugging
+  - ~export TEAL_DEBUG=irgen~ enables IR generation debugging
+  - ~export TEAL_DEBUG=interp,irgen~ enables both interpreter and IR generation debugging
 
 * Notes on the implementation
-See [[file:notes.org][the implementation notes]].
+See [[file:notes.org][the implementation notes]] (if available in your distribution).
