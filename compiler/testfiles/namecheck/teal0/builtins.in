@@ -1,5 +1,3 @@
-var int;
-var any;
-var array;
-var string;
-var __foo;
+fun main(n : int) = {
+    return string_to_int("3");
+}

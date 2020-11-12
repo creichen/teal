@@ -1,4 +1,8 @@
 aspect IRGenType {
+	syn IRTypeFormal TypeVarDecl.genIR() {
+		return new IRTypeFormal(new IRName(name()));
+	}
+
 	syn IRType TypeDecl.genIR() {
 		throw new NotYetImplementedError("Translation of types not fully implemented");
 	}
@@ -67,7 +71,7 @@ aspect IRGenType {
 	syn IRClass ClassDecl.genIRClass() {
 		// FIXME: easier get-name for everything
 		// class with a name
-		IRClass klass = new IRClass().setIRName(new IRName(getIdDecl().getID()));
+		IRClass klass = new IRClass().setIRName(new IRName(name()));
 		klass.setSourceLocation(this.sourceLocation());
 		// set formal type parameters
 		for (TypeVarDecl d : getTypeFormals()) {
@@ -117,13 +121,12 @@ aspect IRGenType {
 	}
 
 	@Override public IRTypeRef TypeDecl.genIRTypeRef() {
-		if (this.genIR_visited) {
-			this.genIR_visited = false;
-		}
-		this.genIR_computed = true;
-		this.genIR();
 		IRTypeRef retval = new IRTypeInstanceRef().setIRType(genIR());
 		return retval;
+	}
+
+	@Override public IRTypeRef TypeVarDecl.genIRTypeRef() {
+		return new IRTypeFormalRef(genIR());
 	}
 
 	public IRTypeRef Type.genIR() {

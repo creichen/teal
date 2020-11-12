@@ -4,16 +4,12 @@ Module
     FunDecl
       IdDecl ID="f"
       Opt
-        Type
-          IdUse ID="int"
-          List
+        IntType
       List
         VarDecl
           IdDecl ID="a"
           Opt
-            Type
-              IdUse ID="int"
-              List
+            IntType
           Opt
         VarDecl
           IdDecl ID="b"

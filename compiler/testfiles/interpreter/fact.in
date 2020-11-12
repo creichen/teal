@@ -1,3 +1,7 @@
+// IN: 0
+// OUT: 1
+// IN: 6
+// OUT: 720
 fun factorial(n : int) = {
     if n == 0 { return 1; }
     else { return n * factorial(n - 1); }

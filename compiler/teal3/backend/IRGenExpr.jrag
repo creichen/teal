@@ -46,6 +46,13 @@ aspect IRGenExpr {
 	// 	return r;
 	// }
 
+	public IRVarRef Self.genCode(IRFunctionCtx ctx) {
+		IRVarRef selfVar = ctx.getTempIRVar(this);
+		IRSelfInsn self = new IRSelfInsn().setDst(selfVar);
+		ctx.addInsn(self);
+		return selfVar;
+	}
+
 	public IRVarRef DispatchExpr.genCode(IRFunctionCtx ctx) {
 		Expr base = getExpr();
 		TypeDefinition type = base.type();
@@ -76,6 +83,16 @@ aspect IRGenExpr {
 
 	// FIXME: this oddity is only needed for NewExpr.genCode()
 	syn IRTypeRef Type.genIRTypeRef() = genIR();
+
+	public IRVarRef NewExpr.genCodeArray(IRFunctionCtx ctx) {
+		IRVarRef dst = ctx.getTempIRVar(this);
+		IRVarRef size = getActual(0).genCode(ctx);
+		IRNewArrayInsn newInsn = new IRNewArrayInsn().setDst(dst)
+			.setIRTypeRef(getType().getActual(0).genIRTypeRef()).setSize(size);
+		ctx.addInsn(newInsn);
+		ctx.setSourceLocations(this.sourceLocation());
+		return dst;
+	}
 
 	refine IRGenExpr eq NewExpr.genCode(IRFunctionCtx ctx) {
 		// generate special IR instructions for arrays

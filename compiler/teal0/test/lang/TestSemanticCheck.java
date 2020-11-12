@@ -1,13 +1,19 @@
 package lang;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import static org.junit.Assert.*;
 
 import lang.ast.CompilerError;
 import lang.ast.Program;
@@ -30,8 +36,10 @@ public class TestSemanticCheck {
   }
 
   @Test public void runTest() throws Exception {
-    Module module = (Module) Util.parse(new File(TEST_DIRECTORY, filename));
-    Program program = new Program().addModule(module);
+	List<CompilerError> parseErrors = new ArrayList<>();
+	Program program = Compiler.createProgramFromFiles(Collections.singletonList(new File(TEST_DIRECTORY, filename).getPath()),
+													  Collections.emptyList(), parseErrors);
+	assertTrue(parseErrors.isEmpty());
     java.util.List<CompilerError> nameErrors = program.semanticErrors();
     Collections.sort(nameErrors, new Comparator<CompilerError>() {
 			public int compare(CompilerError left, CompilerError right) {

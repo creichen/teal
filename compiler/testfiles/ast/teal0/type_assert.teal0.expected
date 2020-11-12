@@ -8,18 +8,14 @@ Module
         VarDecl
           IdDecl ID="x"
           Opt
-            Type
-              IdUse ID="int"
-              List
+            IntType
           Opt
       Opt
         ReturnStmt
           TypedExpr
             Access
               IdUse ID="x"
-            Type
-              IdUse ID="int"
-              List
+            IntType
     FunDecl
       IdDecl ID="f"
       Opt
@@ -27,21 +23,13 @@ Module
         VarDecl
           IdDecl ID="x"
           Opt
-            Type
-              IdUse ID="array"
-              List
-                Type
-                  IdUse ID="int"
-                  List
+            ArrayType
+              IntType
           Opt
       Opt
         ReturnStmt
           TypedExpr
             Access
               IdUse ID="x"
-            Type
-              IdUse ID="array"
-              List
-                Type
-                  IdUse ID="any"
-                  List
+            ArrayType
+              AnyType

@@ -1,0 +1,6 @@
+// IN:NONE
+// EXCEPTION: lang.ir.InterpreterException
+
+fun main() = {
+    return 4 + "Caterpillars";
+}

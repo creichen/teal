@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Collection;
 
 aspect NameAnalysis {
+	syn Decl Type.decl() = getIdUse().lookup().getDecl();
+
 	eq ForStmt.getBody().lookup(String s) {
 		IdDecl d = localLookup(s);
 		if (d != null)
@@ -33,7 +35,7 @@ aspect NameAnalysis {
 	eq TypeDecl.getSuperType().lookup(String s) {
 		// search in the type formals first
 		for (TypeVarDecl typeVar : getTypeFormals()) {
-			if (typeVar.getIdDecl().getID().equals(s))
+			if (typeVar.name().equals(s))
 				return typeVar.getIdDecl();
 		}
 		return lookup(s);
@@ -42,7 +44,7 @@ aspect NameAnalysis {
 	eq ClassDecl.getFunFormal().lookup(String s) {
 		// search in the type formals first
 		for (TypeVarDecl typeVar : getTypeFormals()) {
-			if (typeVar.getIdDecl().getID().equals(s))
+			if (typeVar.name().equals(s))
 				return typeVar.getIdDecl();
 		}
 		return lookup(s);
@@ -51,7 +53,7 @@ aspect NameAnalysis {
 	eq QualifierDecl.getFunFormal().lookup(String s) {
 		// search in the type formals first
 		for (TypeVarDecl typeVar : getTypeFormals()) {
-			if (typeVar.getIdDecl().getID().equals(s))
+			if (typeVar.name().equals(s))
 				return typeVar.getIdDecl();
 		}
 		return lookup(s);
@@ -71,7 +73,7 @@ aspect NameAnalysis {
 
 aspect NameAnalysisPrivate {
 	syn IdDecl ForStmt.localLookup(String s) {
-		if (getIterator().getIdDecl().getID().equals(s))
+		if (getIterator().name().equals(s))
 			return getIterator().getIdDecl();
 		return null;
 	}
@@ -141,6 +143,14 @@ aspect NameAnalysisPrivate {
 		return null;
 	}
 
+
+        syn String TypeQualifier.name() {
+            return getIdUse().getID();
+        }
+
+        syn String Type.name() {
+            return getIdUse().getID();
+        }
 }
 
 aspect NameAnalysisCheck {

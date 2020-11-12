@@ -1,7 +1,4 @@
 aspect IRGenType {
-	syn IRTypeFormal TypeVarDecl.genIR() {
-		return new IRTypeFormal(new IRName(getIdDecl().getID()));
-	}
 
 	// syn IRTypeRef TypeDefinition.genIRTypeRef() = null;
 	// @Override public IRTypeRef TypeVarDecl.genIRTypeRef() {

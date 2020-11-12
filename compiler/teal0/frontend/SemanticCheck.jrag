@@ -1,4 +1,5 @@
 aspect SemanticCheck {
+	// Check various flavours of assignment
 	class SemanticError extends CompilerError {
 		String msg;
 
@@ -18,9 +19,7 @@ aspect SemanticCheck {
 		}
 	}
 
-	// nothing here
 	coll ArrayList<CompilerError> Program.semanticErrors() [new ArrayList<CompilerError>()];
-
 	syn boolean Expr.isLValue() = false;
 	eq Access.isLValue() = true;
 	eq IndexExpr.isLValue() = true;
@@ -30,4 +29,21 @@ aspect SemanticCheck {
 
 	VarDecl contributes new SemanticError(sourceLocation(), "Global variable does not allow explicit initialization. Its initial value is always null.")
 		when hasInitializer() && getScope() == VariableScope.GLOBAL to Program.semanticErrors();
+
+	syn String Decl.kind();
+	eq VarDecl.kind() = "variable";
+	eq FunDecl.kind() = "function";
+
+	// Check that the right declaration kinds are used in the righ places
+	class DeclKindError extends SemanticError {
+		public DeclKindError(String use, String decl, String name, SourceLocation loc) {
+			super(loc, String.format("'%s' is declared as a %s, but used as a %s.", name, decl, use));
+		}
+	}
+
+	Access contributes new DeclKindError("variable", getIdUse().lookup().getDecl().kind(), name(), sourceLocation())
+		when !getIdUse().lookup().isUnknown() && !getIdUse().lookup().getDecl().isVarDecl() to Program.semanticErrors();
+
+	CallExpr contributes new DeclKindError("function", getIdUse().lookup().getDecl().kind(), name(), sourceLocation())
+		when !getIdUse().lookup().isUnknown() && !getIdUse().lookup().getDecl().isFunDecl() to Program.semanticErrors();
 }

@@ -25,7 +25,7 @@ aspect IRGenExpr {
 	}
 
 	syn BuiltinNames.Operation BinExpr.builtin();
-	eq AddExpr.builtin() = BuiltinNames.INT_ADD;
+	eq AddExpr.builtin() = BuiltinNames.BUILTIN_ADD;
 	eq SubExpr.builtin() = BuiltinNames.INT_SUB;
 	eq MulExpr.builtin() = BuiltinNames.INT_MUL;
 	eq DivExpr.builtin() = BuiltinNames.INT_DIV;
@@ -108,22 +108,18 @@ aspect IRGenExpr {
 		return r;
 	}
 
-	public IRVarRef NewExpr.genCodeArray(IRFunctionCtx ctx) {
+	// This is an attribute so that we can extend it in later layers of Teal
+	syn IRVarRef NewExpr.genCode(IRFunctionCtx ctx) {
+		if (!(getType() instanceof ArrayType))
+			throw new RuntimeException("The 'new' operator can be used only for array types.");
+
 		IRVarRef dst = ctx.getTempIRVar(this);
 		IRVarRef size = getActual(0).genCode(ctx);
 		IRNewArrayInsn newInsn = new IRNewArrayInsn().setDst(dst)
-			.setIRTypeRef(getType().getActual(0).genIRTypeRef()).setSize(size);
+			.setIRTypeRef(((ArrayType) getType()).getActual().genIRTypeRef()).setSize(size);
 		ctx.addInsn(newInsn);
 		ctx.setSourceLocations(this.sourceLocation());
 		return dst;
-	}
-
-	// This is an attribute so that we can extend it in later layers of Teal
-	syn IRVarRef NewExpr.genCode(IRFunctionCtx ctx) {
-		if (((BuiltinTypeCon) getType().getIdUse().lookup().getDecl()).isArray()) {
-			return genCodeArray(ctx);
-		}
-		return null;
 	}
 
 	public IRVarRef TypedExpr.genCode(IRFunctionCtx ctx) {

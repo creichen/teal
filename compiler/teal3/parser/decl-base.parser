@@ -35,6 +35,8 @@ FunDecl abstract_fun_decl = FUN ID LPAREN fun_formals RPAREN type_opt? SEMICOLON
                           ;
 
 Type type_no_qual = ID type_actuals {: return new Type(new IdUse(ID), type_actuals, new List()); :}
+                  ;
+
 Type type = type_no_qual
           | type_qualifier type {: return type.addTypeQualifier(type_qualifier); :}
           ;

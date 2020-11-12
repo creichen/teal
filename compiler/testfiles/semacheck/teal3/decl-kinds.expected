@@ -1,0 +1,7 @@
+testfiles/semacheck/teal3/decl-kinds.in[2:7-2:7]: 'T' is declared as a type variable, but used as a variable.
+testfiles/semacheck/teal3/decl-kinds.in[3:7-3:9]: 'T' is declared as a type variable, but used as a function.
+testfiles/semacheck/teal3/decl-kinds.in[7:5-7:5]: 'C' is declared as a type, but used as a variable.
+testfiles/semacheck/teal3/decl-kinds.in[8:5-8:10]: 'C' is declared as a type, but used as a function.
+testfiles/semacheck/teal3/decl-kinds.in[12:9-12:11]: 'v' is declared as a variable, but used as a type.
+testfiles/semacheck/teal3/decl-kinds.in[13:22-13:22]: 'v' is declared as a variable, but used as a type.
+testfiles/semacheck/teal3/decl-kinds.in[14:18-14:18]: 'g' is declared as a function, but used as a type.

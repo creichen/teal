@@ -20,6 +20,7 @@ module("teal-0") {
 	include "frontend/DumpTree.jrag"
 	include "frontend/Modules.jrag"
 	include "frontend/Util.jrag"
+	include "frontend/Decl.jrag"
 	include "frontend/Source.jrag"
 	include "frontend/NameAnalysis.jrag"
 	include "frontend/SemanticCheck.jrag"
@@ -34,7 +35,8 @@ module("teal-0") {
     }
 
     scanner {
-	include "scanner/header.flex", [-1]
+	include "scanner/header.flex", [-2]
+	include "scanner/type.flex", [-1]
 	include "scanner/scanner.flex"
 	include "scanner/id.flex", [1]
 	include "scanner/footer.flex", [2]

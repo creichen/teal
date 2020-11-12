@@ -1,0 +1,8 @@
+// IN:NONE
+// OUT: "Hello World"
+fun main() = {
+    var a := "Hello ";
+    var b := "World";
+
+    return a + b;
+}

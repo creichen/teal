@@ -1,0 +1,7 @@
+import linkage_kinds_module::f;
+import linkage_kinds_module::v;
+
+fun main () = {
+    f := 5;
+    v(10);
+}

@@ -1,20 +1,12 @@
 aspect IRGenType {
-	// FIXME: use int / any special types as appropriate
-	syn IRTypeRef BuiltinTypeCon.genIRTypeRef() {
-		IRType ty = new IRClass().setIRName(new IRName(getIdDecl().getID()));
-		ty.setSourceLocation(this.sourceLocation());
-		for (TypeVarDecl d : getTypeFormals()) {
-			ty.addIRTypeFormal(d.genIR());
-		}
-		return new IRTypeInstanceRef().setIRType(ty);
+	syn IRTypeRef Type.genIRTypeRef();
+	eq IntType.genIRTypeRef() = IRModule.makeIntegerTypeRef();
+	eq StringType.genIRTypeRef() = IRModule.makeStringTypeRef();
+	eq AnyType.genIRTypeRef() = IRModule.makeAnyTypeRef();
+	eq ArrayType.genIRTypeRef() {
+		IRTypeRef elemType = getActual().genIRTypeRef();
+		return new IRTypeInstanceRef(IRClass.newBuiltinIRClass("array")
+									 .addIRTypeFormal(new IRTypeFormal(new IRName("T"))),
+									 new lang.ir.List<IRTypeRef>().add(elemType));
 	}
-
-	syn IRTypeRef Type.genIRTypeRef() {
-		return ((BuiltinTypeCon) getIdUse().lookup().getDecl()).genIRTypeRef();
-	}
-
-	public void BuiltinTypeCon.addIRToModule(IRModule module) {
-		throw new RuntimeException("Should never try to generate code for built-in type");
-	}
-
 }

@@ -11,8 +11,6 @@ aspect IRGen {
 
 	Decl implements ModuleMemberIR;
 
-	public void TypeVarDecl.addIRToModule(IRModule m) { throw new NotYetImplementedError("Cannot translate declaration " + this.getClass()); }
-
 	/**
 	 * Code generation details for different storage bindings of variables
 	 * FIXME: rename to VariableBindingIR
@@ -211,7 +209,7 @@ aspect IRGen {
 				// Append an index to the name. We might have multiple variables with
 				// the same name at different scopes, and we want them to have a unique
 				// name inside the IR
-				v = new IRVar(new IRName(d.getIdDecl().getID() + counter++), d.type().genIRTypeRef());
+				v = new IRVar(new IRName(d.name() + counter++), d.type().genIRTypeRef());
 				F.getLocals().add(v);
 				locals.put(d, v);
 			}
@@ -301,7 +299,7 @@ aspect IRGen {
 		// return type, if any
 		IRTypeRef typeref = type().genIRTypeRef();
 		if (typeref == null) {
-		    throw new RuntimeException("Internal error: null null type ref generated for " + ((ASTNode)type()).dumpTree());
+			throw new RuntimeException("Internal error: null type ref generated for " + ((ASTNode)type()).dumpTree());
 		}
 		func.setIRTypeRef(typeref);
 

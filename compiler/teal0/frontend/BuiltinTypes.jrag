@@ -5,26 +5,21 @@ aspect BuiltinTypes {
 	eq Program.getChild().program() = this;
 	eq Program.getBuiltinDecls().program() = this;
 
-	syn TypeDefinition Decl.typeDefinition() = null; // Extract type definition if the decl is a type
-
-	syn TypeDefinition Program.INT() = this.INTDecl().typeDefinition();
-	syn TypeDefinition Program.ANY() = this.ANYDecl().typeDefinition();
-	syn TypeDefinition Program.STRING() = this.STRINGDecl().typeDefinition();
-	syn TypeDefinition Program.ARRAY() = this.ARRAYDecl().typeDefinition();
-
-	syn nta Decl Program.INTDecl() = builtinType(BuiltinNames.INT);
-	syn nta Decl Program.ANYDecl() = builtinType(BuiltinNames.ANY);
-	syn nta Decl Program.STRINGDecl() = builtinType(BuiltinNames.STRING);
-	syn nta Decl Program.ARRAYDecl() = builtinType(BuiltinNames.ARRAY)
-		.setTypeFormalList(new List<TypeVarDecl>(new TypeVarDecl(new IdDecl("T"))));
-
 	syn Type Program.simpleTypeFromName(String typename) {
-		return new Type(new IdUse(typename), new List());
+		switch (typename) {
+		case "int":
+			return new IntType();
+		case "string":
+			return new StringType();
+		case "any":
+			return new AnyType();
+		default:
+			throw new RuntimeException("Can't build type from name " + typename);
+		}
 	}
 
-	// FIXME: use explicit type references!
 	private Decl Program.makeBuiltinFunDecl(BuiltinNames.Operation op) {
-	    //String name, String retType, String ...argTypes) {
+		//String name, String retType, String ...argTypes) {
 		FunDecl f = new FunDecl();
 		f.setIdDecl(new IdDecl(op.getName()));
 		f.setType(simpleTypeFromName(op.getReturnType()));
@@ -38,21 +33,12 @@ aspect BuiltinTypes {
 		return f;
 	}
 
-	/**
-	 * Introduce the builtin types int, string, any, array[T], and the builtin operations
-	 **/
 	syn nta List<Decl> Program.getBuiltinDeclsList() {
 		List<Decl> decls = new List<Decl>();
 
-		decls
-			.add(INTDecl())
-			.add(ANYDecl())
-			.add(STRINGDecl())
-			.add(ARRAYDecl());
-
 		// Extract builtin operations directly from their specification
 		for (BuiltinNames.Operation op : BuiltinNames.getOperations()) {
-		    decls.add(makeBuiltinFunDecl(op));
+			decls.add(makeBuiltinFunDecl(op));
 		}
 		return decls;
 	}
