@@ -166,7 +166,14 @@ aspect IRInterpreter {
 		}
 
 		@Override public String toString() {
-			return "<IRValue:" + this.type + ">";
+			if (this.getType() == null) {
+				return this.toShortString();
+			}
+			return this.toShortString() + " : " + this.getType().toString();
+		}
+
+		public String toShortString() {
+			return "<@" + System.identityHashCode(this) + ">";
 		}
 
 		/**
@@ -204,8 +211,9 @@ aspect IRInterpreter {
 		public long asLong() {
 			return val;
 		}
-		@Override public String toString() {
-			return val + " : " + "int";
+
+		@Override public String toShortString() {
+		    return "" + this.val;
 		}
 
 		/**
@@ -229,8 +237,8 @@ aspect IRInterpreter {
 		public String asString() {
 			return val;
 		}
-		@Override public String toString() {
-			return "\"" + val + "\" : " + "string";
+		@Override public String toShortString() {
+			return "\"" + val.replaceAll("\"","\\\\\"") + "\"";
 		}
 
 		/**
@@ -252,8 +260,8 @@ aspect IRInterpreter {
 		public boolean isNull() {
 			return true;
 		}
-		@Override public String toString() {
-			return "<null>";
+		@Override public String toShortString() {
+			return "null";
 		}
 
 		/**
@@ -267,9 +275,16 @@ aspect IRInterpreter {
 
 	public class IRArray extends IRValue {
 		private IRValue[] values;
-		public IRArray(long size) {
+
+		public IRArray(IRType elementType, long size) {
 			super(null);
 			values = new IRValue[(int) size];
+			if (size > 0) {
+				IRNullValue nullValue = new IRNullValue(new IRConcreteType(elementType));
+				for (int i = 0; i < size; ++i) {
+					this.values[i] = nullValue;
+				}
+			}
 		}
 
 		public void set(long i, IRValue v) {
@@ -283,8 +298,31 @@ aspect IRInterpreter {
 		public long getSize() {
 			return values.length;
 		}
+
+		private String
+		toStringWithTypes(boolean withType) {
+			StringBuffer sb = new StringBuffer("[");
+			for (int i = 0; i < values.length; i++) {
+				if (i > 0) {
+					sb.append(", ");
+				}
+				IRValue v = this.values[i];
+				if (withType) {
+					sb.append(v.toString());
+				} else {
+					sb.append(v.toShortString());
+				}
+			}
+			sb.append("]");
+			return sb.toString();
+		}
+
+		@Override public String toShortString() {
+			return this.toStringWithTypes(false);
+		}
+
 		@Override public String toString() {
-			return Arrays.toString(this.values);
+			return this.toStringWithTypes(true) + " : " + this.getType().toString();
 		}
 	}
 
@@ -621,7 +659,8 @@ aspect IRInterpreter {
 		if (size.asLong() < 0) {
 			throw new InterpreterException("Negative array size.");
 		}
-		IRValue array = new IRArray(size.asLong());
+		IRType elementType = IRModule.AnyType; //this.getIRTypeRef().link().getTypeActual(0); // FIXME
+		IRValue array = new IRArray(elementType, size.asLong());
 		ctx.getStore().set(getDst(), array);
 	}
 

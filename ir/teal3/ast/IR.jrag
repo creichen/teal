@@ -7,22 +7,22 @@ aspect IR {
 		return c;
 	}
 
-	public IRClass IRModule.IntegerType = IRClass.newBuiltinIRClass("int");
-	public IRClass IRModule.StringType = IRClass.newBuiltinIRClass("string");
-	public IRClass IRModule.AnyType = IRClass.newBuiltinIRClass("any");
-	public IRClass IRModule.ArrayType = IRClass.newBuiltinIRClass("array")
+	public static IRClass IRModule.IntegerType = IRClass.newBuiltinIRClass("int");
+	public static IRClass IRModule.StringType = IRClass.newBuiltinIRClass("string");
+	public static IRClass IRModule.AnyType = IRClass.newBuiltinIRClass("any");
+	public static IRClass IRModule.ArrayType = IRClass.newBuiltinIRClass("array")
 		.addIRTypeFormal(new IRTypeFormal(new IRName("T")));
 
 	public static IRTypeRef IRModule.makeIntegerTypeRef() {
-		return new IRTypeInstanceRef(IRClass.newBuiltinIRClass("int"), new List());
+		return new IRTypeInstanceRef(IRModule.IntegerType, new List());
 	}
 
 	public static IRTypeRef IRModule.makeStringTypeRef() {
-		return new IRTypeInstanceRef(IRClass.newBuiltinIRClass("string"), new List());
+		return new IRTypeInstanceRef(IRModule.StringType, new List());
 	}
 
 	public static IRTypeRef IRModule.makeAnyTypeRef() {
-		return new IRTypeInstanceRef(IRClass.newBuiltinIRClass("any"), new List());
+		return new IRTypeInstanceRef(IRModule.AnyType, new List());
 	}
 
 	public String IRModule.defaultName = "main";

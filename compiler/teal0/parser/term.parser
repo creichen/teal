@@ -3,7 +3,7 @@ Expr term = LPAREN expr RPAREN {: return expr; :}
           | STRING_LITERAL {: return new StringConstant((String)STRING_LITERAL.value); :}
           | ID {: return new Access(new IdUse(ID)); :}
           | package_path {: return new QualifiedAccess(package_path); :}
-          | LBRACK fun_actual_list_maybe_empty RBRACK {: return new ListExpr(fun_actual_list_maybe_empty); :}
+          | LBRACK fun_actual_list_maybe_empty RBRACK {: return new ArrayLiteralExpr(fun_actual_list_maybe_empty); :}
           | ID LPAREN fun_actual_list_maybe_empty RPAREN {: return new CallExpr(new IdUse(ID), fun_actual_list_maybe_empty); :}
           | term.b LBRACK expr.i RBRACK {: return new IndexExpr(b, i); :}
           | NEW type LPAREN expr RPAREN {: return new NewExpr(type, new List<>(expr)); :}

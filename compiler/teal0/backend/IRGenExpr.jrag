@@ -122,6 +122,29 @@ aspect IRGenExpr {
 		return dst;
 	}
 
+	syn IRVarRef ArrayLiteralExpr.genCode(IRFunctionCtx ctx) {
+		ctx.setSourceLocations(this.sourceLocation());
+
+		IRVarRef dst = ctx.getTempIRVar(this);
+		IRVarRef size = new IRVarRef(ctx.getFreshTempIRVar(IRModule.makeIntegerTypeRef()));
+		ctx.addInsn(new IRConstantInsn(size, new IRInteger((long) this.getNumExpr())));
+		IRNewArrayInsn newInsn = new IRNewArrayInsn().setDst(dst)
+			.setIRTypeRef(IRModule.makeAnyTypeRef()).setSize(size); // FIXME: more precise type if we get type inference
+		ctx.addInsn(newInsn);
+
+		long indexCounter = 0;
+		IRVarRef index = size;
+		for (Expr expr : this.getExprs()) {
+			IRVarRef elt = expr.genCode(ctx);
+			ctx.setSourceLocations(this.sourceLocation());
+			ctx.addInsn(new IRConstantInsn(index, new IRInteger(indexCounter)));
+			ctx.addInsn(new IRStoreArrayInsn(elt, dst, index));
+			indexCounter += 1;
+		}
+
+		return dst;
+	}
+
 	public IRVarRef TypedExpr.genCode(IRFunctionCtx ctx) {
 		// TODO: generate an assertion too
 		return getExpr().genCode(ctx);
