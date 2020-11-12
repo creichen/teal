@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +23,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Scanner;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -49,6 +52,9 @@ public class TestInterpreter {
 	private static final String TEST_DIRECTORY_NAME = "testfiles/interpreter";
 	private static final File TEST_DIRECTORY = new File(TEST_DIRECTORY_NAME);
 	private final String filename;
+
+	@Rule
+	public Timeout timeoutRule = new Timeout(1000, TimeUnit.MILLISECONDS);
 
 	public TestInterpreter(String testFile) {
 		filename = testFile;

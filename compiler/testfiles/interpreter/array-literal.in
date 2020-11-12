@@ -2,6 +2,13 @@
 // OUT: 10
 fun main() = {
     var a := [2, 3, 5];
+    var sum := 0;
+    var i := 0;
 
-    return a[0] + a[1] + a[2];
+    while i < array_length(a) {
+        sum := sum + a[i];
+	i := i + 1;
+    }
+
+    return sum;
 }

@@ -2,7 +2,6 @@ package lang.ir;
 
 import lang.common.BuiltinNames;
 import java.util.HashMap;
-import java.lang.reflect.Field;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -20,6 +19,7 @@ public final class Builtins {
     public static final Type<IRIntegerValue> INT = new Type<>(BuiltinNames.INT, IRIntegerValue.class);
     public static final Type<IRStringValue> STRING = new Type<>(BuiltinNames.STRING, IRStringValue.class);
     public static final Type<IRValue> ANY = new Type<>(BuiltinNames.ANY, IRValue.class);
+    public static final Type<IRArray> ARRAY = new Type<>(BuiltinNames.ARRAY, IRArray.class);
 
     // Declare method implementations
     static {
@@ -62,7 +62,7 @@ public final class Builtins {
                     return new IRIntegerValue(0);
                 }
             });
-        OP(BuiltinNames.ARRAY_LENGTH, ctx -> new IRIntegerValue(ctx.getArraySize(0)));
+        OP(BuiltinNames.ARRAY_LENGTH, ctx -> new IRIntegerValue(ctx.getArray(0).getSize()));
     }
 
     private static Type<?> translateType(String typename) {
@@ -101,7 +101,7 @@ public final class Builtins {
 	    if (!this.classobj.isInstance(v)) {
 		throw new InterpreterException("IR error: while calling builtin operation " + op + ", parameter #" + index
 					       + " expects " + this.typename
-					       + " but received " + v);
+					       + " but received " + v.getClass());
 	    }
 	}
 
@@ -177,10 +177,10 @@ public final class Builtins {
 	    }
 
             /**
-             * Returns the length of an array argument
+             * Returns an array argument, with dynamic checking
              */
-            public long getArraySize(int offset) {
-                return ((IRArray) this.get(offset)).getSize();
+            public IRArray getArray(int offset) {
+                return (IRArray) this.get(offset);
             }
 
 	    /**
