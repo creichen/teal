@@ -120,7 +120,6 @@ public class TestInterpreter {
 			String aline = actual.get(i);
 			String eline = expected.get(i);
 			if (!aline.equals(eline)) {
-				System.err.println("mm in line triggered " + i);
 				mismatch = true;
 			}
 		}
@@ -370,7 +369,7 @@ public class TestInterpreter {
                 }
 
                 public Boolean isBlank() {
-                        return !inputs.isPresent() & !output.isPresent() & !exception.isPresent();
+                        return !inputs.isPresent() & !output.isPresent() & !exception.isPresent() & this.prints.size() == 0;
                 }
         }
 

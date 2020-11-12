@@ -34,7 +34,7 @@ public final class BuiltinNames {
     public static final Operation INT_AND = ARITHMETIC_BINOP("__builtin_int_logical_and");
     public static final Operation INT_OR = ARITHMETIC_BINOP("__builtin_int_logical_or");
 
-    public static final Operation PRINT = new Operation("print", ANY, STRING);
+    public static final Operation PRINT = new Operation("print", ANY, ANY);
     public static final Operation READ = new Operation("read", STRING);
 
     // Additional builtins
@@ -45,7 +45,6 @@ public final class BuiltinNames {
     // And that's not supported yet.
     // TODO: It would be better if it took an array of anything
     public static final Operation ARRAY_LENGTH = new Operation("array_length", INT, ANY);
-    
 
     private static ArrayList<Operation> operations;
     static void addOperation(Operation op) {

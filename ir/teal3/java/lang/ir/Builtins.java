@@ -41,7 +41,7 @@ public final class Builtins {
 	BOOL_OP(BuiltinNames.INT_GT, ctx -> ctx.getInt(0) > ctx.getInt(1));
 	BOOL_OP(BuiltinNames.INT_AND, ctx -> (ctx.getInt(0) != 0 && ctx.getInt(1) != 0));
 	BOOL_OP(BuiltinNames.INT_OR, ctx -> (ctx.getInt(0) != 0 || ctx.getInt(1) != 0));
-	VOID_OP(BuiltinNames.PRINT, ctx -> System.out.print(ctx.getString(0)));
+	VOID_OP(BuiltinNames.PRINT, ctx -> System.out.println(ctx.get(0).toShortString()));
 	OP(BuiltinNames.READ, ctx -> {
 		try {
 		    // How many objects does one need to read a line from stdin in Java? ;)

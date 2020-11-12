@@ -1,13 +1,17 @@
 // IN:NONE
-// PRINT: "Hello"
+// PRINT: ""Hello""
 // PRINT: "7"
 // PRINT: "[3, null]"
+// PRINT: "[3, ["foo"]]"
 // OUT: 0
 fun main() = {
     print("Hello");
-    print(3);
+    print(7);
     var a := new array[int](2);
     a[0] := 3;
+    print(a);
+    a[1] := new array[string](1);
+    a[1][0] := "foo";
     print(a);
 
     return 0;
