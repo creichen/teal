@@ -4,11 +4,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,6 +20,7 @@ import java.util.stream.Stream;
 import java.util.stream.Collectors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Scanner;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,11 +44,40 @@ import lang.ir.IRTypeRef;
 /**
  * Test class for the IR Interpreter
  */
+@RunWith(Parameterized.class)
 public class TestInterpreter {
-	private static final String TEST_DIRECTORY = "testfiles/interpreter";
+	private static final String TEST_DIRECTORY_NAME = "testfiles/interpreter";
+	private static final File TEST_DIRECTORY = new File(TEST_DIRECTORY_NAME);
+	private final String filename;
+
+	public TestInterpreter(String testFile) {
+		filename = testFile;
+	}
+
+
+	@Test public void runTest() throws Exception {
+		runTestWithSpec(filename);
+	}
+
+	private static final PrintStream STDOUT_BACKUP = System.out;
+
+
+	@Parameters(name = "{0}")
+	public static Iterable<Object[]> getTests() {
+		return Util.getTestParameters(TEST_DIRECTORY, ".in");
+	}
+
+
+	private static List<String>
+	linesToList(String lines) {
+		if (lines.equals("")) {
+			return new ArrayList<>(0);
+		}
+		return Arrays.asList(lines.split("\\r?\\n"));
+	}
 
 	private static IRProgram loadAndCompileProgram(String... name) {
-		Path file = Paths.get(TEST_DIRECTORY, name);
+		Path file = Paths.get(TEST_DIRECTORY_NAME, name);
 
 		List<CompilerError> compilerErrors = new LinkedList<>();
                 Program program = Compiler.createProgramFromFiles(Collections.singletonList(file.toString()),
@@ -79,7 +112,57 @@ public class TestInterpreter {
 		return p;
 	}
 
-	private static boolean checkResultNoCatch(IRProgram p, Object expectedReturn, Object ... testInput) throws InterpreterException {
+	private static void
+	comparePrints(List<String> actual, List<String> expected) {
+		boolean mismatch = actual.size() != expected.size();
+		int size = Integer.min(actual.size(), expected.size());
+		for (int i = 0; i < size; ++i) {
+			String aline = actual.get(i);
+			String eline = expected.get(i);
+			if (!alin e.equals(eline)) {
+				mismatch = true;
+			}
+		}
+
+		if (mismatch) {
+			System.err.println("Mismatch in expected prints");
+			System.err.println("E: " + expected.size() + " lines");
+			System.err.println("A: " + actual.size() + " lines");
+
+			for (int i = 0; i < size; ++i) {
+				String aline = actual.get(i);
+				String eline = expected.get(i);
+				if (aline.equals(eline)) {
+					System.err.println("Line " + (i + 1) + " matches");
+				} else {
+					System.err.println("Line " + (i + 1) + ":");
+					System.err.println("E: " + eline);
+					System.err.println("A: " + aline);
+				}
+			}
+
+			List<String> excess = null;
+			if (expected.size() > size) {
+				excess = expected;
+			}
+			if (actual.size() > size) {
+				excess = actual;
+			}
+			if (excess != null) {
+				System.err.println("Excess lines:\n----------------------------------------");
+				for (int i = size; i < excess.size(); ++i) {
+					System.err.println(excess.get(i));
+				}
+				System.err.println("----------------------------------------");
+			}
+
+			assertFalse("Mismatch in expected prints",
+				    true);
+		}
+	}
+
+
+	private static boolean checkResultNoCatch(IRProgram p, Object expectedReturn, List<String> expectedPrints, Object ... testInput) throws InterpreterException {
 		ArrayList<IRValue> args = new ArrayList<>();
 		for (Object input : testInput) {
 			if (input instanceof String) {
@@ -92,8 +175,20 @@ public class TestInterpreter {
 			}
 		}
 
+		IRValue ret;
+		ByteArrayOutputStream stdoutStream = new ByteArrayOutputStream();
 
-		IRValue ret = p.eval(args);
+		try {
+			System.out.flush();
+			System.setOut(new PrintStream(stdoutStream));
+			ret = p.eval(args);
+		} finally {
+			System.out.flush();
+			System.setOut(STDOUT_BACKUP);
+		}
+		List<String> actualPrints = linesToList(stdoutStream.toString());
+		comparePrints(actualPrints, expectedPrints);
+
 		if (ret instanceof IRIntegerValue) {
 			if (((IRIntegerValue)ret).asLong() != (long)(int) expectedReturn) {
 				System.err.println("Expected: " + expectedReturn + " but got " + ret + ".");
@@ -111,20 +206,22 @@ public class TestInterpreter {
 		return false;
 	}
 
-	private static boolean checkResult(IRProgram p, Object expectedReturn, Object ... testInput) {
+	private static boolean checkResult(IRProgram p, Object expectedReturn,
+					   List<String> expectedPrints,
+					   Object ... testInput) {
 		try {
-			return checkResultNoCatch(p, expectedReturn, testInput);
+			return checkResultNoCatch(p, expectedReturn, expectedPrints, testInput);
 		} catch (InterpreterException e) {
 			System.err.println("Error while intepreting program: " + e.toString());
 		}
 		return false;
 	}
 
-
         public static class TestSpec {
                 public Optional<Object[]> inputs;
                 public Optional<Object> output;
-                public Optional<Object> exception;
+                public Optional<Class> exception;
+		public List<String> prints = new ArrayList<>();
 
                 public TestSpec() {
                         this.inputs = Optional.empty();
@@ -134,27 +231,36 @@ public class TestInterpreter {
 
                 public TestSpec(Optional<Object[]> inputs,
                                 Optional<Object> output,
-                                Optional<Object> exception) {
+                                Optional<Class> exception) {
                         this.inputs = inputs;
                         this.output = output;
                         this.exception = exception;
                 }
 
-                public static String INPUT_PATTERN = "// IN: (.+)";
-                public static String OUTPUT_PATTERN = "// OUT: ([-0-9]+)";
-                public static String EXCEPTION_PATTERN = "// EXCEPTION: [-0-9]+";
+                public static Pattern INPUT_PATTERN = Pattern.compile("// IN: (.+)");
+                public static Pattern OUTPUT_PATTERN = Pattern.compile("// OUT: (([-0-9]+)|(\".*\"))$");
+                public static Pattern EXCEPTION_PATTERN = Pattern.compile("// EXCEPTION: (.+)");
+		public static Pattern PRINT_PATTERN = Pattern.compile("// PRINT: (.+)");
+                public static Pattern NO_INPUT_PATTERN = Pattern.compile("^// IN:NONE$");
 
                 public static TestSpec parseInputs(String line) {
-                        Pattern p = Pattern.compile(INPUT_PATTERN);
-                        Matcher m = p.matcher(line);
+                        Matcher m = INPUT_PATTERN.matcher(line);
+			Matcher m_none = NO_INPUT_PATTERN.matcher(line);
 
-                        if (m.find()) {
-                                String[] values = m.group(1).split(" ");
+			boolean found_empty = m_none.find();
+
+                        if (m.find() || found_empty) {
+				String[] values;
+
+				if (found_empty) {
+					values = new String[0];
+				} else {
+					values = m.group(1).split(" ");
+				}
                                 Object[] results = new Object[values.length];
                                 int i = 1;
                                 for (String val : values) {
-                                        System.out.println(val);
-                                        results[i-1] = Integer.parseInt(val);
+                                        results[i-1] = parseValue(val);
                                         i++;
                                 }
 
@@ -166,27 +272,69 @@ public class TestInterpreter {
                         }
                 }
 
+                public static TestSpec parsePrints(String line) {
+			Matcher m = PRINT_PATTERN.matcher(line);
+
+			if (m.find()) {
+				Object pv = parseValue(m.group(1));
+				assertTrue("PRINT: spec values must be strings in double quotes",
+					   pv instanceof String);
+				TestSpec ts = new TestSpec();
+				ts.prints.add((String)pv);
+				return ts;
+			} else {
+				return new TestSpec();
+			}
+		}
+
+                /**
+                 * Parses a value for outputs or inputs
+                 * Supports Integers and String
+                 */
+                public static Object parseValue(String valueString) {
+                        try {
+                                return Integer.parseInt(valueString);
+                        } catch (java.lang.NumberFormatException e) {
+                                Boolean isQuoted = valueString.startsWith("\"") & valueString.endsWith("\"");
+                                if (!isQuoted) {
+                                        throw new RuntimeException("Invalid value in test spec: " + valueString);
+                                } else {
+                                        return valueString.subSequence(1, valueString.length() - 1);
+                                }
+                        }
+                }
+
                 public static TestSpec parseOutput(String line) {
-                        Pattern p = Pattern.compile(OUTPUT_PATTERN);
+                        Pattern p = OUTPUT_PATTERN;
                         Matcher m = p.matcher(line);
 
                         if (m.find()) {
                                 return new TestSpec(Optional.empty(),
-                                                    Optional.of(Integer.parseInt(m.group(1))),
+                                                    Optional.of(parseValue(m.group(1))),
                                                     Optional.empty());
                         } else {
                                 return new TestSpec();
                         }
                 }
 
+
+                public static Class parseExceptionValue(String valueString) {
+                        try {
+                                return Class.forName(valueString);
+                        } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
+                                throw new RuntimeException("Parsing exception name failed for: " + valueString);
+                        }
+                }
+
                 public static TestSpec parseException(String line) {
-                        Pattern p = Pattern.compile(EXCEPTION_PATTERN);
+                        Pattern p = EXCEPTION_PATTERN;
                         Matcher m = p.matcher(line);
 
                         if (m.find()) {
                                 return new TestSpec(Optional.empty(),
-                                                    Optional.of(Integer.parseInt(m.group())),
-                                                    Optional.empty());
+                                                    Optional.empty(),
+                                                    Optional.of(parseExceptionValue(m.group(1))));
                         } else {
                                 return new TestSpec();
                         }
@@ -211,6 +359,7 @@ public class TestInterpreter {
                         if (other.isBlank()) { return; }
                         this.inputs = combineOptionals(this.inputs, other.inputs);
                         this.output = combineOptionals(this.output, other.output);
+                        this.prints.addAll(other.prints);
                         this.exception = combineOptionals(this.exception, other.exception);
                 }
 
@@ -220,240 +369,154 @@ public class TestInterpreter {
                 }
 
                 public Boolean isBlank() {
-                        return !inputs.isPresent() & !output.isPresent() & !exception.isPresent();
+                        return !inputs.isPresent() & !output.isPresent() & !exception.isPresent() & this.prints.size() == 0;
                 }
         }
+
+        @Test
+        public void testReadInputSpec() {
+                TestSpec i = TestSpec.parseInputs("// IN: 0");
+                assertNotEquals(i.inputs, Optional.empty());
+                assertTrue(i.inputs.get().length == 1);
+                assertEquals(0, i.inputs.get()[0]);
+        }
+
+        @Test
+        public void testReadInputSpecString() {
+                TestSpec i = TestSpec.parseInputs("// IN: 0 \"Cat\"");
+                assertNotEquals(i.inputs, Optional.empty());
+                assertTrue(i.inputs.get().length == 2);
+                assertEquals(0, i.inputs.get()[0]);
+                assertEquals("Cat", i.inputs.get()[1]);
+        }
+
+        @Test
+        public void testOutputSpec() {
+                TestSpec i = TestSpec.parseOutput("// OUT: 0");
+                assertNotEquals(i.output, Optional.empty());
+                assertEquals(0, i.output.get());
+        }
+
+        @Test
+        public void testOutputSpecString() {
+                TestSpec i = TestSpec.parseOutput("// OUT: \"Dog\"");
+                assertNotEquals(i.output, Optional.empty());
+                assertEquals("Dog", i.output.get());
+        }
+
+        @Test
+        public void testExceptionSpec() {
+                TestSpec e = TestSpec.parseException("// EXCEPTION: lang.ir.InterpreterException");
+                assertNotEquals(e.exception, Optional.empty());
+                assertEquals(lang.ir.InterpreterException.class, e.exception.get());
+        }
+
+        @Test
+        public void testMultipleSpecs() {
+                String text = "// IN: 10 10\n// OUT: 5\n// IN: 2 3\n// OUT: 0\n";
+                Scanner scanner = new Scanner(text);
+                List<String> lines = new ArrayList();
+                while (scanner.hasNextLine()) {
+                        lines.add(scanner.nextLine());
+                }
+                List<TestSpec> testSpecs = readTestSpecLines(lines);
+                assertTrue(testSpecs.size() == 2);
+                assertEquals(10,
+                             testSpecs.get(0).inputs.get()[0]);
+                assertEquals(10,
+                             testSpecs.get(0).inputs.get()[1]);
+
+                assertEquals(Optional.of(5),
+                             testSpecs.get(0).output);
+
+                assertEquals(2,
+                             testSpecs.get(1).inputs.get()[0]);
+                assertEquals(3,
+                             testSpecs.get(1).inputs.get()[1]);
+                assertEquals(Optional.of(0),
+                             testSpecs.get(1).output);
+        }
+
+        @Test(expected=RuntimeException.class)
+        public void testAbsentSpec() {
+                List<String> lines = new ArrayList();
+                lines.add("Some text with IN: and OUT: and stuff.");
+                lines.add("// even has comments and EXCEPTION: and stuff.");
+                lines.add("But yet no spec to be seen");
+                List<TestSpec> testSpecs = readTestSpecLines(lines);
+        }
+
+        public List<TestSpec> readTestSpecLines(List<String> lines) {
+                TestSpec currentSpec = new TestSpec();
+                List<TestSpec> results = new ArrayList();
+                for (String l : lines) {
+                        currentSpec.combineWith(TestSpec.parseInputs(l));
+                        currentSpec.combineWith(TestSpec.parsePrints(l));
+                        currentSpec.combineWith(TestSpec.parseOutput(l));
+                        currentSpec.combineWith(TestSpec.parseException(l));
+                        if(currentSpec.isComplete()) {
+                                results.add(currentSpec);
+                                currentSpec = new TestSpec();
+                        }
+                }
+                if (!currentSpec.isBlank()) {
+                        throw new RuntimeException("Incomplete spec: " + currentSpec.toString());
+                }
+
+                if (results.isEmpty()) {
+                        throw new RuntimeException("No spec found in lines");
+                }
+                return results;
+        }
+
 
         /**
          * Reads comments from a program to find inputs to the test
          * and expected outputs or exceptions
          * @param programName the file where the program
          */
-        public List<TestSpec> readTestSpec(String name) throws IOException {
-                Path file = Paths.get(TEST_DIRECTORY, name);
-                List<String> contents = Files.lines(file, StandardCharsets.UTF_8).collect(Collectors.toList());
-                TestSpec currentSpec = new TestSpec();
-                List<TestSpec> results = new ArrayList();
-                for (String l : contents) {
-                        currentSpec.combineWith(TestSpec.parseInputs(l));
-                        currentSpec.combineWith(TestSpec.parseOutput(l));
-                        currentSpec.combineWith(TestSpec.parseException(l));
-                        if(currentSpec.isComplete()) {
-                                results.add(currentSpec);
-                                currentSpec = new TestSpec();
-                                break;
-                        }
+        public List<TestSpec> readTestSpec(String name) {
+                Path file = Paths.get(TEST_DIRECTORY_NAME, name);
+                try {
+                        List<String> contents = Files.lines(file, StandardCharsets.UTF_8).collect(Collectors.toList());
+                        return readTestSpecLines(contents);
+                } catch (IOException e) {
+                        e.printStackTrace();
+                        throw new RuntimeException("Failed to read file: " + name);
                 }
 
-                if (!currentSpec.isBlank()) {
-                        throw new RuntimeException("Incomplete spec: " + currentSpec.toString());
-                }
-
-                return results;
         }
 
-        public List<Boolean> checkTestSpec(IRProgram p, List<TestSpec> testCases) {
-                List<Boolean> result = new ArrayList();
+        public void checkTestSpec(IRProgram p, List<TestSpec> testCases) {
                 for (TestSpec t : testCases) {
                         assertTrue(t.isComplete());
-                        result.add(checkResult(p, t.output.get(), t.inputs.get()));
+			if (t.exception.isPresent()) {
+				// exceptional execution
+				try {
+					checkResultNoCatch(p, null, t.prints, t.inputs.get());
+					assertFalse("Missed exception: " + t.exception.get(),
+						    true);
+				} catch (Throwable exn) {
+					assertEquals("Expected to abort on " + t.exception.get() + " but got " + exn.getClass(),
+						     t.exception.get(), exn.getClass());
+				}
+			} else {
+				// normal execution
+				assertTrue(checkResult(p, t.output.get(), t.prints, t.inputs.get()));
+			}
                 }
-                return result;
         }
 
-	@Test
-        public void testAdd() throws IOException {
-		IRProgram m = loadAndCompileProgram("add.in");
-		assertNotNull(m);
-                List<Boolean> results = checkTestSpec(m, readTestSpec("add.in"));
-                assertFalse(results.isEmpty());
-                for (Boolean b : results) {
-                        assertTrue(b);
-                }
-	}
-
-	@Test
-	public void testEq() {
-		IRProgram m = loadAndCompileProgram("eq.in");
-		assertNotNull(m);
-		assertTrue(checkResult(m, 0, 10, 13));
-		assertTrue(checkResult(m, 1, 1001, 1001));
-	}
-
-	@Test
-	public void testArith() {
-		IRProgram m = loadAndCompileProgram("arith.in");
-		assertNotNull(m);
-		assertTrue(checkResult(m, 0, 11, 8));
-	}
-
-	@Test
-	public void testWhile() {
-		IRProgram m = loadAndCompileProgram("sum.in");
-		assertNotNull(m);
-
-		int n = 10000;
-		int r = (n - 1) * n / 2;
-		assertTrue(checkResult(m, r, n));
-	}
-
-	@Test
-	public void testRecursiveCall() {
-		IRProgram m = loadAndCompileProgram("sum_rec.in");
-		assertNotNull(m);
-
-		int n = 20;
-		int r = (n + 1) * n / 2;
-		assertTrue(checkResult(m, r, n));
-	}
-
-	@Test
-	public void testSingleClass() {
-		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("teal3", "single-class.in"); // FIXME: in teal3/ subdir now
-		assertNotNull(m);
-
-		int x = 5;
-		int y = 10;
-		int r = (x + y) * 10 * 100;
-
-		assertTrue(checkResult(m, r, x, y));
-	}
-
-	@Test
-	public void testClassWithMemberInit() {
-		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("teal3", "class-with-init.in"); // FIXME: in teal3/ subdir now
-		assertNotNull(m);
-
-		assertTrue(checkResult(m, 1115));
-	}
-
-	@Test
-	public void testMethodCall() {
-		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("teal3", "method-call.in"); // FIXME: in teal3/ subdir now
-		assertNotNull(m);
-		assertTrue(checkResult(m, 1010, 10, 1000));
-	}
-
-	@Test
-	public void testGenericClass() {
-		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("teal3", "generic-class.in"); // FIXME: in teal3/ subdir now
-		assertNotNull(m);
-		assertTrue(checkResult(m, 50, 10, 15));
-	}
-
-	@Test
-	public void testConstructor() {
-		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("teal3", "constructor.in"); // FIXME: in teal3/ subdir now
-		assertNotNull(m);
-		assertTrue(checkResult(m, 11, 10, 5));
-		assertTrue(checkResult(m, 5, 5, 10));
-	}
-
-	@Test
-	public void testFactorial() {
-		// the test contains a circular function reference
-		IRProgram m = loadAndCompileProgram("fact.in");
-		assertNotNull(m);
-		assertTrue(checkResult(m, 1, 0));
-		assertTrue(checkResult(m, 720, 6));
-	}
-
-	@Test
-	public void testPair() {
-		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		// the test contains a circular type reference
-		IRProgram m = loadAndCompileProgram("teal3", "pair.in"); // FIXME: in teal3/ subdir now
-		assertNotNull(m);
-		assertTrue(checkResult(m, 100, 5, 10));
-		assertTrue(checkResult(m, 100, 10, 5));
-	}
-
-	@Test
-	public void testSubclass() {
-		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("teal3", "subclass.in"); // FIXME: in teal3/ subdir now
-		assertNotNull(m);
-		assertTrue(checkResult(m, "Dog"));
-	}
-
-	@Test
-	public void testStack() {
-		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("teal3", "stack.in"); // FIXME: in teal3/ subdir now
-		assertNotNull(m);
-		assertTrue(checkResult(m, 2));
-	}
-
-	@Test
-	public void testLocalVarQualifier() {
-		if (Program.LAYER == 0) { return; } // FIXME: make this more elegant
-		IRProgram m = loadAndCompileProgram("teal3", "qualifier.in"); // FIXME: in teal3/ subdir now
-		assertNotNull(m);
-		assertTrue(checkResult(m, 0, 11, 132));
-	}
-
-	// FIXME: this one is important for later layers of Teal but not for Teal-0
-	// @Test(expected=InterpreterException.class)
-	// public void testLocalVarQualifierFail() throws InterpreterException {
-	// 	IRProgram m = loadAndCompileProgram("qualifier.in");
-	// 	assertNotNull(m);
-	// 	checkResultNoCatch(m, 0, 11, 12);
-	// }
-
-	@Test
-	public void testArrays() {
-		IRProgram m = loadAndCompileProgram("array.in");
-		assertNotNull(m);
-		assertTrue(checkResult(m, 55, 11));
-	}
-
-	@Test
-	public void testModules() {
-		IRProgram p = loadAndCompileProgram("import.in");
-		assertNotNull(p);
-		assertTrue(checkResult(p, 123123, 123));
-	}
-
-	@Test
-	public void testNoExplicitTypes() {
-		IRProgram p = loadAndCompileProgram("notypes.teal");
-		assertNotNull(p);
-		assertTrue(checkResult(p, 128, 123));
-	}
-
-	@Test
-	public void testModuleDiamond() {
-		// verify that if B imports A, C imports A, and P imports B and C,
-		// the program generated from P contains a single copy of the declarations of A
-		IRProgram p = loadAndCompileProgram("module_diamond.teal");
-		assertNotNull(p);
-		assertTrue(checkResult(p, 54, 27));
-	}
-
-	@Test
-	public void testGlobalVarInit() {
-		// verify that global variables are initialized to null;
-		IRProgram p = loadAndCompileProgram("global-init.teal");
-		assertNotNull(p);
-		assertTrue(checkResult(p, 6));
-	}
-
-        @Test
-        public void testStringConcatenation() {
-                IRProgram p = loadAndCompileProgram("string-concat.in");
-                assertNotNull(p);
-                assertTrue(checkResult(p, "Hello World"));
-        }
-
-        @Test(expected=InterpreterException.class)
-        public void testInvalidPlus() throws InterpreterException {
-                IRProgram p = loadAndCompileProgram("invalid-plus.in");
-                assertNotNull(p);
-                assertTrue(checkResultNoCatch(p, "HELLO"));
+        /**
+         * Function that runs a test which contains an inline test
+         * spec (In the comments).
+         * filename: String: name of the file to load and test
+         */
+        public void runTestWithSpec(String filename) {
+                IRProgram m = loadAndCompileProgram(filename);
+                assertNotNull(m);
+		List<TestSpec> spec = readTestSpec(filename);
+		assertTrue(0 < spec.size());
+                checkTestSpec(m, spec);
         }
 }
