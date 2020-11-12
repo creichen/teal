@@ -1,0 +1,7 @@
+// IN:NONE
+// OUT: 10
+fun main() = {
+    var a := [2, 3, 5];
+
+    return a[0] + a[1] + a[2];
+}

@@ -27,7 +27,7 @@ AndExpr : BinExpr;
 // Other expressions
 CallExpr : Expr ::= IdUse Actual:Expr*;
 Null : Expr;
-ListExpr : Expr ::= Expr*;
+ArrayLiteralExpr : Expr ::= Expr*;
 IndexExpr : Expr ::= Base:Expr Index:Expr;
 NotExpr : Expr ::= Expr;
 TypedExpr : Expr ::= Expr Type;
