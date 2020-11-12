@@ -4,11 +4,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,11 +59,22 @@ public class TestInterpreter {
 		runTestWithSpec(filename);
 	}
 
+	private static final PrintStream STDOUT_BACKUP = System.out;
+
+
 	@Parameters(name = "{0}")
 	public static Iterable<Object[]> getTests() {
 		return Util.getTestParameters(TEST_DIRECTORY, ".in");
 	}
 
+
+	private static List<String>
+	linesToList(String lines) {
+		if (lines.equals("")) {
+			return new ArrayList<>(0);
+		}
+		return Arrays.asList(lines.split("\\r?\\n"));
+	}
 
 	private static IRProgram loadAndCompileProgram(String... name) {
 		Path file = Paths.get(TEST_DIRECTORY_NAME, name);
@@ -98,6 +112,57 @@ public class TestInterpreter {
 		return p;
 	}
 
+	private static void
+	comparePrints(List<String> actual, List<String> expected) {
+		boolean mismatch = actual.size() != expected.size();
+		int size = Integer.min(actual.size(), expected.size());
+		for (int i = 0; i < size; ++i) {
+			String aline = actual.get(i);
+			String eline = expected.get(i);
+			if (!aline.equals(eline)) {
+				System.err.println("mm in line triggered " + i);
+				mismatch = true;
+			}
+		}
+
+		if (mismatch) {
+			System.err.println("Mismatch in expected prints");
+			System.err.println("E: " + expected.size() + " lines");
+			System.err.println("A: " + actual.size() + " lines");
+
+			for (int i = 0; i < size; ++i) {
+				String aline = actual.get(i);
+				String eline = expected.get(i);
+				if (aline.equals(eline)) {
+					System.err.println("Line " + (i + 1) + " matches");
+				} else {
+					System.err.println("Line " + (i + 1) + ":");
+					System.err.println("E: " + eline);
+					System.err.println("A: " + aline);
+				}
+			}
+
+			List<String> excess = null;
+			if (expected.size() > size) {
+				excess = expected;
+			}
+			if (actual.size() > size) {
+				excess = actual;
+			}
+			if (excess != null) {
+				System.err.println("Excess lines:\n----------------------------------------");
+				for (int i = size; i < excess.size(); ++i) {
+					System.err.println(excess.get(i));
+				}
+				System.err.println("----------------------------------------");
+			}
+
+			assertFalse("Mismatch in expected prints",
+				    true);
+		}
+	}
+
+
 	private static boolean checkResultNoCatch(IRProgram p, Object expectedReturn, List<String> expectedPrints, Object ... testInput) throws InterpreterException {
 		ArrayList<IRValue> args = new ArrayList<>();
 		for (Object input : testInput) {
@@ -111,8 +176,19 @@ public class TestInterpreter {
 			}
 		}
 
-		IRValue ret = p.eval(args);
-		assert(expectedPrints.size() == 0); // FIXME when we have print tracking support
+		IRValue ret;
+		ByteArrayOutputStream stdoutStream = new ByteArrayOutputStream();
+
+		try {
+			System.out.flush();
+			System.setOut(new PrintStream(stdoutStream));
+			ret = p.eval(args);
+		} finally {
+			System.out.flush();
+			System.setOut(STDOUT_BACKUP);
+		}
+		List<String> actualPrints = linesToList(stdoutStream.toString());
+		comparePrints(actualPrints, expectedPrints);
 
 		if (ret instanceof IRIntegerValue) {
 			if (((IRIntegerValue)ret).asLong() != (long)(int) expectedReturn) {
