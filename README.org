@@ -68,7 +68,14 @@ You can find this main entry point in: ~teal/compiler/teal0/java/lang/Compiler.j
 The arguments to the program can be integers or strings. This will call the ~main~ function (which must
 take matching formal parameters) and print out the ~main~ function's return value.
 
-* Logging
+** Adding your own Teal actions
+
+You can find two predefined entry points in ~teal/compiler/teal0/java/lang/Compiler.java~ that you can
+use to get started:
+-  ~Compiler.customASTAction()~, which you can run with ~java -jar build/teal-0.jar program.teal -Y~, can process the AST
+-  ~Compiler.customIRAction()~, which you can run with ~java -jar build/teal-0.jar program.teal -Z~, can process the IR
+
+** Logging
 Can be enabled by the ~TEAL_DEBUG~ environment variable:
   - ~export TEAL_DEBUG=interp~ enables interpreter debugging
   - ~export TEAL_DEBUG=irgen~ enables IR generation debugging

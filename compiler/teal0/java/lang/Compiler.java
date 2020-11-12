@@ -40,7 +40,19 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.CommandLine;
 
 public class Compiler {
-    public static Object DrAST_root_node; //Enable debugging with DrAST
+	public static Object DrAST_root_node; //Enable debugging with DrAST
+
+	public static boolean customASTAction(Program ast) {
+		System.out.println("Hello from method 'customASTAction()' in " + Compiler.class + "!");
+		// return "false" to finish here, otherwise the program will execute
+		return false;
+	}
+
+	public static boolean customIRAction(IRProgram ir) {
+		System.out.println("Hello from method 'customIRAction()' in " + Compiler.class + "!");
+		// return "false" to finish here, otherwise the program will execute
+		return false;
+	}
 
 	public static void interpret(IRProgram p, String[] strings) {
 		ArrayList<IRValue> args = new ArrayList<>();
@@ -144,6 +156,8 @@ public class Compiler {
 			// Compiler actions
 			PARSE,
 			CHECK,
+			CUSTOM_AST,
+			CUSTOM_IR,
 			IRGEN,
 			INTERP
 		}
@@ -178,6 +192,10 @@ public class Compiler {
 			.desc("Generate IR code.").build();
 		Option run = Option.builder("r").longOpt("run").hasArgs()
 			.desc("Interpret the IR code.").build();
+		Option custom1 = Option.builder("Y").longOpt("custom-ast").hasArg(false)
+			.desc("Custom analysis on the AST").build();
+		Option custom2 = Option.builder("Z").longOpt("custom-ir").hasArg(false)
+			.desc("Custom analysis on the IR").build();
 		Option help = Option.builder("h").longOpt("help")
 			.desc("Display this help.").build();
 		Option version = Option.builder("V").longOpt("version")
@@ -188,6 +206,8 @@ public class Compiler {
 			.addOption(check)
 			.addOption(codegen)
 			.addOption(run)
+			.addOption(custom1)
+			.addOption(custom2)
 			.addOption(help)
 			.addOption(version);
 
@@ -227,6 +247,10 @@ public class Compiler {
 				ret.action = CmdLineOpts.Action.CHECK;
 			} else if (cmd.hasOption("g")) {
 				ret.action = CmdLineOpts.Action.IRGEN;
+			} else if (cmd.hasOption("Y")) {
+				ret.action = CmdLineOpts.Action.CUSTOM_AST;
+			} else if (cmd.hasOption("Z")) {
+				ret.action = CmdLineOpts.Action.CUSTOM_IR;
 			} else if (cmd.hasOption("r")) {
 				ret.action = CmdLineOpts.Action.INTERP;
 				ret.progArgs = Arrays.asList(cmd.getOptionValues("r"));
@@ -307,11 +331,23 @@ public class Compiler {
 			return true;
 		}
 
+		if (opts.action == CmdLineOpts.Action.CUSTOM_AST) {
+			if (!customASTAction(program)) {
+				return true;
+			}
+		}
+
 		// Generate the IR program
 		IRProgram irProg = program.genIR();
 		if (opts.action == CmdLineOpts.Action.IRGEN) {
 			irProg.print(out);
 			return true;
+		}
+
+		if (opts.action == CmdLineOpts.Action.CUSTOM_IR) {
+			if (!customIRAction(irProg)) {
+				return true;
+			}
 		}
 
 		// Interpret the program
