@@ -81,8 +81,8 @@ public class Compiler {
 	}
 
 	public static Module createModuleFromFile(File f,
-											  TEALParser parser,
-											  List<CompilerError> errors) {
+						  TEALParser parser,
+						  List<CompilerError> errors) {
 		LangScanner scanner;
 		Module m;
 		try {
@@ -114,7 +114,7 @@ public class Compiler {
 	}
 
 	public static Program createProgramFromFiles(List<String> files, List<String> importPaths,
-												 List<CompilerError> errors) {
+						     List<CompilerError> errors) {
 		Queue<File> unresolvedImports = new LinkedList<>();
 
 		Program program = new Program();
@@ -180,9 +180,9 @@ public class Compiler {
 
 	private static void printHelp(Options options) {
 		new HelpFormatter().printHelp("teal MODULE",
-									  "Compile and run a TEAL module.\n\n",
-									  options,
-									  "", true);
+					      "Compile and run a TEAL module.\n\n",
+					      options,
+					      "", true);
 	}
 
 	private static void printVersion() {
@@ -196,9 +196,9 @@ public class Compiler {
 		Option parse = Option.builder("p").longOpt("parse").hasArg(false)
 			.desc("Parse the program and build the AST.").build();
 		Option check = Option.builder("c").longOpt("check").hasArg(false)
-			.desc("Perform semantic and type checks.").build();
+			.desc("Perform semantic and type checks and print out the AST.").build();
 		Option codegen = Option.builder("g").longOpt("codegen").hasArg(false)
-			.desc("Generate IR code.").build();
+			.desc("Generate IR code and print it out.").build();
 		Option run = Option.builder("r").longOpt("run").hasArgs().optionalArg(true)
 			.desc("Interpret the IR code.").build();
 		Option custom1 = Option.builder("Y").longOpt("custom-ast").hasArg(false)
@@ -226,7 +226,12 @@ public class Compiler {
 		Option importPaths = Option.builder("i").longOpt("path").hasArg()
 			.desc("Directories where to search for imported modules.").argName("DIR1:DIR2:...").build();
 
-		Options options = new Options().addOptionGroup(action).addOption(outputFile).addOption(importPaths);
+		Options options = new Options().addOptionGroup(action)
+			.addOption(outputFile)
+			.addOption(importPaths)
+			.addOption(Option.builder("s").longOpt("source-locations").hasArg(false)
+				   .desc("When printing out IR code, include the source location.").build())
+			;
 
 		try {
 			CommandLine cmd = parser.parse(options, args);
@@ -272,6 +277,9 @@ public class Compiler {
 
 			if (cmd.hasOption("o")) {
 				ret.outputFile = cmd.getOptionValue("o");
+			}
+			if (cmd.hasOption("s")) {
+				IRProgram.printSourceLocations = true;
 			}
 
 			if (cmd.hasOption("i")) {
