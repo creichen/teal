@@ -54,7 +54,7 @@ public class TestInterpreter {
 	private final String filename;
 
 	@Rule
-	public Timeout timeoutRule = new Timeout(1000, TimeUnit.MILLISECONDS);
+	public Timeout timeoutRule = new Timeout(2, TimeUnit.SECONDS);
 
 	public TestInterpreter(String testFile) {
 		filename = testFile;

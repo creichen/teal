@@ -1,0 +1,17 @@
+// IN: ","
+// OUT: "A,B,C"
+fun main(separator : string) = {
+    var a := ["A", "B", "C"];
+    var result := "";
+    var i := 0;
+
+    while i < array_length(a) {
+//        if i > 0 {
+//	    result := concat(result, separator);
+//	}
+        result := concat(result, a[i]);
+	i := i + 1;
+    }
+
+    return result;
+}

@@ -28,6 +28,7 @@ import lang.ir.IRValue;
 import lang.ir.IRProgram;
 import lang.ir.InterpreterException;
 import lang.ir.IRIntegerValue;
+import lang.ir.IRStringValue;
 
 import lang.common.SourceLocation;
 
@@ -54,23 +55,14 @@ public class Compiler {
 		return false;
 	}
 
-	public static void interpret(IRProgram p, String[] strings) {
-		ArrayList<IRValue> args = new ArrayList<>();
-		for (int i = 2; i < strings.length; ++i) {
-			args.add(new IRIntegerValue(Long.parseLong(strings[i])));
-		}
-		try {
-			IRValue ret = p.eval(args);
-			System.out.println("Program returned " + ret);
-		} catch (InterpreterException e) {
-			System.err.println("Error while intepreting program: " + e.toString());
-		}
-	}
-
 	public static void interpret(IRProgram p, List<String> strings) {
 		ArrayList<IRValue> args = new ArrayList<>();
-		for (String s : strings) {
-			args.add(new IRIntegerValue(Long.parseLong(s)));
+		for (String str : strings) {
+			try {
+				args.add(new IRIntegerValue(Long.parseLong(str)));
+			} catch (NumberFormatException ignored) {
+				args.add(new IRStringValue(str));
+			}
 		}
 		try {
 			IRValue ret = p.eval(args);
