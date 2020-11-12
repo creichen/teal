@@ -119,7 +119,7 @@ public class TestInterpreter {
 		for (int i = 0; i < size; ++i) {
 			String aline = actual.get(i);
 			String eline = expected.get(i);
-			if (!alin e.equals(eline)) {
+			if (!aline.equals(eline)) {
 				mismatch = true;
 			}
 		}

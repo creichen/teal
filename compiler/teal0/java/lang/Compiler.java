@@ -140,15 +140,15 @@ public class Compiler {
 	}
 
 	static class CmdLineOpts {
-		enum Pass {
-			// Compiler passes
+		enum Action {
+			// Compiler actions
 			PARSE,
-			CUSTOM,
+			CHECK,
 			IRGEN,
 			INTERP
 		}
 
-		Pass pass = Pass.IRGEN;
+		Action action = Action.IRGEN;
 		String outputFile;
 		String inputFile;
 		List<String> importPaths;
@@ -183,7 +183,7 @@ public class Compiler {
 		Option version = Option.builder("V").longOpt("version")
 			.desc("Print out version information.").build();
 
-		OptionGroup pass = new OptionGroup()
+		OptionGroup action = new OptionGroup()
 			.addOption(parse)
 			.addOption(check)
 			.addOption(codegen)
@@ -197,7 +197,7 @@ public class Compiler {
 		Option importPaths = Option.builder("i").longOpt("path").hasArg()
 			.desc("Directories where to search for imported modules.").argName("DIR1:DIR2:...").build();
 
-		Options options = new Options().addOptionGroup(pass).addOption(outputFile).addOption(importPaths);
+		Options options = new Options().addOptionGroup(action).addOption(outputFile).addOption(importPaths);
 
 		try {
 			CommandLine cmd = parser.parse(options, args);
@@ -222,13 +222,13 @@ public class Compiler {
 			}
 
 			if (cmd.hasOption("p")) {
-				ret.pass = CmdLineOpts.Pass.PARSE;
+				ret.action = CmdLineOpts.Action.PARSE;
 			} else if (cmd.hasOption("c")) {
-				ret.pass = CmdLineOpts.Pass.CHECK;
+				ret.action = CmdLineOpts.Action.CHECK;
 			} else if (cmd.hasOption("g")) {
-				ret.pass = CmdLineOpts.Pass.IRGEN;
+				ret.action = CmdLineOpts.Action.IRGEN;
 			} else if (cmd.hasOption("r")) {
-				ret.pass = CmdLineOpts.Pass.INTERP;
+				ret.action = CmdLineOpts.Action.INTERP;
 				ret.progArgs = Arrays.asList(cmd.getOptionValues("r"));
 			}
 
@@ -280,7 +280,7 @@ public class Compiler {
 			return false;
 
 		// if this is all what's requested, return
-		if (opts.pass == CmdLineOpts.Pass.PARSE) {
+		if (opts.action == CmdLineOpts.Action.PARSE) {
 			out.print(program.dumpTree());
 			return true;
 		}
@@ -302,14 +302,14 @@ public class Compiler {
 			return false;
 		}
 
-		if (opts.pass == CmdLineOpts.Pass.CHECK) {
+		if (opts.action == CmdLineOpts.Action.CHECK) {
 			out.print(program.dumpTree());
 			return true;
 		}
 
 		// Generate the IR program
 		IRProgram irProg = program.genIR();
-		if (opts.pass == CmdLineOpts.Pass.IRGEN) {
+		if (opts.action == CmdLineOpts.Action.IRGEN) {
 			irProg.print(out);
 			return true;
 		}
