@@ -98,7 +98,7 @@ public class TestInterpreter {
 		return p;
 	}
 
-	private static boolean checkResultNoCatch(IRProgram p, Object expectedReturn, Object ... testInput) throws InterpreterException {
+	private static boolean checkResultNoCatch(IRProgram p, Object expectedReturn, List<String> expectedPrints, Object ... testInput) throws InterpreterException {
 		ArrayList<IRValue> args = new ArrayList<>();
 		for (Object input : testInput) {
 			if (input instanceof String) {
@@ -112,6 +112,8 @@ public class TestInterpreter {
 		}
 
 		IRValue ret = p.eval(args);
+		assert(expectedPrints.size() == 0); // FIXME when we have print tracking support
+
 		if (ret instanceof IRIntegerValue) {
 			if (((IRIntegerValue)ret).asLong() != (long)(int) expectedReturn) {
 				System.err.println("Expected: " + expectedReturn + " but got " + ret + ".");
@@ -129,9 +131,11 @@ public class TestInterpreter {
 		return false;
 	}
 
-	private static boolean checkResult(IRProgram p, Object expectedReturn, Object ... testInput) {
+	private static boolean checkResult(IRProgram p, Object expectedReturn,
+					   List<String> expectedPrints,
+					   Object ... testInput) {
 		try {
-			return checkResultNoCatch(p, expectedReturn, testInput);
+			return checkResultNoCatch(p, expectedReturn, expectedPrints, testInput);
 		} catch (InterpreterException e) {
 			System.err.println("Error while intepreting program: " + e.toString());
 		}
@@ -142,6 +146,7 @@ public class TestInterpreter {
                 public Optional<Object[]> inputs;
                 public Optional<Object> output;
                 public Optional<Class> exception;
+		public List<String> prints = new ArrayList<>();
 
                 public TestSpec() {
                         this.inputs = Optional.empty();
@@ -160,6 +165,7 @@ public class TestInterpreter {
                 public static Pattern INPUT_PATTERN = Pattern.compile("// IN: (.+)");
                 public static Pattern OUTPUT_PATTERN = Pattern.compile("// OUT: (([-0-9]+)|(\".*\"))$");
                 public static Pattern EXCEPTION_PATTERN = Pattern.compile("// EXCEPTION: (.+)");
+		public static Pattern PRINT_PATTERN = Pattern.compile("// PRINT: (.+)");
                 public static Pattern NO_INPUT_PATTERN = Pattern.compile("^// IN:NONE$");
 
                 public static TestSpec parseInputs(String line) {
@@ -190,6 +196,21 @@ public class TestInterpreter {
                                 return new TestSpec();
                         }
                 }
+
+                public static TestSpec parsePrints(String line) {
+			Matcher m = PRINT_PATTERN.matcher(line);
+
+			if (m.find()) {
+				Object pv = parseValue(m.group(1));
+				assertTrue("PRINT: spec values must be strings in double quotes",
+					   pv instanceof String);
+				TestSpec ts = new TestSpec();
+				ts.prints.add((String)pv);
+				return ts;
+			} else {
+				return new TestSpec();
+			}
+		}
 
                 /**
                  * Parses a value for outputs or inputs
@@ -263,6 +284,7 @@ public class TestInterpreter {
                         if (other.isBlank()) { return; }
                         this.inputs = combineOptionals(this.inputs, other.inputs);
                         this.output = combineOptionals(this.output, other.output);
+                        this.prints.addAll(other.prints);
                         this.exception = combineOptionals(this.exception, other.exception);
                 }
 
@@ -354,6 +376,7 @@ public class TestInterpreter {
                 List<TestSpec> results = new ArrayList();
                 for (String l : lines) {
                         currentSpec.combineWith(TestSpec.parseInputs(l));
+                        currentSpec.combineWith(TestSpec.parsePrints(l));
                         currentSpec.combineWith(TestSpec.parseOutput(l));
                         currentSpec.combineWith(TestSpec.parseException(l));
                         if(currentSpec.isComplete()) {
@@ -395,7 +418,7 @@ public class TestInterpreter {
 			if (t.exception.isPresent()) {
 				// exceptional execution
 				try {
-					checkResultNoCatch(p, null, t.inputs.get());
+					checkResultNoCatch(p, null, t.prints, t.inputs.get());
 					assertFalse("Missed exception: " + t.exception.get(),
 						    true);
 				} catch (Throwable exn) {
@@ -404,7 +427,7 @@ public class TestInterpreter {
 				}
 			} else {
 				// normal execution
-				assertTrue(checkResult(p, t.output.get(), t.inputs.get()));
+				assertTrue(checkResult(p, t.output.get(), t.prints, t.inputs.get()));
 			}
                 }
         }
