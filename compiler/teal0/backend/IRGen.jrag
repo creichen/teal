@@ -209,7 +209,7 @@ aspect IRGen {
 				// Append an index to the name. We might have multiple variables with
 				// the same name at different scopes, and we want them to have a unique
 				// name inside the IR
-				v = new IRVar(new IRName(d.name() + counter++), d.type().genIRTypeRef());
+				v = new IRVar(new IRName(d.name() + counter++), d.variableType().genIRTypeRef());
 				F.getLocals().add(v);
 				locals.put(d, v);
 			}
@@ -293,13 +293,13 @@ aspect IRGen {
 		// formal param types
 		lang.ir.List<IRTypeRef> irTypes = new lang.ir.List<>();
 		for (VarDecl d : getFormals()) {
-			irTypes.add(d.type().genIRTypeRef());
+			irTypes.add(d.variableType().genIRTypeRef());
 		}
 		func.setParamTypeList(irTypes);
 		// return type, if any
-		IRTypeRef typeref = type().genIRTypeRef();
+		IRTypeRef typeref = returnType().genIRTypeRef();
 		if (typeref == null) {
-			throw new RuntimeException("Internal error: null type ref generated for " + ((ASTNode)type()).dumpTree());
+			throw new RuntimeException("Internal error: null type ref generated for " + ((ASTNode)returnType()).dumpTree());
 		}
 		func.setIRTypeRef(typeref);
 
@@ -453,6 +453,6 @@ aspect IRGen {
 		ctx.startBB();
 	}
 
-	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), type().genIRTypeRef());
+	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), variableType().genIRTypeRef());
 	syn IRName IdDecl.genIR() = new IRName(getID());
 }

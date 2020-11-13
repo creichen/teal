@@ -27,7 +27,7 @@ aspect BuiltinTypes {
 		//String name, String retType, String ...argTypes) {
 		FunDecl f = new FunDecl();
 		f.setIdDecl(new IdDecl(op.getName()));
-		f.setType(simpleTypeFromName(op.getReturnType()));
+		f.setDeclaredReturnType(simpleTypeFromName(op.getReturnType()));
 
 		int count = 0;
 		for (String t : op.getArgumentTypes())  {
