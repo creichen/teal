@@ -5,8 +5,7 @@ import java.util.Collections;
 import java.util.Collection;
 
 aspect NameAnalysis {
-        // An attribute to have the name of a function
-        // or variable.
+        // Function or variable name
         syn String Decl.name() {
                 return getIdDecl().getIdentifier();
         }
@@ -18,6 +17,26 @@ aspect NameAnalysis {
         syn String Access.name() {
                 return getIdUse().getIdentifier();
         }
+
+	// Getting the declaration for a CallExpr
+	syn FunDecl CallExpr.funDecl() {
+		return (FunDecl) getIdUse().lookup().getDecl();
+	}
+
+	// Getting the declaration for a CallExpr
+	syn FunDecl BinExpr.funDecl() {
+		return (FunDecl) lookup(builtin().getName()).getDecl();
+	}
+
+	// Getting the declaration for an Access (variable use)
+	syn VarDecl Access.varDecl() {
+		return (VarDecl) getIdUse().lookup().getDecl();
+	}
+
+
+	// ----------------------------------------
+	// Implementation details below.
+
 
         // Lookup the declaration matching an use.
 	inh IdDecl IdUse.lookup(String s);

@@ -19,9 +19,11 @@ import beaver.Parser.Exception;
 
 import lang.ast.Program;
 import lang.ast.Module;
+import lang.ast.Decl;
 import lang.ast.TEALParser;
 import lang.ast.LangScanner;
 import lang.ast.CompilerError;
+import lang.ast.TypeInferenceError;
 
 import lang.ir.IRModule;
 import lang.ir.IRValue;
@@ -44,8 +46,37 @@ public class Compiler {
 	public static Object DrAST_root_node; //Enable debugging with DrAST
 
 	public static boolean customASTAction(Program ast) {
-		System.out.println("Hello from method 'customASTAction()' in " + Compiler.class + "!");
-		// return "false" to finish here, otherwise the program will execute
+		try {
+			// equations
+			System.out.println("## equations");
+			for (Module module : ast.getModules()) {
+				for (Decl decl : module.getDecls()) {
+					for (Object o : decl.typeEquations()) {
+						System.out.println("Q " + o);
+					}
+				}
+			}
+			System.out.println("## before");
+			for (Module module : ast.getModules()) {
+				for (Decl decl : module.getDecls()) {
+					System.out.println("A " + decl.typeSummary());
+				}
+			}
+			for (Module module : ast.getModules()) {
+				for (Decl decl : module.getDecls()) {
+					decl.typeEquations().solve();
+				}
+			}
+			System.out.println("## after");
+			for (Module module : ast.getModules()) {
+				for (Decl decl : module.getDecls()) {
+					System.out.println("A " + decl.typeSummary());
+				}
+			}
+		} catch (TypeInferenceError e) {
+			e.printErrorLine();
+			System.exit(1);
+		}
 		return false;
 	}
 

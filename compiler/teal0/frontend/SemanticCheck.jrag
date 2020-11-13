@@ -46,4 +46,22 @@ aspect SemanticCheck {
 
 	CallExpr contributes new DeclKindError("function", getIdUse().lookup().getDecl().kind(), name(), sourceLocation())
 		when !getIdUse().lookup().isUnknown() && !getIdUse().lookup().getDecl().isFunDecl() to Program.semanticErrors();
+
+
+	// Check for ExprStmt that do nothing
+	class InvalidExprStmtError extends SemanticError {
+		public InvalidExprStmtError(SourceLocation loc) {
+			super(loc, String.format("Expression used as statement but has no effect.  Did you mean to add a \"return\"?"));
+		}
+	}
+
+	syn boolean Expr.canHaveSideEffects() = true;
+	eq Constant.canHaveSideEffects() = false;
+	eq Access.canHaveSideEffects() = false;
+	eq Null.canHaveSideEffects() = false;
+
+	ExprStmt contributes
+		new InvalidExprStmtError(sourceLocation())
+		when !getExpr().canHaveSideEffects()
+		to Program.semanticErrors();
 }

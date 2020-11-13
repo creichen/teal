@@ -39,7 +39,6 @@ StringConstant : Constant ::= <Value:String>;
 
 // Access
 Access : Expr ::= IdUse ;
-QualifiedAccess : Expr ::= PackagePathFragment* ;
 
 // Statements
 abstract Stmt;
