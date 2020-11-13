@@ -587,7 +587,7 @@ Note that our notion of \emph{current state} does not track fresh objects.
 \item We write $\SEVAL{s}{S}{S'}$ if statement $s$ transforms state $S$ into state $S'$
 \item For a given state $S$, we distinguish between statements $s$ (ignoring optional type annotations):
   \begin{enumerate}
-    \item \vterminal{\Ckw{var} $x$ := $e$;}: Let $\tuple{S, e} \downarrow \tuple{S, o}$, then $\SEVAL{s}{S}{\textit{store}_{S'}(x, o)}$
+    \item \vterminal{\Ckw{var} $x$ := $e$;}: Let $\tuple{S, e} \downarrow \tuple{S', o}$, then $\SEVAL{s}{S}{\textit{store}_{S'}(x, o)}$
     \item \vterminal{$e$;}: Let $\tuple{S, e} \downarrow \tuple{S', o}$, then $\SEVAL{s}{S}{S'}$
     \item \vterminal{$e_1$ := $e_2$;}: Let
       \begin{enumerate}
