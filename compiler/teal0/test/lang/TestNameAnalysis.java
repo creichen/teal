@@ -40,7 +40,7 @@ public class TestNameAnalysis {
     ArrayList<String> lines = new ArrayList<>();
     for (Map.Entry<IdUse, IdDecl> entry : symTable.entrySet()) {
       String line = "";
-      line += entry.getKey().getID() + "\t";
+      line += entry.getKey().getIdentifier() + "\t";
       line += entry.getKey().sourceLocation().toString() + "\t";
       line += entry.getValue().sourceLocation().toString() + "\n";
       lines.add(line);

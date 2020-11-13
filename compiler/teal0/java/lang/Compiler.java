@@ -19,15 +19,18 @@ import beaver.Parser.Exception;
 
 import lang.ast.Program;
 import lang.ast.Module;
+import lang.ast.Decl;
 import lang.ast.TEALParser;
 import lang.ast.LangScanner;
 import lang.ast.CompilerError;
+//import lang.ast.TypeInferenceError;
 
 import lang.ir.IRModule;
 import lang.ir.IRValue;
 import lang.ir.IRProgram;
 import lang.ir.InterpreterException;
 import lang.ir.IRIntegerValue;
+import lang.ir.IRStringValue;
 
 import lang.common.SourceLocation;
 
@@ -40,37 +43,41 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.CommandLine;
 
 public class Compiler {
-    public static Object DrAST_root_node; //Enable debugging with DrAST
+	public static Object DrAST_root_node; //Enable debugging with DrAST
 
-	public static void interpret(IRProgram p, String[] strings) {
-		ArrayList<IRValue> args = new ArrayList<>();
-		for (int i = 2; i < strings.length; ++i) {
-			args.add(new IRIntegerValue(Long.parseLong(strings[i])));
-		}
-		try {
-			IRValue ret = p.eval(args);
-			System.out.println("Program returned " + ret);
-		} catch (InterpreterException e) {
-			System.err.println("Error while intepreting program: " + e.toString());
-		}
+	public static boolean customASTAction(Program ast) {
+		System.out.println("Hello from method 'customASTAction()' in " + Compiler.class + "!");
+		return false;
+	}
+
+	public static boolean customIRAction(IRProgram ir) {
+		System.out.println("Hello from method 'customIRAction()' in " + Compiler.class + "!");
+		// return "false" to finish here, otherwise the program will execute
+		return false;
 	}
 
 	public static void interpret(IRProgram p, List<String> strings) {
 		ArrayList<IRValue> args = new ArrayList<>();
-		for (String s : strings) {
-			args.add(new IRIntegerValue(Long.parseLong(s)));
+		if (strings != null) {
+			for (String str : strings) {
+				try {
+					args.add(new IRIntegerValue(Long.parseLong(str)));
+				} catch (NumberFormatException ignored) {
+					args.add(new IRStringValue(str));
+				}
+			}
 		}
 		try {
 			IRValue ret = p.eval(args);
-			System.out.println("Program returned " + ret);
+			System.out.println("" + ret);
 		} catch (InterpreterException e) {
 			System.err.println("Error while intepreting program: " + e.toString());
 		}
 	}
 
 	public static Module createModuleFromFile(File f,
-											  TEALParser parser,
-											  List<CompilerError> errors) {
+						  TEALParser parser,
+						  List<CompilerError> errors) {
 		LangScanner scanner;
 		Module m;
 		try {
@@ -102,7 +109,7 @@ public class Compiler {
 	}
 
 	public static Program createProgramFromFiles(List<String> files, List<String> importPaths,
-												 List<CompilerError> errors) {
+						     List<CompilerError> errors) {
 		Queue<File> unresolvedImports = new LinkedList<>();
 
 		Program program = new Program();
@@ -140,26 +147,37 @@ public class Compiler {
 	}
 
 	static class CmdLineOpts {
-		enum Pass {
-			// Compiler passes
+		enum Action {
+			// Compiler actions
 			PARSE,
 			CHECK,
+			CUSTOM_AST,
+			CUSTOM_IR,
 			IRGEN,
 			INTERP
 		}
 
-		Pass pass = Pass.IRGEN;
+		Action action = Action.INTERP;
 		String outputFile;
 		String inputFile;
 		List<String> importPaths;
-		List<String> progArgs;
+		List<String> progArgs; // arguments for the interpreted program
+
+		public void
+		setProgArgs(String[] args) {
+			if (args == null) {
+				this.progArgs = new ArrayList<>();
+			} else {
+				this.progArgs = Arrays.asList(args);
+			}
+		}
 	}
 
 	private static void printHelp(Options options) {
 		new HelpFormatter().printHelp("teal MODULE",
-									  "Compile and run a TEAL module.\n\n",
-									  options,
-									  "", true);
+					      "Compile and run a TEAL module.\n\n",
+					      options,
+					      "", true);
 	}
 
 	private static void printVersion() {
@@ -173,21 +191,27 @@ public class Compiler {
 		Option parse = Option.builder("p").longOpt("parse").hasArg(false)
 			.desc("Parse the program and build the AST.").build();
 		Option check = Option.builder("c").longOpt("check").hasArg(false)
-			.desc("Perform semantic and type checks.").build();
+			.desc("Perform semantic and type checks and print out the AST.").build();
 		Option codegen = Option.builder("g").longOpt("codegen").hasArg(false)
-			.desc("Generate IR code.").build();
-		Option run = Option.builder("r").longOpt("run").hasArgs()
+			.desc("Generate IR code and print it out.").build();
+		Option run = Option.builder("r").longOpt("run").hasArgs().optionalArg(true)
 			.desc("Interpret the IR code.").build();
+		Option custom1 = Option.builder("Y").longOpt("custom-ast").hasArg(false)
+			.desc("Custom analysis on the AST").build();
+		Option custom2 = Option.builder("Z").longOpt("custom-ir").hasArgs().optionalArg(true)
+			.desc("Custom analysis on the IR").build();
 		Option help = Option.builder("h").longOpt("help")
 			.desc("Display this help.").build();
 		Option version = Option.builder("V").longOpt("version")
 			.desc("Print out version information.").build();
 
-		OptionGroup pass = new OptionGroup()
+		OptionGroup action = new OptionGroup()
 			.addOption(parse)
 			.addOption(check)
 			.addOption(codegen)
 			.addOption(run)
+			.addOption(custom1)
+			.addOption(custom2)
 			.addOption(help)
 			.addOption(version);
 
@@ -197,7 +221,12 @@ public class Compiler {
 		Option importPaths = Option.builder("i").longOpt("path").hasArg()
 			.desc("Directories where to search for imported modules.").argName("DIR1:DIR2:...").build();
 
-		Options options = new Options().addOptionGroup(pass).addOption(outputFile).addOption(importPaths);
+		Options options = new Options().addOptionGroup(action)
+			.addOption(outputFile)
+			.addOption(importPaths)
+			.addOption(Option.builder("s").longOpt("source-locations").hasArg(false)
+				   .desc("When printing out IR code, include the source location.").build())
+			;
 
 		try {
 			CommandLine cmd = parser.parse(options, args);
@@ -214,7 +243,11 @@ public class Compiler {
 
 			// Assume that the user wants us to run the compiler
 			if (cmd.getArgs().length != 1) {
-				System.err.println("Missing MODULE argument.");
+				if (cmd.getArgs().length > 1) {
+					System.err.println("Please specify only one MODULE argument.");
+				} else {
+					System.err.println("Missing MODULE argument.");
+				}
 				printHelp(options);
 				System.exit(1);
 			} else {
@@ -222,18 +255,26 @@ public class Compiler {
 			}
 
 			if (cmd.hasOption("p")) {
-				ret.pass = CmdLineOpts.Pass.PARSE;
+				ret.action = CmdLineOpts.Action.PARSE;
 			} else if (cmd.hasOption("c")) {
-				ret.pass = CmdLineOpts.Pass.CHECK;
+				ret.action = CmdLineOpts.Action.CHECK;
 			} else if (cmd.hasOption("g")) {
-				ret.pass = CmdLineOpts.Pass.IRGEN;
+				ret.action = CmdLineOpts.Action.IRGEN;
+			} else if (cmd.hasOption("Y")) {
+				ret.action = CmdLineOpts.Action.CUSTOM_AST;
+			} else if (cmd.hasOption("Z")) {
+				ret.action = CmdLineOpts.Action.CUSTOM_IR;
+				ret.setProgArgs(cmd.getOptionValues("Z"));
 			} else if (cmd.hasOption("r")) {
-				ret.pass = CmdLineOpts.Pass.INTERP;
-				ret.progArgs = Arrays.asList(cmd.getOptionValues("r"));
+				ret.action = CmdLineOpts.Action.INTERP;
+				ret.setProgArgs(cmd.getOptionValues("r"));
 			}
 
 			if (cmd.hasOption("o")) {
 				ret.outputFile = cmd.getOptionValue("o");
+			}
+			if (cmd.hasOption("s")) {
+				IRProgram.printSourceLocations = true;
 			}
 
 			if (cmd.hasOption("i")) {
@@ -280,7 +321,7 @@ public class Compiler {
 			return false;
 
 		// if this is all what's requested, return
-		if (opts.pass == CmdLineOpts.Pass.PARSE) {
+		if (opts.action == CmdLineOpts.Action.PARSE) {
 			out.print(program.dumpTree());
 			return true;
 		}
@@ -302,16 +343,28 @@ public class Compiler {
 			return false;
 		}
 
-		if (opts.pass == CmdLineOpts.Pass.CHECK) {
+		if (opts.action == CmdLineOpts.Action.CHECK) {
 			out.print(program.dumpTree());
 			return true;
 		}
 
+		if (opts.action == CmdLineOpts.Action.CUSTOM_AST) {
+			if (!customASTAction(program)) {
+				return true;
+			}
+		}
+
 		// Generate the IR program
 		IRProgram irProg = program.genIR();
-		if (opts.pass == CmdLineOpts.Pass.IRGEN) {
+		if (opts.action == CmdLineOpts.Action.IRGEN) {
 			irProg.print(out);
 			return true;
+		}
+
+		if (opts.action == CmdLineOpts.Action.CUSTOM_IR) {
+			if (!customIRAction(irProg)) {
+				return true;
+			}
 		}
 
 		// Interpret the program

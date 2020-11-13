@@ -2,17 +2,17 @@ Module
   List
   List
     FunDecl
-      IdDecl ID="f"
+      IdDecl Identifier="f"
       Opt
       List
         VarDecl
-          IdDecl ID="x"
+          IdDecl Identifier="x"
           Opt
           Opt
       Opt
         IfStmt
           Access
-            IdUse ID="x"
+            IdUse Identifier="x"
           BlockStmt
             List
               ReturnStmt
@@ -22,15 +22,15 @@ Module
               ReturnStmt
                 AddExpr
                   Access
-                    IdUse ID="x"
+                    IdUse Identifier="x"
                   IntConstant Value="5"
     FunDecl
-      IdDecl ID="g"
+      IdDecl Identifier="g"
       Opt
         IntType
       List
         VarDecl
-          IdDecl ID="x"
+          IdDecl Identifier="x"
           Opt
           Opt
       Opt
@@ -38,13 +38,13 @@ Module
           AddExpr
             MulExpr
               Access
-                IdUse ID="x"
+                IdUse Identifier="x"
               IntConstant Value="4"
             CallExpr
-              IdUse ID="g"
+              IdUse Identifier="g"
               List
                 Access
-                  IdUse ID="x"
+                  IdUse Identifier="x"
           BlockStmt
             List
               ReturnStmt
@@ -54,15 +54,15 @@ Module
               ReturnStmt
                 IntConstant Value="5"
     FunDecl
-      IdDecl ID="h"
+      IdDecl Identifier="h"
       Opt
       List
         VarDecl
-          IdDecl ID="x"
+          IdDecl Identifier="x"
           Opt
           Opt
         VarDecl
-          IdDecl ID="y"
+          IdDecl Identifier="y"
           Opt
           Opt
       Opt
@@ -71,9 +71,9 @@ Module
             IfStmt
               GTExpr
                 Access
-                  IdUse ID="x"
+                  IdUse Identifier="x"
                 Access
-                  IdUse ID="y"
+                  IdUse Identifier="y"
               BlockStmt
                 List
                   ReturnStmt

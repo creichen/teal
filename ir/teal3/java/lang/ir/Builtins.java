@@ -2,7 +2,6 @@ package lang.ir;
 
 import lang.common.BuiltinNames;
 import java.util.HashMap;
-import java.lang.reflect.Field;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -20,13 +19,12 @@ public final class Builtins {
     public static final Type<IRIntegerValue> INT = new Type<>(BuiltinNames.INT, IRIntegerValue.class);
     public static final Type<IRStringValue> STRING = new Type<>(BuiltinNames.STRING, IRStringValue.class);
     public static final Type<IRValue> ANY = new Type<>(BuiltinNames.ANY, IRValue.class);
+    public static final Type<IRArray> ARRAY = new Type<>(BuiltinNames.ARRAY, IRArray.class);
 
     // Declare method implementations
     static {
 	// If you want to add a new builtin operation, declare it below.
-	OVERLOADED_OP(BuiltinNames.BUILTIN_ADD,
-                      ctx -> ctx.getInt(0) + ctx.getInt(1),
-                      ctx -> ctx.getString(0).concat(ctx.getString(1)));
+	INT_OP(BuiltinNames.INT_ADD, ctx -> ctx.getInt(0) + ctx.getInt(1));
 	INT_OP(BuiltinNames.INT_SUB, ctx -> ctx.getInt(0) - ctx.getInt(1));
 	INT_OP(BuiltinNames.INT_MUL, ctx -> ctx.getInt(0) * ctx.getInt(1));
 	INT_OP(BuiltinNames.INT_DIV, ctx -> ctx.getInt(0) / ctx.getNonzeroInt(1, "Division by 0"));
@@ -41,7 +39,7 @@ public final class Builtins {
 	BOOL_OP(BuiltinNames.INT_GT, ctx -> ctx.getInt(0) > ctx.getInt(1));
 	BOOL_OP(BuiltinNames.INT_AND, ctx -> (ctx.getInt(0) != 0 && ctx.getInt(1) != 0));
 	BOOL_OP(BuiltinNames.INT_OR, ctx -> (ctx.getInt(0) != 0 || ctx.getInt(1) != 0));
-	VOID_OP(BuiltinNames.PRINT, ctx -> System.out.print(ctx.getString(0)));
+	VOID_OP(BuiltinNames.PRINT, ctx -> System.out.println(ctx.get(0).toShortString()));
 	OP(BuiltinNames.READ, ctx -> {
 		try {
 		    // How many objects does one need to read a line from stdin in Java? ;)
@@ -62,7 +60,8 @@ public final class Builtins {
                     return new IRIntegerValue(0);
                 }
             });
-        OP(BuiltinNames.ARRAY_LENGTH, ctx -> new IRIntegerValue(ctx.getArraySize(0)));
+        OP(BuiltinNames.CONCAT, ctx -> new IRStringValue(ctx.getString(0).concat(ctx.getString(1))));
+        OP(BuiltinNames.ARRAY_LENGTH, ctx -> new IRIntegerValue(ctx.getArray(0).getSize()));
     }
 
     private static Type<?> translateType(String typename) {
@@ -101,7 +100,7 @@ public final class Builtins {
 	    if (!this.classobj.isInstance(v)) {
 		throw new InterpreterException("IR error: while calling builtin operation " + op + ", parameter #" + index
 					       + " expects " + this.typename
-					       + " but received " + v);
+					       + " but received " + v.getClass());
 	    }
 	}
 
@@ -177,10 +176,10 @@ public final class Builtins {
 	    }
 
             /**
-             * Returns the length of an array argument
+             * Returns an array argument, with dynamic checking
              */
-            public long getArraySize(int offset) {
-                return ((IRArray) this.get(offset)).getSize();
+            public IRArray getArray(int offset) {
+                return (IRArray) this.get(offset);
             }
 
 	    /**
@@ -237,24 +236,6 @@ public final class Builtins {
      */
     private static void VOID_OP(BuiltinNames.Operation op, BuiltinConsumerImplementation impl) {
 	new Operation(op, ctx -> { impl.apply(ctx); return new IRNullValue(null); });
-    }
-
-    private static void OVERLOADED_OP(BuiltinNames.Operation op,
-                                      BuiltinImplementation<Long> impl1,
-                                      BuiltinImplementation<String> impl2) {
-        new Operation(op,
-                      ctx -> {
-                          IRValue a, b;
-                          a = ctx.get(0);
-                          b = ctx.get(1);
-                          if (a instanceof IRIntegerValue && b instanceof IRIntegerValue) {
-                              return new IRIntegerValue(impl1.apply(ctx));
-                          } else if (a instanceof IRStringValue && b instanceof IRStringValue) {
-                              return new IRStringValue(impl2.apply(ctx));
-                          } else {
-                              throw new InterpreterException("Type of operands does not match.");
-                          }
-        });
     }
 
     static interface BuiltinImplementation<T> {

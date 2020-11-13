@@ -5,27 +5,39 @@ aspect TypeAnalysis {
 
 	Type implements TypeDefinition;
 
-        // Should be UnknownType
-	syn TypeDefinition Expr.type() = new AnyType();
-	eq IntConstant.type() = new IntType();
-	eq StringConstant.type() = new StringType();
-	eq TypedExpr.type() {
-		return getType();
+	// The following gives us the type of the expression if and only if we know the type precisely
+	syn Type Expr.implicitType() = null;
+	eq IntConstant.implicitType() = new IntType();
+	eq StringConstant.implicitType() = new StringType();
+	eq TypedExpr.implicitType() {
+		return getDeclaredType();
 	}
 
-	syn TypeDefinition Decl.type() = null;
-	eq VarDecl.type() {
-		if (hasType()) {
-			return getType();
+	// The inferred type of the expression:
+	// EX1: You may want to replace this implementation
+	syn TypeDefinition Expr.type() {
+	    TypeDefinition ty = this.implicitType();
+	    if (ty == null) {
+		return new AnyType();
+	    }
+	    return ty;
+	}
+
+	// The type of this variable, as far as we can tell (without trying very hard); never null
+	syn TypeDefinition VarDecl.variableType() {
+		if (hasDeclaredType()) {
+			return getDeclaredType();
 		}
 		if (hasInitializer()) {
 			return getInitializer().type();
 		}
 		return new AnyType();
 	}
-	eq FunDecl.type() {
-		if (hasType()) {
-			return getType();
+
+	// The return type; never null
+	syn TypeDefinition FunDecl.returnType() {
+		if (hasDeclaredReturnType()) {
+			return getDeclaredReturnType();
 		}
 		return new AnyType();
 	}

@@ -1,3 +1,6 @@
+// IN:NONE
+// OUT: 45
+
 // Computes the sum of all the elements of an array
 // Works in TEAL-0
 fun main() = {

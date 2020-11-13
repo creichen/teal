@@ -1,1 +1,5 @@
+// IN: -100 100
+// OUT: 0
+// IN: 3 4
+// OUT: 7
 fun main (x : int, y : int) : int = return x + y;

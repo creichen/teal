@@ -1,3 +1,5 @@
+// IN: 11
+// OUT: 55
 fun main(n : int) = {
     var a : array[int] := new array[int](n);
     var i := 0;

@@ -22,4 +22,3 @@ List fun_formal_list = fun_formal {: return new List(fun_formal); :}
 VarDecl fun_formal = var_id_decl
                    ;
 
-

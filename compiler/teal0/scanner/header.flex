@@ -30,7 +30,7 @@ import lang.ast.TEALParser.SyntaxError;
 // macros
 LineTerminator = \r|\n|\r\n
 WhiteSpace = [ ] | \t | \f | \n | \r
-ID = [a-zA-Z_][a-zA-Z0-9_]*
+Identifier = [a-zA-Z_][a-zA-Z0-9_]*
 IntLiteral = "-"?(0|[1-9][0-9]*)
 HexLiteral = "-"?"0x"[0-9]+
 SingleLineComment = "//" [^\r\n]* {LineTerminator}?

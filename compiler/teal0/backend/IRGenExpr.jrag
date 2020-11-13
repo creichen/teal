@@ -25,7 +25,7 @@ aspect IRGenExpr {
 	}
 
 	syn BuiltinNames.Operation BinExpr.builtin();
-	eq AddExpr.builtin() = BuiltinNames.BUILTIN_ADD;
+	eq AddExpr.builtin() = BuiltinNames.INT_ADD;
 	eq SubExpr.builtin() = BuiltinNames.INT_SUB;
 	eq MulExpr.builtin() = BuiltinNames.INT_MUL;
 	eq DivExpr.builtin() = BuiltinNames.INT_DIV;
@@ -119,6 +119,29 @@ aspect IRGenExpr {
 			.setIRTypeRef(((ArrayType) getType()).getActual().genIRTypeRef()).setSize(size);
 		ctx.addInsn(newInsn);
 		ctx.setSourceLocations(this.sourceLocation());
+		return dst;
+	}
+
+	syn IRVarRef ArrayLiteralExpr.genCode(IRFunctionCtx ctx) {
+		ctx.setSourceLocations(this.sourceLocation());
+
+		IRVarRef dst = ctx.getTempIRVar(this);
+		IRVarRef size = new IRVarRef(ctx.getFreshTempIRVar(IRModule.makeIntegerTypeRef()));
+		ctx.addInsn(new IRConstantInsn(size, new IRInteger((long) this.getNumExpr())));
+		IRNewArrayInsn newInsn = new IRNewArrayInsn().setDst(dst)
+			.setIRTypeRef(IRModule.makeAnyTypeRef()).setSize(size); // FIXME: more precise type if we get type inference
+		ctx.addInsn(newInsn);
+
+		long indexCounter = 0;
+		IRVarRef index = size;
+		for (Expr expr : this.getExprs()) {
+			IRVarRef elt = expr.genCode(ctx);
+			ctx.setSourceLocations(this.sourceLocation());
+			ctx.addInsn(new IRConstantInsn(index, new IRInteger(indexCounter)));
+			ctx.addInsn(new IRStoreArrayInsn(elt, dst, index));
+			indexCounter += 1;
+		}
+
 		return dst;
 	}
 

@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import lang.common.SourceLocation;
 
 aspect IRPrint {
+	public static boolean IRProgram.printSourceLocations = false; // Whether to print source code lines for the IR
+
 	protected static <T extends ASTNode>
 	void ASTNode.printCollection(Iterable<T> collection, String pre, String post, String delim, PrintStream out) {
 		Iterator<T> itr = collection.iterator();
@@ -88,7 +90,9 @@ aspect IRPrint {
 
 		printCollection(getParamTypes(), "(", ") ", ", ", out);
 
-		getSourceLocation().print(out);
+		if (IRProgram.printSourceLocations) {
+			getSourceLocation().print(out);
+		}
 
 		if (getNumLocal() != 0) {
 			out.print("\n\t");
@@ -136,8 +140,10 @@ aspect IRPrint {
 		for (IRInsn i : getIRInsns()) {
 			out.print("\t");
 			i.print(out);
-			out.print("\t");
-			i.getSourceLocation().print(out);
+			if (IRProgram.printSourceLocations) {
+			    out.print("\t");
+			    i.getSourceLocation().print(out);
+			}
 			out.println();
 		}
 		out.print("\t");
@@ -177,26 +183,26 @@ aspect IRPrint {
 
 	public void IRCopyInsn.print(PrintStream out) {
 		getDst().print(out);
-		out.print(" = ");
+		out.print(" <- ");
 		getSrc().print(out);
 	}
 
 	public void IRArgInsn.print(PrintStream out) {
 		getDst().print(out);
-		out.print(" = arg ");
+		out.print(" <- arg ");
 		out.print(getIndex());
 	}
 
 	public void IRCallInsn.print(PrintStream out) {
 		getDst().print(out);
-		out.print(" = call ");
+		out.print(" <- call ");
 		getIRFunRef().print(out);
 		printCollection(getArgs(), "(", ")", ", ", out);
 	}
 
 	public void IRDispatchInsn.print(PrintStream out) {
 		getDst().print(out);
-		out.print(" = dispatch ");
+		out.print(" <- dispatch ");
 		getBase().print(out);
 		out.print(" ");
 		getIRFunRef().print(out);
@@ -205,7 +211,7 @@ aspect IRPrint {
 
 	public void IRConstantInsn.print(PrintStream out) {
 		getDst().print(out);
-		out.print(" = constant ");
+		out.print(" <- constant ");
 		getSrc().print(out);
 	}
 
@@ -225,7 +231,7 @@ aspect IRPrint {
 
 	public void IRLoadInsn.print(PrintStream out) {
 		getDst().print(out);
-		out.print(" = load ");
+		out.print(" <- load ");
 		getBase().print(out);
 		out.print(" ");
 		getField().print(out);
@@ -233,7 +239,7 @@ aspect IRPrint {
 
 	public void IRLoadStaticInsn.print(PrintStream out) {
 		getDst().print(out);
-		out.print(" = loadstatic ");
+		out.print(" <- loadstatic ");
 		getSrc().print(out);
 	}
 
@@ -255,18 +261,18 @@ aspect IRPrint {
 
 	public void IRSelfInsn.print(PrintStream out) {
 		getDst().print(out);
-		out.print(" = self");
+		out.print(" <- self");
 	}
 
 	public void IRNewInsn.print(PrintStream out) {
 		getDst().print(out);
-		out.print(" = new ");
+		out.print(" <- new ");
 		getIRTypeRef().print(out);
 	}
 
 	public void IRNewArrayInsn.print(PrintStream out) {
 		getDst().print(out);
-		out.print(" = newarray ");
+		out.print(" <- newarray ");
 		getIRTypeRef().print(out);
 		out.print(" ");
 		getSize().print(out);
@@ -274,7 +280,7 @@ aspect IRPrint {
 
 	public void IRLoadArrayInsn.print(PrintStream out) {
 		getDst().print(out);
-		out.print(" = loadarray ");
+		out.print(" <- loadarray ");
 		getBase().print(out);
 		out.print(" ");
 		getIndex().print(out);

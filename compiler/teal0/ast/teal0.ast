@@ -1,9 +1,8 @@
-// FIXME: inconsistent yse of Id vs ID (always ID!)
 // Variables
-VarDecl : Decl ::= IdDecl [Type] [Initializer:Expr];
+VarDecl : Decl ::= IdDecl [DeclaredType:Type] [Initializer:Expr];
 
 // Functions
-FunDecl : Decl ::= IdDecl [Type] Formal:VarDecl* [Body:Stmt];
+FunDecl : Decl ::= IdDecl [DeclaredReturnType:Type] Formal:VarDecl* [Body:Stmt];
 
 // Expressions
 abstract Expr;
@@ -27,10 +26,10 @@ AndExpr : BinExpr;
 // Other expressions
 CallExpr : Expr ::= IdUse Actual:Expr*;
 Null : Expr;
-ListExpr : Expr ::= Expr*;
+ArrayLiteralExpr : Expr ::= Expr*;
 IndexExpr : Expr ::= Base:Expr Index:Expr;
 NotExpr : Expr ::= Expr;
-TypedExpr : Expr ::= Expr Type;
+TypedExpr : Expr ::= Expr DeclaredType:Type;
 NewExpr : Expr ::= Type Actual:Expr*; // Array allocation.  In later layers of Teal we generalise this to object allocation.
 
 // Constants
@@ -40,7 +39,6 @@ StringConstant : Constant ::= <Value:String>;
 
 // Access
 Access : Expr ::= IdUse ;
-QualifiedAccess : Expr ::= PackagePathFragment* ;
 
 // Statements
 abstract Stmt;
@@ -54,7 +52,7 @@ ReturnStmt : Stmt ::= Expr;
 SkipStmt : Stmt;
 
 // Identifiers
-IdUse ::= <ID>;
-IdDecl ::= <ID>;
+IdUse ::= <Identifier>;
+IdDecl ::= <Identifier>;
 // Unknown
 UnknownDecl : IdDecl;
