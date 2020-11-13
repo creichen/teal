@@ -358,7 +358,7 @@ Teal-0 enforces the following static constraints, and each violation of such a c
     %% initialisation cycles that can otherwise happen if $\nt{expr}$
     %% depends on another module.
   \item All \terminal{int} literals $\ell$ are representable in the set of signed two's complement 64 bit integers $\mathbb{I}_{64}$
-  \item All \terminal{string} literals are representable as Unicode character strings and do not contain supplementary characters
+  \item All \terminal{string} literals are representable as Unicode character strings and do not contain supplementary \footnote{Characters encoded with more than 16 bits.} characters
   \item All assignments \vterminal{$e_1 := e_2$} subject $e_1$ to the \emph{lvalue restriction}, in that $e_1$ must be one of
     \begin{enumerate}
       \item \terminal{id}
