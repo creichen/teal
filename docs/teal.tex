@@ -111,8 +111,9 @@
 \newcommand{\Cont}[1]{\Ty{{#1}~\Cty{cont}}}
 \newcommand{\continuation}[1]{\colorbox{orange!20!white}{#1}}
 
-%\newcommand{\tyva}[1][{}]{\textcolor{dbluez}{\ensuremath{\alpha_{#1}}}}
 \newcommand{\Ttau}[1][{}]{\Ty{\tau_{#1}}}
+\newcommand{\tyva}[1][{}]{\textcolor{dbluez}{\ensuremath{\alpha_{#1}}}}
+\newcommand{\tyvb}[1][{}]{\textcolor{dbluez}{\ensuremath{\beta_{#1}}}}
 
 \newcommand{\Varray}[0]{\textcolor{dcyan}{arr}}
 \newcommand{\Vnull}[0]{\textbf{\textcolor{dcyan}{null}}}
@@ -234,25 +235,28 @@
 % ================================================================================
 \section{Introduction}
 
-An Example Program
+Teal is a simplified language for teaching program analysis concepts.
+Below, we describe the syntax, static semantics, dynamic semantics,
+and the standard library.
 
-% ================================================================================
-\section{Running Teal}
 
-% ================================================================================
-\begin{TEALone}
-\section{Teal Layers}
+%% % ================================================================================
+%% \section{Running Teal}
 
-  TEAL has multiple layers
+%% % ================================================================================
+%% \begin{TEALone}
+%% \section{Teal Layers}
 
-\begin{TEALtwo}
-    foo
-\end{TEALtwo}
-\begin{TEALthree}
-    bar
-\end{TEALthree}
+%%   TEAL has multiple layers
 
-\end{TEALone}
+%% \begin{TEALtwo}
+%%     foo
+%% \end{TEALtwo}
+%% \begin{TEALthree}
+%%     bar
+%% \end{TEALthree}
+
+%% \end{TEALone}
 
 
 % ================================================================================
@@ -475,17 +479,11 @@ Note that our notion of \emph{current state} does not track fresh objects.
     \item $v_1$ and $v_2$ are both \Vnull
     \item $v_1 : \TInt$ and $v_2 : \TInt$ and $v_1 = v_2$
     \item $v_1 : \TString$ and $v_2 : \TString$ and $v_1 = v_2$
-    \item $v_1 : \TArrayof{\tau_\bot}$ and $v_2 : \TArrayof{\tau'_\bot}$, and:
-      \begin{itemize}
-        \item $\arraylength{$v_1$} = \arraylength{$v_2$}$
-        \item For all $i \in \arrayindices{o}, v_{1,i} = v_{2,i}$
-      \end{itemize}
-      % Does this apply to TEAL-0?
     \item $v_1$ and $v_2$ have the same \emph{identity}, according to their references
   \end{enumerate}
 \end{enumerate}
 
-\subsection{Expression Evaluation}
+\subsection{Expression Evaluation}\label{sec:eeval}
 \begin{enumerate}
 \item We write $\tuple{S,e} \downarrow \tuple{S',o}$ if expression $e$ in state $S$ evaluates to object $o$ and produces state $S'$
 \item $e \downarrow o$ is short for $\tuple{S,e} \downarrow \tuple{S',o}$ and $S = S'$
@@ -551,7 +549,18 @@ Note that our notion of \emph{current state} does not track fresh objects.
       \item If not $v \in \arrayindices{$a$}$: \failure
       \item Otherwise, $\tuple{S, e} \downarrow {S_2, \textit{load}_{S_2}(\arrsub{a}{v})}$
     \end{itemize}
-  \item \vterminal{$f$ ($e_1$, \ldots, $e_k$)}: \textbf{FIXME}
+
+  \item \vterminal{$f$ ($e_1$, \ldots, $e_k$)}: Informally:
+    \begin{enumerate}
+      \item Evaluation first evaluates arguments $e_1$ through $e_k$, including side effects
+      \item Evaluation backs up all current local variable states in the current activation record
+      \item Evaluation binds the results of the previous execution to the formal parameter variables of $f$, in the same order
+      \item Evaluation executes the body of $f$ until it reaches a \vterminal{\Ckw{return} $e_r$} statement or the end of the function.
+        \begin{itemize}
+          \item If Evaluation reaches the end of the function, then this is equivalent to reaching \vterminal{\Ckw{return} null}.
+        \end{itemize}
+      \item At this point evaluation evaluates $e_r$, remembers it as $v_r$ restores the local variables stored in step $2$ above, and yields $v_r$.
+    \end{enumerate}
   \item \vterminal{[$e_1$, \ldots, $e_k$]}: $\tuple{S,e} \downarrow \tuple{S'_k,o}$, where:
     \begin{enumerate}
       \item $S'_0 = S$
@@ -578,9 +587,6 @@ Note that our notion of \emph{current state} does not track fresh objects.
   \item $\terminal{id}$: let $x$ the variable assigned to $e$, then $e \downarrow \textit{load}_S(x)$
   \end{enumerate}
 \end{enumerate}
-
-\subsection{Function Evaluation}
-\textbf{FIXME}
 
 \subsection{Statement Execution}
 \begin{enumerate}
@@ -622,37 +628,126 @@ Note that our notion of \emph{current state} does not track fresh objects.
         \item If $o = \Vint{0}$ then $\SEVAL{s}{S}{S'}$.
         \item Otherwise $\SEVAL{s}{S}{S_w}$, where $\SEVAL{\{ s'; s \}}{S'}{S_w}$
       \end{enumerate}
-    \item \vterminal{\Ckw{return} $e$;}: \textbf{FIXME}
+    \item \vterminal{\Ckw{return} $e$;}: See the evaluation of function calls in Section~\ref{eeval}.
   \end{enumerate}
 \end{enumerate}
 
 
-% ================================================================================
-\section{Analysing the Teal AST}
-In your programming assignments, we ask you to analyse Teal in various different ways.
-This section describes how you can access the Teal AST
+%% % ================================================================================
+%% \section{Analysing the Teal AST}
+%% In your programming assignments, we ask you to analyse Teal in various different ways.
+%% This section describes how you can access the Teal AST
 
-% ----------------------------------------
-\subsection{AST JastAdd Attribute Interface}
+%% % ----------------------------------------
+%% \subsection{AST JastAdd Attribute Interface}
 
-% ----------------------------------------
-\subsection{AST Visitor Interface}
+%% % ================================================================================
+%% \section{Teal Intermediate Representation}
 
-% ================================================================================
-\section{Teal Intermediate Representation}
+%% % ================================================================================
+%% \section{Analysing the Teal Intermediate Representation}
+%% In your programming assignments, we ask you to analyse Teal in various different ways.
+%% This section describes how you can access the Teal AST
 
-% ================================================================================
-\section{Analysing the Teal Intermediate Representation}
-In your programming assignments, we ask you to analyse Teal in various different ways.
-This section describes how you can access the Teal AST
+%% % ----------------------------------------
+%% \subsection{IR JastAdd Attribute Interface}
 
-% ----------------------------------------
-\subsection{IR JastAdd Attribute Interface}
-
-% ----------------------------------------
-\subsection{IR Visitor Interface}
+%% % ----------------------------------------
+%% \subsection{IR Visitor Interface}
 
 % ================================================================================
+
 \section{Teal Standard Library}
+
+Teal predefines a number of functions:
+
+\begin{tabular}{|l|l|p{5cm}|}
+  \hline
+  \textbf{Builtin function name} & \textbf{Type or Type Scheme} & \textbf{Semantics} \\
+  \hline
+  \hline
+    \texttt{\_\_builtin\_int\_add} & $\TInt \times \TInt \to \TInt$ & Section~\ref{sec:eeval}: \vterminal{+} \\
+  \hline
+    \texttt{\_\_builtin\_int\_sub} & $\TInt \times \TInt \to \TInt$ & Section~\ref{sec:eeval}: \vterminal{-} \\
+  \hline
+    \texttt{\_\_builtin\_int\_mul} & $\TInt \times \TInt \to \TInt$ & Section~\ref{sec:eeval}: \vterminal{*} \\
+  \hline
+    \texttt{\_\_builtin\_int\_div} & $\TInt \times \TInt \to \TInt$ & Section~\ref{sec:eeval}: \vterminal{/} \\
+  \hline
+    \texttt{\_\_builtin\_int\_mod} & $\TInt \times \TInt \to \TInt$ & Section~\ref{sec:eeval}: \vterminal{\%} \\
+  \hline
+    \texttt{\_\_builtin\_int\_eq} & $\forall \tyva. \tyva \times \tyva \to \TInt$ & Section~\ref{sec:eeval}: \vterminal{==} \\
+  \hline
+    \texttt{\_\_builtin\_int\_neq} & $\forall \tyva. \tyva \times \tyva \to \TInt$ & Section~\ref{sec:eeval}: \vterminal{!=} \\
+  \hline
+    \texttt{\_\_builtin\_int\_leq} & $\TInt \times \TInt \to \TInt$ & Section~\ref{sec:eeval}: \vterminal{$<$=} \\
+  \hline
+    \texttt{\_\_builtin\_int\_geq} & $\TInt \times \TInt \to \TInt$ & Section~\ref{sec:eeval}: \vterminal{$>$=} \\
+  \hline
+    \texttt{\_\_builtin\_int\_lt} & $\TInt \times \TInt \to \TInt$ & Section~\ref{sec:eeval}: \vterminal{$<$} \\
+  \hline
+    \texttt{\_\_builtin\_int\_gt} & $\TInt \times \TInt \to \TInt$ & Section~\ref{sec:eeval}: \vterminal{$>$} \\
+  \hline
+    \texttt{\_\_builtin\_int\_logical\_and} & $\TInt \times \TInt \to \TInt$ & Section~\ref{sec:eeval}: \vterminal{and} \\
+  \hline
+    \texttt{\_\_builtin\_int\_logical\_or} & $\TInt \times \TInt \to \TInt$ & Section~\ref{sec:eeval}: \vterminal{or} \\
+  \hline
+    \texttt{concat} & $\TString \times \TString \to \TString$ & Concatenates two strings \\
+  \hline
+    \texttt{print} & $\forall \tyva . \tyva \to \TAny$ & Prints out a string representation of its parameter \\
+  \hline
+    \texttt{read} & $() \to \TString$ & Reads a text line from the user \\
+  \hline
+    \texttt{string\_to\_int} & $\TString \to \TInt$ & $\TString$ to $\TInt$ conversion, or {\failure} if not possible \\
+  \hline
+    \texttt{int\_to\_string} & $\TInt \to \TString$ & Map $\TInt$ to string representation \\
+  \hline
+    \texttt{can\_convert\_to\_int} & $\TString \to \TInt$ & Yields \Vint{0} iff \texttt{string\_to\_int} would {\fail}, \Vint{1} otherwise \\
+  \hline
+    \texttt{array\_length} & $\forall \tyva . \TArrayof{\tyva} \to \TInt$ & maps $\Varray$ to $\arraylength{\Varray}$ \\
+  \hline
+\end{tabular}
+
+%%     public static final Operation CONCAT = new Operation("concat", STRING, STRING, STRING);
+%%     public static final Operation PRINT = new Operation("print", ANY, ANY);
+%%     public static final Operation READ = new Operation("read", STRING);
+
+%%     // Additional builtins
+%%     public static final Operation STRING\_TO\_INT = new Operation("string\_to\_int", INT, STRING);
+%%     public static final Operation INT\_TO\_STRING = new Operation("int\_to\_string", STRING, INT);
+%%     public static final Operation CAN\_CONVERT\_TO\_INT = new Operation("can\_convert\_to\_int", INT, STRING);
+%%     public static final Operation ARRAY\_LENGTH = new Operation("array\_length", INT, ARRAY);
+
+
+%% \begin{tabular}{l
+%%     \_\_builtin\_int\_add
+%%     // Built-in operations
+%%     // Plus can be used for strings and integer alike.
+%%     public static final Operation INT\_ADD = ARITHMETIC\_BINOP("
+%%     public static final Operation INT\_SUB = ARITHMETIC\_BINOP("\_\_builtin\_int\_sub");
+%%     public static final Operation INT\_MUL = ARITHMETIC\_BINOP("\_\_builtin\_int\_mul");
+%%     public static final Operation INT\_DIV = ARITHMETIC\_BINOP("\_\_builtin\_int\_div");
+%%     public static final Operation INT\_MOD = ARITHMETIC\_BINOP("\_\_builtin\_int\_mod");
+
+%%     public static final Operation ANY\_EQ = new Operation("\_\_builtin\_any\_eq", INT, ANY, ANY);
+%%     public static final Operation ANY\_NEQ = new Operation("\_\_builtin\_any\_neq", INT, ANY, ANY);
+
+%%     public static final Operation INT\_LEQ = ARITHMETIC\_BINOP("\_\_builtin\_int\_leq");
+%%     public static final Operation INT\_GEQ = ARITHMETIC\_BINOP("\_\_builtin\_int\_geq");
+%%     public static final Operation INT\_LT = ARITHMETIC\_BINOP("\_\_builtin\_int\_lt");
+%%     public static final Operation INT\_GT = ARITHMETIC\_BINOP("\_\_builtin\_int\_gt");
+
+%%     public static final Operation INT\_AND = ARITHMETIC\_BINOP("\_\_builtin\_int\_logical\_and");
+%%     public static final Operation INT\_OR = ARITHMETIC\_BINOP("\_\_builtin\_int\_logical\_or");
+
+%%     public static final Operation CONCAT = new Operation("concat", STRING, STRING, STRING);
+%%     public static final Operation PRINT = new Operation("print", ANY, ANY);
+%%     public static final Operation READ = new Operation("read", STRING);
+
+%%     // Additional builtins
+%%     public static final Operation STRING\_TO\_INT = new Operation("string\_to\_int", INT, STRING);
+%%     public static final Operation INT\_TO\_STRING = new Operation("int\_to\_string", STRING, INT);
+%%     public static final Operation CAN\_CONVERT\_TO\_INT = new Operation("can\_convert\_to\_int", INT, STRING);
+%%     public static final Operation ARRAY\_LENGTH = new Operation("array\_length", INT, ARRAY);
 
 \end{document}
