@@ -418,7 +418,7 @@ a notion of \emph{current state} $S$, which tracks input, output, and variable s
 \begin{enumerate}
 \item Each variable \emph{may} be bound to a \emph{storage}
 \item Each storage \emph{may} be bound to a single \emph{object}
-\item $\textit{store}_S(x, o)$, where $x$ is a variable and $o$ an object in a current state $S$, yields a \emph{new} state $S'$ to which $S$ is the \emph{previous state} and $\tuple{x,y}$ is the \emph{state update}
+\item $\textit{store}_S(x, o)$, where $x$ is a variable and $o$ an object in a current state $S$, yields a \emph{new} state $S'$ to which $S$ is the \emph{previous state} and $\tuple{x,o}$ is the \emph{state update}
 \item In state $S$, $\textit{load}_S(x)$, where $x$ is a variable, yields the same result as $\textit{load}_{S'}(x)$ in the previous state $S'$, unless the state update to $S$ was $\tuple{x, o}$, in which case $\textit{load}_{S}(x)$ yields $o$
 \item $\textit{load}_S(x)$ on a state $S$ that has no previous state yields $\Vnull$
 \end{enumerate}
