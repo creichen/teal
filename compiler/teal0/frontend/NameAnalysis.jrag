@@ -8,20 +8,20 @@ aspect NameAnalysis {
         // An attribute to have the name of a function
         // or variable.
         syn String Decl.name() {
-                return getIdDecl().getID();
+                return getIdDecl().getIdentifier();
         }
 
         syn String CallExpr.name() {
-                return getIdUse().getID();
+                return getIdUse().getIdentifier();
         }
 
         syn String Access.name() {
-                return getIdUse().getID();
+                return getIdUse().getIdentifier();
         }
 
         // Lookup the declaration matching an use.
 	inh IdDecl IdUse.lookup(String s);
-	syn IdDecl IdUse.lookup() = lookup(getID());
+	syn IdDecl IdUse.lookup() = lookup(getIdentifier());
 
 	inh IdDecl Stmt.lookup(String s);
 
@@ -137,7 +137,7 @@ aspect NameAnalysisPrivate {
 			Stmt s = getStmt(i);
 			IdDecl decl = s.declaredVar();
 			if (decl != null) {
-				declMap.append(decl.getID(), new IndexedDecl(i, decl));
+				declMap.append(decl.getIdentifier(), new IndexedDecl(i, decl));
 			}
 		}
 		return declMap;
@@ -175,12 +175,8 @@ aspect NameAnalysisPrivate {
 	 **/
 	syn MultiHashMap<String, IdDecl> Module.moduleDeclMap() {
 		MultiHashMap<String, IdDecl> declMap = new MultiHashMap<>();
+
 		for (ImportDecl i : getImportDecls()) {
-			System.err.println("Processing import: " + i.dumpTree());
-			System.err.println("Of class: " + i.getClass());
-			System.err.println("  decl: " + i.getDecl());
-			System.err.println("  prop0: " + i.getDecl().getIdDecl());
-			System.err.println("  prop1: " + i.getDecl().getIdDecl().getId());
 			declMap.append(i.getDecl().name(), i.getDecl().getIdDecl());
 		}
 
@@ -211,7 +207,7 @@ aspect NameAnalysisCheck {
 		}
 
 		public String report() {
-			String name = declarations.iterator().next().getID();
+			String name = declarations.iterator().next().getIdentifier();
 			String err = "Multiple declarations for symbol '" + name + "' at locations: ";
 			for (int i = 0; i < declarations.size(); i++) {
 				IdDecl d = declarations.get(i);
@@ -276,7 +272,7 @@ aspect NameAnalysisCheck {
 		}
 	}
 
-	IdUse contributes Collections.singleton(new UndeclaredSymbol(getID(), sourceLocation()))
+	IdUse contributes Collections.singleton(new UndeclaredSymbol(getIdentifier(), sourceLocation()))
 		when lookup().isUnknown() to Program.nameErrors();
 }
 
@@ -285,5 +281,5 @@ aspect NameAnalysisTest {
 	   A map from identifier uses to declarations; used only for testing
 	 **/
 	coll AccHashMap<IdUse, IdDecl> Program.globalSymbolTable() [new AccHashMap<IdUse, IdDecl>()] with add;
-	IdUse contributes new AbstractMap.SimpleEntry<IdUse, IdDecl>(this, lookup(getID())) to Program.globalSymbolTable();
+	IdUse contributes new AbstractMap.SimpleEntry<IdUse, IdDecl>(this, lookup(getIdentifier())) to Program.globalSymbolTable();
 }

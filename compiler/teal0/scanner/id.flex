@@ -1,2 +1,2 @@
 // identifiers (tested after tokens)
-{ID}          { return sym(Terminals.ID); }
+{Identifier}          { return sym(Terminals.ID); }

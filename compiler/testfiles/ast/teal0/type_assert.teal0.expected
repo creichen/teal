@@ -2,11 +2,11 @@ Module
   List
   List
     FunDecl
-      IdDecl ID="f"
+      IdDecl Identifier="f"
       Opt
       List
         VarDecl
-          IdDecl ID="x"
+          IdDecl Identifier="x"
           Opt
             IntType
           Opt
@@ -14,14 +14,14 @@ Module
         ReturnStmt
           TypedExpr
             Access
-              IdUse ID="x"
+              IdUse Identifier="x"
             IntType
     FunDecl
-      IdDecl ID="f"
+      IdDecl Identifier="f"
       Opt
       List
         VarDecl
-          IdDecl ID="x"
+          IdDecl Identifier="x"
           Opt
             ArrayType
               IntType
@@ -30,6 +30,6 @@ Module
         ReturnStmt
           TypedExpr
             Access
-              IdUse ID="x"
+              IdUse Identifier="x"
             ArrayType
               AnyType

@@ -1,4 +1,3 @@
-// FIXME: inconsistent yse of Id vs ID (always ID!)
 // Variables
 VarDecl : Decl ::= IdDecl [DeclaredType:Type] [Initializer:Expr];
 
@@ -54,7 +53,7 @@ ReturnStmt : Stmt ::= Expr;
 SkipStmt : Stmt;
 
 // Identifiers
-IdUse ::= <ID>;
-IdDecl ::= <ID>;
+IdUse ::= <Identifier>;
+IdDecl ::= <Identifier>;
 // Unknown
 UnknownDecl : IdDecl;

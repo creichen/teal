@@ -454,5 +454,5 @@ aspect IRGen {
 	}
 
 	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), variableType().genIRTypeRef());
-	syn IRName IdDecl.genIR() = new IRName(getID());
+	syn IRName IdDecl.genIR() = new IRName(getIdentifier());
 }
