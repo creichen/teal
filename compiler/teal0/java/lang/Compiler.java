@@ -23,7 +23,7 @@ import lang.ast.Decl;
 import lang.ast.TEALParser;
 import lang.ast.LangScanner;
 import lang.ast.CompilerError;
-import lang.ast.TypeInferenceError;
+//import lang.ast.TypeInferenceError;
 
 import lang.ir.IRModule;
 import lang.ir.IRValue;
