@@ -6,9 +6,9 @@ fun main(separator : string) = {
     var i := 0;
 
     while i < array_length(a) {
-//        if i > 0 {
-//	    result := concat(result, separator);
-//	}
+        if i > 0 {
+	    result := concat(result, separator);
+	}
         result := concat(result, a[i]);
 	i := i + 1;
     }

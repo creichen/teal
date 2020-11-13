@@ -424,20 +424,23 @@ aspect IRGen {
 	public void WhileStmt.genCode(IRFunctionCtx ctx) {
 		IRCodeBB currentBB = ctx.getCurrentBB();
 
-		// header block
+		// loop's header block
 		IRCodeBB headerBB = ctx.startBB();
 		IRVarRef cond = getCond().genCode(ctx);
 
-		// body block
-		IRCodeBB bodyBB = ctx.startBB();
+		// the first block in the body
+		IRCodeBB bodyEntryBB = ctx.startBB();
 		getBody().genCode(ctx);
+		// the last block in the body
+		IRCodeBB bodyExitBB = ctx.getCurrentBB();
 
+		// loop's exit BB
 		IRCodeBB exitBB = ctx.startBB();
 
 		currentBB.setIRCodeExit(new IRJump(new IRCodeBBRef(headerBB)));
-		headerBB.setIRCodeExit(new IRBranch(cond, new IRCodeBBRef(bodyBB), new IRCodeBBRef(exitBB)));
+		headerBB.setIRCodeExit(new IRBranch(cond, new IRCodeBBRef(bodyEntryBB), new IRCodeBBRef(exitBB)));
 		// and the loop back-edge
-		bodyBB.setIRCodeExit(new IRJump(new IRCodeBBRef(headerBB)));
+		bodyExitBB.setIRCodeExit(new IRJump(new IRCodeBBRef(headerBB)));
 	}
 
 	public void ReturnStmt.genCode(IRFunctionCtx ctx) {
