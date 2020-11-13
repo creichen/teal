@@ -25,7 +25,6 @@ module("teal-0") {
 	include "frontend/NameAnalysis.jrag"
 	include "frontend/SemanticCheck.jrag"
 	include "frontend/TypeAnalysis.jrag"
-	include "frontend/TypeInference.jrag"
 	include "frontend/TypeAnalysisBuiltinTypes.jrag"
 
 	// Code generation
