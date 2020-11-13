@@ -46,37 +46,7 @@ public class Compiler {
 	public static Object DrAST_root_node; //Enable debugging with DrAST
 
 	public static boolean customASTAction(Program ast) {
-		try {
-			// equations
-			System.out.println("## equations");
-			for (Module module : ast.getModules()) {
-				for (Decl decl : module.getDecls()) {
-					for (Object o : decl.typeEquations()) {
-						System.out.println("Q " + o);
-					}
-				}
-			}
-			System.out.println("## before");
-			for (Module module : ast.getModules()) {
-				for (Decl decl : module.getDecls()) {
-					System.out.println("A " + decl.typeSummary());
-				}
-			}
-			for (Module module : ast.getModules()) {
-				for (Decl decl : module.getDecls()) {
-					decl.typeEquations().solve();
-				}
-			}
-			System.out.println("## after");
-			for (Module module : ast.getModules()) {
-				for (Decl decl : module.getDecls()) {
-					System.out.println("A " + decl.typeSummary());
-				}
-			}
-		} catch (TypeInferenceError e) {
-			e.printErrorLine();
-			System.exit(1);
-		}
+		System.out.println("Hello from method 'customASTAction()' in " + Compiler.class + "!");
 		return false;
 	}
 
@@ -88,11 +58,13 @@ public class Compiler {
 
 	public static void interpret(IRProgram p, List<String> strings) {
 		ArrayList<IRValue> args = new ArrayList<>();
-		for (String str : strings) {
-			try {
-				args.add(new IRIntegerValue(Long.parseLong(str)));
-			} catch (NumberFormatException ignored) {
-				args.add(new IRStringValue(str));
+		if (strings != null) {
+			for (String str : strings) {
+				try {
+					args.add(new IRIntegerValue(Long.parseLong(str)));
+				} catch (NumberFormatException ignored) {
+					args.add(new IRStringValue(str));
+				}
 			}
 		}
 		try {
@@ -185,7 +157,7 @@ public class Compiler {
 			INTERP
 		}
 
-		Action action = Action.IRGEN;
+		Action action = Action.INTERP;
 		String outputFile;
 		String inputFile;
 		List<String> importPaths;
