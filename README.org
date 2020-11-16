@@ -89,18 +89,32 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
 ** What's Git?
 
    Git is what's called a version control system.
-   It's a piece of software that helps you track and compare
-   changes you (and other people!) make to your code.
+   But what does that mean? Let's look at each word:
+
+   - Version: A version is a snapshot of code, it's like a picture of the state of code at a given point.
+   - Control: We want to manage versions, that is, we want to do things like:
+     - Change version easily (for instance, going back to an older version)
+     - Compare two versions
+     - Merge versions together
+     - etc.
+   - System: Well, that's just a program that allows you to do something, in this case, version control.
+
+   In other words, git is a piece of software that helps you track and
+   compare changes you (and other people!) make to your code.
 
    Have you ever made a million changes to a program, only
    to realize your idea doesn't work and now you have to get
    fifteen files back to the state they were in? Well,
-   the job of git is to make this easy.
+   git's job is to make this task easy.
 
    Git is very useful, and used /everywhere/, but it's also
    a bit difficult to learn. Some git commands will seem
    very mysterious as you start, and that's normal,
    if you need help, please contact us!
+
+   If you want to get a rough idea of the commands, you can use this [[https://about.gitlab.com/images/press/git-cheat-sheet.pdf][cheat sheet]].
+
+   For a more detailed introduction, you may look at [[https://docs.gitlab.com/ee/gitlab-basics/start-using-git.html][Gitlab's documentation]].
 
 ** I Can't Clone the Repository
    You probably need to upload a SSH public key to the Gitlab server.
