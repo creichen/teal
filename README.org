@@ -83,3 +83,107 @@ Can be enabled by the ~TEAL_DEBUG~ environment variable:
 
 * Notes on the implementation
 See [[file:notes.org][the implementation notes]] (if available in your distribution).
+* Git FAQ
+  Here are answers to some questions you may ask yourself when using Git.
+
+** What's Git?
+
+   Git is what's called a version control system.
+   It's a piece of software that helps you track and compare
+   changes you (and other people!) make to your code.
+
+   Have you ever made a million changes to a program, only
+   to realize your idea doesn't work and now you have to get
+   fifteen files back to the state they were in? Well,
+   the job of git is to make this easy.
+
+   Git is very useful, and used /everywhere/, but it's also
+   a bit difficult to learn. Some git commands will seem
+   very mysterious as you start, and that's normal,
+   if you need help, please contact us!
+
+** I Can't Clone the Repository
+   You probably need to upload a SSH public key to the Gitlab server.
+   You generate those on your computer, two files will be created,
+   you upload the contents of of these files to the Gitlab, so it knows who you are.
+
+   The file you didn't upload (the private key) is not to be shared with anyone.
+
+   [[https://docs.gitlab.com/ee/ssh][Here]] is a tutorial on how to do that.
+
+** How Do I Update My Fork with Changes the Instructors Made?
+
+   Sometimes, Noric or Christoph might update the exercises, you can synchronize your
+   forks with the changes have been made with git (while keeping your own changes too!).
+
+   Here's how you do it (based on [[https://medium.com/@sahoosunilkumar/how-to-update-a-fork-in-git-95a7daadc14e][this tutorial]]).
+
+*** TL;DR
+
+    If you're too lazy to read the rest, here is the following in script form:
+
+    #+begin_src sh
+      git remote add upstream git@coursegit.cs.lth.se:edap15-2020/exercise-1.git
+      git fetch upstream
+      git checkout master
+      git merge upstream/master
+      git push origin master
+    #+end_src
+
+    Otherwise, here are the explanations!
+
+*** List Remotes
+    This gives you the list of remote repositories, they are places where code lives
+    that aren't on your computer.
+
+    #+begin_src sh
+      git remote -v
+    #+end_src
+
+    You should see something like
+    #+begin_src text
+      origin	git@coursegit.cs.lth.se:edap15-2020/<group>/exercise-1.git (fetch)
+      origin	git@coursegit.cs.lth.se:edap15-2020/<group>/exercise-1.git (push)
+    #+end_src
+
+*** Specify a Remote Upstream
+    This is a way to tell git you know another place where similar code
+    is, and that will be the address of the main exercise 1 repo, the one you forked.
+    We can give names to remote, we'll call this one /upstream/.
+
+    #+begin_src sh
+      git remote add upstream git@coursegit.cs.lth.se:edap15-2020/exercise-1.git
+    #+end_src
+
+*** Get the Changes
+
+    You can get the new changes by calling the following (don't worry, it won't erase any of your code!):
+
+    #+begin_src sh
+    git fetch upstream
+    #+end_src
+
+    If you look at your files, nothing should have changed. That's because
+    git can handle several copies of your code simultaneously without a problem,
+    using something called /branches/.
+
+    So now both the code from the upstream repo and yours are on your computer
+    you just can't see the other branch. You can look at it by typing ~git checkout upstream/master~
+
+    You can also /compare/ branches with ~git diff upstream/master~, this will show
+    the differences between your master branch and ~upstream/master~.
+
+*** Merging Changes
+
+    Lastly, git is also able to merge changes from two branches together.
+    There might be conflicts that you would have to resolve by hand, but in most
+    cases, it works.
+
+    You do this by running
+    #+begin_src sh
+      git checkout master # make sure you're on the right branch
+      git merge upstream/master
+    #+end_src
+
+*** Pushing to Gitlab
+    Now you can update gitlab's copy of your code with ~git push origin master~
