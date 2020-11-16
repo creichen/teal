@@ -116,6 +116,9 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
 
    For a more detailed introduction, you may look at [[https://docs.gitlab.com/ee/gitlab-basics/start-using-git.html][Gitlab's documentation]].
 
+   Lastly, if you prefer videos with rainbows and unicorns, you may be
+   interested in [[https://thecodingtrain.com/beginners/git-and-github/][this series of videos by Daniel Shiffman]].
+
 ** I Can't Clone the Repository
    You probably need to upload a SSH public key to the Gitlab server.
    You generate those on your computer, two files will be created,
