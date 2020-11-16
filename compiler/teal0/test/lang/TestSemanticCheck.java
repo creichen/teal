@@ -51,6 +51,8 @@ public class TestSemanticCheck {
     for (CompilerError e : nameErrors) {
 	actual += e.report() + "\n";
     }
+    // Normalise path separators
+    actual = actual.replace(File.separatorChar, '/');
 
     Util.compareOutput(actual, TEST_DIRECTORY, filename);
   }
