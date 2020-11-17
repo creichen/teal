@@ -223,7 +223,7 @@ Here's how you do it (based on [this tutorial](https://medium.com/@sahoosunilkum
 
 If you're too lazy to read the rest, here is the following in script form:
 
-    git remote add upstream git@git.cs.lth.se:creichen/edap15-exercise-1.git
+    git remote add upstream https://git.cs.lth.se/creichen/edap15-exercise-1.git
     git fetch upstream
     git checkout master
     git merge upstream/master
@@ -255,7 +255,7 @@ This is a way to tell git you know another place where similar code
 is, and that will be the address of the main exercise 1 repo, the one you forked.
 We can give names to remote, we'll call this one *upstream*.
 
-    git remote add upstream git@git.cs.lth.se:creichen/edap15-exercise-1.git
+    git remote add upstream https://git.cs.lth.se/creichen/edap15-exercise-1.git
 
 
 <a id="org816c983"></a>
