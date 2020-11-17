@@ -140,7 +140,7 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
     If you're too lazy to read the rest, here is the following in script form:
 
     #+begin_src sh
-      git remote add upstream git@coursegit.cs.lth.se:edap15-2020/exercise-1.git
+      git remote add upstream git@git.cs.lth.se:creichen/edap15-exercise-1.git
       git fetch upstream
       git checkout master
       git merge upstream/master
@@ -169,7 +169,7 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
     We can give names to remote, we'll call this one /upstream/.
 
     #+begin_src sh
-      git remote add upstream git@coursegit.cs.lth.se:edap15-2020/exercise-1.git
+      git remote add upstream git@git.cs.lth.se:creichen/edap15-exercise-1.git
     #+end_src
 
 *** Get the Changes
