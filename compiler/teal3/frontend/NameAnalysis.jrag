@@ -7,13 +7,6 @@ import java.util.Collection;
 aspect NameAnalysis {
 	syn Decl Type.decl() = getIdUse().lookup().getDecl();
 
-	eq ForStmt.getBody().lookup(String s) {
-		IdDecl d = localLookup(s);
-		if (d != null)
-			return d;
-		return lookup(s);
-	}
-
 	eq StmtElt.getStmt().lookup(String s) {
 		return lookup(s);
 	}
@@ -72,12 +65,6 @@ aspect NameAnalysis {
 }
 
 aspect NameAnalysisPrivate {
-	syn IdDecl ForStmt.localLookup(String s) {
-		if (getIterator().name().equals(s))
-			return getIterator().getIdDecl();
-		return null;
-	}
-
 	syn IdDecl StructElt.getMemberDecl() = null;
 	eq VarDeclElt.getMemberDecl() = getVarDecl().getIdDecl();
 	eq FunDeclElt.getMemberDecl() = getFunDecl().getIdDecl();

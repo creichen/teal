@@ -1,5 +1,6 @@
 Type type = INT {: return new IntType(); :}
           | STRING {: return new StringType(); :}
           | ARRAY LBRACK type RBRACK {: return new ArrayType(type); :}
+          | NONNULL type {: return new NonNullType(type); :}
           | ANY {: return new AnyType(); :}
 	  ;

@@ -1,10 +1,12 @@
-// IN:NONE
+// IN: 0
 // EXCEPTION: lang.ir.InterpreterException
+// IN: 1
+// OUT: [1, 2, 3]
 // A test file where we insert the an element of the wrong type into an array.
-fun main() = {
-    var a : array[int] := new array[int](3);
-    a[0] := 1;
-    a[1] := "Oh no!";
-    a[2] := 2;
-    return a[1];
+fun main(x) = {
+	var a : array[nonnull int] := [1, 2, 3];
+	if x == 0 {
+		a[1] = null;
+	}
+	return a;
 }

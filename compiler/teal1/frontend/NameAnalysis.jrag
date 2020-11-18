@@ -1,0 +1,27 @@
+import java.util.HashMap;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Collection;
+
+aspect NameAnalysis {
+	eq ForStmt.getBody().lookup(String s) {
+		IdDecl d = localLookup(s);
+		if (d != null) {
+			return d;
+		}
+		return lookup(s);
+	}
+}
+
+aspect NameAnalysisPrivate {
+	syn IdDecl ForStmt.localLookup(String s) {
+		if (getElementVar().name().equals(s)) {
+			return getElementVar().getIdDecl();
+		}
+		return null;
+	}
+}
+
+aspect NameAnalysisCheck {
+}

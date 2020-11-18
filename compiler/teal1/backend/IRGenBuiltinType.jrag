@@ -1,0 +1,3 @@
+aspect IRGenType {
+    	eq NonNullType.genIRTypeRef() = IRModule.makeAnyTypeRef();
+}

@@ -23,5 +23,4 @@ Type ::= IdUse Actual:Type* TypeQualifier*;
 DispatchExpr : Expr ::= Expr <ID> Actual:Expr*;
 Self : Expr ;
 MemberAccess : Expr ::= Expr <ID>;
-ForStmt : Stmt ::= Iterator:VarDecl Rang:Expr Body:Stmt;
 AssertStmt : Stmt ::= Expr <Message:String>;

@@ -2,14 +2,16 @@
 module("teal-3") {
     moduleName "teal-3"
 
-    imports "teal-0"
+    imports "teal-1"
 
     jastadd {
 	include "ast/teal.ast"
 	excludeFrom "teal-0", "ast/type.ast"
+	excludeFrom "teal-1", "ast/type.ast"
 
 	// Meta-information
 	include "frontend/Version.jrag"
+	excludeFrom "teal-1", "frontend/Version.jrag"
 
 	// Semantic Analysis
 	include "frontend/BuiltinTypes.jrag"
@@ -26,6 +28,7 @@ module("teal-3") {
 	include "backend/IRGen.jrag"
 	include "backend/IRGenType.jrag"
 	excludeFrom "teal-0", "backend/IRGenBuiltinType.jrag"
+	excludeFrom "teal-1", "backend/IRGenBuiltinType.jrag"
     }
 
     scanner {
@@ -36,15 +39,18 @@ module("teal-3") {
     parser {
 	include "parser/term.parser"
 	excludeFrom "teal-0", "parser/term.parser"
+	excludeFrom "teal-1", "parser/term.parser"
 
 	include "parser/stmt-base.parser"
 	include "parser/stmt.parser"
 	excludeFrom "teal-0", "parser/stmt.parser"
+	excludeFrom "teal-1", "parser/stmt.parser"
 
 	include "parser/decl.parser"
 	include "parser/decl-base.parser"
 	excludeFrom "teal-0", "parser/decl.parser"
 
 	excludeFrom "teal-0", "parser/type.parser"
+	excludeFrom "teal-1", "parser/type.parser"
     }
 }

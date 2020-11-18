@@ -2,6 +2,7 @@ import lang.ir.*;
 
 
 aspect IRGen {
+	// Create fresh reference to variable
 	interface ModuleMemberIR {
 		/**
 		 * Emit IR code for self into module

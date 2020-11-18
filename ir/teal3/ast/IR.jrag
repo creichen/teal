@@ -1,6 +1,14 @@
 import lang.common.SourceLocation;
 
 aspect IR {
+	public IRVarRef IRVar.ref() {
+		return new IRVarRef(this);
+	}
+
+	public IRFunRef IRFunction.ref() {
+		return new IRFunRef(this);
+	}
+
 	public static IRClass IRClass.newBuiltinIRClass(String name) {
 		IRClass c = new IRClass().setIRName(new IRName(name));
 		c.setSourceLocation(SourceLocation.BUILTIN);
