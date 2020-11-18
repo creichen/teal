@@ -23,7 +23,6 @@ import lang.ast.Decl;
 import lang.ast.TEALParser;
 import lang.ast.LangScanner;
 import lang.ast.CompilerError;
-//import lang.ast.TypeInferenceError;
 
 import lang.ir.IRModule;
 import lang.ir.IRValue;
@@ -47,6 +46,7 @@ public class Compiler {
 
 	public static boolean customASTAction(Program ast) {
 		System.out.println("Hello from method 'customASTAction()' in " + Compiler.class + "!");
+		// return "false" to finish here, otherwise the program will execute
 		return false;
 	}
 
