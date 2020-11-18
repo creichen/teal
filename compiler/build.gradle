@@ -12,7 +12,7 @@ dependencies {
 }
 
 sourceSets {
-    test.java.srcDirs = [ 'teal0/test' ]
+    test.java.srcDirs = [ 'test' ]
 }
 
 // Configuration for the test running.
