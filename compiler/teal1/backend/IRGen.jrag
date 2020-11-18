@@ -5,16 +5,23 @@ aspect IRGen {
 	eq ForStmt.getElementVar().getScope() = VariableScope.LOCAL;
 
 	public static void ForStmt.genCode(IRFunctionCtx ctx, FunDecl array_length, FunDecl less_than, FunDecl add,
-					   //SourceLocation srcloc,
+					   SourceLocation srcloc,
 					   IRVarRef range, IRVarRef element_var, Stmt body) {
 		IRVar one = ctx.getFreshTempIRVar(IRModule.makeIntegerTypeRef());
-		ctx.addInsn(new IRConstantInsn().setDst(one.ref()).setSrc(new IRInteger(1l)));
+		ctx.addInsn(new IRConstantInsn()
+			    .setDst(one.ref())
+			    .setSrc(new IRInteger(1l))
+			    .setInsnSourceLocation(srcloc));
 		IRVar counter_var = ctx.getFreshTempIRVar(IRModule.makeIntegerTypeRef());
 		IRVar max_var = ctx.getFreshTempIRVar(IRModule.makeIntegerTypeRef());
-		ctx.addInsn(new IRConstantInsn().setDst(counter_var.ref()).setSrc(new IRInteger(0l)));
-		ctx.addInsn(new IRCallInsn().setDst(max_var.ref())
+		ctx.addInsn(new IRConstantInsn()
+			    .setDst(counter_var.ref()).setSrc(new IRInteger(0l))
+			    .setInsnSourceLocation(srcloc));
+		ctx.addInsn(new IRCallInsn()
+			    .setDst(max_var.ref())
 			    .setIRFunRef(array_length.genIR().ref())
-			    .addArg(range));
+			    .addArg(range)
+			    .setInsnSourceLocation(srcloc));
 
 		IRCodeBB startBB = ctx.getCurrentBB();
 
@@ -29,7 +36,8 @@ aspect IRGen {
 			    .setDst(comp_result_var.ref())
 			    .setIRFunRef(less_than.genIR().ref())
 			    .addArg(counter_var.ref())
-			    .addArg(max_var.ref()));
+			    .addArg(max_var.ref())
+			    .setInsnSourceLocation(srcloc));
 
 		// the first block in the body
 		IRCodeBB bodyEntryBB = ctx.startBB();
@@ -37,12 +45,15 @@ aspect IRGen {
 		ctx.addInsn(new IRLoadArrayInsn()
 			    .setDst(element_var)
 			    .setBase(range)
-			    .setIndex(counter_var.ref()));
+			    .setIndex(counter_var.ref())
+			    .setInsnSourceLocation(srcloc));
+
 		ctx.addInsn(new IRCallInsn()
 			    .setDst(counter_var.ref())
 			    .setIRFunRef(add.genIR().ref())
 			    .addArg(one.ref())
-			    .addArg(counter_var.ref()));
+			    .addArg(counter_var.ref())
+			    .setInsnSourceLocation(srcloc));
 
 		body.genCode(ctx);
 		// the last block in the body
@@ -60,11 +71,13 @@ aspect IRGen {
 
 
 	public void ForStmt.genCode(IRFunctionCtx ctx) {
+		ctx.setSourceLocations(sourceLocation());
 		IRVarRef range = this.getRange().genCode(ctx);
 		FunDecl array_length = lookup(BuiltinNames.ARRAY_LENGTH.getName()).getDecl().asFunDecl();
 		FunDecl lt = lookup(BuiltinNames.INT_LT.getName()).getDecl().asFunDecl();
 		FunDecl add = lookup(BuiltinNames.INT_ADD.getName()).getDecl().asFunDecl();
 		ForStmt.genCode(ctx, array_length, lt, add,
+				this.sourceLocation(),
 				range, ctx.getIRVarRef(this.getElementVar()), this.getBody());
 	}
 }

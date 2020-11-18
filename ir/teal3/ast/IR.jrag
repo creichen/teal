@@ -1,6 +1,11 @@
 import lang.common.SourceLocation;
 
 aspect IR {
+	public IRInsn IRInsn.setInsnSourceLocation(SourceLocation srcloc) {
+		this.setSourceLocation(srcloc);
+		return this;
+	}
+
 	public IRVarRef IRVar.ref() {
 		return new IRVarRef(this);
 	}
