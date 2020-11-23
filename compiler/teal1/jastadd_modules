@@ -1,0 +1,37 @@
+// Teal-1 parsing and program representation
+module("teal-1") {
+    moduleName "teal-1"
+
+    imports "teal-0"
+
+    jastadd {
+	include "ast/teal.ast"
+	include "ast/type.ast"
+	//excludeFrom "teal-0", "ast/type.ast"
+
+	// Meta-information
+	include "frontend/Version.jrag"
+
+	// Semantic Analysis
+	include "frontend/NameAnalysis.jrag"
+
+	// Code generation
+	include "backend/IRGen.jrag"
+	include "backend/IRGenBuiltinType.jrag"
+	// excludeFrom "teal-0", "backend/IRGenBuiltinType.jrag"
+    }
+
+    scanner {
+	excludeFrom "teal-1", "scanner/type.flex"
+	include "scanner/scanner.flex"
+    }
+
+    parser {
+	include "parser/stmt-base.parser"
+	include "parser/stmt.parser"
+	excludeFrom "teal-0", "parser/stmt.parser"
+
+	include "parser/type.parser"
+	excludeFrom "teal-0", "parser/type.parser"
+    }
+}

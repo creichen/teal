@@ -1,0 +1,11 @@
+// IN:NONE
+// OUT: 6
+// A test file where we insert the an element of the wrong type into an array.
+fun main() = {
+	var a : array[int] := [1, 2, 3];
+	var result := 0;
+	for x in a {
+		result := result + x;
+        }
+	return result;
+}
