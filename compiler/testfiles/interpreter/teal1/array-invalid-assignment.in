@@ -6,7 +6,7 @@
 fun main(x) = {
 	var a : array[nonnull int] := [1, 2, 3];
 	if x == 0 {
-		a[1] = null;
+		a[1] := null;
 	}
 	return a;
 }
