@@ -1,3 +1,6 @@
+// IN: 0
+// OUT: 1115
+
 class D = {
       var x : int;
       var y : int;

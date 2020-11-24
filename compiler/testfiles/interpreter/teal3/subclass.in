@@ -1,3 +1,4 @@
+// IN: 0
 // OUT: "Dog"
 class Animal = {
       fun move() = {

@@ -1,3 +1,6 @@
+// IN: 11 13
+// OUT: 12
+
 class C(x : int, y : int) = {
       var m : int;
       var n : int;

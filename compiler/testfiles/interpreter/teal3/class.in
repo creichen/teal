@@ -1,13 +1,15 @@
+// IN: 0
+// OUT: 6
 class First = {
       var x : int;
-      fun set(y : int) = { x := y; }
-      fun get() = { return x; }
+      fun set(y : int) = { self.x := y; }
+      fun get() = { return self.x; }
 }
 
 class Second(v : int)  <: First = {
       var y : int := v;
       fun add() = {
-          return get() + y;
+          return self.get() + self.y;
       }
 }
 

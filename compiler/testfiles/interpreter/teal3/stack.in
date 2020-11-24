@@ -1,3 +1,5 @@
+// IN: 0
+// OUT: 2
 class ListEntry[T] = {
       var val : T := null;
       var next : ListEntry[T] := null;

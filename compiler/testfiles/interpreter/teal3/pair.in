@@ -1,3 +1,6 @@
+// IN: 3 4
+// OUT: 24
+
 class Pair[S, T] (first : S, second : T) = {
       fun swap() : Pair[T, S] = {
       	  return new Pair[T, S](second, first);
