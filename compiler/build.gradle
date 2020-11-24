@@ -1,4 +1,4 @@
-plugins {
+ plugins {
     id "java"
     id "org.jastadd" version "1.13.3"
 }
@@ -23,6 +23,8 @@ test {
   testLogging.exceptionFormat = 'full' // Full error output for test failures.
 
   dependsOn 'cleanTest'  // This causes tests to always be re-run.
+
+  testLogging.showStandardStreams = true
 }
 
 
