@@ -1,9 +1,8 @@
 testfiles/semacheck/teal3/lvalue.in[1:4-1:4]: Illegal target expression for assignment.
 testfiles/semacheck/teal3/lvalue.in[3:5-3:7]: Illegal target expression for assignment.
-testfiles/semacheck/teal3/lvalue.in[4:5-4:11]: Illegal target expression for assignment.
+testfiles/semacheck/teal3/lvalue.in[4:5-4:9]: Illegal target expression for assignment.
 testfiles/semacheck/teal3/lvalue.in[5:5-5:9]: Illegal target expression for assignment.
-testfiles/semacheck/teal3/lvalue.in[6:5-6:9]: Illegal target expression for assignment.
-testfiles/semacheck/teal3/lvalue.in[7:5-7:10]: Illegal target expression for assignment.
+testfiles/semacheck/teal3/lvalue.in[6:5-6:10]: Illegal target expression for assignment.
+testfiles/semacheck/teal3/lvalue.in[7:5-7:8]: Illegal target expression for assignment.
 testfiles/semacheck/teal3/lvalue.in[8:5-8:8]: Illegal target expression for assignment.
 testfiles/semacheck/teal3/lvalue.in[9:5-9:8]: Illegal target expression for assignment.
-testfiles/semacheck/teal3/lvalue.in[10:5-10:8]: Illegal target expression for assignment.
