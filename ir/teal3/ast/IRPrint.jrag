@@ -117,14 +117,6 @@ aspect IRPrint {
 		getIRTypeFormal().print(out);
 	}
 
-	public void IRAnyTypeRef.print(PrintStream out) {
-		out.print("any");
-	}
-
-	public void IRIntTypeRef.print(PrintStream out) {
-		out.print("int");
-	}
-
 	public void IRTypeFormal.print(PrintStream out) {
 		getIRName().print(out);
 	}
@@ -267,13 +259,13 @@ aspect IRPrint {
 	public void IRNewInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" <- new ");
-		getIRTypeRef().print(out);
+		getIRTypeInstanceRef().print(out);
 	}
 
 	public void IRNewArrayInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" <- newarray ");
-		getIRTypeRef().print(out);
+		getIRTypeInstanceRef().print(out);
 		out.print(" ");
 		getSize().print(out);
 	}

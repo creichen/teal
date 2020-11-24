@@ -255,8 +255,6 @@ aspect IRGen {
 								  new lang.ir.List<IRVar>(),
 								  new lang.ir.List<IRType>(),
 								  new lang.ir.List<IRClass>(),
-								  new lang.ir.List<IRQualifier>(),
-								  new lang.ir.List<IRTypeAlias>(),
 								  new lang.ir.List<IRFunction>());
 
 		// Add code for all class elements
@@ -323,7 +321,7 @@ aspect IRGen {
 
 		if (fctx.getCurrentBB().getIRCodeExit() == null) {
 			// no exit here
-			IRVar v = fctx.getFreshTempIRVar(new IRAnyTypeRef());
+			IRVar v = fctx.getFreshTempIRVar(IRModule.makeAnyTypeRef());
 			fctx.addInsn(new IRConstantInsn().setDst(new IRVarRef(v))
 										.setSrc(new IRNull()));
 			fctx.getCurrentBB().setIRCodeExit(new IRReturn(new IRVarRef(v)));

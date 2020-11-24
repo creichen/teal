@@ -86,7 +86,7 @@ aspect IRGenExpr {
 		IRVarRef dst = ctx.getTempIRVar(this);
 		IRVarRef size = getActual(0).genCode(ctx);
 		IRNewArrayInsn newInsn = new IRNewArrayInsn().setDst(dst)
-			.setIRTypeRef(getType().getActual(0).genIRTypeRef()).setSize(size);
+			.setIRTypeInstanceRef((IRTypeInstanceRef) getType().getActual(0).genIRTypeRef()).setSize(size);
 		ctx.addInsn(newInsn);
 		ctx.setSourceLocations(this.sourceLocation());
 		return dst;
@@ -101,7 +101,7 @@ aspect IRGenExpr {
 		// allocate storage for the object
 		IRVarRef dst = ctx.getTempIRVar(this);
 		IRNewInsn newInsn = new IRNewInsn().setDst(dst)
-			.setIRTypeRef(getType().genIR());
+			.setIRTypeInstanceRef((IRTypeInstanceRef) getType().genIR());
 		ctx.addInsn(newInsn);
 
 		// call the constructor to initialize the object

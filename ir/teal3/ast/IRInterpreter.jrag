@@ -552,35 +552,30 @@ aspect IRInterpreter {
 	}
 
 	public void IRNewInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
-		if (getIRTypeRef() instanceof IRTypeFormalRef) {
-			// class C[T] { ... new T() ... } is not supported
-			throw new InterpreterException("Can't evaluate formal type parameter " + getIRTypeRef());
-		} else {
-			// class C[T] { ... new Box[T]() ... } and also
-			// new Map<int, int>
-			IRTypeInstanceRef type = (IRTypeInstanceRef) getIRTypeRef();
-			if (type.getIRType().getNumIRTypeFormal() != type.getNumTypeActual())
-				throw new InterpreterException("Can't instantiate formal parameters of type " + type.getIRType());
+		// class C[T] { ... new Box[T]() ... } and also
+		// new Map<int, int>
+		IRTypeInstanceRef type = getIRTypeInstanceRef();
+		if (type.getIRType().getNumIRTypeFormal() != type.getNumTypeActual())
+			throw new InterpreterException("Can't instantiate formal parameters of type " + type.getIRType());
 
-			IRConcreteType tctx = new IRConcreteType(type.getIRType());
-			for (int i = 0; i < type.getIRType().getNumIRTypeFormal(); ++i) {
-				IRTypeInstanceRef actual;
-				if (type.getTypeActual(i) instanceof IRTypeFormalRef) {
-					// we need a method context to be able to evaluate type formals
-					if (!ctx.isMethodCtx())
-						throw new InterpreterException("Can't evaluate formal type parameter " + type.getTypeActual(i));
-					IRObject instance = (IRObject) ctx.getSelf();
-					// lookup what types is bound to the current actual
-					actual = instance.getType().lookup(((IRTypeFormalRef) type.getTypeActual(i)).getIRTypeFormal());
-				} else {
-					actual = (IRTypeInstanceRef) type.getTypeActual(i);
-				}
-				tctx.bind(type.getIRType().getIRTypeFormal(i), actual);
+		IRConcreteType tctx = new IRConcreteType(type.getIRType());
+		for (int i = 0; i < type.getIRType().getNumIRTypeFormal(); ++i) {
+			IRTypeInstanceRef actual;
+			if (type.getTypeActual(i) instanceof IRTypeFormalRef) {
+				// we need a method context to be able to evaluate type formals
+				if (!ctx.isMethodCtx())
+					throw new InterpreterException("Can't evaluate formal type parameter " + type.getTypeActual(i));
+				IRObject instance = (IRObject) ctx.getSelf();
+				// lookup what types is bound to the current actual
+				actual = instance.getType().lookup(((IRTypeFormalRef) type.getTypeActual(i)).getIRTypeFormal());
+			} else {
+				actual = (IRTypeInstanceRef) type.getTypeActual(i);
 			}
-
-			IRValue val = new IRObject(tctx, ((IRClass) type.getIRType()).getVTable());
-			ctx.getStore().set(getDst(), val);
+			tctx.bind(type.getIRType().getIRTypeFormal(i), actual);
 		}
+
+		IRValue val = new IRObject(tctx, ((IRClass) type.getIRType()).getVTable());
+		ctx.getStore().set(getDst(), val);
 	}
 
 	public void IRNewArrayInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {

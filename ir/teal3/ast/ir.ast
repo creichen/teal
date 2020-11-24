@@ -1,6 +1,6 @@
 // Top level
 IRProgram ::= IRModule*;
-IRModule ::= IRModuleName IRVar* IRType* IRClass* IRQualifier* IRTypeAlias* IRFunction*;
+IRModule ::= IRModuleName IRVar* IRType* IRClass* IRFunction*;
 IRModuleName ::= IRName*;
 IRVar ::= IRName IRTypeRef;
 
@@ -31,14 +31,12 @@ abstract IRAbstractCallInsn : IRInsn ::= Dst:IRVarRef Arg:IRVarRef* IRFunRef;
 IRCallInsn : IRAbstractCallInsn;
 IRDispatchInsn : IRAbstractCallInsn ::= Base:IRVarRef;
 
-IRNewInsn : IRInsn ::= Dst:IRVarRef IRTypeRef;
-IRNewArrayInsn : IRInsn ::= Dst:IRVarRef IRTypeRef Size:IRVarRef;
+IRNewInsn : IRInsn ::= Dst:IRVarRef IRTypeInstanceRef;
+IRNewArrayInsn : IRInsn ::= Dst:IRVarRef IRTypeInstanceRef Size:IRVarRef;
 
 IRSelfInsn : IRInsn ::= Dst:IRVarRef;
 
 IRAssertInsn : IRInsn ::= Test:IRVarRef;
-
-IRCheckQualifier : IRInsn ::= IRVarRef IRQualifierRef;
 
 // Block terminators
 abstract IRCodeExit;
@@ -59,26 +57,13 @@ IRCodeBBRef ::= <IRCodeBB:IRCodeBB>;
 abstract IRTypeRef;
 IRTypeInstanceRef : IRTypeRef ::= <IRType:IRType> TypeActual:IRTypeRef*;
 IRTypeFormalRef : IRTypeRef ::= <IRTypeFormal:IRTypeFormal>;
-abstract IRFundamentalTypeRef : IRTypeRef;
-IRIntTypeRef : IRFundamentalTypeRef;
-IRAnyTypeRef : IRFundamentalTypeRef;
-
-// Qualifier reference
-IRQualifierRef ::= <IRQualifier:IRQualifier>;
 
 // Types
 abstract IRType ::= IRName IRTypeFormal*;
 
 // Class
-IRClass : IRType ::= Super:IRTypeRef* [Constructor:IRFunction] IRFunction* IRVar*;
-
-// Qualifier
-IRQualifier ::= IRName IRTypeFormal* Super:IRTypeRef* [Constructor:IRFunction] [Check:IRFunction] IRFunction* IRVar*;
+IRClass : IRType ::= Super:IRTypeInstanceRef* [Constructor:IRFunction] IRFunction* IRVar*;
 
 IRName ::= <String>;
 
-// To be defined
-IRTypeAlias;
-
-IRModuleRef ::= <IRModule:IRModule>;
 IRTypeFormal ::= IRName;

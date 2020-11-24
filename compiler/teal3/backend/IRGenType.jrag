@@ -20,7 +20,7 @@ aspect IRGenType {
 		init.setIRName(new IRName("__init"));
 
 		// build the return type
-		init.setIRTypeRef(new IRAnyTypeRef());
+		init.setIRTypeRef(IRModule.makeAnyTypeRef());
 
 		// formal param types
 		lang.ir.List<IRTypeRef> irTypes = new lang.ir.List<>();
@@ -37,7 +37,7 @@ aspect IRGenType {
 			IRArgInsn iarg = new IRArgInsn(fctx.getIRVarRef(d), i);
 			fctx.addInsn(iarg);
 			// copy the argument to the member variable
-			IRVar selfVar = fctx.getFreshTempIRVar(new IRAnyTypeRef());
+			IRVar selfVar = fctx.getFreshTempIRVar(IRModule.makeAnyTypeRef());
 			IRSelfInsn self = new IRSelfInsn().setDst(new IRVarRef(selfVar));
 			fctx.addInsn(self);
 			IRStoreInsn store = new IRStoreInsn().setBase(new IRVarRef(selfVar))
@@ -55,7 +55,7 @@ aspect IRGenType {
 		}
 		// return null
 		if (fctx.getCurrentBB().getIRCodeExit() == null) {
-			IRVar v = fctx.getFreshTempIRVar(new IRAnyTypeRef());
+			IRVar v = fctx.getFreshTempIRVar(IRModule.makeAnyTypeRef());
 			fctx.addInsn(new IRConstantInsn().setDst(new IRVarRef(v))
 										.setSrc(new IRNull()));
 			fctx.getCurrentBB().setIRCodeExit(new IRReturn(new IRVarRef(v)));
@@ -80,11 +80,11 @@ aspect IRGenType {
 
 		if (getNumSuperType() == 0 && program().ANY() != this) {
 			// no declared supertypes, add the default: any
-			klass.addSuper(program().ANY().genIRTypeRef());
+			klass.addSuper((IRTypeInstanceRef) program().ANY().genIRTypeRef());
 		}
 		// set supertypes
 		for (Type t : getSuperTypes()) {
-			klass.addSuper(t.genIR());
+			klass.addSuper((IRTypeInstanceRef) t.genIR());
 		}
 
 		return klass;
@@ -168,12 +168,12 @@ aspect IRGenType {
 		// qualifier
 		IRVar v = this.genQualifierIRVar(ctx);
 		IRNewInsn n = new IRNewInsn().setDst(new IRVarRef(v))
-			.setIRTypeRef(genIR());
+			.setIRTypeInstanceRef((IRTypeInstanceRef) genIR());
 		ctx.addInsn(n);
 
 		// call the qualifier's constructor
 		IRDispatchInsn dispatch = new IRDispatchInsn()
-			.setDst(new IRVarRef(ctx.getFreshTempIRVar(new IRAnyTypeRef())) /* discarded */)
+			.setDst(new IRVarRef(ctx.getFreshTempIRVar(IRModule.makeAnyTypeRef())) /* discarded */)
 			.setBase(new IRVarRef(v));
 		IRClass klass = (IRClass) ((IRTypeInstanceRef) genIR()).getIRType();
 		IRFunction constructor = klass.getConstructor();
@@ -202,7 +202,7 @@ aspect IRGenType {
 		FunDecl checkFun = (FunDecl) qualDecl.memberLookup("check").getDecl();
 
 		IRDispatchInsn dispatch = new IRDispatchInsn()
-			.setDst(new IRVarRef(ctx.getFreshTempIRVar(new IRAnyTypeRef())) /* discarded */)
+			.setDst(new IRVarRef(ctx.getFreshTempIRVar(IRModule.makeAnyTypeRef())) /* discarded */)
 			.setBase(new IRVarRef(qVar))
 			.setIRFunRef(new IRFunRef(checkFun.genIR()))
 			.addArg(ctx.getIRVarRef(d));
