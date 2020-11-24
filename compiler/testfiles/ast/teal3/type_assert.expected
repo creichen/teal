@@ -2,14 +2,14 @@ Module
   List
   List
     FunDecl
-      IdDecl ID="f"
+      IdDecl Identifier="f"
       Opt
       List
         VarDecl
-          IdDecl ID="x"
+          IdDecl Identifier="x"
           Opt
             Type
-              IdUse ID="int"
+              IdUse Identifier="int"
               List
               List
           Opt
@@ -17,31 +17,31 @@ Module
         ReturnStmt
           TypedExpr
             Access
-              IdUse ID="x"
+              IdUse Identifier="x"
             Type
-              IdUse ID="int"
+              IdUse Identifier="int"
               List
               List
     FunDecl
-      IdDecl ID="f"
+      IdDecl Identifier="f"
       Opt
       List
         VarDecl
-          IdDecl ID="x"
+          IdDecl Identifier="x"
           Opt
             Type
-              IdUse ID="T"
+              IdUse Identifier="T"
               List
                 Type
-                  IdUse ID="a"
+                  IdUse Identifier="a"
                   List
                   List
                 Type
-                  IdUse ID="b"
+                  IdUse Identifier="b"
                   List
                   List
                 Type
-                  IdUse ID="c"
+                  IdUse Identifier="c"
                   List
                   List
               List
@@ -50,12 +50,12 @@ Module
         ReturnStmt
           TypedExpr
             Access
-              IdUse ID="x"
+              IdUse Identifier="x"
             Type
-              IdUse ID="T"
+              IdUse Identifier="T"
               List
                 Type
-                  IdUse ID="a"
+                  IdUse Identifier="a"
                   List
                   List
               List

@@ -5,8 +5,6 @@ import lang.common.BuiltinNames;
 
 aspect IRGenExpr {
 
-	eq ForStmt.getIterator().getScope() = VariableScope.LOCAL;
-
 	eq VarDeclElt.getVarDecl().getScope() = VariableScope.MEMBER;
 	eq FunDeclElt.getFunDecl().getScope() = VariableScope.MEMBER;
 	eq ClassDecl.getFunFormal().getScope() = VariableScope.MEMBER;
@@ -59,7 +57,7 @@ aspect IRGenExpr {
 		if (type == null) {
 			throw new RuntimeException("Can't generate dispatch from unknown base type, " + this.dumpTree() + ".");
 		}
-		IdDecl memberIdDecl = type.memberLookup(getID());
+		IdDecl memberIdDecl = type.memberLookup(getIdentifier());
 		if (memberIdDecl == null) {
 			throw new RuntimeException("Can't generate dispatch to unknown member, " + this.dumpTree() + ".");
 		}
@@ -131,7 +129,7 @@ aspect IRGenExpr {
 	public void MemberAccess.genAssignment(IRVarRef rhs, IRFunctionCtx ctx) {
 		Expr base = getExpr();
 		TypeDefinition type = base.type();
-		Decl memberDecl = type.memberLookup(getID()).getDecl();
+		Decl memberDecl = type.memberLookup(getIdentifier()).getDecl();
 		if (!(memberDecl instanceof VarDecl)) {
 			super.genAssignment(rhs, ctx);
 		}
@@ -146,7 +144,7 @@ aspect IRGenExpr {
 	public IRVarRef MemberAccess.genCode(IRFunctionCtx ctx) {
 		Expr base = getExpr();
 		TypeDefinition type = base.type();
-		Decl memberDecl = type.memberLookup(getID()).getDecl();
+		Decl memberDecl = type.memberLookup(getIdentifier()).getDecl();
 		if (!(memberDecl instanceof VarDecl))
 			throw new RuntimeException("Can't load a member that is not a field, " + this + ".");
 		IRVarRef tmp = ctx.getTempIRVar(this);

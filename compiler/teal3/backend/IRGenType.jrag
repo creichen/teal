@@ -25,7 +25,7 @@ aspect IRGenType {
 		// formal param types
 		lang.ir.List<IRTypeRef> irTypes = new lang.ir.List<>();
 		for (VarDecl d : getFunFormals()) {
-			irTypes.add(d.type().genIRTypeRef());
+			irTypes.add(d.variableType().genIRTypeRef());
 		}
 		init.setParamTypeList(irTypes);
 		// extract the arguments
@@ -186,11 +186,11 @@ aspect IRGenType {
 	}
 
 	public void VarDecl.genCodeQualifiers(IRFunctionCtx ctx) {
-		if (!hasType()) {
+		if (!hasDeclaredType()) {
 			return;
 		}
 		if (getScope() == VariableScope.LOCAL) {
-			for (TypeQualifier q : getType().getTypeQualifiers()) {
+			for (TypeQualifier q : getDeclaredType().getTypeQualifiers()) {
 				q.genCode(ctx);
 			}
 		}
@@ -213,10 +213,10 @@ aspect IRGenType {
 	 * Generates code to check all qualifiers for this variable
 	 */
 	public void VarDecl.genQualifierCheck(IRFunctionCtx ctx) {
-		if (!hasType())
+		if (!hasDeclaredType())
 			return ;
 		if (getScope() == VariableScope.LOCAL) {
-			for (TypeQualifier q : getType().getTypeQualifiers()) {
+			for (TypeQualifier q : getDeclaredType().getTypeQualifiers()) {
 				q.genQualifierCheck(ctx, this);
 			}
 		}

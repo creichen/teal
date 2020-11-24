@@ -2,11 +2,11 @@ Module
   List
   List
     FunDecl
-      IdDecl ID="f"
+      IdDecl Identifier="f"
       Opt
       List
         VarDecl
-          IdDecl ID="n"
+          IdDecl Identifier="n"
           Opt
           Opt
       Opt
@@ -14,47 +14,47 @@ Module
           List
             ForStmt
               VarDecl
-                IdDecl ID="i"
+                IdDecl Identifier="i"
                 Opt
                   Type
-                    IdUse ID="T"
+                    IdUse Identifier="T"
                     List
                     List
                 Opt
               CallExpr
-                IdUse ID="range"
+                IdUse Identifier="range"
                 List
                   Access
-                    IdUse ID="n"
+                    IdUse Identifier="n"
               BlockStmt
                 List
                   ExprStmt
                     CallExpr
-                      IdUse ID="g"
+                      IdUse Identifier="g"
                       List
                         Access
-                          IdUse ID="i"
+                          IdUse Identifier="i"
             ForStmt
               VarDecl
-                IdDecl ID="i"
+                IdDecl Identifier="i"
                 Opt
                   Type
-                    IdUse ID="T"
+                    IdUse Identifier="T"
                     List
                     List
                 Opt
               CallExpr
-                IdUse ID="range"
+                IdUse Identifier="range"
                 List
                   Access
-                    IdUse ID="n"
+                    IdUse Identifier="n"
               BlockStmt
                 List
                   ExprStmt
                     CallExpr
-                      IdUse ID="g"
+                      IdUse Identifier="g"
                       List
                         Access
-                          IdUse ID="i"
+                          IdUse Identifier="i"
             ReturnStmt
               IntConstant Value="0"

@@ -2,159 +2,159 @@ Module
   List
   List
     ClassDecl
-      IdDecl ID="MyClass"
+      IdDecl Identifier="MyClass"
       List
       List
       List
       List
     ClassDecl
-      IdDecl ID="MyClass"
+      IdDecl Identifier="MyClass"
       List
         TypeVarDecl
-          IdDecl ID="MyType1"
+          IdDecl Identifier="MyType1"
         TypeVarDecl
-          IdDecl ID="MyType2"
+          IdDecl Identifier="MyType2"
       List
       List
       List
     ClassDecl
-      IdDecl ID="MyClass"
+      IdDecl Identifier="MyClass"
       List
       List
       List
       List
         VarDecl
-          IdDecl ID="arg1"
+          IdDecl Identifier="arg1"
           Opt
           Opt
         VarDecl
-          IdDecl ID="arg2"
+          IdDecl Identifier="arg2"
           Opt
           Opt
     ClassDecl
-      IdDecl ID="MyClass"
+      IdDecl Identifier="MyClass"
       List
       List
         Type
-          IdUse ID="Super1"
+          IdUse Identifier="Super1"
           List
           List
         Type
-          IdUse ID="Super2"
+          IdUse Identifier="Super2"
           List
           List
       List
       List
     ClassDecl
-      IdDecl ID="MyClass"
+      IdDecl Identifier="MyClass"
       List
         TypeVarDecl
-          IdDecl ID="MyType1"
+          IdDecl Identifier="MyType1"
         TypeVarDecl
-          IdDecl ID="MyType2"
+          IdDecl Identifier="MyType2"
       List
       List
       List
         VarDecl
-          IdDecl ID="arg1"
+          IdDecl Identifier="arg1"
           Opt
           Opt
         VarDecl
-          IdDecl ID="args2"
+          IdDecl Identifier="args2"
           Opt
           Opt
     ClassDecl
-      IdDecl ID="MyClass"
+      IdDecl Identifier="MyClass"
       List
         TypeVarDecl
-          IdDecl ID="MyType1"
+          IdDecl Identifier="MyType1"
         TypeVarDecl
-          IdDecl ID="MyType2"
+          IdDecl Identifier="MyType2"
       List
         Type
-          IdUse ID="Super1"
+          IdUse Identifier="Super1"
           List
           List
         Type
-          IdUse ID="Super2"
+          IdUse Identifier="Super2"
           List
             Type
-              IdUse ID="MyType3"
-              List
-              List
-            Type
-              IdUse ID="MyType4"
-              List
-              List
-          List
-      List
-      List
-    ClassDecl
-      IdDecl ID="MyClass"
-      List
-      List
-        Type
-          IdUse ID="Super1"
-          List
-          List
-        Type
-          IdUse ID="Super2"
-          List
-            Type
-              IdUse ID="MyType3"
+              IdUse Identifier="MyType3"
               List
               List
             Type
-              IdUse ID="MyType4"
+              IdUse Identifier="MyType4"
+              List
+              List
+          List
+      List
+      List
+    ClassDecl
+      IdDecl Identifier="MyClass"
+      List
+      List
+        Type
+          IdUse Identifier="Super1"
+          List
+          List
+        Type
+          IdUse Identifier="Super2"
+          List
+            Type
+              IdUse Identifier="MyType3"
+              List
+              List
+            Type
+              IdUse Identifier="MyType4"
               List
               List
           List
       List
       List
         VarDecl
-          IdDecl ID="arg1"
+          IdDecl Identifier="arg1"
           Opt
           Opt
         VarDecl
-          IdDecl ID="arg2"
+          IdDecl Identifier="arg2"
           Opt
           Opt
     ClassDecl
-      IdDecl ID="MyClass"
+      IdDecl Identifier="MyClass"
       List
       List
       List
         VarDeclElt
           VarDecl
-            IdDecl ID="v"
+            IdDecl Identifier="v"
             Opt
               Type
-                IdUse ID="MyType"
+                IdUse Identifier="MyType"
                 List
                 List
             Opt
         VarDeclElt
           VarDecl
-            IdDecl ID="w"
+            IdDecl Identifier="w"
             Opt
               Type
-                IdUse ID="T"
+                IdUse Identifier="T"
                 List
                 List
             Opt
               Access
-                IdUse ID="v"
+                IdUse Identifier="v"
         FunDeclElt
           FunDecl
-            IdDecl ID="f"
+            IdDecl Identifier="f"
             Opt
             List
               VarDecl
-                IdDecl ID="a"
+                IdDecl Identifier="a"
                 Opt
                 Opt
             Opt
               ReturnStmt
                 Access
-                  IdUse ID="a"
+                  IdUse Identifier="a"
       List

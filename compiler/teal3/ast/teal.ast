@@ -20,7 +20,7 @@ TypeQualifier ::= IdUse TypeActual:Type* FunActual:Expr*;
 Type ::= IdUse Actual:Type* TypeQualifier*;
 
 // Expressions for OO
-DispatchExpr : Expr ::= Expr <ID> Actual:Expr*;
+DispatchExpr : Expr ::= Expr <Identifier> Actual:Expr*;
 Self : Expr ;
-MemberAccess : Expr ::= Expr <ID>;
+MemberAccess : Expr ::= Expr <Identifier>;
 AssertStmt : Stmt ::= Expr <Message:String>;

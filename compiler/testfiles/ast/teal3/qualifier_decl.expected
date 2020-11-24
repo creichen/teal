@@ -2,108 +2,108 @@ Module
   List
   List
     QualifierDecl
-      IdDecl ID="Qual1"
+      IdDecl Identifier="Qual1"
       List
         TypeVarDecl
-          IdDecl ID="t1"
+          IdDecl Identifier="t1"
         TypeVarDecl
-          IdDecl ID="t2"
+          IdDecl Identifier="t2"
       List
       List
       List
         VarDecl
-          IdDecl ID="a1"
+          IdDecl Identifier="a1"
           Opt
           Opt
         VarDecl
-          IdDecl ID="a2"
+          IdDecl Identifier="a2"
           Opt
             Type
-              IdUse ID="t2"
+              IdUse Identifier="t2"
               List
               List
           Opt
     QualifierDecl
-      IdDecl ID="Qual2"
+      IdDecl Identifier="Qual2"
       List
       List
       List
       List
         VarDecl
-          IdDecl ID="a1"
+          IdDecl Identifier="a1"
           Opt
           Opt
         VarDecl
-          IdDecl ID="a2"
+          IdDecl Identifier="a2"
           Opt
             Type
-              IdUse ID="t2"
+              IdUse Identifier="t2"
               List
               List
           Opt
     QualifierDecl
-      IdDecl ID="Qual3"
+      IdDecl Identifier="Qual3"
       List
         TypeVarDecl
-          IdDecl ID="t1"
+          IdDecl Identifier="t1"
         TypeVarDecl
-          IdDecl ID="t2"
+          IdDecl Identifier="t2"
       List
         Type
-          IdUse ID="Qual4"
+          IdUse Identifier="Qual4"
           List
           List
         Type
-          IdUse ID="Qual5"
+          IdUse Identifier="Qual5"
           List
           List
       List
       List
         VarDecl
-          IdDecl ID="x"
+          IdDecl Identifier="x"
           Opt
           Opt
         VarDecl
-          IdDecl ID="y"
+          IdDecl Identifier="y"
           Opt
           Opt
     QualifierDecl
-      IdDecl ID="Qual4"
+      IdDecl Identifier="Qual4"
       List
         TypeVarDecl
-          IdDecl ID="t1"
+          IdDecl Identifier="t1"
         TypeVarDecl
-          IdDecl ID="t2"
+          IdDecl Identifier="t2"
       List
         Type
-          IdUse ID="Qual4"
+          IdUse Identifier="Qual4"
           List
           List
         Type
-          IdUse ID="Qual5"
+          IdUse Identifier="Qual5"
           List
           List
       List
       List
     QualifierDecl
-      IdDecl ID="Qual4"
+      IdDecl Identifier="Qual4"
       List
         TypeVarDecl
-          IdDecl ID="t1"
+          IdDecl Identifier="t1"
         TypeVarDecl
-          IdDecl ID="t2"
+          IdDecl Identifier="t2"
       List
         Type
-          IdUse ID="Qual4"
+          IdUse Identifier="Qual4"
           List
           List
         Type
-          IdUse ID="Qual5"
+          IdUse Identifier="Qual5"
           List
           List
       List
       List
         VarDecl
-          IdDecl ID="x"
+          IdDecl Identifier="x"
           Opt
           Opt

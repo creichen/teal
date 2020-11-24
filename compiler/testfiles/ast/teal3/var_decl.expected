@@ -2,62 +2,62 @@ Module
   List
   List
     VarDecl
-      IdDecl ID="a"
+      IdDecl Identifier="a"
       Opt
         Type
-          IdUse ID="MyType"
+          IdUse Identifier="MyType"
           List
           List
       Opt
     VarDecl
-      IdDecl ID="b"
+      IdDecl Identifier="b"
       Opt
         Type
-          IdUse ID="int"
+          IdUse Identifier="int"
           List
           List
       Opt
         IntConstant Value="64"
     VarDecl
-      IdDecl ID="c"
+      IdDecl Identifier="c"
       Opt
         Type
-          IdUse ID="int"
+          IdUse Identifier="int"
           List
           List
       Opt
         IntConstant Value="10"
     VarDecl
-      IdDecl ID="d"
+      IdDecl Identifier="d"
       Opt
         Type
-          IdUse ID="String"
+          IdUse Identifier="String"
           List
           List
       Opt
         StringConstant Value="escaped\" string"
     VarDecl
-      IdDecl ID="e"
+      IdDecl Identifier="e"
       Opt
         Type
-          IdUse ID="TypeId"
+          IdUse Identifier="TypeId"
           List
           List
             TypeQualifier
-              IdUse ID="QualId2"
+              IdUse Identifier="QualId2"
               List
               List
                 Access
-                  IdUse ID="funActual2"
+                  IdUse Identifier="funActual2"
             TypeQualifier
-              IdUse ID="QualId"
+              IdUse Identifier="QualId"
               List
                 Type
-                  IdUse ID="typeActual"
+                  IdUse Identifier="typeActual"
                   List
                   List
               List
                 Access
-                  IdUse ID="funActual"
+                  IdUse Identifier="funActual"
       Opt
         IntConstant Value="5"

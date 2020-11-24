@@ -2,89 +2,89 @@ Module
   List
   List
     FunDecl
-      IdDecl ID="func1"
+      IdDecl Identifier="func1"
       Opt
         Type
-          IdUse ID="RetType"
+          IdUse Identifier="RetType"
           List
           List
       List
       Opt
     FunDecl
-      IdDecl ID="func2"
+      IdDecl Identifier="func2"
       Opt
         Type
-          IdUse ID="RetType"
+          IdUse Identifier="RetType"
           List
           List
       List
         VarDecl
-          IdDecl ID="x"
+          IdDecl Identifier="x"
           Opt
           Opt
         VarDecl
-          IdDecl ID="y"
+          IdDecl Identifier="y"
           Opt
           Opt
       Opt
     FunDecl
-      IdDecl ID="func3"
+      IdDecl Identifier="func3"
       Opt
         Type
-          IdUse ID="MyType"
+          IdUse Identifier="MyType"
           List
           List
             TypeQualifier
-              IdUse ID="Qualifier"
+              IdUse Identifier="Qualifier"
               List
                 Type
-                  IdUse ID="QT"
+                  IdUse Identifier="QT"
                   List
                   List
               List
                 Access
-                  IdUse ID="qf"
+                  IdUse Identifier="qf"
       List
         VarDecl
-          IdDecl ID="x"
+          IdDecl Identifier="x"
           Opt
             Type
-              IdUse ID="TypeOfX"
+              IdUse Identifier="TypeOfX"
               List
               List
           Opt
         VarDecl
-          IdDecl ID="y"
+          IdDecl Identifier="y"
           Opt
           Opt
         VarDecl
-          IdDecl ID="z"
+          IdDecl Identifier="z"
           Opt
             Type
-              IdUse ID="TypeOfZ"
+              IdUse Identifier="TypeOfZ"
               List
               List
           Opt
       Opt
     FunDecl
-      IdDecl ID="func4"
+      IdDecl Identifier="func4"
       Opt
       List
       Opt
         BlockStmt
           List
     FunDecl
-      IdDecl ID="func5"
+      IdDecl Identifier="func5"
       Opt
       List
         VarDecl
-          IdDecl ID="x"
+          IdDecl Identifier="x"
           Opt
           Opt
       Opt
         IfStmt
           Access
-            IdUse ID="x"
+            IdUse Identifier="x"
           BlockStmt
             List
               ReturnStmt

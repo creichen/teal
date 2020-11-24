@@ -79,13 +79,13 @@ aspect NameAnalysisPrivate {
 		MultiHashMap<String, IdDecl> declMap = new MultiHashMap<>();
 		for (TypeVarDecl d : getTypeFormals()) {
 			IdDecl decl = d.getIdDecl();
-			declMap.append(decl.getID(), decl);
+			declMap.append(decl.getIdentifier(), decl);
 		}
 		// Declared variables and methods
 		for (StructElt se : getStructElts()) {
 			IdDecl decl = se.getMemberDecl();
 			if (decl != null)
-				declMap.append(decl.getID(), decl);
+				declMap.append(decl.getIdentifier(), decl);
 		}
 		return declMap;
 	}
@@ -93,7 +93,7 @@ aspect NameAnalysisPrivate {
 		MultiHashMap<String, IdDecl> declMap = super.localDeclMap();
 		for (VarDecl d : getFunFormals()) {
 			IdDecl decl = d.getIdDecl();
-			declMap.append(decl.getID(), decl);
+			declMap.append(decl.getIdentifier(), decl);
 		}
 		return declMap;
 	}
@@ -101,7 +101,7 @@ aspect NameAnalysisPrivate {
 		MultiHashMap<String, IdDecl> declMap = super.localDeclMap();
 		for (VarDecl d : getFunFormals()) {
 			IdDecl decl = d.getIdDecl();
-			declMap.append(decl.getID(), decl);
+			declMap.append(decl.getIdentifier(), decl);
 		}
 		return declMap;
 	}
@@ -132,11 +132,11 @@ aspect NameAnalysisPrivate {
 
 
         syn String TypeQualifier.name() {
-            return getIdUse().getID();
+            return getIdUse().getIdentifier();
         }
 
         syn String Type.name() {
-            return getIdUse().getID();
+            return getIdUse().getIdentifier();
         }
 }
 

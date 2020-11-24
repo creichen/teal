@@ -2,23 +2,23 @@ Module
   List
   List
     FunDecl
-      IdDecl ID="f"
+      IdDecl Identifier="f"
       Opt
         Type
-          IdUse ID="int"
+          IdUse Identifier="int"
           List
           List
       List
         VarDecl
-          IdDecl ID="a"
+          IdDecl Identifier="a"
           Opt
             Type
-              IdUse ID="int"
+              IdUse Identifier="int"
               List
               List
           Opt
         VarDecl
-          IdDecl ID="b"
+          IdDecl Identifier="b"
           Opt
           Opt
       Opt
@@ -26,23 +26,23 @@ Module
           List
             WhileStmt
               Access
-                IdUse ID="a"
+                IdUse Identifier="a"
               BlockStmt
                 List
                   AssignStmt
                     Access
-                      IdUse ID="b"
+                      IdUse Identifier="b"
                     AddExpr
                       Access
-                        IdUse ID="b"
+                        IdUse Identifier="b"
                       IntConstant Value="1"
                   AssignStmt
                     Access
-                      IdUse ID="a"
+                      IdUse Identifier="a"
                     SubExpr
                       Access
-                        IdUse ID="a"
+                        IdUse Identifier="a"
                       IntConstant Value="1"
             ReturnStmt
               Access
-                IdUse ID="b"
+                IdUse Identifier="b"

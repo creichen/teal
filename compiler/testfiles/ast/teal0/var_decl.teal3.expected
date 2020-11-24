@@ -2,36 +2,36 @@ Module
   List
   List
     VarDecl
-      IdDecl ID="a"
+      IdDecl Identifier="a"
       Opt
         Type
-          IdUse ID="any"
+          IdUse Identifier="any"
           List
           List
       Opt
     VarDecl
-      IdDecl ID="b"
+      IdDecl Identifier="b"
       Opt
         Type
-          IdUse ID="int"
+          IdUse Identifier="int"
           List
           List
       Opt
         IntConstant Value="64"
     VarDecl
-      IdDecl ID="c"
+      IdDecl Identifier="c"
       Opt
         Type
-          IdUse ID="int"
+          IdUse Identifier="int"
           List
           List
       Opt
         IntConstant Value="10"
     VarDecl
-      IdDecl ID="d"
+      IdDecl Identifier="d"
       Opt
         Type
-          IdUse ID="string"
+          IdUse Identifier="string"
           List
           List
       Opt

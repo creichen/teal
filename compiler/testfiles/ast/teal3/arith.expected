@@ -2,153 +2,153 @@ Module
   List
   List
     VarDecl
-      IdDecl ID="f1"
+      IdDecl Identifier="f1"
       Opt
       Opt
         CallExpr
-          IdUse ID="f"
+          IdUse Identifier="f"
           List
             Access
-              IdUse ID="y"
+              IdUse Identifier="y"
     VarDecl
-      IdDecl ID="f2"
+      IdDecl Identifier="f2"
       Opt
       Opt
         OrExpr
           Access
-            IdUse ID="a"
+            IdUse Identifier="a"
           Access
-            IdUse ID="b"
+            IdUse Identifier="b"
     VarDecl
-      IdDecl ID="f3"
+      IdDecl Identifier="f3"
       Opt
       Opt
         OrExpr
           NotExpr
             Access
-              IdUse ID="a"
+              IdUse Identifier="a"
           Access
-            IdUse ID="b"
+            IdUse Identifier="b"
     VarDecl
-      IdDecl ID="f4"
+      IdDecl Identifier="f4"
       Opt
       Opt
         OrExpr
           Access
-            IdUse ID="a"
+            IdUse Identifier="a"
           NotExpr
             Access
-              IdUse ID="b"
+              IdUse Identifier="b"
     VarDecl
-      IdDecl ID="f5"
+      IdDecl Identifier="f5"
       Opt
       Opt
         AddExpr
-          MemberAccess ID="b"
+          MemberAccess Identifier="b"
             Access
-              IdUse ID="a"
+              IdUse Identifier="a"
           Access
-            IdUse ID="c"
+            IdUse Identifier="c"
     VarDecl
-      IdDecl ID="f7"
+      IdDecl Identifier="f7"
       Opt
       Opt
         AndExpr
           Access
-            IdUse ID="a"
+            IdUse Identifier="a"
           AndExpr
             Access
-              IdUse ID="b"
+              IdUse Identifier="b"
             Access
-              IdUse ID="c"
+              IdUse Identifier="c"
     VarDecl
-      IdDecl ID="f8"
+      IdDecl Identifier="f8"
       Opt
       Opt
         AndExpr
           AndExpr
             Access
-              IdUse ID="a"
+              IdUse Identifier="a"
             Access
-              IdUse ID="b"
+              IdUse Identifier="b"
           Access
-            IdUse ID="c"
+            IdUse Identifier="c"
     VarDecl
-      IdDecl ID="f9"
+      IdDecl Identifier="f9"
       Opt
       Opt
         AddExpr
           MulExpr
             Access
-              IdUse ID="a"
+              IdUse Identifier="a"
             Access
-              IdUse ID="b"
+              IdUse Identifier="b"
           Access
-            IdUse ID="c"
+            IdUse Identifier="c"
     VarDecl
-      IdDecl ID="f10"
+      IdDecl Identifier="f10"
       Opt
       Opt
         AddExpr
           Access
-            IdUse ID="a"
+            IdUse Identifier="a"
           MulExpr
             Access
-              IdUse ID="b"
+              IdUse Identifier="b"
             Access
-              IdUse ID="c"
+              IdUse Identifier="c"
     VarDecl
-      IdDecl ID="f11"
+      IdDecl Identifier="f11"
       Opt
       Opt
-        MemberAccess ID="d"
-          MemberAccess ID="c"
-            MemberAccess ID="b"
+        MemberAccess Identifier="d"
+          MemberAccess Identifier="c"
+            MemberAccess Identifier="b"
               Access
-                IdUse ID="a"
+                IdUse Identifier="a"
     VarDecl
-      IdDecl ID="f12"
+      IdDecl Identifier="f12"
       Opt
       Opt
         OrExpr
           Access
-            IdUse ID="a"
-          MemberAccess ID="c"
+            IdUse Identifier="a"
+          MemberAccess Identifier="c"
             Access
-              IdUse ID="b"
+              IdUse Identifier="b"
     VarDecl
-      IdDecl ID="f13"
+      IdDecl Identifier="f13"
       Opt
       Opt
         OrExpr
           EQExpr
             Access
-              IdUse ID="a"
+              IdUse Identifier="a"
             Access
-              IdUse ID="b"
+              IdUse Identifier="b"
           GTExpr
             Access
-              IdUse ID="c"
+              IdUse Identifier="c"
             Access
-              IdUse ID="d"
+              IdUse Identifier="d"
     VarDecl
-      IdDecl ID="f14"
+      IdDecl Identifier="f14"
       Opt
       Opt
         NotExpr
           IndexExpr
             Access
-              IdUse ID="a"
+              IdUse Identifier="a"
             Access
-              IdUse ID="i"
+              IdUse Identifier="i"
     VarDecl
-      IdDecl ID="f15"
+      IdDecl Identifier="f15"
       Opt
       Opt
         NotExpr
-          DispatchExpr ID="f"
+          DispatchExpr Identifier="f"
             Access
-              IdUse ID="a"
+              IdUse Identifier="a"
             List
               Access
-                IdUse ID="i"
+                IdUse Identifier="i"

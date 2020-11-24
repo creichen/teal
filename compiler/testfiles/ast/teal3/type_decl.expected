@@ -2,67 +2,67 @@ Module
   List
   List
     TypeDecl
-      IdDecl ID="MyType"
+      IdDecl Identifier="MyType"
       List
         TypeVarDecl
-          IdDecl ID="typeVar1"
+          IdDecl Identifier="typeVar1"
         TypeVarDecl
-          IdDecl ID="typeVar2"
+          IdDecl Identifier="typeVar2"
       List
         Type
-          IdUse ID="MyOtherType"
+          IdUse Identifier="MyOtherType"
           List
           List
             TypeQualifier
-              IdUse ID="Qual1"
+              IdUse Identifier="Qual1"
               List
                 Type
-                  IdUse ID="typeVar1"
+                  IdUse Identifier="typeVar1"
                   List
                   List
               List
                 IntConstant Value="0"
       List
     TypeDecl
-      IdDecl ID="MyType"
+      IdDecl Identifier="MyType"
       List
         TypeVarDecl
-          IdDecl ID="TypeVar"
+          IdDecl Identifier="TypeVar"
       List
         Type
-          IdUse ID="SuperType1"
+          IdUse Identifier="SuperType1"
           List
           List
         Type
-          IdUse ID="SimpleType"
+          IdUse Identifier="SimpleType"
           List
           List
             TypeQualifier
-              IdUse ID="MyQualifier"
+              IdUse Identifier="MyQualifier"
               List
                 Type
-                  IdUse ID="TypeArg"
+                  IdUse Identifier="TypeArg"
                   List
                   List
               List
                 Access
-                  IdUse ID="FuncArg"
+                  IdUse Identifier="FuncArg"
       List
         VarDeclElt
           VarDecl
-            IdDecl ID="v"
+            IdDecl Identifier="v"
             Opt
               Type
-                IdUse ID="typeVar1"
+                IdUse Identifier="typeVar1"
                 List
                 List
             Opt
         FunDeclElt
           FunDecl
-            IdDecl ID="f"
+            IdDecl Identifier="f"
             Opt
               Type
-                IdUse ID="typeVar2"
+                IdUse Identifier="typeVar2"
                 List
                 List
             List
