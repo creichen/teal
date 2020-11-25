@@ -86,38 +86,6 @@ aspect IRInterpreter {
 		}
 	}
 
-	public class VirtualMethodTable {
-		Map<IRFunction, IRFunction> overridenBy = new HashMap<>();
-
-		public void overrides(IRFunction func, IRFunction overridenFunc) {
-			overridenBy.put(overridenFunc, func);
-		}
-
-		public void join(VirtualMethodTable vt) {
-			for (Map.Entry<IRFunction, IRFunction> p : vt.overridenBy.entrySet()) {
-				IRFunction f = p.getKey();
-				IRFunction g = p.getValue();
-
-				// f is overriden by g and g is overrided by g', then f is overriden by g'
-				if (overridenBy.containsKey(g)) {
-				   g = overridenBy.get(g);
-				}
-
-				if (!overridenBy.containsKey(f)) {
-					overridenBy.put(f, g);
-				} else if (overridenBy.get(f) != g) {
-					throw new RuntimeException("Method overriden twice, along different paths of the inheritance tree");
-				}
-			}
-		}
-
-		public IRFunction lookup(IRFunction f) {
-			if (overridenBy.containsKey(f))
-				return overridenBy.get(f);
-			return f;
-		}
-	}
-
 	syn boolean IRFunction.overrides(IRFunction other) {
 		// TODO: this uses only the name to check if a function overrides
 		// another; maybe we want something fancier?
@@ -166,24 +134,6 @@ aspect IRInterpreter {
 		 */
 		public boolean equalsIR(IRValue other) {
 			return other == this;
-		}
-	}
-
-	public class IRObject extends IRValue {
-		private Storage store = new Storage();
-		private VirtualMethodTable vtable;
-
-		public IRObject(IRConcreteType type, VirtualMethodTable vtable) {
-			super(type);
-			this.vtable = vtable;
-		}
-
-		public Storage getStore() {
-			return store;
-		}
-
-		public VirtualMethodTable getVTable() {
-			return vtable;
 		}
 	}
 
@@ -502,46 +452,6 @@ aspect IRInterpreter {
 		ctx.getStore().set(getDst(), retVal);
 	}
 
-	public void IRDispatchInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
-		// lookup the value of base in the store and provide that as self argument
-		IRObject self = (IRObject) ctx.getStore().get(getBase());
-		IRFunction callee = getIRFunRef().getIRFunction();
-
-		// remap the callee through the vTable
-		callee = self.getVTable().lookup(callee);
-
-		if (callee.getNumParamType() != getNumArg())
-			throw new InterpreterException("Mismatch between declared and actual number of arguments.");
-		ArrayList<IRValue> actuals = new ArrayList<>();
-		for (IRVarRef arg : getArgs()) {
-			IRValue v = ctx.getStore().get(arg);
-			actuals.add(v);
-		}
-
-		IRFunctionEvalCtx calleeCtx = new IRFunctionEvalCtx(new Storage(), ctx.getGlobalStore(), actuals, self);
-		IRValue retVal = callee.eval(calleeCtx);
-
-		ctx.getStore().set(getDst(), retVal);
-	}
-
-	public void IRNewInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
-		// class C[T] { ... new Box[T]() ... } and also
-		// new Map<int, int>
-		IRTypeInstanceRef type = getIRTypeInstanceRef();
-		if (type.getIRType().getNumIRTypeFormal() != type.getNumTypeActual())
-			throw new InterpreterException("Can't instantiate formal parameters of type " + type.getIRType());
-
-		IRConcreteType tctx = new IRConcreteType(type.getIRType());
-		for (int i = 0; i < type.getIRType().getNumIRTypeFormal(); ++i) {
-			IRTypeInstanceRef actual;
-			actual = (IRTypeInstanceRef) type.getTypeActual(i);
-			tctx.bind(type.getIRType().getIRTypeFormal(i), actual);
-		}
-
-		IRValue val = new IRObject(tctx, null);
-		ctx.getStore().set(getDst(), val);
-	}
-
 	public void IRNewArrayInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
 		IRIntegerValue size = (IRIntegerValue) ctx.getStore().get(getSize());
 		if (size.asLong() < 0) {
@@ -569,20 +479,6 @@ aspect IRInterpreter {
 			throw new ArrayAccessException(array, this);
 		}
 		array.set(index.asLong(), datum);
-	}
-
-	public void IRLoadInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
-		// extract the instance storage
-		IRObject instance = (IRObject) ctx.getStore().get(getBase());
-		// return the value from the storage
-		ctx.getStore().set(getDst(), instance.getStore().get(getField()));
-	}
-
-	public void IRStoreInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
-		// extract the instance storage
-		IRObject instance = (IRObject) ctx.getStore().get(getBase());
-		// set the value in the instance storage
-		instance.getStore().set(getField(), ctx.getStore().get(getSrc()));
 	}
 
 	public void IRLoadStaticInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {

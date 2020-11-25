@@ -19,19 +19,15 @@ IRCopyInsn : IRInsn ::= Dst:IRVarRef Src:IRVarRef;
 
 abstract IRAbstractLoadInsn : IRInsn ::= Dst:IRVarRef;
 IRLoadStaticInsn : IRAbstractLoadInsn ::= Src:IRVarRef;
-IRLoadInsn : IRAbstractLoadInsn ::= Base:IRVarRef Field:IRVarRef;
 IRLoadArrayInsn : IRAbstractLoadInsn ::= Base:IRVarRef Index:IRVarRef;
 
 abstract IRAbstractStoreInsn : IRInsn ::= Src:IRVarRef;
 IRStoreStaticInsn : IRAbstractStoreInsn ::= Dst:IRVarRef;
-IRStoreInsn : IRAbstractStoreInsn ::= Base:IRVarRef Field:IRVarRef;
 IRStoreArrayInsn : IRAbstractStoreInsn ::= Base:IRVarRef Index:IRVarRef;
 
 abstract IRAbstractCallInsn : IRInsn ::= Dst:IRVarRef Arg:IRVarRef* IRFunRef;
 IRCallInsn : IRAbstractCallInsn;
-IRDispatchInsn : IRAbstractCallInsn ::= Base:IRVarRef;
 
-IRNewInsn : IRInsn ::= Dst:IRVarRef IRTypeInstanceRef;
 IRNewArrayInsn : IRInsn ::= Dst:IRVarRef IRTypeInstanceRef Size:IRVarRef;
 
 IRSelfInsn : IRInsn ::= Dst:IRVarRef;
