@@ -37,11 +37,13 @@ jastadd {
     modules "${projectDir}/teal0/jastadd_modules", "${projectDir}/teal1/jastadd_modules", "${projectDir}/teal3/jastadd_modules"
 
     if (project.hasProperty("langVersion")) {
-	println "Building language version " + project.getProperty("langVersion")
+	// println "Building language version " + project.getProperty("langVersion")
 	module = project.getProperty("langVersion")
     } else {
 	module = "teal-1"
     }
+
+    println "Using frontend module " + module.name
 
     astPackage = "lang.ast"
     parser.name = "TEALParser"

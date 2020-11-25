@@ -1,0 +1,14 @@
+// Teal intermediate representation
+module("teal-0-ir") {
+    moduleName "teal-0-ir"
+
+    java {
+	basedir "."
+	include "java/**/*.java"
+    }
+
+    jastadd {
+	include "ast/*.ast"
+	include "ast/*.jrag"
+    }
+}
