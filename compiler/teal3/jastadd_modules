@@ -33,6 +33,7 @@ module("teal-3") {
 
     scanner {
 	excludeFrom "teal-0", "scanner/type.flex"
+	excludeFrom "teal-1", "scanner/type.flex"
 	include "scanner/scanner.flex"
     }
 
