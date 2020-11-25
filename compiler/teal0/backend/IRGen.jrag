@@ -251,11 +251,8 @@ aspect IRGen {
 	syn IRModule Module.genIR() {
 		String name = getName().stream().collect(Collectors.joining("::"));
 
-		IRModule m = new IRModule(new IRModuleName(new lang.ir.List(new IRName(name))),
-								  new lang.ir.List<IRVar>(),
-								  new lang.ir.List<IRType>(),
-								  new lang.ir.List<IRClass>(),
-								  new lang.ir.List<IRFunction>());
+		IRModule m = new IRModule();
+		m.setIRModuleName(new IRModuleName(new lang.ir.List(new IRName(name))));
 
 		// Add code for all class elements
 		for (Decl d : getDecls()) {

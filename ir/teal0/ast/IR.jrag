@@ -14,28 +14,33 @@ aspect IR {
 		return new IRFunRef(this);
 	}
 
-	public static IRClass IRClass.newBuiltinIRClass(String name) {
-		IRClass c = new IRClass().setIRName(new IRName(name));
+	public static IRBuiltinType IRBuiltinType.newBuiltinIRType(String name) {
+		IRBuiltinType c = new IRBuiltinType().setIRName(new IRName(name));
 		c.setSourceLocation(SourceLocation.BUILTIN);
 		return c;
 	}
 
-	public static IRClass IRModule.IntegerType = IRClass.newBuiltinIRClass("int");
-	public static IRClass IRModule.StringType = IRClass.newBuiltinIRClass("string");
-	public static IRClass IRModule.AnyType = IRClass.newBuiltinIRClass("any");
-	public static IRClass IRModule.ArrayType = IRClass.newBuiltinIRClass("array")
+
+	public static IRType IRModule.IntegerType = IRBuiltinType.newBuiltinIRType("int");
+	public static IRType IRModule.StringType = IRBuiltinType.newBuiltinIRType("string");
+	public static IRType IRModule.AnyType = IRBuiltinType.newBuiltinIRType("any");
+	public static IRType IRModule.ArrayType = IRBuiltinType.newBuiltinIRType("array")
 		.addIRTypeFormal(new IRTypeFormal(new IRName("T")));
 
-	public static IRTypeRef IRModule.makeIntegerTypeRef() {
-		return new IRTypeInstanceRef(IRModule.IntegerType, new List());
+	public static IRTypeInstanceRef IRModule.makeIntegerTypeRef() {
+		return new IRTypeInstanceRef(IRModule.IntegerType, new List(), new List());
 	}
 
-	public static IRTypeRef IRModule.makeStringTypeRef() {
-		return new IRTypeInstanceRef(IRModule.StringType, new List());
+	public static IRTypeInstanceRef IRModule.makeStringTypeRef() {
+		return new IRTypeInstanceRef(IRModule.StringType, new List(), new List());
 	}
 
-	public static IRTypeRef IRModule.makeAnyTypeRef() {
-		return new IRTypeInstanceRef(IRModule.AnyType, new List());
+	public static IRTypeInstanceRef IRModule.makeAnyTypeRef() {
+		return new IRTypeInstanceRef(IRModule.AnyType, new List(), new List());
+	}
+
+	public static IRTypeInstanceRef IRModule.makeArrayTypeRef() {
+		return new IRTypeInstanceRef().setIRType(IRModule.ArrayType);
 	}
 
 	public String IRModule.defaultName = "main";

@@ -124,33 +124,6 @@ aspect IRInterpreter {
 		return getIRName().getString().equals(other.getIRName().getString());
 	}
 
-	syn VirtualMethodTable IRClass.getVTable() {
-		VirtualMethodTable vtable = new VirtualMethodTable();
-		java.util.List<IRFunction> superFuncs = new ArrayList<>();
-		for (IRTypeRef superRef : getSupers()) {
-			IRClass superClass = (IRClass) ((IRTypeInstanceRef) superRef).getIRType();
-			for (IRFunction f : superClass.getIRFunctions())
-				superFuncs.add(f);
-		}
-
-		// TODO: this is quadratic, but it's easy to implement
-		for (IRFunction f : getIRFunctions()) {
-			for (IRFunction superf : superFuncs) {
-				if (f.overrides(superf)) {
-					vtable.overrides(f, superf);
-				}
-			}
-		}
-
-		// join in the virtual tables of the super classes
-		for (IRTypeRef superRef : getSupers()) {
-			IRClass superClass = (IRClass) ((IRTypeInstanceRef) superRef).getIRType();
-			vtable.join(superClass.getVTable());
-		}
-
-		return vtable;
-	}
-
 	public class IRValue {
 		private IRConcreteType type;
 		public IRValue(IRConcreteType type) {
@@ -561,20 +534,11 @@ aspect IRInterpreter {
 		IRConcreteType tctx = new IRConcreteType(type.getIRType());
 		for (int i = 0; i < type.getIRType().getNumIRTypeFormal(); ++i) {
 			IRTypeInstanceRef actual;
-			if (type.getTypeActual(i) instanceof IRTypeFormalRef) {
-				// we need a method context to be able to evaluate type formals
-				if (!ctx.isMethodCtx())
-					throw new InterpreterException("Can't evaluate formal type parameter " + type.getTypeActual(i));
-				IRObject instance = (IRObject) ctx.getSelf();
-				// lookup what types is bound to the current actual
-				actual = instance.getType().lookup(((IRTypeFormalRef) type.getTypeActual(i)).getIRTypeFormal());
-			} else {
-				actual = (IRTypeInstanceRef) type.getTypeActual(i);
-			}
+			actual = (IRTypeInstanceRef) type.getTypeActual(i);
 			tctx.bind(type.getIRType().getIRTypeFormal(i), actual);
 		}
 
-		IRValue val = new IRObject(tctx, ((IRClass) type.getIRType()).getVTable());
+		IRValue val = new IRObject(tctx, null);
 		ctx.getStore().set(getDst(), val);
 	}
 

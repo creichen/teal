@@ -5,8 +5,6 @@ aspect IRGenType {
 	eq AnyType.genIRTypeRef() = IRModule.makeAnyTypeRef();
 	eq ArrayType.genIRTypeRef() {
 		IRTypeRef elemType = getActual().genIRTypeRef();
-		return new IRTypeInstanceRef(IRClass.newBuiltinIRClass("array")
-									 .addIRTypeFormal(new IRTypeFormal(new IRName("T"))),
-									 new lang.ir.List<IRTypeRef>().add(elemType));
+		return IRModule.makeArrayTypeRef().addTypeActual(elemType);
 	}
 }
