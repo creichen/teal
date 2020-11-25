@@ -89,6 +89,12 @@ aspect IRPrint {
 		out.print(getIRType().getIRName().getString());
 		if (getNumTypeActual() != 0)
 			printCollection(getTypeActuals(), "[", "]", ",", out);
+		if (getNumIRQualifier() != 0)
+			printCollection(getIRQualifiers(), " ", "", " ", out);
+	}
+
+	public void IRNonNull.print(PrintStream out) {
+		out.print("nonnull");
 	}
 
 	public void IRTypeFormal.print(PrintStream out) {
