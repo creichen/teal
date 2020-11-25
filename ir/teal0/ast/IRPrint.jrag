@@ -205,11 +205,6 @@ aspect IRPrint {
 		getDst().print(out);
 	}
 
-	public void IRSelfInsn.print(PrintStream out) {
-		getDst().print(out);
-		out.print(" <- self");
-	}
-
 	public void IRNewArrayInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" <- newarray ");

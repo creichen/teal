@@ -495,12 +495,6 @@ aspect IRInterpreter {
 		ctx.getStore().set(getDst(), getSrc().asIRValue());
 	}
 
-	public void IRSelfInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
-		if (!ctx.isMethodCtx())
-			throw new InterpreterException("Attempt to execute 'self' instruction outside a method.");
-		ctx.getStore().set(getDst(), ctx.getSelf());
-	}
-
 	public void IRAssertInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
 		IRValue test = ctx.getStore().get(getTest());
 		if (!(test instanceof IRIntegerValue))
