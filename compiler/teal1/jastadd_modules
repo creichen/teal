@@ -22,7 +22,7 @@ module("teal-1") {
     }
 
     scanner {
-	excludeFrom "teal-1", "scanner/type.flex"
+	include "scanner/type.flex", [-1]
 	include "scanner/scanner.flex"
     }
 
