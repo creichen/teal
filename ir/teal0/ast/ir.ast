@@ -30,8 +30,6 @@ IRCallInsn : IRAbstractCallInsn;
 
 IRNewArrayInsn : IRInsn ::= Dst:IRVarRef IRTypeInstanceRef Size:IRVarRef;
 
-IRAssertInsn : IRInsn ::= Test:IRVarRef;
-
 // Block terminators
 abstract IRCodeExit;
 IRReturn : IRCodeExit ::= IRVarRef;

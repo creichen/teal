@@ -495,15 +495,6 @@ aspect IRInterpreter {
 		ctx.getStore().set(getDst(), getSrc().asIRValue());
 	}
 
-	public void IRAssertInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
-		IRValue test = ctx.getStore().get(getTest());
-		if (!(test instanceof IRIntegerValue))
-			throw new FailedAssertException(test, this);
-		IRIntegerValue testI = (IRIntegerValue) test;
-		if (testI.asLong() == 0)
-			throw new FailedAssertException(test, this);
-	}
-
 	// Constants
 	syn IRValue IRConstant.asIRValue();
 	eq IRString.asIRValue() = new IRStringValue(getValue());

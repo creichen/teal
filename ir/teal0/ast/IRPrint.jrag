@@ -148,11 +148,6 @@ aspect IRPrint {
 	}
 
 	// Instructions
-	public void IRAssertInsn.print(PrintStream out) {
-		out.print("assert ");
-		getTest().print(out);
-	}
-
 	public void IRCopyInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" <- ");
