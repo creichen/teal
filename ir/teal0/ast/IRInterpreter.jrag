@@ -46,14 +46,9 @@ aspect IRInterpreter {
 		}
 	}
 
-	public class FailedAssertException extends InterpreterException {
-		IRValue v;
-		lang.ir.ASTNode op;
-
-		FailedAssertException(IRValue v, lang.ir.ASTNode op) {
-			super("Assertion failed");
-			this.v = v;
-			this.op = op;
+	public class QualifierException extends InterpreterException {
+		QualifierException(IRQualifier q, IRValue val, IRVar var) {
+			super("Qualifier " + q + " failed on variable " + var + " with value " + val);
 		}
 	}
 
@@ -281,7 +276,13 @@ aspect IRInterpreter {
 			varToVal = new HashMap<IRVar, IRValue>();
 		}
 
-		public void set(IRVar var, IRValue val) {
+		public void set(IRVar var, IRValue val) throws InterpreterException {
+			List<IRQualifier> qs = ((IRTypeInstanceRef) var.getIRTypeRef()).getIRQualifiers();
+			for (IRQualifier q : qs) {
+				if (!q.check(val)) {
+					throw new QualifierException(q, val, var);
+				}
+			}
 			varToVal.put(var, val);
 		}
 
@@ -292,7 +293,7 @@ aspect IRInterpreter {
 			return val;
 		}
 
-		public void set(IRVarRef var, IRValue  val)  {
+		public void set(IRVarRef var, IRValue  val) throws InterpreterException {
 			set(var.getIRVar(), val);
 		}
 
@@ -307,6 +308,14 @@ aspect IRInterpreter {
 			}
 			return r;
 		}
+	}
+
+	public boolean IRQualifier.check(IRValue v) {
+		return true;
+	}
+
+	@Override public boolean IRNonNull.check(IRValue v) {
+		return !(v instanceof IRNullValue);
 	}
 
 	public IRValue IRProgram.eval(java.util.List<IRValue> args) throws InterpreterException {
@@ -335,19 +344,11 @@ aspect IRInterpreter {
 		java.util.List<IRValue> args;
 		Storage s;
 		Storage g;
-		IRValue self;
 
 		public IRFunctionEvalCtx(Storage s, Storage g, java.util.List<IRValue> args) {
 			this.s = s;
 			this.g = g;
 			this.args = args;
-			this.self = null;
-		}
-
-		public IRFunctionEvalCtx(Storage s, Storage g, java.util.List<IRValue> args,
-								 IRValue self) {
-			this(s, g, args);
-			this.self = self;
 		}
 
 		public IRValue getArg(int i) {
@@ -364,14 +365,6 @@ aspect IRInterpreter {
 
 		public Storage getGlobalStore() {
 			return g;
-		}
-
-		public IRValue getSelf() {
-			return self;
-		}
-
-		public boolean isMethodCtx() {
-			return self != null;
 		}
 	}
 
@@ -475,6 +468,7 @@ aspect IRInterpreter {
 		IRIntegerValue index  = (IRIntegerValue) ctx.getStore().get(getIndex());
 		IRArray array = (IRArray) ctx.getStore().get(getBase());
 		IRValue datum = ctx.getStore().get(getSrc());
+
 		if (index.asLong() < 0 || index.asLong() >= array.getSize()) {
 			throw new ArrayAccessException(array, this);
 		}

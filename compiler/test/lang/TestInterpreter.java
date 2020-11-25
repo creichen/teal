@@ -218,7 +218,7 @@ public class TestInterpreter {
 		try {
 			return checkResultNoCatch(p, expectedReturn, expectedPrints, testInput);
 		} catch (InterpreterException e) {
-			System.err.println("Error while intepreting program: " + e.toString());
+			System.err.println("Error while interpreting program: " + e.toString());
 		}
 		return false;
 	}

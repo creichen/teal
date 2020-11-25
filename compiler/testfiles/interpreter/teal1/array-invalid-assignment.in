@@ -1,7 +1,5 @@
 // IN: 0
-// EXCEPTION: lang.ir.InterpreterException
-// IN: 1
-// OUT: [1, 2, 3]
+// EXCEPTION: lang.ir.QualifierException
 // A test file where we insert the an element of the wrong type into an array.
 fun main(x) = {
 	var a : array[nonnull int] := [1, 2, 3];

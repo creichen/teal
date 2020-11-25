@@ -71,7 +71,7 @@ public class Compiler {
 			IRValue ret = p.eval(args);
 			System.out.println("" + ret);
 		} catch (InterpreterException e) {
-			System.err.println("Error while intepreting program: " + e.toString());
+			System.err.println("Error while interpreting program: " + e.toString());
 		}
 	}
 
