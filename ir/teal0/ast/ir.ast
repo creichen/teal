@@ -54,7 +54,7 @@ IRTypeInstanceRef : IRTypeRef ::= <IRTypeCon:IRTypeCon> TypeActual:IRTypeRef* IR
 
 // Types
 abstract IRTypeCon ::= IRName IRTypeFormal*;
-IRBuiltinType : IRTypeCon;
+IRBuiltinTypeCon : IRTypeCon;
 
 IRName ::= <String>;
 

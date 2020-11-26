@@ -14,17 +14,17 @@ aspect IR {
 		return new IRFunRef(this);
 	}
 
-	public static IRBuiltinType IRBuiltinType.newBuiltinIRType(String name) {
-		IRBuiltinType c = new IRBuiltinType().setIRName(new IRName(name));
+	public static IRBuiltinTypeCon IRBuiltinTypeCon.newBuiltinIRType(String name) {
+		IRBuiltinTypeCon c = new IRBuiltinTypeCon().setIRName(new IRName(name));
 		c.setSourceLocation(SourceLocation.BUILTIN);
 		return c;
 	}
 
 
-	public static IRTypeCon IRModule.IntegerType = IRBuiltinType.newBuiltinIRType("int");
-	public static IRTypeCon IRModule.StringType = IRBuiltinType.newBuiltinIRType("string");
-	public static IRTypeCon IRModule.AnyType = IRBuiltinType.newBuiltinIRType("any");
-	public static IRTypeCon IRModule.ArrayType = IRBuiltinType.newBuiltinIRType("array")
+	public static IRTypeCon IRModule.IntegerType = IRBuiltinTypeCon.newBuiltinIRType("int");
+	public static IRTypeCon IRModule.StringType = IRBuiltinTypeCon.newBuiltinIRType("string");
+	public static IRTypeCon IRModule.AnyType = IRBuiltinTypeCon.newBuiltinIRType("any");
+	public static IRTypeCon IRModule.ArrayType = IRBuiltinTypeCon.newBuiltinIRType("array")
 		.addIRTypeFormal(new IRTypeFormal(new IRName("T")));
 
 	public static IRTypeInstanceRef IRModule.makeIntegerTypeRef() {
