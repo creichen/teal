@@ -79,4 +79,12 @@ aspect IR {
 		}
 		return false;
 	}
+
+	public void IRType.markNonNull() {
+		if (isNonNull()) {
+			// nothing to do
+			return;
+		}
+		addIRQualifier(new IRNonNull());
+	}
 }
