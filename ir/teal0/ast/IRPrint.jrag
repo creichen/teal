@@ -52,7 +52,7 @@ aspect IRPrint {
 			v.print(out);
 
 		out.println();
-		for (IRType t : getIRTypes())
+		for (IRTypeCon t : getIRTypeCons())
 			t.print(out);
 
 		for (IRFunction f : getIRFunctions())
@@ -86,7 +86,7 @@ aspect IRPrint {
 	}
 
 	public void IRTypeInstanceRef.print(PrintStream out) {
-		out.print(getIRType().getIRName().getString());
+		out.print(getIRTypeCon().getIRName().getString());
 		if (getNumTypeActual() != 0)
 			printCollection(getTypeActuals(), "[", "]", ",", out);
 		if (getNumIRQualifier() != 0)

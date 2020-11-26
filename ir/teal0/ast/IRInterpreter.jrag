@@ -53,10 +53,10 @@ aspect IRInterpreter {
 	}
 
 	public class IRConcreteType {
-		private IRType type;
+		private IRTypeCon type;
 		private Map<IRTypeFormal, IRTypeInstanceRef> bindings = new HashMap<>();
 
-		public IRConcreteType(IRType type) {
+		public IRConcreteType(IRTypeCon type) {
 			this.type = type;
 		}
 
@@ -220,7 +220,7 @@ aspect IRInterpreter {
 			this.elementType = (IRTypeInstanceRef) elementType;
 			values = new IRValue[(int) size];
 			if (size > 0) {
-				IRNullValue nullValue = new IRNullValue(new IRConcreteType(this.elementType.getIRType()));
+				IRNullValue nullValue = new IRNullValue(new IRConcreteType(this.elementType.getIRTypeCon()));
 				for (int i = 0; i < size; ++i) {
 					this.values[i] = nullValue;
 				}

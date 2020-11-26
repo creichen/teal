@@ -60,7 +60,7 @@ aspect IRInterpreter {
 		VirtualMethodTable vtable = new VirtualMethodTable();
 		java.util.List<IRFunction> superFuncs = new ArrayList<>();
 		for (IRTypeRef superRef : getSupers()) {
-			IRClass superClass = (IRClass) ((IRTypeInstanceRef) superRef).getIRType();
+			IRClass superClass = (IRClass) ((IRTypeInstanceRef) superRef).getIRTypeCon();
 			for (IRFunction f : superClass.getIRFunctions())
 				superFuncs.add(f);
 		}
@@ -76,7 +76,7 @@ aspect IRInterpreter {
 
 		// join in the virtual tables of the super classes
 		for (IRTypeRef superRef : getSupers()) {
-			IRClass superClass = (IRClass) ((IRTypeInstanceRef) superRef).getIRType();
+			IRClass superClass = (IRClass) ((IRTypeInstanceRef) superRef).getIRTypeCon();
 			vtable.join(superClass.getVTable());
 		}
 
@@ -129,11 +129,11 @@ aspect IRInterpreter {
 		// class C[T] { ... new Box[T]() ... } and also
 		// new Map<int, int>
 		IRTypeInstanceRef type = getIRTypeInstanceRef();
-		if (type.getIRType().getNumIRTypeFormal() != type.getNumTypeActual())
-			throw new InterpreterException("Can't instantiate formal parameters of type " + type.getIRType());
+		if (type.getIRTypeCon().getNumIRTypeFormal() != type.getNumTypeActual())
+			throw new InterpreterException("Can't instantiate formal parameters of type " + type.getIRTypeCon());
 
-		IRConcreteType tctx = new IRConcreteType(type.getIRType());
-		for (int i = 0; i < type.getIRType().getNumIRTypeFormal(); ++i) {
+		IRConcreteType tctx = new IRConcreteType(type.getIRTypeCon());
+		for (int i = 0; i < type.getIRTypeCon().getNumIRTypeFormal(); ++i) {
 			IRTypeInstanceRef actual;
 			if (type.getTypeActual(i) instanceof IRTypeFormalRef) {
 				// we need a method context to be able to evaluate type formals
@@ -145,10 +145,10 @@ aspect IRInterpreter {
 			} else {
 				actual = (IRTypeInstanceRef) type.getTypeActual(i);
 			}
-			tctx.bind(type.getIRType().getIRTypeFormal(i), actual);
+			tctx.bind(type.getIRTypeCon().getIRTypeFormal(i), actual);
 		}
 
-		IRValue val = new IRObject(tctx, ((IRClass) type.getIRType()).getVTable());
+		IRValue val = new IRObject(tctx, ((IRClass) type.getIRTypeCon()).getVTable());
 		ctx.getStore().set(getDst(), val);
 	}
 

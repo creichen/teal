@@ -274,7 +274,7 @@ aspect IRGen {
 			// 	// generate code for the qualifier builtin type
 			// 	IRClass c = (IRClass) ((ClassDecl) d).genIR();
 			// 	((ClassDecl) d).genCode(c);
-			// 	m.addIRType(c);
+			// 	m.addIRTypeCon(c);
 			// }
 		//}
 

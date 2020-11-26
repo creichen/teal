@@ -1,6 +1,6 @@
 // Top level
 IRProgram ::= IRModule*;
-IRModule ::= IRModuleName IRVar* IRType* IRFunction*;
+IRModule ::= IRModuleName IRVar* IRTypeCon* IRFunction*;
 IRModuleName ::= IRName*;
 IRVar ::= IRName IRTypeRef;
 
@@ -50,11 +50,11 @@ IRNonNull : IRQualifier;
 
 // Type reference
 abstract IRTypeRef;
-IRTypeInstanceRef : IRTypeRef ::= <IRType:IRType> TypeActual:IRTypeRef* IRQualifier*;
+IRTypeInstanceRef : IRTypeRef ::= <IRTypeCon:IRTypeCon> TypeActual:IRTypeRef* IRQualifier*;
 
 // Types
-abstract IRType ::= IRName IRTypeFormal*;
-IRBuiltinType : IRType;
+abstract IRTypeCon ::= IRName IRTypeFormal*;
+IRBuiltinType : IRTypeCon;
 
 IRName ::= <String>;
 

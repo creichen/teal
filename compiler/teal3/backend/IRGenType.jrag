@@ -3,7 +3,7 @@ aspect IRGenType {
 		return new IRTypeFormal(new IRName(name()));
 	}
 
-	syn IRType TypeDecl.genIR() {
+	syn IRTypeCon TypeDecl.genIR() {
 		throw new NotYetImplementedError("Translation of types not fully implemented");
 	}
 
@@ -121,7 +121,7 @@ aspect IRGenType {
 	}
 
 	@Override public IRTypeRef TypeDecl.genIRTypeRef() {
-		IRTypeRef retval = new IRTypeInstanceRef().setIRType(genIR());
+		IRTypeRef retval = new IRTypeInstanceRef().setIRTypeCon(genIR());
 		return retval;
 	}
 
@@ -152,7 +152,7 @@ aspect IRGenType {
 	public IRTypeRef TypeQualifier.genIR() {
 		ClassDecl qualDecl = (ClassDecl) getIdUse().lookup().getDecl();
 		IRTypeInstanceRef ref = new IRTypeInstanceRef();
-		ref.setIRType(qualDecl.genIR());
+		ref.setIRTypeCon(qualDecl.genIR());
 		for (Type t : getTypeActuals()) {
 			ref.addTypeActual(t.genIR());
 		}
@@ -175,7 +175,7 @@ aspect IRGenType {
 		IRDispatchInsn dispatch = new IRDispatchInsn()
 			.setDst(new IRVarRef(ctx.getFreshTempIRVar(IRModule.makeAnyTypeRef())) /* discarded */)
 			.setBase(new IRVarRef(v));
-		IRClass klass = (IRClass) ((IRTypeInstanceRef) genIR()).getIRType();
+		IRClass klass = (IRClass) ((IRTypeInstanceRef) genIR()).getIRTypeCon();
 		IRFunction constructor = klass.getConstructor();
 		dispatch.setIRFunRef(new IRFunRef(constructor));
 		for (Expr arg : getFunActuals()) {

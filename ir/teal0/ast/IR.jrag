@@ -21,10 +21,10 @@ aspect IR {
 	}
 
 
-	public static IRType IRModule.IntegerType = IRBuiltinType.newBuiltinIRType("int");
-	public static IRType IRModule.StringType = IRBuiltinType.newBuiltinIRType("string");
-	public static IRType IRModule.AnyType = IRBuiltinType.newBuiltinIRType("any");
-	public static IRType IRModule.ArrayType = IRBuiltinType.newBuiltinIRType("array")
+	public static IRTypeCon IRModule.IntegerType = IRBuiltinType.newBuiltinIRType("int");
+	public static IRTypeCon IRModule.StringType = IRBuiltinType.newBuiltinIRType("string");
+	public static IRTypeCon IRModule.AnyType = IRBuiltinType.newBuiltinIRType("any");
+	public static IRTypeCon IRModule.ArrayType = IRBuiltinType.newBuiltinIRType("array")
 		.addIRTypeFormal(new IRTypeFormal(new IRName("T")));
 
 	public static IRTypeInstanceRef IRModule.makeIntegerTypeRef() {
@@ -40,13 +40,13 @@ aspect IR {
 	}
 
 	public static IRTypeInstanceRef IRModule.makeArrayTypeRef() {
-		return new IRTypeInstanceRef().setIRType(IRModule.ArrayType);
+		return new IRTypeInstanceRef().setIRTypeCon(IRModule.ArrayType);
 	}
 
 	public String IRModule.defaultName = "main";
 
-	syn nta List<IRType> IRModule.builtinTypes() {
-		List<IRType> btypes = new List<>();
+	syn nta List<IRTypeCon> IRModule.builtinTypes() {
+		List<IRTypeCon> btypes = new List<>();
 		btypes.add(IntegerType);
 		btypes.add(StringType);
 		btypes.add(AnyType);

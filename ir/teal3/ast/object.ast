@@ -6,4 +6,4 @@ IRNewInsn : IRInsn ::= Dst:IRVarRef IRTypeInstanceRef;
 IRSelfInsn : IRInsn ::= Dst:IRVarRef;
 
 // Class
-IRClass : IRType ::= Super:IRTypeInstanceRef* [Constructor:IRFunction] IRFunction* IRVar*;
+IRClass : IRTypeCon ::= Super:IRTypeInstanceRef* [Constructor:IRFunction] IRFunction* IRVar*;

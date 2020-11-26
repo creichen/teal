@@ -62,7 +62,7 @@ aspect IRGen {
 	public void ClassDecl.addIRToModule(IRModule m) {
 		IRClass c = this.genIRClass();
 		this.genCode(c);
-		m.addIRType(c);
+		m.addIRTypeCon(c);
 	}
 
 	/**
