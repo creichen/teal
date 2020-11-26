@@ -75,7 +75,7 @@ public class TestInterpreter {
 		// a specific language version, run it only if that macthes the
 		// current version.
 		Pattern explicitVersionPat = Pattern.compile(".*\\.teal(\\d)\\.in");
-		Predicate<Object[]> rejectOnDistinctExplicitVersion = new Predicate<>() {
+		Predicate<Object[]> rejectOnDistinctExplicitVersion = new Predicate<Object[]>() {
 				@Override public boolean test(Object[] o) {
 					Matcher m = explicitVersionPat.matcher((String) o[0]);
 					if (!m.matches()) {
