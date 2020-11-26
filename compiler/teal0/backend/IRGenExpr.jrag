@@ -116,7 +116,7 @@ aspect IRGenExpr {
 		IRVarRef dst = ctx.getTempIRVar(this);
 		IRVarRef size = getActual(0).genCode(ctx);
 		IRNewArrayInsn newInsn = new IRNewArrayInsn().setDst(dst)
-			.setIRTypeInstanceRef((IRTypeInstanceRef) ((ArrayType) getType()).getActual().genIRTypeRef()).setSize(size);
+			.setIRType((IRType) ((ArrayType) getType()).getActual().genIRTypeRef()).setSize(size);
 		ctx.addInsn(newInsn);
 		ctx.setSourceLocations(this.sourceLocation());
 		return dst;
@@ -129,7 +129,7 @@ aspect IRGenExpr {
 		IRVarRef size = new IRVarRef(ctx.getFreshTempIRVar(IRModule.makeIntegerTypeRef()));
 		ctx.addInsn(new IRConstantInsn(size, new IRInteger((long) this.getNumExpr())));
 		IRNewArrayInsn newInsn = new IRNewArrayInsn().setDst(dst)
-			.setIRTypeInstanceRef((IRTypeInstanceRef) IRModule.makeAnyTypeRef()).setSize(size); // FIXME: more precise type if we get type inference
+			.setIRType((IRType) IRModule.makeAnyTypeRef()).setSize(size); // FIXME: more precise type if we get type inference
 		ctx.addInsn(newInsn);
 
 		long indexCounter = 0;

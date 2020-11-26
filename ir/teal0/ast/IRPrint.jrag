@@ -85,7 +85,7 @@ aspect IRPrint {
 		out.println("\nend function\n");
 	}
 
-	public void IRTypeInstanceRef.print(PrintStream out) {
+	public void IRType.print(PrintStream out) {
 		out.print(getIRTypeCon().getIRName().getString());
 		if (getNumTypeActual() != 0)
 			printCollection(getTypeActuals(), "[", "]", ",", out);
@@ -203,7 +203,7 @@ aspect IRPrint {
 	public void IRNewArrayInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" <- newarray ");
-		getIRTypeInstanceRef().print(out);
+		getIRType().print(out);
 		out.print(" ");
 		getSize().print(out);
 	}

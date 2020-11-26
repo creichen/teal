@@ -54,17 +54,17 @@ aspect IRInterpreter {
 
 	public class IRConcreteType {
 		private IRTypeCon type;
-		private Map<IRTypeFormal, IRTypeInstanceRef> bindings = new HashMap<>();
+		private Map<IRTypeFormal, IRType> bindings = new HashMap<>();
 
 		public IRConcreteType(IRTypeCon type) {
 			this.type = type;
 		}
 
-		public void bind(IRTypeFormal formal, IRTypeInstanceRef actual) {
+		public void bind(IRTypeFormal formal, IRType actual) {
 			bindings.put(formal, actual);
 		}
 
-		public IRTypeInstanceRef lookup(IRTypeFormal formal) {
+		public IRType lookup(IRTypeFormal formal) {
 			return bindings.get(formal);
 		}
 
@@ -213,11 +213,11 @@ aspect IRInterpreter {
 
 	public class IRArray extends IRValue {
 		private IRValue[] values;
-		private IRTypeInstanceRef elementType;
+		private IRType elementType;
 
-		public IRArray(IRTypeInstanceRef elementType, long size) {
+		public IRArray(IRType elementType, long size) {
 			super(null);
-			this.elementType = (IRTypeInstanceRef) elementType;
+			this.elementType = (IRType) elementType;
 			values = new IRValue[(int) size];
 			if (size > 0) {
 				IRNullValue nullValue = new IRNullValue(new IRConcreteType(this.elementType.getIRTypeCon()));
@@ -279,11 +279,11 @@ aspect IRInterpreter {
 		}
 
 		public void set(IRVar var, IRValue val) throws InterpreterException {
-			if (var.getIRTypeRef() instanceof IRTypeInstanceRef) {
+			if (var.getIRTypeRef() instanceof IRType) {
 				// The variable has a concrete type, as compared with a type variable
 				// check any qualifiers; This is always true for TEAL-0, TEAL-1, but
 				// not for TEAL-3.
-				List<IRQualifier> qs = ((IRTypeInstanceRef) var.getIRTypeRef()).getIRQualifiers();
+				List<IRQualifier> qs = ((IRType) var.getIRTypeRef()).getIRQualifiers();
 				for (IRQualifier q : qs) {
 					if (!q.check(val)) {
 						throw new QualifierException(q, val, var);
@@ -473,7 +473,7 @@ aspect IRInterpreter {
 		if (size.asLong() < 0) {
 			throw new InterpreterException("Negative array size.");
 		}
-		IRTypeInstanceRef elementType = getIRTypeInstanceRef();
+		IRType elementType = getIRType();
 		IRValue array = new IRArray(elementType, size.asLong());
 		ctx.getStore().set(getDst(), array);
 	}

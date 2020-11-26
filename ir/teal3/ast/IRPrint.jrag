@@ -70,6 +70,6 @@ aspect IRPrint {
 	public void IRNewInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" <- new ");
-		getIRTypeInstanceRef().print(out);
+		getIRType().print(out);
 	}
 }

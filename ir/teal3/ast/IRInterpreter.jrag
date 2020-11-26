@@ -60,7 +60,7 @@ aspect IRInterpreter {
 		VirtualMethodTable vtable = new VirtualMethodTable();
 		java.util.List<IRFunction> superFuncs = new ArrayList<>();
 		for (IRTypeRef superRef : getSupers()) {
-			IRClass superClass = (IRClass) ((IRTypeInstanceRef) superRef).getIRTypeCon();
+			IRClass superClass = (IRClass) ((IRType) superRef).getIRTypeCon();
 			for (IRFunction f : superClass.getIRFunctions())
 				superFuncs.add(f);
 		}
@@ -76,7 +76,7 @@ aspect IRInterpreter {
 
 		// join in the virtual tables of the super classes
 		for (IRTypeRef superRef : getSupers()) {
-			IRClass superClass = (IRClass) ((IRTypeInstanceRef) superRef).getIRTypeCon();
+			IRClass superClass = (IRClass) ((IRType) superRef).getIRTypeCon();
 			vtable.join(superClass.getVTable());
 		}
 
@@ -128,13 +128,13 @@ aspect IRInterpreter {
 	public void IRNewInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
 		// class C[T] { ... new Box[T]() ... } and also
 		// new Map<int, int>
-		IRTypeInstanceRef type = getIRTypeInstanceRef();
+		IRType type = getIRType();
 		if (type.getIRTypeCon().getNumIRTypeFormal() != type.getNumTypeActual())
 			throw new InterpreterException("Can't instantiate formal parameters of type " + type.getIRTypeCon());
 
 		IRConcreteType tctx = new IRConcreteType(type.getIRTypeCon());
 		for (int i = 0; i < type.getIRTypeCon().getNumIRTypeFormal(); ++i) {
-			IRTypeInstanceRef actual;
+			IRType actual;
 			if (type.getTypeActual(i) instanceof IRTypeFormalRef) {
 				// we need a method context to be able to evaluate type formals
 				if (!ctx.isMethodCtx())
@@ -143,7 +143,7 @@ aspect IRInterpreter {
 				// lookup what types is bound to the current actual
 				actual = instance.getType().lookup(((IRTypeFormalRef) type.getTypeActual(i)).getIRTypeFormal());
 			} else {
-				actual = (IRTypeInstanceRef) type.getTypeActual(i);
+				actual = (IRType) type.getTypeActual(i);
 			}
 			tctx.bind(type.getIRTypeCon().getIRTypeFormal(i), actual);
 		}

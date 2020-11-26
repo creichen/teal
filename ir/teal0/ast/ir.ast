@@ -28,7 +28,7 @@ IRStoreArrayInsn : IRAbstractStoreInsn ::= Base:IRVarRef Index:IRVarRef;
 abstract IRAbstractCallInsn : IRInsn ::= Dst:IRVarRef Arg:IRVarRef* IRFunRef;
 IRCallInsn : IRAbstractCallInsn;
 
-IRNewArrayInsn : IRInsn ::= Dst:IRVarRef IRTypeInstanceRef Size:IRVarRef;
+IRNewArrayInsn : IRInsn ::= Dst:IRVarRef IRType Size:IRVarRef;
 
 // Block terminators
 abstract IRCodeExit;
@@ -48,13 +48,13 @@ IRCodeBBRef ::= <IRCodeBB:IRCodeBB>;
 abstract IRQualifier;
 IRNonNull : IRQualifier;
 
-// Type reference
-abstract IRTypeRef;
-IRTypeInstanceRef : IRTypeRef ::= <IRTypeCon:IRTypeCon> TypeActual:IRTypeRef* IRQualifier*;
-
 // Types
 abstract IRTypeCon ::= IRName IRTypeFormal*;
 IRBuiltinTypeCon : IRTypeCon;
+
+// Type reference
+abstract IRTypeRef;
+IRType : IRTypeRef ::= <IRTypeCon:IRTypeCon> TypeActual:IRTypeRef* IRQualifier*;
 
 IRName ::= <String>;
 

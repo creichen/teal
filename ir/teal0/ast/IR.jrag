@@ -27,20 +27,20 @@ aspect IR {
 	public static IRTypeCon IRModule.ArrayType = IRBuiltinTypeCon.newBuiltinIRType("array")
 		.addIRTypeFormal(new IRTypeFormal(new IRName("T")));
 
-	public static IRTypeInstanceRef IRModule.makeIntegerTypeRef() {
-		return new IRTypeInstanceRef(IRModule.IntegerType, new List(), new List());
+	public static IRType IRModule.makeIntegerTypeRef() {
+		return new IRType(IRModule.IntegerType, new List(), new List());
 	}
 
-	public static IRTypeInstanceRef IRModule.makeStringTypeRef() {
-		return new IRTypeInstanceRef(IRModule.StringType, new List(), new List());
+	public static IRType IRModule.makeStringTypeRef() {
+		return new IRType(IRModule.StringType, new List(), new List());
 	}
 
-	public static IRTypeInstanceRef IRModule.makeAnyTypeRef() {
-		return new IRTypeInstanceRef(IRModule.AnyType, new List(), new List());
+	public static IRType IRModule.makeAnyTypeRef() {
+		return new IRType(IRModule.AnyType, new List(), new List());
 	}
 
-	public static IRTypeInstanceRef IRModule.makeArrayTypeRef() {
-		return new IRTypeInstanceRef().setIRTypeCon(IRModule.ArrayType);
+	public static IRType IRModule.makeArrayTypeRef() {
+		return new IRType().setIRTypeCon(IRModule.ArrayType);
 	}
 
 	public String IRModule.defaultName = "main";
