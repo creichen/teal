@@ -61,7 +61,22 @@ aspect IR {
 	public void ASTNode.setSourceLocation(SourceLocation srcLoc) {
 		this.srcLoc = srcLoc;
 	}
+
 	public SourceLocation ASTNode.getSourceLocation() {
 		return srcLoc;
+	}
+
+	syn boolean IRQualifier.isNonNull() = false;
+	eq IRNonNull.isNonNull() = true;
+
+	/**
+	   isNonNull - true iff the type is nonnull-qualified
+	 */
+	syn boolean IRType.isNonNull() {
+		for (IRQualifier q : getIRQualifiers()) {
+			if (q.isNonNull())
+				return true;
+		}
+		return false;
 	}
 }
