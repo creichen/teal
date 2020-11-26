@@ -219,19 +219,27 @@ aspect IRInterpreter {
 
 	public class IRArray extends IRValue {
 		private IRValue[] values;
+		private IRTypeInstanceRef elementType;
 
-		public IRArray(IRType elementType, long size) {
+		public IRArray(IRTypeInstanceRef elementType, long size) {
 			super(null);
+			this.elementType = (IRTypeInstanceRef) elementType;
 			values = new IRValue[(int) size];
 			if (size > 0) {
-				IRNullValue nullValue = new IRNullValue(new IRConcreteType(elementType));
+				IRNullValue nullValue = new IRNullValue(new IRConcreteType(this.elementType.getIRType()));
 				for (int i = 0; i < size; ++i) {
 					this.values[i] = nullValue;
 				}
 			}
 		}
 
-		public void set(long i, IRValue v) {
+		public void set(long i, IRValue v) throws InterpreterException {
+			List<IRQualifier> qs = elementType.getIRQualifiers();
+			for (IRQualifier q : qs) {
+				if (!q.check(v)) {
+					throw new QualifierException(q, this, null);
+				}
+			}
 			values[(int) i] = v;
 		}
 
@@ -450,7 +458,7 @@ aspect IRInterpreter {
 		if (size.asLong() < 0) {
 			throw new InterpreterException("Negative array size.");
 		}
-		IRType elementType = IRModule.AnyType; //this.getIRTypeRef().link().getTypeActual(0); // FIXME
+		IRTypeInstanceRef elementType = getIRTypeInstanceRef();
 		IRValue array = new IRArray(elementType, size.asLong());
 		ctx.getStore().set(getDst(), array);
 	}
@@ -468,7 +476,6 @@ aspect IRInterpreter {
 		IRIntegerValue index  = (IRIntegerValue) ctx.getStore().get(getIndex());
 		IRArray array = (IRArray) ctx.getStore().get(getBase());
 		IRValue datum = ctx.getStore().get(getSrc());
-
 		if (index.asLong() < 0 || index.asLong() >= array.getSize()) {
 			throw new ArrayAccessException(array, this);
 		}

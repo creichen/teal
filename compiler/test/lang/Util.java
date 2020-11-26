@@ -155,14 +155,14 @@ public final class Util {
    * that layer of Teal or newer
    */
   @SuppressWarnings("javadoc")
-  public static Iterable<Object[]> getTestParameters(File testDirectory, String extension) {
+  public static Collection<Object[]> getTestParameters(File testDirectory, String extension) {
     Collection<Object[]> tests = new LinkedList<Object[]>();
     if (!testDirectory.isDirectory()) {
       throw new Error("Could not find '" + testDirectory + "' directory!");
     }
     addTestsInDir(tests, testDirectory, "", extension);
     for (int i = 0; i <= Program.LAYER; i++) {
-      final String filePrefix = "teal" + i; 
+      final String filePrefix = "teal" + i;
       addTestsInDir(tests, new File(testDirectory, filePrefix), filePrefix + File.separator, extension);
     }
     return tests;

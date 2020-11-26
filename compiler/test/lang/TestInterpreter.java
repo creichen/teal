@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;;
+import java.util.concurrent.TimeUnit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Scanner;
+import java.util.function.Predicate;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -70,7 +71,28 @@ public class TestInterpreter {
 
 	@Parameters(name = "{0}")
 	public static Iterable<Object[]> getTests() {
-		return Util.getTestParameters(TEST_DIRECTORY, ".in");
+		// Load all the tests in the input folders, but if a test requires
+		// a specific language version, run it only if that macthes the
+		// current version.
+		Pattern explicitVersionPat = Pattern.compile(".*\\.teal(\\d)\\.in");
+		Predicate<Object[]> rejectOnDistinctExplicitVersion = new Predicate<>() {
+				@Override public boolean test(Object[] o) {
+					Matcher m = explicitVersionPat.matcher((String) o[0]);
+					if (!m.matches()) {
+						// the file does not have an explicit version
+						return true;
+					} else {
+						String version = m.group(1);
+						if (version.equals(Program.LAYER)) {
+							return true;
+						}
+					}
+					return false;
+				}
+			};
+
+		return Util.getTestParameters(TEST_DIRECTORY, ".in").stream()
+			.filter(rejectOnDistinctExplicitVersion).collect(Collectors.toList());
 	}
 
 
