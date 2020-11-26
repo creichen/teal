@@ -1,0 +1,1 @@
+IRTypeFormalRef : IRTypeRef ::= <IRTypeFormal:IRTypeFormal>;

@@ -1,0 +1,1 @@
+IRAssertInsn : IRInsn ::= Test:IRVarRef;

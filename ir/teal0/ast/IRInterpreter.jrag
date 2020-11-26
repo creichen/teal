@@ -81,12 +81,6 @@ aspect IRInterpreter {
 		}
 	}
 
-	syn boolean IRFunction.overrides(IRFunction other) {
-		// TODO: this uses only the name to check if a function overrides
-		// another; maybe we want something fancier?
-		return getIRName().getString().equals(other.getIRName().getString());
-	}
-
 	public class IRValue {
 		private IRConcreteType type;
 		public IRValue(IRConcreteType type) {
@@ -285,10 +279,15 @@ aspect IRInterpreter {
 		}
 
 		public void set(IRVar var, IRValue val) throws InterpreterException {
-			List<IRQualifier> qs = ((IRTypeInstanceRef) var.getIRTypeRef()).getIRQualifiers();
-			for (IRQualifier q : qs) {
-				if (!q.check(val)) {
-					throw new QualifierException(q, val, var);
+			if (var.getIRTypeRef() instanceof IRTypeInstanceRef) {
+				// The variable has a concrete type, as compared with a type variable
+				// check any qualifiers; This is always true for TEAL-0, TEAL-1, but
+				// not for TEAL-3.
+				List<IRQualifier> qs = ((IRTypeInstanceRef) var.getIRTypeRef()).getIRQualifiers();
+				for (IRQualifier q : qs) {
+					if (!q.check(val)) {
+						throw new QualifierException(q, val, var);
+					}
 				}
 			}
 			varToVal.put(var, val);
@@ -352,11 +351,19 @@ aspect IRInterpreter {
 		java.util.List<IRValue> args;
 		Storage s;
 		Storage g;
+		IRValue self;
 
 		public IRFunctionEvalCtx(Storage s, Storage g, java.util.List<IRValue> args) {
 			this.s = s;
 			this.g = g;
 			this.args = args;
+			this.self = null;
+		}
+
+		public IRFunctionEvalCtx(Storage s, Storage g, java.util.List<IRValue> args,
+								 IRValue self) {
+			this(s, g, args);
+			this.self = self;
 		}
 
 		public IRValue getArg(int i) {
@@ -373,6 +380,14 @@ aspect IRInterpreter {
 
 		public Storage getGlobalStore() {
 			return g;
+		}
+
+		public IRValue getSelf() {
+			return self;
+		}
+
+		public boolean isMethodCtx() {
+			return self != null;
 		}
 	}
 

@@ -4,63 +4,6 @@ import java.io.ByteArrayOutputStream;
 import lang.common.SourceLocation;
 
 aspect IRPrint {
-	public static boolean IRProgram.printSourceLocations = false; // Whether to print source code lines for the IR
-
-	protected static <T extends ASTNode>
-	void ASTNode.printCollection(Iterable<T> collection, String pre, String post, String delim, PrintStream out) {
-		Iterator<T> itr = collection.iterator();
-		out.print(pre);
-		if (itr.hasNext())
-			itr.next().print(out);
-		if (!itr.hasNext()) {
-			out.print(post);
-			return;
-		}
-		while(itr.hasNext()) {
-			out.print(delim);
-			itr.next().print(out);
-		}
-		out.print(post);
-	}
-
-	public void ASTNode.dump() {
-		print(System.out);
-	}
-
-	public String ASTNode.toString() {
-		ByteArrayOutputStream w = new ByteArrayOutputStream();
-		print(new PrintStream(w));
-		return w.toString();
-	}
-
-	public void ASTNode.print(PrintStream out) {
-		out.print("*** not implemented (" + getClass().toString() + ") ***");
-	}
-
-	public void IRProgram.print(PrintStream out) {
-		printCollection(getIRModules(), "", "", "\n\n", out);
-	}
-
-	public void IRModule.print(PrintStream out) {
-		out.print("module ");
-		printCollection(getIRModuleName().getIRNames(), "", "", ".", out);
-
-		out.println();
-		out.println();
-
-		for (IRVar v : getIRVars())
-			v.print(out);
-
-		out.println();
-		for (IRType t : getIRTypes())
-			t.print(out);
-
-		for (IRFunction f : getIRFunctions())
-			f.print(out);
-
-		out.println("end module");
-	}
-
 	public void IRClass.print(PrintStream out) {
 		out.print("class ");
 		getIRName().print(out);
@@ -83,113 +26,14 @@ aspect IRPrint {
 		out.println("end class\n");
 	}
 
-	public void IRFunction.print(PrintStream out) {
-		out.print("function ");
-		getIRTypeRef().print(out);
-		out.print(" @" + getIRName().getString());
-
-		printCollection(getParamTypes(), "(", ") ", ", ", out);
-
-		if (IRProgram.printSourceLocations) {
-			getSourceLocation().print(out);
-		}
-
-		if (getNumLocal() != 0) {
-			out.print("\n\t");
-			printCollection(getLocals(), "", "", "\n\t", out);
-		}
-
-		if (getNumIRCodeBB() != 0) {
-			out.print("\n");
-			printCollection(getIRCodeBBs(), "", "", "\n", out);
-		}
-
-		out.println("\nend function\n");
-	}
-
-	public void IRTypeInstanceRef.print(PrintStream out) {
-		out.print(getIRType().getIRName().getString());
-		if (getNumTypeActual() != 0)
-			printCollection(getTypeActuals(), "[", "]", ",", out);
-	}
-
 	public void IRTypeFormalRef.print(PrintStream out) {
 		getIRTypeFormal().print(out);
-	}
-
-	public void IRTypeFormal.print(PrintStream out) {
-		getIRName().print(out);
-	}
-
-	public void IRVar.print(PrintStream out) {
-		getIRName().print(out);
-		out.print(" : ");
-		getIRTypeRef().print(out);
-	}
-
-	public void IRCodeBB.print(PrintStream out) {
-		out.println(label() + ":");
-		for (IRInsn i : getIRInsns()) {
-			out.print("\t");
-			i.print(out);
-			if (IRProgram.printSourceLocations) {
-			    out.print("\t");
-			    i.getSourceLocation().print(out);
-			}
-			out.println();
-		}
-		out.print("\t");
-		if (getIRCodeExit() != null) {
-		    getIRCodeExit().print(out);
-		} else {
-		    out.print("<INCOMPLETE:NO_EXIT>");
-		}
-		// out.println();
-	}
-
-	// Terminators
-	public void IRReturn.print(PrintStream out) {
-		out.print("ret ");
-		getIRVarRef().print(out);
-	}
-
-	public void IRJump.print(PrintStream out) {
-		out.print("j ");
-		getIRCodeBBRef().print(out);
-	}
-
-	public void IRBranch.print(PrintStream out) {
-		out.print("br ");
-		getCond().print(out);
-		out.print(", ");
-		getTrueTarget().print(out);
-		out.print(", ");
-		getFalseTarget().print(out);
 	}
 
 	// Instructions
 	public void IRAssertInsn.print(PrintStream out) {
 		out.print("assert ");
 		getTest().print(out);
-	}
-
-	public void IRCopyInsn.print(PrintStream out) {
-		getDst().print(out);
-		out.print(" <- ");
-		getSrc().print(out);
-	}
-
-	public void IRArgInsn.print(PrintStream out) {
-		getDst().print(out);
-		out.print(" <- arg ");
-		out.print(getIndex());
-	}
-
-	public void IRCallInsn.print(PrintStream out) {
-		getDst().print(out);
-		out.print(" <- call ");
-		getIRFunRef().print(out);
-		printCollection(getArgs(), "(", ")", ", ", out);
 	}
 
 	public void IRDispatchInsn.print(PrintStream out) {
@@ -201,38 +45,12 @@ aspect IRPrint {
 		printCollection(getArgs(), "(", ")", ", ", out);
 	}
 
-	public void IRConstantInsn.print(PrintStream out) {
-		getDst().print(out);
-		out.print(" <- constant ");
-		getSrc().print(out);
-	}
-
-	public void IRNull.print(PrintStream out) {
-		out.print("null");
-	}
-
-	public void IRString.print(PrintStream out) {
-		out.print("\"");
-		out.print(getValue());
-		out.print("\"");
-	}
-
-	public void IRInteger.print(PrintStream out) {
-		out.print(getValue());
-	}
-
 	public void IRLoadInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" <- load ");
 		getBase().print(out);
 		out.print(" ");
 		getField().print(out);
-	}
-
-	public void IRLoadStaticInsn.print(PrintStream out) {
-		getDst().print(out);
-		out.print(" <- loadstatic ");
-		getSrc().print(out);
 	}
 
 	public void IRStoreInsn.print(PrintStream out) {
@@ -244,13 +62,6 @@ aspect IRPrint {
 		getField().print(out);
 	}
 
-	public void IRStoreStaticInsn.print(PrintStream out) {
-		out.print("storestatic ");
-		getSrc().print(out);
-		out.print(" ");
-		getDst().print(out);
-	}
-
 	public void IRSelfInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" <- self");
@@ -260,53 +71,5 @@ aspect IRPrint {
 		getDst().print(out);
 		out.print(" <- new ");
 		getIRTypeInstanceRef().print(out);
-	}
-
-	public void IRNewArrayInsn.print(PrintStream out) {
-		getDst().print(out);
-		out.print(" <- newarray ");
-		getIRTypeInstanceRef().print(out);
-		out.print(" ");
-		getSize().print(out);
-	}
-
-	public void IRLoadArrayInsn.print(PrintStream out) {
-		getDst().print(out);
-		out.print(" <- loadarray ");
-		getBase().print(out);
-		out.print(" ");
-		getIndex().print(out);
-	}
-
-	public void IRStoreArrayInsn.print(PrintStream out) {
-		out.print("storearray ");
-		getSrc().print(out);
-		out.print(" ");
-		getBase().print(out);
-		out.print(" ");
-		getIndex().print(out);
-	}
-
-	// Refs
-	public void IRCodeBBRef.print(PrintStream out) {
-		out.print(getIRCodeBB().label());
-	}
-
-	public void IRVarRef.print(PrintStream out) {
-		if (getIRVar() == null)
-			out.print("undef");
-		else
-			getIRVar().getIRName().print(out);
-	}
-
-	public void IRName.print(PrintStream out) {
-		out.print(getString());
-	}
-
-	public void IRFunRef.print(PrintStream out) {
-		if (getIRFunction() == null) {
-			throw new RuntimeException("wA");
-		}
-		getIRFunction().getIRName().print(out);
 	}
 }

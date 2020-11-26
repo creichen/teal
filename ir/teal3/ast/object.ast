@@ -1,0 +1,9 @@
+// Instructions
+IRLoadInsn : IRAbstractLoadInsn ::= Base:IRVarRef Field:IRVarRef;
+IRStoreInsn : IRAbstractStoreInsn ::= Base:IRVarRef Field:IRVarRef;
+IRDispatchInsn : IRAbstractCallInsn ::= Base:IRVarRef;
+IRNewInsn : IRInsn ::= Dst:IRVarRef IRTypeInstanceRef;
+IRSelfInsn : IRInsn ::= Dst:IRVarRef;
+
+// Class
+IRClass : IRType ::= Super:IRTypeInstanceRef* [Constructor:IRFunction] IRFunction* IRVar*;
