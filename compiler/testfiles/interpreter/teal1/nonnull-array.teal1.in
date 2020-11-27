@@ -1,0 +1,31 @@
+// IN: 0
+// EXCEPTION: lang.ir.QualifierException
+// IN: 5
+// OUT: 25
+
+fun make_matrix(m : nonnull int, n : nonnull int, v : nonnull int) : nonnull array[nonnull array[nonnull int]] = {
+    var ret := new array[nonnull array[nonnull int]](m);
+    var i : int := 0;
+
+    while (i < m) {
+    	  var j : int := 0;
+	  ret[i] := new array[nonnull int] (n);
+	  while (j < n) {
+		ret[i][j] := v;
+		j := j + 1;
+	  }
+	  i := i + 1;
+    }
+
+    return ret;
+}
+
+fun main(x : int) = {
+    var m := make_matrix(3, 4, x);
+    if (x == 0) {
+       m[0][0] := null;
+    } else {
+       m[1][2] := m[1][1] * m[2][2]; // that is x^2
+    }
+    return m[1][2];
+}
