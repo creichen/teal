@@ -1,0 +1,5 @@
+fun main() = {
+    var x : nonnull int;
+    x := 5;
+    return x;
+}

@@ -1,4 +1,12 @@
 aspect SemanticCheck {
 	VarDecl contributes new SemanticError(sourceLocation(), "Global variable types cannot be qualified.")
 		when hasDeclaredType() && (getDeclaredType() instanceof NonNullType) && getScope() == VariableScope.GLOBAL to Program.semanticErrors();
+
+	inh boolean VarDecl.isFormalParameterDecl();
+	eq FunDecl.getFormal(int i).isFormalParameterDecl() = true;
+	eq Program.getChild(int i).isFormalParameterDecl() = false;
+
+	VarDecl contributes new SemanticError(sourceLocation(), "Qualified local variabes must be initialized.")
+		when (!hasInitializer()) && (!isFormalParameterDecl()) &&
+		(getDeclaredType() instanceof NonNullType) && getScope() == VariableScope.LOCAL to Program.semanticErrors();
 }
