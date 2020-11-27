@@ -1,0 +1,4 @@
+aspect SemanticCheck {
+	VarDecl contributes new SemanticError(sourceLocation(), "Global variable types cannot be qualified.")
+		when hasDeclaredType() && (getDeclaredType() instanceof NonNullType) && getScope() == VariableScope.GLOBAL to Program.semanticErrors();
+}

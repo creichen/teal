@@ -17,6 +17,7 @@ module("teal-3") {
 	include "frontend/BuiltinTypes.jrag"
 	excludeFrom "teal-0", "frontend/TypeAnalysisBuiltinTypes.jrag"
 	excludeFrom "teal-0", "frontend/TypeAnalysis.jrag"
+	excludeFrom "teal-1", "frontend/SemanticCheck.jrag"
 
 	include "frontend/NameAnalysis.jrag"
 	include "frontend/SemanticCheck.jrag"

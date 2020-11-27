@@ -1,0 +1,6 @@
+var x : nonnull int;
+
+fun main() = {
+   x := 5;
+   return x;
+}
