@@ -146,8 +146,13 @@ aspect IRGenExpr {
 	}
 
 	public IRVarRef TypedExpr.genCode(IRFunctionCtx ctx) {
+		IRVarRef e = getExpr().genCode(ctx);
+		// create a temporary variable of the required type
+		IRVarRef tmp = ctx.getTempIRVar(this);
+		ctx.addInsn(new IRCopyInsn(tmp, e));
+		ctx.setSourceLocations(this.sourceLocation());
 		// TODO: generate an assertion too
-		return getExpr().genCode(ctx);
+		return tmp;
 	}
 
 	public IRVarRef IntConstant.genCode(IRFunctionCtx ctx) {

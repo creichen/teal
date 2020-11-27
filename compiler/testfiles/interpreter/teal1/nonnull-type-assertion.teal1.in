@@ -1,0 +1,14 @@
+// IN: 0
+// EXCEPTION: lang.ir.QualifierException
+// IN: 1
+// OUT: 5
+
+fun main(x : int) = {
+    var y : int ;
+    if (x == 0) {
+       y := null;
+    } else {
+       y := 5;
+    }
+    return (y : nonnull int);
+}
