@@ -217,6 +217,14 @@ aspect IRGen {
 			return new IRVarRef(v);
 		}
 
+		protected IRVar returnVar;
+		public IRVar getReturnVar() {
+			if (returnVar == null) {
+				returnVar = getFreshTempIRVar(F.getIRTypeRef());
+			}
+			return returnVar;
+		}
+
 	}
 
 	public interface FunctionCtxFactory {
@@ -318,10 +326,9 @@ aspect IRGen {
 
 		if (fctx.getCurrentBB().getIRCodeExit() == null) {
 			// no exit here
-			IRVar v = fctx.getFreshTempIRVar(IRModule.makeAnyTypeRef());
-			fctx.addInsn(new IRConstantInsn().setDst(new IRVarRef(v))
+			fctx.addInsn(new IRConstantInsn().setDst(new IRVarRef(fctx.getReturnVar()))
 										.setSrc(new IRNull()));
-			fctx.getCurrentBB().setIRCodeExit(new IRReturn(new IRVarRef(v)));
+			fctx.getCurrentBB().setIRCodeExit(new IRReturn(new IRVarRef(fctx.getReturnVar())));
 		}
 	}
 
@@ -442,8 +449,11 @@ aspect IRGen {
 	public void ReturnStmt.genCode(IRFunctionCtx ctx) {
 		// generate the code to compute the return value
 		IRVarRef retVal = getExpr().genCode(ctx);
+
+		// copy this to the return value
+		ctx.addInsn(new IRCopyInsn(new IRVarRef(ctx.getReturnVar()), retVal));
 		IRCodeBB currentBB = ctx.getCurrentBB();
-		currentBB.setIRCodeExit(new IRReturn(retVal));
+		currentBB.setIRCodeExit(new IRReturn(new IRVarRef(ctx.getReturnVar())));
 		// start a new basic block to hold the translation
 		// of any (unreachable) statements following the return.
 		ctx.startBB();

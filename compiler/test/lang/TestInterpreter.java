@@ -83,7 +83,7 @@ public class TestInterpreter {
 						return true;
 					} else {
 						String version = m.group(1);
-						if (version.equals(Program.LAYER)) {
+						if (Integer.parseInt(version) == Program.LAYER) {
 							return true;
 						}
 					}
