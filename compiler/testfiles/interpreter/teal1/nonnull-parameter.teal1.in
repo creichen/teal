@@ -1,0 +1,18 @@
+// IN: 0
+// EXCEPTION: lang.ir.QualifierException
+// IN: 2
+// OUT: 4
+
+fun f(x : nonnull int) = {
+    return x * x;
+}
+
+fun main(x : int) = {
+    var y : int ;
+    if (x == 0) {
+       y := null;
+    } else {
+       y := x;
+    }
+    return f(y);
+}
