@@ -5,7 +5,9 @@ module("teal-2-ir") {
     imports "teal-0-ir"
 
     jastadd {
-    	    include "ast/object.ast"
+	    include "ast/object.ast"
 	    include "ast/generic.ast"
+	    include "ast/IRPrint.jrag"
+	    include "ast/IRInterpreter.jrag"
     }
 }

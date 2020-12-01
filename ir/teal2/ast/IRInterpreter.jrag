@@ -1,0 +1,45 @@
+aspect IRInterpreter {
+	public class IRObject extends IRValue {
+		private Storage store = new Storage();
+
+		public IRObject(IRConcreteType type) {
+			super(type);
+		}
+
+		public Storage getStore() {
+			return store;
+		}
+	}
+
+
+	public void IRNewInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		// class C[T] { ... new Box[T]() ... } and also
+		// new Map<int, int>
+		IRType type = getIRType();
+		if (type.getIRTypeCon().getNumIRTypeFormal() != type.getNumTypeActual())
+			throw new InterpreterException("Can't instantiate formal parameters of type " + type.getIRTypeCon());
+
+		IRConcreteType tctx = new IRConcreteType(type.getIRTypeCon());
+		for (int i = 0; i < type.getIRTypeCon().getNumIRTypeFormal(); ++i) {
+			IRType actual = (IRType) type.getTypeActual(i);
+			tctx.bind(type.getIRTypeCon().getIRTypeFormal(i), actual);
+		}
+
+		IRValue val = new IRObject(tctx);
+		ctx.getStore().set(getDst(), val);
+	}
+
+	public void IRLoadInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		// extract the instance storage
+		IRObject instance = (IRObject) ctx.getStore().get(getBase());
+		// return the value from the storage
+		ctx.getStore().set(getDst(), instance.getStore().get(getField()));
+	}
+
+	public void IRStoreInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
+		// extract the instance storage
+		IRObject instance = (IRObject) ctx.getStore().get(getBase());
+		// set the value in the instance storage
+		instance.getStore().set(getField(), ctx.getStore().get(getSrc()));
+	}
+}

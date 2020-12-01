@@ -1,0 +1,7 @@
+// Instructions
+IRLoadInsn : IRAbstractLoadInsn ::= Base:IRVarRef Field:IRVarRef;
+IRStoreInsn : IRAbstractStoreInsn ::= Base:IRVarRef Field:IRVarRef;
+IRNewInsn : IRInsn ::= Dst:IRVarRef IRType;
+
+// Class
+IRClass : IRTypeCon ::= IRVar*;

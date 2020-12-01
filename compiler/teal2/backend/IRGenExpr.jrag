@@ -18,8 +18,9 @@ aspect IRGenExpr {
 	}
 
 	refine IRGenExpr eq NewExpr.genCode(IRFunctionCtx ctx) {
+		TypeDecl type = (TypeDecl) getType().getIdUse().lookup().getDecl();
 		// generate special IR instructions for arrays
-		if (((TypeDecl) getType().getIdUse().lookup().getDecl()).isArray()) {
+		if (type.isArray()) {
 			return genCodeArray(ctx);
 		}
 
@@ -28,6 +29,19 @@ aspect IRGenExpr {
 		IRNewInsn newInsn = new IRNewInsn().setDst(dst)
 			.setIRType((IRType) getType().genIR());
 		ctx.addInsn(newInsn);
+
+		// generate initialization code
+		if (type.getNumFunFormal() != getNumActual()) {
+			throw new RuntimeException("Mismatch between the number of formal and actual parameters in " + this + ".");
+		}
+
+		for (int i = 0; i < getNumActual(); ++i) {
+			Expr actual = getActual(i);
+			IRVarRef tmp = actual.genCode(ctx);
+			VarDecl formal = type.getFunFormal(i);
+			ctx.addInsn(new IRStoreInsn().setBase(dst)
+						.setField(new IRVarRef(formal.genIR())).setSrc(tmp));
+		}
 
 		ctx.setSourceLocations(this.sourceLocation());
 
