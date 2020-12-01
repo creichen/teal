@@ -2,34 +2,6 @@ import lang.ir.*;
 import java.util.function.Consumer;
 
 aspect IRGen {
-	public static final VariableScope VariableScope.MEMBER = new VariableScope() {
-			public void genInitializerIR(VarDecl var, IRFunctionCtx ctx) {
-				IRVarRef src = var.getVarDecl().getInitializer().genCode(ctx);
-				ctx.addInsn(new IRSelfInsn().setDst(ctx.getIRVarRef(var)));
-				ctx.addInsn(new IRStoreInsn().setBase(ctx.getIRVarRef(var))
-					    .setField(new IRVarRef(var.genIR()))
-					    .setSrc(src));
-			}
-
-			@Override
-			public void genAssignmentIR(VarDecl var, Access access, IRVarRef rhs, IRFunctionCtx ctx) {
-				ctx.addInsn(new IRSelfInsn().setDst(ctx.getTempIRVar(access)));
-				ctx.addInsn(new IRStoreInsn().setBase(ctx.getTempIRVar(access))
-					    .setField(new IRVarRef(var.genIR()))
-					    .setSrc(rhs));
-			}
-
-			@Override
-			public IRVarRef genLoadIR(VarDecl var, Access access, IRFunctionCtx ctx) {
-				 	IRVar tmp = ctx.getFreshTempIRVar(access);
-					ctx.addInsn(new IRSelfInsn().setDst(new IRVarRef(tmp)));
-					ctx.addInsn(new IRLoadInsn().setBase(new IRVarRef(tmp))
-						    .setField(new IRVarRef(var.genIR()))
-						    .setDst(ctx.getTempIRVar(access)));
-					return ctx.getTempIRVar(access);
-			}
-		};
-
 	public void TypeVarDecl.addIRToModule(IRModule m) { throw new NotYetImplementedError("Cannot translate declaration " + this.getClass()); }
 
 	/**

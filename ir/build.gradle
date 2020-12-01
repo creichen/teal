@@ -6,18 +6,19 @@ plugins {
 jastadd {
     configureModuleBuild()
 
-    modules "${projectDir}/teal0/jastadd_modules", "${projectDir}/teal3/jastadd_modules"
+    modules "${projectDir}/teal0/jastadd_modules", "${projectDir}/teal2/jastadd_modules", "${projectDir}/teal3/jastadd_modules"
     if (project.hasProperty("langVersion")) {
 	switch (project.getProperty("langVersion")) {
 	    case "teal-0":
 	    case "teal-1":
 		module = "teal-0-ir"; break;
 	    case "teal-2":
+		module = "teal-2-ir"; break;
 	    case "teal-3":
 		module = "teal-3-ir"; break;
 	}
     } else {
-	module = "teal-3-ir";
+	module = "teal-2-ir";
     }
 
     println "Using IR module " + module.name

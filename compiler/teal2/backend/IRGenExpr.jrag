@@ -4,8 +4,6 @@ import lang.common.NotYetImplementedError;
 import lang.common.BuiltinNames;
 
 aspect IRGenExpr {
-	eq TypeDecl.getTypeFormal().getScope() = VariableScope.MEMBER;
-
 	// FIXME: this oddity is only needed for NewExpr.genCode()
 	syn IRTypeRef Type.genIRTypeRef() = genIR();
 
@@ -30,22 +28,6 @@ aspect IRGenExpr {
 		IRNewInsn newInsn = new IRNewInsn().setDst(dst)
 			.setIRType((IRType) getType().genIR());
 		ctx.addInsn(newInsn);
-
-		// call the constructor to initialize the object
-		IRDispatchInsn dispatch = new IRDispatchInsn()
-			.setDst(new IRVarRef(ctx.getFreshTempIRVar(this)) /*unused*/)
-			.setBase(ctx.getTempIRVar(this));
-		IRTypeRef irType = getType().genIR();
-
-		// TODO: ensure that new is called only on classes
-		IRClass klass = (IRClass) ((IRType) irType).getIRTypeCon();
-		IRFunction constructor = klass.getConstructor();
-		dispatch.setIRFunRef(new IRFunRef(constructor));
-		for (Expr arg : getActuals()) {
-			IRVarRef r = arg.genCode(ctx);
-			dispatch.addArg(r);
-		}
-		ctx.addInsn(dispatch);
 
 		ctx.setSourceLocations(this.sourceLocation());
 
