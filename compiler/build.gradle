@@ -34,13 +34,13 @@ test {
 jastadd {
     configureModuleBuild()
 
-    modules "${projectDir}/teal0/jastadd_modules", "${projectDir}/teal1/jastadd_modules", "${projectDir}/teal3/jastadd_modules"
+    modules "${projectDir}/teal0/jastadd_modules", "${projectDir}/teal1/jastadd_modules",
+	"${projectDir}/teal2/jastadd_modules", "${projectDir}/teal3/jastadd_modules"
 
     if (project.hasProperty("langVersion")) {
-	// println "Building language version " + project.getProperty("langVersion")
 	module = project.getProperty("langVersion")
     } else {
-	module = "teal-1"
+	module = "teal-2"
     }
 
     println "Using frontend module " + module.name

@@ -1,0 +1,15 @@
+aspect SemanticCheck {
+	eq MemberAccess.isLValue() = true;
+	eq TypeVarDecl.kind() = "type variable";
+	eq TypeDecl.kind() = "type";
+
+	Type contributes new DeclKindError("type", getIdUse().lookup().getDecl().kind(), name(), sourceLocation())
+		when !getIdUse().lookup().isUnknown()
+		  && !(getIdUse().lookup().getDecl().isTypeDecl() || getIdUse().lookup().getDecl().isTypeVarDecl())
+		to Program.semanticErrors();
+
+	TypeQualifier contributes new DeclKindError("type", getIdUse().lookup().getDecl().kind(), name(), sourceLocation())
+		when !getIdUse().lookup().isUnknown()
+		  && !(getIdUse().lookup().getDecl().isTypeDecl() || getIdUse().lookup().getDecl().isTypeVarDecl())
+		to Program.semanticErrors();
+}

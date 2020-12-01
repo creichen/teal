@@ -1,0 +1,54 @@
+import lang.common.BuiltinNames;
+
+aspect BuiltinTypes {
+	syn TypeDefinition Decl.typeDefinition() = null; // Extract type definition if the decl is a type
+
+	syn TypeDefinition Program.INT() = this.INTDecl().typeDefinition();
+	syn TypeDefinition Program.ANY() = this.ANYDecl().typeDefinition();
+	syn TypeDefinition Program.STRING() = this.STRINGDecl().typeDefinition();
+	syn TypeDefinition Program.ARRAY() = this.ARRAYDecl().typeDefinition();
+
+	syn nta Decl Program.INTDecl() = builtinType(BuiltinNames.INT);
+	syn nta Decl Program.ANYDecl() = builtinType(BuiltinNames.ANY);
+	syn nta Decl Program.STRINGDecl() = builtinType(BuiltinNames.STRING);
+	syn nta Decl Program.ARRAYDecl() = builtinType(BuiltinNames.ARRAY)
+		.setTypeFormalList(new List<TypeVarDecl>(new TypeVarDecl(new IdDecl("T"))));
+
+
+	syn nta Decl Program.QUALIFIERDecl() = builtinType(BuiltinNames.QUALIFIER)
+		.setTypeFormalList(new List<TypeVarDecl>().add(new TypeVarDecl(new IdDecl("T"))))
+		.setSuperTypeList(new List<Type>())
+		.setStructEltList(new List<StructElt>())
+		.setFunFormalList(new List<VarDecl>());
+
+	syn TypeDefinition Program.QUALIFIER() = this.QUALIFIERDecl().typeDefinition();
+
+	// Constructs a built-in type.  For Teal-2+, built-in types are classes.
+	syn nta ClassDecl Program.builtinType(String name) = new ClassDecl().setIdDecl(new IdDecl(name));
+
+	refine BuiltinTypes eq Program.simpleTypeFromName(String typename) {
+		return new Type(new IdUse(typename), new List(), new List());
+	}
+
+	/**
+	 * Introduce the builtin types int, string, any, array[T], and the builtin operations
+	 **/
+	refine BuiltinTypes eq Program.getBuiltinDeclsList() {
+		return refined()
+			.add(INTDecl())
+			.add(ANYDecl())
+			.add(STRINGDecl())
+			.add(ARRAYDecl())
+			.add(QUALIFIERDecl());
+	}
+
+	syn boolean TypeDecl.isArray() {
+		return equals(program().ARRAY());
+	}
+
+	// FIXME: general lookupDecl() and more convenient interface for that?
+	syn ClassDecl Type.baseType() {
+		return (ClassDecl) getIdUse().lookup().getDecl();
+	}
+
+}

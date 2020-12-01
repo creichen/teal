@@ -9,13 +9,15 @@ jastadd {
     modules "${projectDir}/teal0/jastadd_modules", "${projectDir}/teal3/jastadd_modules"
     if (project.hasProperty("langVersion")) {
 	switch (project.getProperty("langVersion")) {
-	    default:
+	    case "teal-0":
+	    case "teal-1":
 		module = "teal-0-ir"; break;
+	    case "teal-2":
 	    case "teal-3":
 		module = "teal-3-ir"; break;
 	}
     } else {
-	module = "teal-0-ir";
+	module = "teal-3-ir";
     }
 
     println "Using IR module " + module.name

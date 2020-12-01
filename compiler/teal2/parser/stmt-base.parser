@@ -1,0 +1,6 @@
+ForStmt for_stmt = FOR var_id_decl IN expr block_stmt {: return new ForStmt(var_id_decl, expr, block_stmt); :}
+                 ;
+
+AssertStmt assert_stmt = ASSERT expr SEMICOLON {: return new AssertStmt(expr, ""); :}
+                       ;
+

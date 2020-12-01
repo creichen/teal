@@ -1,0 +1,58 @@
+aspect TypeAnalysis {
+	public interface TypeDefinition {
+		lang.ir.IRTypeRef genIRTypeRef(); // code generation only
+		IdDecl memberLookup(String name);
+	}
+
+	eq ClassDecl.typeDefinition() = this;
+
+	TypeDecl implements TypeDefinition;
+	TypeVarDecl implements TypeDefinition;
+
+	// The following gives us the type of the expression if and only if we know the type precisely
+	syn TypeDefinition Expr.implicitType() = null;
+	eq IntConstant.implicitType() = program().INT();
+	eq StringConstant.implicitType() = program().STRING();
+	eq TypedExpr.implicitType() {
+		return (TypeDefinition) getDeclaredType().getIdUse().lookup().getDecl();
+	}
+
+	// The inferred type of the expression:
+	syn TypeDefinition Expr.type() {
+		TypeDefinition ty = this.implicitType();
+		if (ty != null)
+			return ty;
+		return program().ANY();
+	}
+
+	inh TypeDefinition StructElt.enclosingType();
+	eq TypeDecl.getStructElt().enclosingType() = this;
+	inh TypeDefinition Self.enclosingType();
+	eq Self.type() = enclosingType();
+
+	syn TypeDefinition VarDecl.variableType() {
+		if (hasDeclaredType()) {
+			return (TypeDefinition) getDeclaredType().getIdUse().lookup().getDecl();
+		}
+		if (hasInitializer()) {
+			return getInitializer().type();
+		}
+		return program().ANY();
+	}
+
+	syn TypeDefinition FunDecl.returnType() {
+		if (hasDeclaredReturnType()) {
+			return (TypeDefinition) getDeclaredReturnType().getIdUse().lookup().getDecl();
+		}
+		return program().ANY();
+	}
+
+	eq Access.type() {
+		VarDecl d = (VarDecl) getIdUse().lookup().getDecl();
+		if (d.hasDeclaredType())
+			return (TypeDefinition) d.getDeclaredType().decl();
+		return program().ANY();
+	}
+
+
+}

@@ -1,0 +1,157 @@
+import lang.ir.*;
+import lang.common.SourceLocation;
+import lang.common.NotYetImplementedError;
+import lang.common.BuiltinNames;
+
+aspect IRGenExpr {
+
+	eq VarDeclElt.getVarDecl().getScope() = VariableScope.MEMBER;
+	eq FunDeclElt.getFunDecl().getScope() = VariableScope.MEMBER;
+	eq ClassDecl.getFunFormal().getScope() = VariableScope.MEMBER;
+	eq QualifierDecl.getFunFormal().getScope() = VariableScope.MEMBER;
+	eq TypeDecl.getTypeFormal().getScope() = VariableScope.MEMBER;
+
+
+	// public IRVarRef CallExpr.genCode(IRFunctionCtx ctx) {
+	// 	IdUse fun = getIdUse();
+	// 	FunDecl fd = (FunDecl) fun.lookup().getDecl();
+	// 	IRFunRef funCallTarget = new IRFunRef(fd.genIR());
+	// 	IRVarRef r = ctx.getTempIRVar(this);
+	// 	if (fd.getScope() == VariableScope.GLOBAL) {
+	// 		IRCallInsn call = new IRCallInsn().setDst(r);
+	// 		call.setIRFunRef(funCallTarget);
+	// 		for (Expr e : getActuals()) {
+	// 			IRVarRef arg = e.genCode(ctx);
+	// 			call.addArg(arg);
+	// 		}
+	// 		ctx.addInsn(call);
+	// 	} else {
+	// 		assert fd.getScope() == VariableScope.MEMBER;
+	// 		IRVar selfVar = ctx.getFreshTempIRVar(this);
+	// 		IRSelfInsn self = new IRSelfInsn().setDst(new IRVarRef(selfVar));
+	// 		ctx.addInsn(self);
+
+	// 		IRDispatchInsn dispatch = new IRDispatchInsn().setDst(r);
+	// 		dispatch.setIRFunRef(funCallTarget);
+	// 		dispatch.setBase(new IRVarRef(selfVar));
+	// 		for (Expr e : getActuals()) {
+	// 			IRVarRef arg = e.genCode(ctx);
+	// 			dispatch.addArg(arg);
+	// 		}
+	// 		ctx.addInsn(dispatch);
+	// 	}
+	// 	ctx.setSourceLocations(this.sourceLocation());
+	// 	return r;
+	// }
+
+	public IRVarRef Self.genCode(IRFunctionCtx ctx) {
+		IRVarRef selfVar = ctx.getTempIRVar(this);
+		IRSelfInsn self = new IRSelfInsn().setDst(selfVar);
+		ctx.addInsn(self);
+		return selfVar;
+	}
+
+	public IRVarRef DispatchExpr.genCode(IRFunctionCtx ctx) {
+		Expr base = getExpr();
+		TypeDefinition type = base.type();
+		if (type == null) {
+			throw new RuntimeException("Can't generate dispatch from unknown base type, " + this.dumpTree() + ".");
+		}
+		IdDecl memberIdDecl = type.memberLookup(getIdentifier());
+		if (memberIdDecl == null) {
+			throw new RuntimeException("Can't generate dispatch to unknown member, " + this.dumpTree() + ".");
+		}
+		Decl memberDecl = memberIdDecl.getDecl();
+		if (!(memberDecl instanceof FunDecl)) {
+			throw new RuntimeException("Can't call a member that is not a method, " + this.dumpTree() + ".");
+		}
+		IRVarRef tmp = ctx.getTempIRVar(this);
+		IRDispatchInsn dispatch = new IRDispatchInsn()
+			.setBase(base.genCode(ctx))
+			.setIRFunRef(new IRFunRef(((FunDecl) memberDecl).genIR()))
+			.setDst(tmp);
+		for (Expr arg : getActuals()) {
+			IRVarRef r = arg.genCode(ctx);
+			dispatch.addArg(r);
+		}
+		ctx.addInsn(dispatch);
+		ctx.setSourceLocations(this.sourceLocation());
+		return tmp;
+	}
+
+	// FIXME: this oddity is only needed for NewExpr.genCode()
+	syn IRTypeRef Type.genIRTypeRef() = genIR();
+
+	public IRVarRef NewExpr.genCodeArray(IRFunctionCtx ctx) {
+		IRVarRef dst = ctx.getTempIRVar(this);
+		IRVarRef size = getActual(0).genCode(ctx);
+		IRNewArrayInsn newInsn = new IRNewArrayInsn().setDst(dst)
+			.setIRType((IRType) getType().getActual(0).genIRTypeRef()).setSize(size);
+		ctx.addInsn(newInsn);
+		ctx.setSourceLocations(this.sourceLocation());
+		return dst;
+	}
+
+	refine IRGenExpr eq NewExpr.genCode(IRFunctionCtx ctx) {
+		// generate special IR instructions for arrays
+		if (((ClassDecl) getType().getIdUse().lookup().getDecl()).isArray()) {
+			return genCodeArray(ctx);
+		}
+
+		// allocate storage for the object
+		IRVarRef dst = ctx.getTempIRVar(this);
+		IRNewInsn newInsn = new IRNewInsn().setDst(dst)
+			.setIRType((IRType) getType().genIR());
+		ctx.addInsn(newInsn);
+
+		// call the constructor to initialize the object
+		IRDispatchInsn dispatch = new IRDispatchInsn()
+			.setDst(new IRVarRef(ctx.getFreshTempIRVar(this)) /*unused*/)
+			.setBase(ctx.getTempIRVar(this));
+		IRTypeRef irType = getType().genIR();
+
+		// TODO: ensure that new is called only on classes
+		IRClass klass = (IRClass) ((IRType) irType).getIRTypeCon();
+		IRFunction constructor = klass.getConstructor();
+		dispatch.setIRFunRef(new IRFunRef(constructor));
+		for (Expr arg : getActuals()) {
+			IRVarRef r = arg.genCode(ctx);
+			dispatch.addArg(r);
+		}
+		ctx.addInsn(dispatch);
+
+		ctx.setSourceLocations(this.sourceLocation());
+
+		// return a reference to the allocated storage
+		return dst;
+	}
+
+	public void MemberAccess.genAssignment(IRVarRef rhs, IRFunctionCtx ctx) {
+		Expr base = getExpr();
+		TypeDefinition type = base.type();
+		Decl memberDecl = type.memberLookup(getIdentifier()).getDecl();
+		if (!(memberDecl instanceof VarDecl)) {
+			super.genAssignment(rhs, ctx);
+		}
+
+		ctx.addInsn(new IRStoreInsn().setBase(base.genCode(ctx))
+					.setField(new IRVarRef(((VarDecl)memberDecl).genIR()))
+					.setSrc(rhs));
+
+		ctx.setSourceLocations(this.sourceLocation());
+	}
+
+	public IRVarRef MemberAccess.genCode(IRFunctionCtx ctx) {
+		Expr base = getExpr();
+		TypeDefinition type = base.type();
+		Decl memberDecl = type.memberLookup(getIdentifier()).getDecl();
+		if (!(memberDecl instanceof VarDecl))
+			throw new RuntimeException("Can't load a member that is not a field, " + this + ".");
+		IRVarRef tmp = ctx.getTempIRVar(this);
+		ctx.addInsn(new IRLoadInsn().setBase(base.genCode(ctx))
+					.setField(new IRVarRef(((VarDecl) memberDecl).genIR()))
+					.setDst(tmp));
+		ctx.setSourceLocations(this.sourceLocation());
+		return tmp;
+	}
+}

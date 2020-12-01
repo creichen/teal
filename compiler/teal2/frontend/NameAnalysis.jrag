@@ -1,0 +1,144 @@
+import java.util.HashMap;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Collection;
+
+aspect NameAnalysis {
+	syn Decl Type.decl() = getIdUse().lookup().getDecl();
+
+	eq StmtElt.getStmt().lookup(String s) {
+		return lookup(s);
+	}
+
+	inh IdDecl StructElt.lookup(String s);
+
+	eq TypeDecl.getStructElt().lookup(String s) {
+		// lookup in the local list of variables
+		// and methods and then in the supertypes'
+		// list of variables and methods
+		IdDecl d = memberLookup(s);
+		if (d != null)
+			return d;
+		// lookup in program scope
+		return lookup(s);
+	}
+
+	inh IdDecl Type.lookup(String s);
+	eq TypeDecl.getSuperType().lookup(String s) {
+		// search in the type formals first
+		for (TypeVarDecl typeVar : getTypeFormals()) {
+			if (typeVar.name().equals(s))
+				return typeVar.getIdDecl();
+		}
+		return lookup(s);
+	}
+
+	eq ClassDecl.getFunFormal().lookup(String s) {
+		// search in the type formals first
+		for (TypeVarDecl typeVar : getTypeFormals()) {
+			if (typeVar.name().equals(s))
+				return typeVar.getIdDecl();
+		}
+		return lookup(s);
+	}
+
+	eq QualifierDecl.getFunFormal().lookup(String s) {
+		// search in the type formals first
+		for (TypeVarDecl typeVar : getTypeFormals()) {
+			if (typeVar.name().equals(s))
+				return typeVar.getIdDecl();
+		}
+		return lookup(s);
+	}
+
+	inh IdDecl TypeDecl.lookup(String s);
+	eq FunDeclElt.getFunDecl().lookup(String s) {
+		return lookup(s);
+	}
+
+	eq AssertStmt.getExpr().lookup(String s) = lookup(s);
+
+	eq QualifierDecl.getIdDecl().getDecl() = this;
+	eq TypeDecl.getIdDecl().getDecl() = this;
+	eq TypeVarDecl.getIdDecl().getDecl() = this;
+}
+
+aspect NameAnalysisPrivate {
+	syn IdDecl StructElt.getMemberDecl() = null;
+	eq VarDeclElt.getMemberDecl() = getVarDecl().getIdDecl();
+	eq FunDeclElt.getMemberDecl() = getFunDecl().getIdDecl();
+
+	/**
+	   For type, class and interface declarations: the type paramaters,
+	   constructor parameters, method names and variable declarations
+	   share a single namespace.
+	 **/
+	syn MultiHashMap<String, IdDecl> TypeDecl.localDeclMap() {
+		// Declared formal type parameters
+		MultiHashMap<String, IdDecl> declMap = new MultiHashMap<>();
+		for (TypeVarDecl d : getTypeFormals()) {
+			IdDecl decl = d.getIdDecl();
+			declMap.append(decl.getIdentifier(), decl);
+		}
+		// Declared variables and methods
+		for (StructElt se : getStructElts()) {
+			IdDecl decl = se.getMemberDecl();
+			if (decl != null)
+				declMap.append(decl.getIdentifier(), decl);
+		}
+		return declMap;
+	}
+	eq ClassDecl.localDeclMap() {
+		MultiHashMap<String, IdDecl> declMap = super.localDeclMap();
+		for (VarDecl d : getFunFormals()) {
+			IdDecl decl = d.getIdDecl();
+			declMap.append(decl.getIdentifier(), decl);
+		}
+		return declMap;
+	}
+	eq QualifierDecl.localDeclMap() {
+		MultiHashMap<String, IdDecl> declMap = super.localDeclMap();
+		for (VarDecl d : getFunFormals()) {
+			IdDecl decl = d.getIdDecl();
+			declMap.append(decl.getIdentifier(), decl);
+		}
+		return declMap;
+	}
+
+	syn IdDecl Decl.memberLookup(String s) = null;
+	eq TypeDecl.memberLookup(String s) {
+		IdDecl d = localDeclMap().getOne(s);
+		if (d != null)
+			return d;
+
+		for (Type superType : getSuperTypes()) {
+			Decl superDecl = superType.decl();
+			if (superDecl == null)
+				continue;
+
+			d = superDecl.memberLookup(s);
+			if (d != null)
+				return d;
+		}
+
+		return null;
+	}
+
+	eq TypeVarDecl.memberLookup(String s) {
+		// TODO: implement once TEAL supports type bounds
+		return null;
+	}
+
+
+        syn String TypeQualifier.name() {
+            return getIdUse().getIdentifier();
+        }
+
+        syn String Type.name() {
+            return getIdUse().getIdentifier();
+        }
+}
+
+aspect NameAnalysisCheck {
+}

@@ -1,0 +1,224 @@
+aspect IRGenType {
+	syn IRTypeFormal TypeVarDecl.genIR() {
+		return new IRTypeFormal(new IRName(name()));
+	}
+
+	syn IRTypeCon TypeDecl.genIR() {
+		throw new NotYetImplementedError("Translation of types not fully implemented");
+	}
+
+	syn IRVar VarDeclElt.genIR() {
+		return getVarDecl().genIR();
+	}
+
+	syn IRFunction FunDeclElt.genIR() {
+		return getFunDecl().genIR();
+	}
+
+	public IRFunction ClassDecl.makeConstructor() {
+		IRFunction init = new IRFunction();
+		init.setIRName(new IRName("__init"));
+
+		// build the return type
+		init.setIRTypeRef(IRModule.makeAnyTypeRef());
+
+		// formal param types
+		lang.ir.List<IRTypeRef> irTypes = new lang.ir.List<>();
+		for (VarDecl d : getFunFormals()) {
+			irTypes.add(d.variableType().genIRTypeRef());
+		}
+		init.setParamTypeList(irTypes);
+		// extract the arguments
+		IRFunctionCtx fctx = this.functionCtxFactory().genCtx(init);
+		fctx.startBB();
+		for (int i = 0; i < getNumFunFormal(); ++i) {
+			VarDecl d = getFunFormal(i);
+			// extract the argument
+			IRArgInsn iarg = new IRArgInsn(fctx.getIRVarRef(d), i);
+			fctx.addInsn(iarg);
+			// copy the argument to the member variable
+			IRVar selfVar = fctx.getFreshTempIRVar(IRModule.makeAnyTypeRef());
+			IRSelfInsn self = new IRSelfInsn().setDst(new IRVarRef(selfVar));
+			fctx.addInsn(self);
+			IRStoreInsn store = new IRStoreInsn().setBase(new IRVarRef(selfVar))
+				.setField(new IRVarRef(d.genIR())).setSrc(fctx.getIRVarRef(d));
+			fctx.addInsn(store);
+		}
+		// now add any initializer code
+		for (StructElt e : getStructElts()) {
+			if (e instanceof VarDeclElt) {
+				VarDeclElt d = (VarDeclElt) e;
+				d.getVarDecl().genCode(fctx);
+			} else if (e instanceof StmtElt) {
+				((StmtElt) e).getStmt().genCode(fctx);
+			}
+		}
+		// return null
+		if (fctx.getCurrentBB().getIRCodeExit() == null) {
+			IRVar v = fctx.getFreshTempIRVar(IRModule.makeAnyTypeRef());
+			fctx.addInsn(new IRConstantInsn().setDst(new IRVarRef(v))
+										.setSrc(new IRNull()));
+			fctx.getCurrentBB().setIRCodeExit(new IRReturn(new IRVarRef(v)));
+		}
+		// done
+		return init;
+	}
+
+	eq ClassDecl.genIR() {
+		return this.genIRClass();
+	}
+
+	syn IRClass ClassDecl.genIRClass() {
+		// FIXME: easier get-name for everything
+		// class with a name
+		IRClass klass = new IRClass().setIRName(new IRName(name()));
+		klass.setSourceLocation(this.sourceLocation());
+		// set formal type parameters
+		for (TypeVarDecl d : getTypeFormals()) {
+			klass.addIRTypeFormal(d.genIR());
+		}
+
+		if (getNumSuperType() == 0 && program().ANY() != this) {
+			// no declared supertypes, add the default: any
+			klass.addSuper((IRType) program().ANY().genIRTypeRef());
+		}
+		// set supertypes
+		for (Type t : getSuperTypes()) {
+			klass.addSuper((IRType) t.genIR());
+		}
+
+		return klass;
+	}
+
+	public void ClassDecl.genCode(IRClass klass) {
+		// set the fields
+		for (StructElt e : getStructElts()) {
+			if (e instanceof VarDeclElt) {
+				klass.addIRVar(((VarDeclElt)e).genIR());
+			}
+		}
+		// add the class argument parameters as fields
+		for (VarDecl d : getFunFormals()) {
+			klass.addIRVar(d.genIR());
+		}
+
+		// build the constructor, which contains initializers for all the fields
+		IRFunction init = makeConstructor();
+		klass.setConstructor(init);
+		// build the methods
+		for (StructElt e : getStructElts()) {
+			if (e instanceof FunDeclElt) {
+				FunDecl fd = ((FunDeclElt) e).getFunDecl();
+				IRFunction f = fd.genIR();
+				fd.genCode(this.functionCtxFactory().genCtx(f));
+				klass.addIRFunction(f);
+			}
+		}
+	}
+
+	public IRTypeRef Decl.genIRTypeRef() {
+		return null;
+	}
+
+	@Override public IRTypeRef TypeDecl.genIRTypeRef() {
+		IRTypeRef retval = new IRType().setIRTypeCon(genIR());
+		return retval;
+	}
+
+	@Override public IRTypeRef TypeVarDecl.genIRTypeRef() {
+		return new IRTypeFormalRef(genIR());
+	}
+
+	public IRTypeRef Type.genIR() {
+		Decl d = getIdUse().lookup().getDecl();
+		if (d instanceof TypeVarDecl) {
+			return d.genIRTypeRef();
+		} else if (d instanceof TypeDecl) {
+			IRType t = (IRType) ((TypeDecl) d).genIRTypeRef();
+			for (Type actual : getActuals()) {
+				t.addTypeActual(actual.genIR());
+			}
+			return t;
+			// TODO: add qualifiers here
+		} else {
+			throw new RuntimeException("Can't generate a type reference to something that is not a type, " + d + ".");
+		}
+	}
+
+
+	inh Type TypeQualifier.getQualifiedType();
+	eq Type.getTypeQualifier().getQualifiedType() = this;
+
+	public IRTypeRef TypeQualifier.genIR() {
+		ClassDecl qualDecl = (ClassDecl) getIdUse().lookup().getDecl();
+		IRType ref = new IRType();
+		ref.setIRTypeCon(qualDecl.genIR());
+		for (Type t : getTypeActuals()) {
+			ref.addTypeActual(t.genIR());
+		}
+		return ref;
+	}
+
+	public IRVar TypeQualifier.genQualifierIRVar(IRFunctionCtx ctx) {
+		return ((IRFunctionCtxWithQualifiers) ctx).getQualifierIRVar(this);
+	}
+
+	public void TypeQualifier.genCode(IRFunctionCtx ctx) {
+		// initialize the local variable corresponding to this
+		// qualifier
+		IRVar v = this.genQualifierIRVar(ctx);
+		IRNewInsn n = new IRNewInsn().setDst(new IRVarRef(v))
+			.setIRType((IRType) genIR());
+		ctx.addInsn(n);
+
+		// call the qualifier's constructor
+		IRDispatchInsn dispatch = new IRDispatchInsn()
+			.setDst(new IRVarRef(ctx.getFreshTempIRVar(IRModule.makeAnyTypeRef())) /* discarded */)
+			.setBase(new IRVarRef(v));
+		IRClass klass = (IRClass) ((IRType) genIR()).getIRTypeCon();
+		IRFunction constructor = klass.getConstructor();
+		dispatch.setIRFunRef(new IRFunRef(constructor));
+		for (Expr arg : getFunActuals()) {
+			IRVarRef r = arg.genCode(ctx);
+			dispatch.addArg(r);
+		}
+		ctx.addInsn(dispatch);
+	}
+
+	public void VarDecl.genCodeQualifiers(IRFunctionCtx ctx) {
+		if (!hasDeclaredType()) {
+			return;
+		}
+		if (getScope() == VariableScope.LOCAL) {
+			for (TypeQualifier q : getDeclaredType().getTypeQualifiers()) {
+				q.genCode(ctx);
+			}
+		}
+	}
+
+	public void TypeQualifier.genQualifierCheck(IRFunctionCtx ctx, VarDecl d) {
+		IRVar qVar = this.genQualifierIRVar(ctx);
+		ClassDecl qualDecl = (ClassDecl) getIdUse().lookup().getDecl();
+		FunDecl checkFun = (FunDecl) qualDecl.memberLookup("check").getDecl();
+
+		IRDispatchInsn dispatch = new IRDispatchInsn()
+			.setDst(new IRVarRef(ctx.getFreshTempIRVar(IRModule.makeAnyTypeRef())) /* discarded */)
+			.setBase(new IRVarRef(qVar))
+			.setIRFunRef(new IRFunRef(checkFun.genIR()))
+			.addArg(ctx.getIRVarRef(d));
+		ctx.addInsn(dispatch);
+	}
+
+	/**
+	 * Generates code to check all qualifiers for this variable
+	 */
+	public void VarDecl.genQualifierCheck(IRFunctionCtx ctx) {
+		if (!hasDeclaredType())
+			return ;
+		if (getScope() == VariableScope.LOCAL) {
+			for (TypeQualifier q : getDeclaredType().getTypeQualifiers()) {
+				q.genQualifierCheck(ctx, this);
+			}
+		}
+	}
+}

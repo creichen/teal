@@ -1,0 +1,58 @@
+// Teal-2 parsing and program representation
+module("teal-2") {
+    moduleName "teal-2"
+
+    imports "teal-1"
+
+    jastadd {
+	include "ast/teal.ast"
+	excludeFrom "teal-0", "ast/type.ast"
+	excludeFrom "teal-1", "ast/type.ast"
+
+	// Meta-information
+	include "frontend/Version.jrag"
+	excludeFrom "teal-1", "frontend/Version.jrag"
+
+	// Semantic Analysis
+	include "frontend/BuiltinTypes.jrag"
+	excludeFrom "teal-0", "frontend/TypeAnalysisBuiltinTypes.jrag"
+	excludeFrom "teal-0", "frontend/TypeAnalysis.jrag"
+	excludeFrom "teal-1", "frontend/SemanticCheck.jrag"
+
+	include "frontend/NameAnalysis.jrag"
+	include "frontend/SemanticCheck.jrag"
+	include "frontend/TypeAnalysis.jrag"
+	include "frontend/Decl.jrag"
+
+	// Code generation
+	include "backend/IRGenExpr.jrag"
+	include "backend/IRGen.jrag"
+	include "backend/IRGenType.jrag"
+	excludeFrom "teal-0", "backend/IRGenBuiltinType.jrag"
+	excludeFrom "teal-1", "backend/IRGenBuiltinType.jrag"
+    }
+
+    scanner {
+	excludeFrom "teal-0", "scanner/type.flex"
+	excludeFrom "teal-1", "scanner/type.flex"
+	include "scanner/scanner.flex"
+    }
+
+    parser {
+	include "parser/term.parser"
+	excludeFrom "teal-0", "parser/term.parser"
+	excludeFrom "teal-1", "parser/term.parser"
+
+	include "parser/stmt-base.parser"
+	include "parser/stmt.parser"
+	excludeFrom "teal-0", "parser/stmt.parser"
+	excludeFrom "teal-1", "parser/stmt.parser"
+
+	include "parser/decl.parser"
+	include "parser/decl-base.parser"
+	excludeFrom "teal-0", "parser/decl.parser"
+
+	excludeFrom "teal-0", "parser/type.parser"
+	excludeFrom "teal-1", "parser/type.parser"
+    }
+}

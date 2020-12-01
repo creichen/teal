@@ -1,0 +1,14 @@
+Expr term = LPAREN expr RPAREN {: return expr; :}
+          | INTEGER_LITERAL {: return new IntConstant((Long)INTEGER_LITERAL.value); :}
+          | STRING_LITERAL {: return new StringConstant((String)STRING_LITERAL.value); :}
+          | ID {: return new Access(new IdUse(ID)); :}
+          | LBRACK fun_actual_list_maybe_empty RBRACK {: return new ArrayLiteralExpr(fun_actual_list_maybe_empty); :}
+          | term DOT ID {: return new MemberAccess(term, ID); :}
+          | ID LPAREN fun_actual_list_maybe_empty RPAREN {: return new CallExpr(new IdUse(ID), fun_actual_list_maybe_empty); :}
+          | term DOT ID LPAREN fun_actual_list_maybe_empty RPAREN {: return new DispatchExpr(term, ID, fun_actual_list_maybe_empty); :}
+          | term.b LBRACK expr.i RBRACK {: return new IndexExpr(b, i); :}
+          | LPAREN expr COLON type RPAREN  {: return new TypedExpr(expr, type); :}
+          | NEW type_no_qual LPAREN fun_actual_list_maybe_empty RPAREN {: return new NewExpr(type_no_qual, fun_actual_list_maybe_empty); :}
+          | SELF {: return new Self(); :}
+	  | NULL {: return new Null(); :}
+          ;

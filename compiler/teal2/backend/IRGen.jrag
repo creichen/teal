@@ -1,0 +1,101 @@
+import lang.ir.*;
+import java.util.function.Consumer;
+
+aspect IRGen {
+	public static final VariableScope VariableScope.MEMBER = new VariableScope() {
+			public void genInitializerIR(VarDecl var, IRFunctionCtx ctx) {
+				IRVarRef src = var.getVarDecl().getInitializer().genCode(ctx);
+				ctx.addInsn(new IRSelfInsn().setDst(ctx.getIRVarRef(var)));
+				ctx.addInsn(new IRStoreInsn().setBase(ctx.getIRVarRef(var))
+					    .setField(new IRVarRef(var.genIR()))
+					    .setSrc(src));
+			}
+
+			@Override
+			public void genAssignmentIR(VarDecl var, Access access, IRVarRef rhs, IRFunctionCtx ctx) {
+				ctx.addInsn(new IRSelfInsn().setDst(ctx.getTempIRVar(access)));
+				ctx.addInsn(new IRStoreInsn().setBase(ctx.getTempIRVar(access))
+					    .setField(new IRVarRef(var.genIR()))
+					    .setSrc(rhs));
+			}
+
+			@Override
+			public IRVarRef genLoadIR(VarDecl var, Access access, IRFunctionCtx ctx) {
+				 	IRVar tmp = ctx.getFreshTempIRVar(access);
+					ctx.addInsn(new IRSelfInsn().setDst(new IRVarRef(tmp)));
+					ctx.addInsn(new IRLoadInsn().setBase(new IRVarRef(tmp))
+						    .setField(new IRVarRef(var.genIR()))
+						    .setDst(ctx.getTempIRVar(access)));
+					return ctx.getTempIRVar(access);
+			}
+		};
+
+	public void TypeVarDecl.addIRToModule(IRModule m) { throw new NotYetImplementedError("Cannot translate declaration " + this.getClass()); }
+
+	public void TypeDecl.addIRToModule(IRModule m) { throw new NotYetImplementedError("Cannot translate declaration " + this.getClass()); }
+
+	public class IRFunctionCtxWithQualifiers extends IRFunctionCtx {
+		private HashMap<TypeQualifier, IRVar> qualifiers; // qualifier instances stored in locals
+
+		public IRFunctionCtxWithQualifiers(IRFunction F) {
+			super(F);
+			this.qualifiers = new HashMap<>();
+		}
+
+		public IRVar getQualifierIRVar(TypeQualifier qual) {
+			IRVar v = qualifiers.get(qual);
+			if (v == null) {
+				v = new IRVar(new IRName("__qual_" + qual.name() + counter++),
+							  qual.genIR());
+				F.addLocal(v);
+				qualifiers.put(qual, v);
+			}
+			return v;
+		}
+	}
+
+
+	/**
+	 * Attaches class IR to owning module
+	 */
+	@Override
+	public void ClassDecl.addIRToModule(IRModule m) {
+		IRClass c = this.genIRClass();
+		this.genCode(c);
+		m.addIRTypeCon(c);
+	}
+
+	/**
+	 * Postprocess variable initialisation and updates: apply qualifier checks
+	 */
+        refine IRGen eq VarDecl.postprocessingIRGen() {
+		return new VarPostprocessingIR() {
+			@Override
+			public void genPostInitIR(IRFunctionCtx ctx) {
+				VarDecl.this.genCodeQualifiers(ctx);
+			}
+
+			@Override
+			public void genPostUpdateIR(IRFunctionCtx ctx) {
+				VarDecl.this.genQualifierCheck(ctx);
+			}
+		};
+	}
+
+	/**
+	 * Use contexts with support for qualifiers
+	 */
+	refine IRGen eq Decl.functionCtxFactory() {
+		return new FunctionCtxFactory() {
+			@Override
+			public IRFunctionCtx genCtx(IRFunction f) {
+				return new IRFunctionCtxWithQualifiers(f) {};
+			}
+		};
+	}
+
+	public void AssertStmt.genCode(IRFunctionCtx ctx) {
+		IRVarRef test = getExpr().genCode(ctx);
+		ctx.addInsn(new IRAssertInsn(test));
+	}
+}

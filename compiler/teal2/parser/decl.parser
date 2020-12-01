@@ -1,0 +1,13 @@
+// Declarations
+
+Decl decl = var_decl
+          | fun_decl
+          | type_decl
+          | class_decl
+          | qualifier_decl
+          ;
+
+FunDecl fun_decl = concrete_fun_decl
+                 | abstract_fun_decl
+                 ;
+

@@ -1,0 +1,26 @@
+// Type Variables
+TypeVarDecl : Decl ::= IdDecl;
+
+// Type declarations
+TypeDecl : Decl ::= IdDecl TypeFormal:TypeVarDecl* SuperType:Type* StructElt*;
+
+abstract StructElt;
+VarDeclElt : StructElt ::= VarDecl;
+FunDeclElt : StructElt ::= FunDecl;
+StmtElt : StructElt ::= Stmt;
+
+// Class declarations
+ClassDecl : TypeDecl ::= FunFormal:VarDecl*;
+
+// Qualifier declarations
+QualifierDecl : TypeDecl ::= FunFormal:VarDecl*;
+
+// Type uses
+TypeQualifier ::= IdUse TypeActual:Type* FunActual:Expr*;
+Type ::= IdUse Actual:Type* TypeQualifier*;
+
+// Expressions for OO
+DispatchExpr : Expr ::= Expr <Identifier> Actual:Expr*;
+Self : Expr ;
+MemberAccess : Expr ::= Expr <Identifier>;
+AssertStmt : Stmt ::= Expr <Message:String>;
