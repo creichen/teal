@@ -32,35 +32,12 @@ aspect IRGen {
 
 	public void TypeVarDecl.addIRToModule(IRModule m) { throw new NotYetImplementedError("Cannot translate declaration " + this.getClass()); }
 
-	public void TypeDecl.addIRToModule(IRModule m) { throw new NotYetImplementedError("Cannot translate declaration " + this.getClass()); }
-
-	public class IRFunctionCtxWithQualifiers extends IRFunctionCtx {
-		private HashMap<TypeQualifier, IRVar> qualifiers; // qualifier instances stored in locals
-
-		public IRFunctionCtxWithQualifiers(IRFunction F) {
-			super(F);
-			this.qualifiers = new HashMap<>();
-		}
-
-		public IRVar getQualifierIRVar(TypeQualifier qual) {
-			IRVar v = qualifiers.get(qual);
-			if (v == null) {
-				v = new IRVar(new IRName("__qual_" + qual.name() + counter++),
-							  qual.genIR());
-				F.addLocal(v);
-				qualifiers.put(qual, v);
-			}
-			return v;
-		}
-	}
-
-
 	/**
 	 * Attaches class IR to owning module
 	 */
 	@Override
-	public void ClassDecl.addIRToModule(IRModule m) {
-		IRClass c = this.genIRClass();
+	public void TypeDecl.addIRToModule(IRModule m) {
+		IRClass c = this.genIRStruct();
 		this.genCode(c);
 		m.addIRTypeCon(c);
 	}
@@ -72,30 +49,11 @@ aspect IRGen {
 		return new VarPostprocessingIR() {
 			@Override
 			public void genPostInitIR(IRFunctionCtx ctx) {
-				VarDecl.this.genCodeQualifiers(ctx);
 			}
 
 			@Override
 			public void genPostUpdateIR(IRFunctionCtx ctx) {
-				VarDecl.this.genQualifierCheck(ctx);
 			}
 		};
-	}
-
-	/**
-	 * Use contexts with support for qualifiers
-	 */
-	refine IRGen eq Decl.functionCtxFactory() {
-		return new FunctionCtxFactory() {
-			@Override
-			public IRFunctionCtx genCtx(IRFunction f) {
-				return new IRFunctionCtxWithQualifiers(f) {};
-			}
-		};
-	}
-
-	public void AssertStmt.genCode(IRFunctionCtx ctx) {
-		IRVarRef test = getExpr().genCode(ctx);
-		ctx.addInsn(new IRAssertInsn(test));
 	}
 }

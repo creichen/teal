@@ -4,7 +4,7 @@ aspect TypeAnalysis {
 		IdDecl memberLookup(String name);
 	}
 
-	eq ClassDecl.typeDefinition() = this;
+	eq TypeDecl.typeDefinition() = this;
 
 	TypeDecl implements TypeDefinition;
 	TypeVarDecl implements TypeDefinition;
@@ -24,11 +24,6 @@ aspect TypeAnalysis {
 			return ty;
 		return program().ANY();
 	}
-
-	inh TypeDefinition StructElt.enclosingType();
-	eq TypeDecl.getStructElt().enclosingType() = this;
-	inh TypeDefinition Self.enclosingType();
-	eq Self.type() = enclosingType();
 
 	syn TypeDefinition VarDecl.variableType() {
 		if (hasDeclaredType()) {

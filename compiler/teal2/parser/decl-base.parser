@@ -1,37 +1,8 @@
-TypeDecl type_decl = TYPE ID type_formals EQ type SEMICOLON
-                        {:return new TypeDecl(new IdDecl(ID), type_formals, new List().add(type), new List()); :}
-                   | TYPE ID type_formals SUBTYPE type_actual_list EQ struct_decl
-                        {: return new TypeDecl(new IdDecl(ID), type_formals, type_actual_list, struct_decl); :}
-                   | TYPE ID type_formals EQ struct_decl
-                        {: return new TypeDecl(new IdDecl(ID), type_formals, new List(), struct_decl); :}
+TypeDecl type_decl = TYPE ID type_formals fun_formals_opt
+                           {: return new TypeDecl(new IdDecl(ID), type_formals, fun_formals_opt); :}
                    ;
 
-List struct_decl = LBRACE struct_elt* RBRACE {: return struct_elt; :}
-                 ;
-StructElt struct_elt = var_decl {: return new VarDeclElt(var_decl); :}
-                     | fun_decl {: return new FunDeclElt(fun_decl); :}
-                     | expr_stmt {: return new StmtElt(expr_stmt); :}
-                     | assign_stmt {: return new StmtElt(assign_stmt); :}
-                     ;
-
-ClassDecl class_decl = CLASS ID type_formals fun_formals_opt EQ struct_decl
-                           {: return new ClassDecl(new IdDecl(ID), type_formals, new List(), struct_decl, fun_formals_opt); :}
-                     | CLASS ID type_formals fun_formals_opt SUBTYPE type_actual_list EQ struct_decl
-                           {: return new ClassDecl(new IdDecl(ID), type_formals, type_actual_list, struct_decl, fun_formals_opt); :}
-                     ;
-
-QualifierDecl qualifier_decl = QUALIFIER ID type_formals fun_formals_opt EQ struct_decl
-                                    {: return new QualifierDecl(new IdDecl(ID), type_formals,
-                                                                new List(), struct_decl, fun_formals_opt); :}
-                             | QUALIFIER ID type_formals fun_formals_opt SUBTYPE type_actual_list EQ struct_decl
-                                    {: return new QualifierDecl(new IdDecl(ID), type_formals,
-                                                                type_actual_list, struct_decl, fun_formals_opt); :}
-                             ;
-
 TypeVarDecl type_var_decl = ID {: return new TypeVarDecl(new IdDecl(ID)); :}
-                          ;
-
-FunDecl abstract_fun_decl = FUN ID LPAREN fun_formals RPAREN type_opt? SEMICOLON {: return new FunDecl(new IdDecl(ID), type_opt, fun_formals, new Opt()); :}
                           ;
 
 Type type_no_qual = ID type_actuals {: return new Type(new IdUse(ID), type_actuals, new List()); :}
@@ -41,8 +12,10 @@ Type type = type_no_qual
           | type_qualifier type {: return type.addTypeQualifier(type_qualifier); :}
           ;
 
-TypeQualifier type_qualifier = ID type_actuals fun_actuals {: return new TypeQualifier(new IdUse(ID), type_actuals, fun_actuals); :}
+TypeQualifier type_qualifier = builtin_type_qualifier
                              ;
+
+TypeQualifier builtin_type_qualifier = NONNULL {: return new NonNullQualifier(); :}
 
 List type_formals = /* empty */ {: return new List(); :}
                   | LBRACK RBRACK {: return new List(); :}
@@ -62,11 +35,6 @@ List type_actuals = /* empty */ {: return new List(); :}
 List type_actual_list = type {: return new List(type); :}
                       | type_actual_list COMMA type {: return type_actual_list.add(type); :}
                       ;
-
-List fun_actuals = /* empty */ {: return new List(); :}
-                 | LPAREN RPAREN {: return new List(); :}
-                 | LPAREN fun_actual_list RPAREN {: return fun_actual_list; :}
-                 ;
 
 List fun_formals_opt = /* empty */ {: return new List(); :}
                      | LPAREN fun_formal_list RPAREN {: return fun_formal_list; :}

@@ -7,5 +7,4 @@ Stmt stmt = var_decl_stmt
           | for_stmt
           | while_stmt
           | return_stmt
-          | assert_stmt
           ;
