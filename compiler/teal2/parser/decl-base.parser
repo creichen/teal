@@ -16,6 +16,7 @@ TypeQualifier type_qualifier = builtin_type_qualifier
                              ;
 
 TypeQualifier builtin_type_qualifier = NONNULL {: return new NonNullQualifier(); :}
+                                     ;
 
 List type_formals = /* empty */ {: return new List(); :}
                   | LBRACK RBRACK {: return new List(); :}
