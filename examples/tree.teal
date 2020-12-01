@@ -1,15 +1,21 @@
 // An implementation of a binary tree
 
-class Leaf [Int] (value) = {
+class Val = {}
 
-}
+class Nothing <: Val = {}
 
-class Tree (left : Tree, value : int, right : Tree) = {
+class Label (value : int) <: Val = {}
+
+class Tree = {
+    var left : Tree;
+    var right : Tree;
+    var value : nonnull Val;
+    var nothing : Nothing := new Nothing();
 
     fun add(x : int) = {
-        if (value == null) { value := x;
-           left := new Tree(null, null, null);
-           right := new Tree(null, null, null);
+        if (value == nothing) { value := new Label(x);
+           left := new Tree(null, nothing, null);
+           right := new Tree(null, nothing, null);
         }
         if (value < x) { right.add(x); }
         if (value > x) { left.add(x); }
@@ -25,10 +31,10 @@ class Tree (left : Tree, value : int, right : Tree) = {
     }
 
     fun contains(x : int) = {
-        if (value == x) { return 1; }
-        if (value == null) { return 0; }
-        if (value < x) { return right.contains(x); }
-        if (value > x) { return left.contains(x); }
+        if (value == nothing) { return 0; }
+        if (value == x.value) { return 1; }
+        if (value < x.value) { return right.contains(x); }
+        if (value > x.value) { return left.contains(x); }
     }
 
     fun union(other : Tree) = {
