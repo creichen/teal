@@ -1,0 +1,15 @@
+// IN: 0
+// EXCEPTION: lang.ir.QualifierException
+// IN: 5
+// OUT: 5
+
+type Pair(fst : nonnull int, snd : int);
+
+fun null_producer(n : int) = if (n == 0) { return null; } else { return n; }
+
+fun main(n : int) = {
+    var p : Pair := new Pair(0, 1);
+    p.snd := null; // this should be fine
+    p.fst := null_producer(n);
+    return p.fst;
+}
