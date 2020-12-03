@@ -7,4 +7,24 @@ aspect SemanticCheck {
 		when !getIdUse().lookup().isUnknown()
 		  && !(getIdUse().lookup().getDecl().isTypeDecl() || getIdUse().lookup().getDecl().isTypeVarDecl())
 		to Program.semanticErrors();
+
+	syn boolean Type.hasNonNullQualifier() {
+		for (TypeQualifier q : getTypeQualifiers()) {
+			if (q instanceof NonNullQualifier) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	VarDecl contributes new SemanticError(sourceLocation(), "Global variable types cannot be qualified.")
+		when hasDeclaredType() && getDeclaredType().hasNonNullQualifier() && getScope() == VariableScope.GLOBAL to Program.semanticErrors();
+
+	inh boolean VarDecl.isFormalParameterDecl();
+	eq FunDecl.getFormal(int i).isFormalParameterDecl() = true;
+	eq Program.getChild(int i).isFormalParameterDecl() = false;
+
+	VarDecl contributes new SemanticError(sourceLocation(), "Qualified local variabes must be initialized.")
+		when (!hasInitializer()) && (!isFormalParameterDecl()) &&
+		hasDeclaredType() && getDeclaredType().hasNonNullQualifier() && getScope() == VariableScope.LOCAL to Program.semanticErrors();
 }
