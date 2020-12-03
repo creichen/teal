@@ -9,12 +9,30 @@ aspect IRInterpreter {
 		public Storage getStore() {
 			return store;
 		}
+
+		public void setField(IRVar var, IRValue val) throws InterpreterException {
+			// Variables having a type parameter need to be checked in the
+			// context of the object (which has concrete value for the type parameter)
+			if (var.getIRTypeRef() instanceof IRTypeFormalRef) {
+				IRType actualType = getType().lookup(((IRTypeFormalRef) var.getIRTypeRef()).getIRTypeFormal());
+				for (IRQualifier q : actualType.getIRQualifiers()) {
+					if (!q.check(val)) {
+						throw new QualifierException(q, val, var);
+					}
+				}
+			}
+			// This is a variable that has a concrete type and its qualifier
+			// are checked by the storage.
+			store.set(var, val);
+		}
+
+		public IRValue getField(IRVar var) throws InterpreterException {
+			return store.get(var);
+		}
 	}
 
 
 	public void IRNewInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
-		// class C[T] { ... new Box[T]() ... } and also
-		// new Map<int, int>
 		IRType type = getIRType();
 		if (type.getIRTypeCon().getNumIRTypeFormal() != type.getNumTypeActual())
 			throw new InterpreterException("Can't instantiate formal parameters of type " + type.getIRTypeCon());
@@ -33,13 +51,13 @@ aspect IRInterpreter {
 		// extract the instance storage
 		IRObject instance = (IRObject) ctx.getStore().get(getBase());
 		// return the value from the storage
-		ctx.getStore().set(getDst(), instance.getStore().get(getField()));
+		ctx.getStore().set(getDst(), instance.getField(getField().getIRVar()));
 	}
 
 	public void IRStoreInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
 		// extract the instance storage
 		IRObject instance = (IRObject) ctx.getStore().get(getBase());
 		// set the value in the instance storage
-		instance.getStore().set(getField(), ctx.getStore().get(getSrc()));
+		instance.setField(getField().getIRVar(), ctx.getStore().get(getSrc()));
 	}
 }

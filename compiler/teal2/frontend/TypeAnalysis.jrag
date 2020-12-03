@@ -4,17 +4,44 @@ aspect TypeAnalysis {
 		IdDecl memberLookup(String name);
 	}
 
+	public class QualifiedTypeDefinition implements TypeDefinition {
+		private TypeDefinition d;
+		private Iterable<TypeQualifier> quals;
+
+		public QualifiedTypeDefinition(TypeDefinition d, Iterable<TypeQualifier> quals) {
+			this.d = d;
+			this.quals = quals;
+		}
+
+		public lang.ir.IRTypeRef genIRTypeRef() {
+			IRTypeRef irType = d.genIRTypeRef();
+			for (TypeQualifier q : quals) {
+				((IRType) irType).addIRQualifier(q.genIR());
+			}
+			return irType;
+		}
+
+		public IdDecl memberLookup(String name) {
+			return d.memberLookup(name);
+		}
+	}
+
 	eq TypeDecl.typeDefinition() = this;
 
 	TypeDecl implements TypeDefinition;
 	TypeVarDecl implements TypeDefinition;
+
+	syn TypeDefinition Type.qualifiedTypeDefinition() {
+		TypeDefinition td = (TypeDefinition) getIdUse().lookup().getDecl();
+		return new QualifiedTypeDefinition(td, getTypeQualifiers());
+	}
 
 	// The following gives us the type of the expression if and only if we know the type precisely
 	syn TypeDefinition Expr.implicitType() = null;
 	eq IntConstant.implicitType() = program().INT();
 	eq StringConstant.implicitType() = program().STRING();
 	eq TypedExpr.implicitType() {
-		return (TypeDefinition) getDeclaredType().getIdUse().lookup().getDecl();
+		return getDeclaredType().qualifiedTypeDefinition();
 	}
 
 	// The inferred type of the expression:
@@ -27,7 +54,7 @@ aspect TypeAnalysis {
 
 	syn TypeDefinition VarDecl.variableType() {
 		if (hasDeclaredType()) {
-			return (TypeDefinition) getDeclaredType().getIdUse().lookup().getDecl();
+			return (TypeDefinition) getDeclaredType().qualifiedTypeDefinition();
 		}
 		if (hasInitializer()) {
 			return getInitializer().type();
@@ -37,7 +64,7 @@ aspect TypeAnalysis {
 
 	syn TypeDefinition FunDecl.returnType() {
 		if (hasDeclaredReturnType()) {
-			return (TypeDefinition) getDeclaredReturnType().getIdUse().lookup().getDecl();
+			return (TypeDefinition) getDeclaredReturnType().qualifiedTypeDefinition();
 		}
 		return program().ANY();
 	}
@@ -45,7 +72,7 @@ aspect TypeAnalysis {
 	eq Access.type() {
 		VarDecl d = (VarDecl) getIdUse().lookup().getDecl();
 		if (d.hasDeclaredType())
-			return (TypeDefinition) d.getDeclaredType().decl();
+			return (TypeDefinition) d.getDeclaredType().qualifiedTypeDefinition();
 		return program().ANY();
 	}
 

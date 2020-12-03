@@ -49,6 +49,10 @@ aspect IRGenType {
 			for (Type actual : getActuals()) {
 				t.addTypeActual(actual.genIR());
 			}
+
+			for (TypeQualifier q : getTypeQualifiers()) {
+				t.addIRQualifier(q.genIR());
+			}
 			return t;
 			// TODO: add qualifiers here
 		} else {
@@ -60,7 +64,11 @@ aspect IRGenType {
 	inh Type TypeQualifier.getQualifiedType();
 	eq Type.getTypeQualifier().getQualifiedType() = this;
 
-	public IRTypeRef TypeQualifier.genIR() {
+	public IRQualifier TypeQualifier.genIR() {
 		return null;
+	}
+
+	@Override public IRQualifier NonNullQualifier.genIR() {
+		return new IRNonNull();
 	}
 }
