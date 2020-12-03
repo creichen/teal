@@ -1,49 +1,45 @@
 // An implementation of a binary tree
 
-class Val = {}
+type Label (v : int);
 
-class Nothing <: Val = {}
+type Tree(left : Tree, value : nonnull Label, right : Tree);
 
-class Label (value : int) <: Val = {}
+fun nothing() = { return new Label(null); }
 
-class Tree = {
-    var left : Tree;
-    var right : Tree;
-    var value : nonnull Val;
-    var nothing : Nothing := new Nothing();
+fun empty_tree() = { return new Tree(null, nothing(), null); }
 
-    fun add(x : int) = {
-        if (value == nothing) { value := new Label(x);
-           left := new Tree(null, nothing, null);
-           right := new Tree(null, nothing, null);
-        }
-        if (value < x) { right.add(x); }
-        if (value > x) { left.add(x); }
+fun tree_add(t : Tree, x : int) = {
+    if (t.value.v == nothing()) {
+        t.value.v := new Label(x);
+        t.left := empty_tree();
+        t.right := empty_tree();
     }
+    if (t.value.v < x) { tree_add(t.right, x); }
+    if (t.value.v > x) { tree_add(t.left, x); }
+}
 
-    fun add_array(arr : array[int]) = {
-        var i := 0;
-        var s := array_length(arr);
-        while (i < s) {
-              i := i + 1;
-              add(arr[i]);
-        }
+fun tree_add_array(t : Tree, arr : array[int]) = {
+    var i := 0;
+    var s := array_length(arr);
+    while (i < s) {
+            i := i + 1;
+            tree_add(t, arr[i]);
     }
+}
 
-    fun contains(x : int) = {
-        if (value == nothing) { return 0; }
-        if (value == x.value) { return 1; }
-        if (value < x.value) { return right.contains(x); }
-        if (value > x.value) { return left.contains(x); }
-    }
+fun tree_contains(t : Tree, x : int) = {
+    if (t.value == nothing()) { return 0; }
+    if (t.value.v == x.value) { return 1; }
+    if (t.value.v < x.value) { return tree_contains(t.right, x); }
+    if (t.value.v > x.value) { return tree_contains(t.left, x); }
+}
 
-    fun union(other : Tree) = {
-        // TODO
-    }
+fun union(other : Tree) = {
+    // TODO
+}
 
-    fun intersection(other : Tree) = {
-        // TODO
-    }
+fun intersection(other : Tree) = {
+    // TODO
 }
 
 fun remove_duplicates(arr : array[int]) = {
@@ -51,35 +47,35 @@ fun remove_duplicates(arr : array[int]) = {
     // With the value null.
 
     // In this we save what we have seen so far.
-    var s : Tree := new Tree(null, null, null);
-
-
+    var s : Tree := empty_tree();
     var i := 0;
     var l := array_length(arr);
     while (i < l) {
           var e : int := arr[i];
-          if (s.contains(e)) {
+          if (tree_contains(s, e)) {
              arr[i] := null;
           } else {
-            s.add(e);
-          }
-          I := i + 1;
-    }
+            tree_add(s, e);
+          } 
+          i := i + 1;
+    } 
     return arr;
 }
 
 fun main() = {
-    var t : Tree := new Tree(null, null, null);
-    t.add(2);
-    t.add(3);
-    t.add(4);
-    t.add_array([6, 7, 8]);
+    var t : Tree := empty_tree();
+    tree_add(t, 2);
+    tree_add(t, 2);
+    tree_add(t, 2);
+    tree_add(t, 2);
+    tree_add(t, 2);
+    tree_add_array(t, [6, 7, 8]);
 
-    print(t.contains(0));
-    print(t.contains(2));
+    print(tree_contains(t, 0));
+    print(tree_contains(t, 2));
 
-    print(t.contains(4));
-    print(t.contains(5));
+    print(tree_contains(t, 4));
+    print(tree_contains(t, 5));
 
     // We test remove_duplicates
     print(remove_duplicates([1, 2, 2, 3, 4, 5]));
