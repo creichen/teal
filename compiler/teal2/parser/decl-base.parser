@@ -1,4 +1,4 @@
-TypeDecl type_decl = TYPE ID type_formals fun_formals_opt
+TypeDecl type_decl = TYPE ID type_formals fun_formals_opt SEMICOLON
                            {: return new TypeDecl(new IdDecl(ID), type_formals, fun_formals_opt); :}
                    ;
 

@@ -2,6 +2,23 @@ import lang.ir.*;
 import java.util.function.Consumer;
 
 aspect IRGen {
+	public static final VariableScope VariableScope.MEMBER = new VariableScope() {
+			public void genInitializerIR(VarDecl var, IRFunctionCtx ctx) {
+				throw new RuntimeException("This should not be called in TEAL-2.");
+			}
+
+			@Override
+			public void genAssignmentIR(VarDecl var, Access access, IRVarRef rhs, IRFunctionCtx ctx) {
+				throw new RuntimeException("This should not be called in TEAL-2.");
+			}
+
+			@Override
+			public IRVarRef genLoadIR(VarDecl var, Access access, IRFunctionCtx ctx) {
+				throw new RuntimeException("This should not be called in TEAL-2.");
+			}
+		};
+
+
 	public void TypeVarDecl.addIRToModule(IRModule m) { throw new NotYetImplementedError("Cannot translate declaration " + this.getClass()); }
 
 	/**

@@ -4,6 +4,9 @@ import lang.common.NotYetImplementedError;
 import lang.common.BuiltinNames;
 
 aspect IRGenExpr {
+	eq TypeDecl.getTypeFormal().getScope() = VariableScope.MEMBER;
+	eq TypeDecl.getFunFormal().getScope() = VariableScope.MEMBER;
+
 	// FIXME: this oddity is only needed for NewExpr.genCode()
 	syn IRTypeRef Type.genIRTypeRef() = genIR();
 
