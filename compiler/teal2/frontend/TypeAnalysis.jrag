@@ -76,5 +76,14 @@ aspect TypeAnalysis {
 		return program().ANY();
 	}
 
-
+	eq MemberAccess.type() {
+		Expr base = getExpr();
+		IdDecl varId = base.type().memberLookup(getIdentifier());
+		if (varId.isUnknown())
+			return program().ANY();
+		Decl d = varId.getDecl();
+		if (d.isVarDecl())
+			return d.asVarDecl().variableType();
+		return program().ANY();
+	}
 }
