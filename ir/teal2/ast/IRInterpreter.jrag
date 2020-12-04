@@ -19,7 +19,6 @@ aspect IRInterpreter {
 		}
 	}
 
-
 	public void IRNewInsn.eval(IRFunctionEvalCtx ctx) throws InterpreterException {
 		IRType type = getIRType();
 		if (type.getIRTypeCon().getNumIRTypeFormal() != type.getNumTypeActual())

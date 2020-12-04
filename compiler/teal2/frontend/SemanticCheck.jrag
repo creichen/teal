@@ -27,4 +27,13 @@ aspect SemanticCheck {
 	VarDecl contributes new SemanticError(sourceLocation(), "Qualified local variabes must be initialized.")
 		when (!hasInitializer()) && (!isFormalParameterDecl()) &&
 		hasDeclaredType() && getDeclaredType().hasNonNullQualifier() && getScope() == VariableScope.LOCAL to Program.semanticErrors();
+
+	Type contributes new SemanticError(sourceLocation(), "Actual type parameters are disallowed for types other than array[T].")
+		when !isArray() && getNumActual() != 0 to Program.semanticErrors();
+
+	Type contributes new SemanticError(sourceLocation(), "array[T] should must have a single type parameter.")
+		when isArray() && getNumActual() != 1 to Program.semanticErrors();
+
+	TypeDecl contributes new SemanticError(sourceLocation(), "User defined type cannot have formal type parameters.")
+		when !isArray() && getNumTypeFormal() != 0 to Program.semanticErrors();
 }

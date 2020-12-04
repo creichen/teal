@@ -37,6 +37,13 @@ aspect BuiltinTypes {
 		return equals(program().ARRAY());
 	}
 
+	syn boolean Type.isArray() {
+		Decl decl = getIdUse().lookup().getDecl();
+		if (!decl.isTypeDecl())
+			return false;
+		return decl.asTypeDecl().isArray();
+	}
+
 	// FIXME: general lookupDecl() and more convenient interface for that?
 	syn TypeDecl Type.baseType() {
 		return (TypeDecl) getIdUse().lookup().getDecl();
