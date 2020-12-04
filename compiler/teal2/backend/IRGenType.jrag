@@ -36,10 +36,6 @@ aspect IRGenType {
 		return retval;
 	}
 
-	@Override public IRTypeRef TypeVarDecl.genIRTypeRef() {
-		return new IRTypeFormalRef(genIR());
-	}
-
 	public IRTypeRef Type.genIR() {
 		Decl d = getIdUse().lookup().getDecl();
 		if (d instanceof TypeVarDecl) {

@@ -16,10 +16,6 @@ aspect IRPrint {
 		out.println("end class\n");
 	}
 
-	public void IRTypeFormalRef.print(PrintStream out) {
-		getIRTypeFormal().print(out);
-	}
-
 	public void IRLoadInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" <- load ");

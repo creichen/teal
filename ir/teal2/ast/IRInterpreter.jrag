@@ -11,18 +11,6 @@ aspect IRInterpreter {
 		}
 
 		public void setField(IRVar var, IRValue val) throws InterpreterException {
-			// Variables having a type parameter need to be checked in the
-			// context of the object (which has concrete value for the type parameter)
-			if (var.getIRTypeRef() instanceof IRTypeFormalRef) {
-				IRType actualType = getType().lookup(((IRTypeFormalRef) var.getIRTypeRef()).getIRTypeFormal());
-				for (IRQualifier q : actualType.getIRQualifiers()) {
-					if (!q.check(val)) {
-						throw new QualifierException(q, val, var);
-					}
-				}
-			}
-			// This is a variable that has a concrete type and its qualifier
-			// are checked by the storage.
 			store.set(var, val);
 		}
 
