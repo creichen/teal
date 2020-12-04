@@ -105,6 +105,10 @@ aspect IRPrint {
 		getIRName().print(out);
 		out.print(" : ");
 		getIRTypeRef().print(out);
+		if (IRProgram.printSourceLocations) {
+			out.print("\t");
+			getSourceLocation().print(out);
+		}
 	}
 
 	public void IRCodeBB.print(PrintStream out) {

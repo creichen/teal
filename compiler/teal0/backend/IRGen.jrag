@@ -473,6 +473,11 @@ aspect IRGen {
 		ctx.endBB();
 	}
 
-	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), variableType().genIRTypeRef());
+	syn IRVar VarDecl.genIR() {
+		IRVar var = new IRVar(getIdDecl().genIR(), variableType().genIRTypeRef());
+		var.setSourceLocation(sourceLocation());
+		return var;
+	}
+
 	syn IRName IdDecl.genIR() = new IRName(getIdentifier());
 }
