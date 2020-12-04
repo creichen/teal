@@ -31,9 +31,12 @@ aspect SemanticCheck {
 	Type contributes new SemanticError(sourceLocation(), "Actual type parameters are disallowed for types other than array[T].")
 		when !isArray() && getNumActual() != 0 to Program.semanticErrors();
 
-	Type contributes new SemanticError(sourceLocation(), "array[T] should must have a single type parameter.")
+	Type contributes new SemanticError(sourceLocation(), "Instances of array[T] take a single type parameter.")
 		when isArray() && getNumActual() != 1 to Program.semanticErrors();
 
 	TypeDecl contributes new SemanticError(sourceLocation(), "User defined type cannot have formal type parameters.")
 		when !isArray() && getNumTypeFormal() != 0 to Program.semanticErrors();
+
+	MemberAccess contributes new SemanticError(sourceLocation(), "Access of unknown field, '" + getIdentifier() + "'. Consider using type annotations.")
+		when getExpr().type().memberLookup(getIdentifier()) == null to Program.semanticErrors();
 }
