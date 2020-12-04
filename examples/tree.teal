@@ -1,21 +1,29 @@
 // An implementation of a binary tree
 
-type Label (v : int);
+type Leaf();
 
-type Tree(left : Tree, value : nonnull Label, right : Tree);
+var nothing; 
 
-fun nothing() = { return new Label(null); }
+type Tree(left : nonnull any, value : nonnull int, right : nonnull any);
 
-fun empty_tree() = { return new Tree(null, nothing(), null); }
+type TreeBox(content : nonull any);
 
-fun tree_add(t : Tree, x : int) = {
-    if (t.value.v == nothing()) {
-        t.value.v := new Label(x);
-        t.left := empty_tree();
+fun empty_tree() = {
+ if (nothing == null) {
+  nothing := new Leaf();
+ }
+ return TreeBox(nothing);
+}
+
+fun tree_add(t : TreeBox, x : int) = {
+    if (t.content == nothing) {
+        t.content := new Tree();
+        t.content.value := x; 
+        t.content.left := empty_tree();
         t.right := empty_tree();
     }
-    if (t.value.v < x) { tree_add(t.right, x); }
-    if (t.value.v > x) { tree_add(t.left, x); }
+    if (t.content.value < x) { tree_add(t.right, x); }
+    if (t.content.value > x) { tree_add(t.left, x); }
 }
 
 fun tree_add_array(t : Tree, arr : array[int]) = {
