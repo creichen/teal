@@ -1,0 +1,5 @@
+type List[T](head : T, tail : List[T]);
+
+fun f(x : List[int]) = { }
+
+fun g(a : array[array[int]]) = { }

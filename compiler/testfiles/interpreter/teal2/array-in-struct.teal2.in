@@ -1,0 +1,24 @@
+// IN: 0
+// EXCEPTION: lang.ir.QualifierException
+// IN: 1
+// OUT: 6
+
+type Pair(fst : nonnull array[nonnull any], snd : nonnull array[any]);
+
+fun set(p : Pair, i : int, v1 : any, v2 : any) = {
+    (p.fst : array[nonnull int])[i] := v1;
+    (p.snd : array[nonnull int])[i] := v2;
+}
+
+fun main(n : int) = {
+    var ps := new Pair(new array[nonnull any](10), new array[any](10));
+    set(ps, 0, 1, null);
+
+    if (n == 0) {
+       set(ps, 1, null, 0);
+    } else {
+       set(ps, 1, 5, 0);
+    }
+
+    return (ps : Pair).fst[0] + (ps : Pair).fst[1] + (ps : Pair).snd[1];
+}

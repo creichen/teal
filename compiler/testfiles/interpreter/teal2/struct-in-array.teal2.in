@@ -1,0 +1,23 @@
+// IN: 0
+// EXCEPTION: lang.ir.QualifierException
+// IN: 1
+// OUT: 6
+
+type Pair(fst : nonnull any, snd : any);
+
+fun set(pairs : array[Pair], i : int, v1 : any, v2 : any) = {
+    pairs[i] := new Pair(v1, v2);
+}
+
+fun main(n : int) = {
+    var ps := new array[Pair](10);
+    set(ps, 0, 1, null);
+
+    if (n == 0) {
+       set(ps, 1, null, 0);
+    } else {
+       set(ps, 1, 5, 0);
+    }
+
+    return (ps[0] : Pair).fst + (ps[1] : Pair).fst + (ps[1] : Pair).snd;
+}
