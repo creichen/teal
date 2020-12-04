@@ -39,6 +39,8 @@ aspect BuiltinTypes {
 
 	syn boolean Type.isArray() {
 		Decl decl = getIdUse().lookup().getDecl();
+		if (decl == null)
+			return false;
 		if (!decl.isTypeDecl())
 			return false;
 		return decl.asTypeDecl().isArray();
