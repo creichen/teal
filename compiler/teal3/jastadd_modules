@@ -50,6 +50,7 @@ module("teal-3") {
 
 	include "parser/decl.parser"
 	include "parser/decl-base.parser"
+	include "parser/decl-base-teal2-compat.parser"
 	excludeFrom "teal-0", "parser/decl.parser"
 
 	excludeFrom "teal-0", "parser/type.parser"

@@ -1,0 +1,8 @@
+// Backwards compatibility with TEAL-2, by desugaring
+// type name[T1, ...] (x1 : t1, ...) ;
+// to
+// class name[T1, ...] (x1, t1, ...) = { }
+
+ClassDecl class_decl = TYPE ID type_formals fun_formals_opt SEMICOLON
+                           {: return new ClassDecl(new IdDecl(ID), type_formals, new List(), new List(), fun_formals_opt); :}
+                     ;
