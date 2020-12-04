@@ -465,7 +465,9 @@ aspect IRGen {
 		// copy this to the return value
 		ctx.addInsn(new IRCopyInsn(new IRVarRef(ctx.getReturnVar()), retVal));
 		IRCodeBB currentBB = ctx.getCurrentBB();
-		currentBB.setIRCodeExit(new IRReturn(new IRVarRef(ctx.getReturnVar())));
+		IRReturn ret = new IRReturn(new IRVarRef(ctx.getReturnVar()));
+		ret.setSourceLocation(sourceLocation());
+		currentBB.setIRCodeExit(ret);
 		// ctx will auto-start a new basic block to hold the translation
 		// of any (unreachable) statements following the return if needed.
 		ctx.endBB();

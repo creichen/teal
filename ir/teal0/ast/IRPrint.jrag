@@ -131,6 +131,11 @@ aspect IRPrint {
 	public void IRReturn.print(PrintStream out) {
 		out.print("ret ");
 		getIRVarRef().print(out);
+
+		if (IRProgram.printSourceLocations) {
+			out.print("\t");
+			getSourceLocation().print(out);
+		}
 	}
 
 	public void IRJump.print(PrintStream out) {
