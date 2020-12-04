@@ -168,7 +168,19 @@ aspect IRGen {
 			return BB;
 		}
 
+		// same effect as startBB() except for hasBB()
+		public void endBB() {
+			BB = null;
+		}
+
+		public boolean hasBB() {
+			return BB != null;
+		}
+
 		public IRCodeBB getCurrentBB() {
+			if (BB == null) {
+				startBB();
+			}
 			return BB;
 		}
 
@@ -324,7 +336,7 @@ aspect IRGen {
 
 		getBody().genCode(fctx);
 
-		if (fctx.getCurrentBB().getIRCodeExit() == null) {
+		if (fctx.hasBB() && fctx.getCurrentBB().getIRCodeExit() == null) {
 			// no exit here
 			fctx.addInsn(new IRConstantInsn().setDst(new IRVarRef(fctx.getReturnVar()))
 										.setSrc(new IRNull()));
@@ -454,9 +466,9 @@ aspect IRGen {
 		ctx.addInsn(new IRCopyInsn(new IRVarRef(ctx.getReturnVar()), retVal));
 		IRCodeBB currentBB = ctx.getCurrentBB();
 		currentBB.setIRCodeExit(new IRReturn(new IRVarRef(ctx.getReturnVar())));
-		// start a new basic block to hold the translation
-		// of any (unreachable) statements following the return.
-		ctx.startBB();
+		// ctx will auto-start a new basic block to hold the translation
+		// of any (unreachable) statements following the return if needed.
+		ctx.endBB();
 	}
 
 	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), variableType().genIRTypeRef());
