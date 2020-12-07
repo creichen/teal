@@ -33,6 +33,8 @@ aspect IRGenExpr {
 			.setIRType((IRType) getType().genIR());
 		ctx.addInsn(newInsn);
 
+		ctx.setSourceLocations(this.sourceLocation());
+
 		// generate initialization code
 		if (type.getNumFunFormal() != getNumActual()) {
 			throw new RuntimeException("Mismatch between the number of formal and actual parameters in " + this + ".");
@@ -44,9 +46,8 @@ aspect IRGenExpr {
 			VarDecl formal = type.getFunFormal(i);
 			ctx.addInsn(new IRStoreInsn().setBase(dst)
 						.setField(new IRVarRef(formal.genIR())).setSrc(tmp));
+			ctx.setSourceLocations(actual.sourceLocation());
 		}
-
-		ctx.setSourceLocations(this.sourceLocation());
 
 		// return a reference to the allocated storage
 		return dst;
