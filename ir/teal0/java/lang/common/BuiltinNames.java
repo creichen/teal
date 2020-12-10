@@ -43,6 +43,7 @@ public final class BuiltinNames {
     public static final Operation INT_TO_STRING = new Operation("int_to_string", STRING, INT);
     public static final Operation CAN_CONVERT_TO_INT = new Operation("can_convert_to_int", INT, STRING);
     public static final Operation ARRAY_LENGTH = new Operation("array_length", INT, ARRAY);
+    public static final Operation TIME = new Operation("time", INT);
 
 
     private static ArrayList<Operation> operations;

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.time.Instant;
 
 
 /**
@@ -49,19 +50,23 @@ public final class Builtins {
 		    throw new InterpreterException("Exception while executing read().");
 		}
 	    });
-        OP(BuiltinNames.STRING_TO_INT, ctx -> new IRIntegerValue(Integer.parseInt(ctx.getString(0))));
-        OP(BuiltinNames.INT_TO_STRING, ctx -> new IRStringValue(Long.toString(ctx.getInt(0))));
-        OP(BuiltinNames.CAN_CONVERT_TO_INT, ctx -> {
-                // Regex copied from the scanner specification
-                Boolean can_convert = ctx.getString(0).matches("-?(0|[1-9][0-9]*)");
-                if (can_convert) {
-                    return new IRIntegerValue(1);
-                } else {
-                    return new IRIntegerValue(0);
-                }
-            });
-        OP(BuiltinNames.CONCAT, ctx -> new IRStringValue(ctx.getString(0).concat(ctx.getString(1))));
-        OP(BuiltinNames.ARRAY_LENGTH, ctx -> new IRIntegerValue(ctx.getArray(0).getSize()));
+	OP(BuiltinNames.STRING_TO_INT, ctx -> new IRIntegerValue(Integer.parseInt(ctx.getString(0))));
+	OP(BuiltinNames.INT_TO_STRING, ctx -> new IRStringValue(Long.toString(ctx.getInt(0))));
+	OP(BuiltinNames.CAN_CONVERT_TO_INT, ctx -> {
+			// Regex copied from the scanner specification
+			Boolean can_convert = ctx.getString(0).matches("-?(0|[1-9][0-9]*)");
+			if (can_convert) {
+				return new IRIntegerValue(1);
+			} else {
+				return new IRIntegerValue(0);
+			}
+		});
+	OP(BuiltinNames.CONCAT, ctx -> new IRStringValue(ctx.getString(0).concat(ctx.getString(1))));
+	OP(BuiltinNames.ARRAY_LENGTH, ctx -> new IRIntegerValue(ctx.getArray(0).getSize()));
+	INT_OP(BuiltinNames.TIME, ctx -> {
+			Instant t = Instant.now();
+			return t.getEpochSecond() * 1_000_000_000 + t.getNano();
+		});
     }
 
     private static Type<?> translateType(String typename) {

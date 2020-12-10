@@ -1,0 +1,7 @@
+// IN: 0
+// OUT: 1
+fun main() = {
+    var t1 := time();
+    var t2 := time();
+    return t2 >= t1;
+}
