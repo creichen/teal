@@ -50,4 +50,15 @@ public class TestIRTransform {
 		assertTrue(bb.getIRInsn(1) instanceof IRCopyInsn);
 		assertTrue(bb.getIRInsn(2) instanceof IRNewInsn);
 	}
+
+	@Test
+	public void testInsertVariable() {
+		IRFunction f = new IRFunction();
+		IRVar v1 = f.createAnyVariable("varAny");
+		IRVar v2 = f.createIntegerVariable("varInt");
+
+		assertEquals(2, f.getNumLocal());
+		assertSame(f.getLocalVariable("varAny"), v1);
+		assertSame(f.getLocalVariable("varInt"), v2);
+	}
 }

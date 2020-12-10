@@ -52,4 +52,33 @@ aspect IRUtil {
 	public void IRCodeBB.insertInsn(IRInsn newInsn, int i) {
 		getIRInsnList().insertChild(newInsn, i);
 	}
+
+	public IRVar IRFunction.createAnyVariable(String name) {
+		return createLocalVariable(name, IRModule.makeAnyTypeRef());
+	}
+
+	public IRVar IRFunction.createIntegerVariable(String name) {
+		return createLocalVariable(name, IRModule.makeIntegerTypeRef());
+	}
+
+	/**
+	   Create a local variable of given type.
+	 */
+	public IRVar IRFunction.createLocalVariable(String name, IRType t) {
+		IRVar v = new IRVar(new IRName(name), t);
+		this.addLocal(v);
+		return v;
+	}
+
+	/**
+	   Retrieve a local variable by name. Return null if the function does
+	   not contain such a variable.
+	 */
+	public IRVar IRFunction.getLocalVariable(String name) {
+		for (IRVar v : getLocals()) {
+			if (v.getIRName().getString().equals(name))
+				return v;
+		}
+		return null;
+	}
 }
