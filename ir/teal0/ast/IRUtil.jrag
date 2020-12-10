@@ -1,0 +1,55 @@
+aspect IRUtil {
+	inh IRCodeBB IRInsn.parentBB();
+	eq IRCodeBB.getIRInsn().parentBB() = this;
+
+	/**
+	   Insert an instruction before another instruction, in a basic block.
+
+	   This method allows chaining, e.g.
+	   i0.addInsnBefore(i1).addInsnBefore(i2); produces the instruction
+	   sequence i1, i2, i0
+	 */
+	public IRInsn IRInsn.addInsnBefore(IRInsn newInsn) {
+		if (!(getParent() instanceof List)) {
+			throw new RuntimeException("Instruction must be member of a basic block.");
+		}
+
+		List parentList = (List) getParent();
+		int i = parentList.getIndexOfChild(this);
+
+		parentList.insertChild(newInsn, i);
+
+		return this;
+	}
+
+	/**
+	   Insert an instruction before another instruction, in a basic block.
+
+	   This method allows chaining, e.g.
+	   i0.addInsnAfter(i1).addInsnAfter(i2); produces the instruction
+	   sequence i0, i1, i2
+	 */
+
+	public IRInsn IRInsn.addInsnAfter(IRInsn newInsn) {
+		if (!(getParent() instanceof List)) {
+			throw new RuntimeException("Instruction must be member of a basic block.");
+		}
+
+		List parentList = (List) getParent();
+		int i = parentList.getIndexOfChild(this);
+
+		parentList.insertChild(newInsn, i + 1);
+
+		return newInsn;
+	}
+
+	/**
+	   Insert an instruction at position i, inside a basic block. If i == getNumIRInsn(),
+	   then the instruction is inserted last, if i < getNumIRInsn(), the instructions
+	   in the range [i, getNumIRInsn() - 1] are moved to [i + 1, getNumIRInsn()] and the
+	   new instruction is placed at position i.
+	 */
+	public void IRCodeBB.insertInsn(IRInsn newInsn, int i) {
+		getIRInsnList().insertChild(newInsn, i);
+	}
+}
