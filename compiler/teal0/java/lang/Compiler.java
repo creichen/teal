@@ -24,12 +24,7 @@ import lang.ast.TEALParser;
 import lang.ast.LangScanner;
 import lang.ast.CompilerError;
 
-import lang.ir.IRModule;
-import lang.ir.IRValue;
-import lang.ir.IRProgram;
-import lang.ir.InterpreterException;
-import lang.ir.IRIntegerValue;
-import lang.ir.IRStringValue;
+import lang.ir.*;
 
 import lang.common.SourceLocation;
 
@@ -52,23 +47,33 @@ public class Compiler {
 
 	// "opt" is the command line parameter after '-Z'; useful for reconfiguring
 	public static boolean customIRAction(IRProgram ir, String opt) {
-		System.out.println("Called with option " + opt);
-
-		ArrayList<IRValue> args = new ArrayList<>(); // our benchmark takes no arguments
-		ArrayList<Long> measurements = new ArrayList<>();
-		// run a few times
-		// 10 runs; you should get _at least_ that many measurements
-		for (int i = 0; i < 10; i++) {
-			measurements.add(measureRunTime(ir, args));
-			// Missing: factor in warm-up time and discard measurements
-			// It's okay to tweak this by hand, but keep notes to explain your reasoning!
-		}
-		for (Long l : measurements) {
-			System.out.println(l);
-		}
-
 		// return "false" to finish here, otherwise the program will execute
 		return false;
+	}
+
+	// Interpret program with the given parameters, measure execution time in nanoseconds
+	public static long measureRunTime(IRProgram p, List<IRValue> args) {
+		try {
+			long start = System.nanoTime();
+			IRResult result = p.eval(args);
+			// result.getGlobal(IRVarRef) allows us to look up global variables, if we ever need that
+			long stop = System.nanoTime();
+			long exec_time = stop - start;
+			return exec_time;
+		} catch (InterpreterException e) {
+			System.err.println("Error while interpreting program: " + e.toString());
+			throw new RuntimeException();
+		}
+	}
+
+	// Interpret program with the give parameters, return the global variable identified by `varref`
+	public static IRValue runAndGetGlobal(IRProgram p, List<IRValue> args, IRVarRef varref) {
+		try {
+			return p.eval(args).getGlobal(varref);
+		} catch (InterpreterException e) {
+			System.err.println("Error while interpreting program: " + e.toString());
+			throw new RuntimeException();
+		}
 	}
 
 	// Interpret program with the give parameters
@@ -90,24 +95,10 @@ public class Compiler {
 	public static void interpret(IRProgram p, List<String> strings) {
 		ArrayList<IRValue> args = parseArgs(strings);
 		try {
-			IRValue ret = p.eval(args);
+			IRValue ret = p.eval(args).getReturnValue();
 			System.out.println("" + ret);
 		} catch (InterpreterException e) {
 			System.err.println("Error while interpreting program: " + e.toString());
-		}
-	}
-
-	// Interpret program with the give parameters
-	public static long measureRunTime(IRProgram p, List<IRValue> args) {
-		try {
-			long start = System.nanoTime();
-			IRValue ret = p.eval(args);
-			long stop = System.nanoTime();
-			long exec_time = stop - start;
-			return exec_time;
-		} catch (InterpreterException e) {
-			System.err.println("Error while interpreting program: " + e.toString());
-			throw new RuntimeException();
 		}
 	}
 

@@ -325,7 +325,30 @@ aspect IRInterpreter {
 		return !(v instanceof IRNullValue);
 	}
 
-	public IRValue IRProgram.eval(java.util.List<IRValue> args) throws InterpreterException {
+	public class IRResult {
+		private IRValue retval;
+		private Storage globals;
+
+		public IRResult(IRValue retval, Storage globals) {
+			this.retval = retval;
+			this.globals = globals;
+		}
+
+		public IRValue getReturnValue() {
+			return this.retval;
+		}
+
+		public IRValue getGlobal(IRVarRef ref) {
+			try {
+				return this.globals.get(ref);
+			} catch (InterpreterException exn) {
+				exn.printStackTrace();
+				return null;
+			}
+		}
+	}
+
+	public IRResult IRProgram.eval(java.util.List<IRValue> args) throws InterpreterException {
 		Storage g = new Storage();
 
 		// initialize all the globals
@@ -339,7 +362,8 @@ aspect IRInterpreter {
 		for (IRModule m : getIRModules()) {
 			for (IRFunction f : m.getIRFunctions()) {
 				if (f.getIRName().getString().equals("main")) {
-					return f.eval(new IRFunctionEvalCtx(new Storage(), g, args));
+					return new IRResult(f.eval(new IRFunctionEvalCtx(new Storage(), g, args)),
+							    g);
 				}
 			}
 		}

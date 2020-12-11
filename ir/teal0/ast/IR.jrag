@@ -57,6 +57,9 @@ aspect IR {
 	eq IRFunction.getIRCodeBB(int i).getNumber() = i;
 	syn String IRCodeBB.label() = "bb" + getNumber();
 
+	inh IRFunction IRCodeBB.getOwnerFunction();
+	eq IRFunction.getIRCodeBB().getOwnerFunction() = this;
+
 	private SourceLocation ASTNode.srcLoc = SourceLocation.UNKNOWN;
 	public void ASTNode.setSourceLocation(SourceLocation srcLoc) {
 		this.srcLoc = srcLoc;

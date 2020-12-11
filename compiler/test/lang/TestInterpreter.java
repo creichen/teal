@@ -209,7 +209,7 @@ public class TestInterpreter {
 		try {
 			System.out.flush();
 			System.setOut(new PrintStream(stdoutStream));
-			ret = p.eval(args);
+			ret = p.eval(args).getReturnValue();
 		} finally {
 			System.out.flush();
 			System.setOut(STDOUT_BACKUP);

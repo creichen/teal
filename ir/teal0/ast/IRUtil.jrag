@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 aspect IRUtil {
 	inh IRCodeBB IRInsn.parentBB();
 	eq IRCodeBB.getIRInsn().parentBB() = this;
@@ -63,6 +65,7 @@ aspect IRUtil {
 
 	/**
 	   Create a local variable of given type.
+	   Useful for creating temporary variables.
 	 */
 	public IRVar IRFunction.createLocalVariable(String name, IRType t) {
 		IRVar v = new IRVar(new IRName(name), t);
@@ -80,5 +83,21 @@ aspect IRUtil {
 				return v;
 		}
 		return null;
+	}
+
+	/**
+	 * A collection of all basic blocks in the program
+	 */
+	coll ArrayList<IRCodeBB> IRProgram.basicBlocks();
+
+	IRCodeBB contributes this to IRProgram.basicBlocks();
+
+	/**
+	 * Name of a basic block, in the format <function>.bb<blocknr>
+	 *
+	 * Names are unique in Teal-2 within one module/compilation unit.
+	 */
+	syn String IRCodeBB.name() {
+	    return this.getOwnerFunction().getIRName() + "." + this.label();
 	}
 }
