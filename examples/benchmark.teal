@@ -1,0 +1,242 @@
+var rand_seed : array[nonnull int];
+
+// Wichmann-Hill PRNG for unsigned 32 bit numbers
+fun random(n : int) : nonnull int = {
+	if rand_seed == null {
+		rand_seed := [2, 109, 8765];
+	}
+	var s : array[nonnull int] := rand_seed;
+	s[0] := (171 * s[0]) % 30269;
+	s[1] := (172 * s[1]) % 30307;
+	s[2] := (170 * s[2]) % 30323;
+
+	return (((s[0] * n) / 30269) + ((s[1] * n) / 30307) + ((s[0] * n) / 30323)) % n;
+}
+
+// Sorted set implementation as Red-Black Tree
+type RBNode(red : nonnull int, value : nonnull int, left : RBNode, right : RBNode, parent : RBNode);
+type RBTree(n : RBNode);
+
+// Create empyt
+fun rbt_empty() = return new RBTree(null);
+
+fun _rbt_is_red(n : RBNode) = {
+	if n == null {
+		return 0;
+	}
+	if n.red == 0 {
+		return 0;
+	}
+	return 1;
+}
+
+// Insert element
+fun rbt_insert(t : RBTree, v : nonnull int) = {
+	if t.n == null {
+		t.n := new RBNode(0, v, null, null, null);
+		return 0;
+	}
+
+        var n : RBNode := _rbt_find_nearest(t.n, null, v);
+	if n.value == v {
+		return 0;
+	}
+	var newnode := new RBNode(1, v, null, null, n);
+	if n.value > v {
+		n.left := newnode;
+	} else {
+		n.right := newnode;
+	}
+	n := newnode;
+	while _rbt_is_red(n.parent) {
+		if n.parent == n.parent.parent.left {
+			// we are left sibling
+			var uncle : RBNode := n.parent.parent.right;
+			if _rbt_is_red(uncle) {
+				// case 1
+				n.parent.red := 0;
+				uncle.red := 0;
+				n.parent.parent.red := 1;
+				n := n.parent.parent;
+			} else {
+				if n == n.parent.right {
+					// case 2
+					n := n.parent;
+					_rbt_left_rotate(n, t);
+				}
+				// case 3
+				n.parent.red := 0;
+				n.parent.parent.red := 1;
+				_rbt_right_rotate(n.parent.parent, t);
+			}
+		} else {
+			// we are right sibling
+			var uncle : RBNode := n.parent.parent.left;
+			if _rbt_is_red(uncle) {
+				// case 1
+				n.parent.red := 0;
+				uncle.red := 0;
+				n.parent.parent.red := 1;
+				n := n.parent.parent;
+			} else {
+				if n == n.parent.left {
+					// case 2
+					n := n.parent;
+					_rbt_right_rotate(n, t);
+				}
+				// case 3
+				n.parent.red := 0;
+				n.parent.parent.red := 1;
+				_rbt_left_rotate(n.parent.parent, t);
+			}
+		}
+	}
+	t.n.red := 0;
+}
+
+fun _rbt_set_parent(n : RBNode, parent : RBNode) = {
+	if n != null {
+		n.parent := parent;
+	}
+}
+
+fun _rbt_update_parent_ref(parent : RBNode, old_n : RBNode, new_n : RBNode, t :  RBTree) = {
+	if parent == null {
+		t.n := new_n;
+	} else {
+		if parent.left == old_n {
+			parent.left := new_n;
+		}
+		if parent.right == old_n {
+			parent.right := new_n;
+		}
+	}
+}
+
+fun _rbt_left_rotate(x : RBNode, t : RBTree) = {
+	var parent := x.parent;
+	var y : RBNode := x.right;
+        if y == null {
+		return x;
+	}
+	var b : RBNode := y.left;
+
+	x.right := b;
+	_rbt_set_parent(b, x);
+
+	_rbt_set_parent(y, x.parent);
+
+	y.left := x;
+	_rbt_set_parent(x, y);
+
+	_rbt_update_parent_ref(parent, x, y, t);
+}
+
+fun _rbt_right_rotate(y : RBNode, t : RBTree) = {
+	var parent := y.parent;
+	var x : RBNode := y.left;
+        if x == null {
+		return y;
+	}
+	var b : RBNode := x.right;
+
+	y.left := b;
+	_rbt_set_parent(b, y);
+
+	_rbt_set_parent(x, y.parent);
+
+	x.right := y;
+	_rbt_set_parent(y, x);
+
+	_rbt_update_parent_ref(parent, y, x, t);
+}
+
+// to string
+fun rbt_string(t : RBTree) : nonnull string = {
+	return _rbt_string(t.n, null);
+}
+
+fun _rbt_string(n : RBNode, parent : RBNode) : nonnull string = {
+	if n == null {
+		return "#";
+	}
+	var r : nonnull string := "(";
+	if n.parent != parent {
+		r := concat(r, "?PERR?"); // only on error
+	}
+	if n.red {
+		r := concat(r, "RED ");
+	} else {
+		r := concat(r, "BLACK ");
+	}
+        r := concat(r, _rbt_string(n.left, n));
+        r := concat(r, " ");
+        r := concat(r, int_to_string(n.value));
+        r := concat(r, " ");
+        r := concat(r, _rbt_string(n.right, n));
+	r := concat(r, ")");
+	return r;
+}
+
+// Contains check
+fun rbt_contains(t : RBTree, v : nonnull int) : nonnull int = {
+        var n : RBNode := _rbt_find_nearest(t.n, null, v);
+	if n == null {
+		return 0;
+	}
+	return n.value == v;
+}
+
+fun _rbt_find_nearest(n : RBNode, parent : RBNode, v : nonnull int) : RBNode = {
+	if n == null {
+		return parent;
+	}
+	if v == n.value {
+		return n;
+	}
+	if v < n.value {
+		return _rbt_find_nearest(n.left, n, v);
+	}
+	return _rbt_find_nearest(n.right, n, v);
+}
+
+// Compute size
+fun rbt_size(t : RBTree) : nonnull int = {
+	return _rbt_size(t.n);
+}
+
+fun _rbt_size(n : RBNode) : nonnull int = {
+	if n == null {
+		return 0;
+	}
+	return 1 + _rbt_size(n.left) + _rbt_size(n.right);
+}
+
+fun check_eq(s, l, r) = {
+	if l != r {
+		print("Assertion failed");
+		print(s);
+		print("Expected:");
+		print(l);
+		print("Actual:");
+		print(r);
+	}
+}
+
+fun main() = {
+        var t : RBTree := rbt_empty();
+	var i := 0;
+	var expected_size : int := 0;
+	var total : int := 100;
+	check_eq("init size", 0, rbt_size(t));
+	while i < total {
+		i := i + 1;
+		var newv := random(total + 1);
+		if 0 == rbt_contains(t, newv) {
+			expected_size := expected_size + 1;
+		}
+		rbt_insert(t, newv);
+		check_eq("upd size", expected_size,  rbt_size(t));
+	}
+	return 0;
+}

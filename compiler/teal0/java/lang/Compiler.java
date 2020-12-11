@@ -50,13 +50,29 @@ public class Compiler {
 		return false;
 	}
 
-	public static boolean customIRAction(IRProgram ir) {
-		System.out.println("Hello from method 'customIRAction()' in " + Compiler.class + "!");
+	// "opt" is the command line parameter after '-Z'; useful for reconfiguring
+	public static boolean customIRAction(IRProgram ir, String opt) {
+		System.out.println("Called with option " + opt);
+
+		ArrayList<IRValue> args = new ArrayList<>(); // our benchmark takes no arguments
+		ArrayList<Long> measurements = new ArrayList<>();
+		// run a few times
+		// 10 runs; you should get _at least_ that many measurements
+		for (int i = 0; i < 10; i++) {
+			measurements.add(measureRunTime(ir, args));
+			// Missing: factor in warm-up time and discard measurements
+			// It's okay to tweak this by hand, but keep notes to explain your reasoning!
+		}
+		for (Long l : measurements) {
+			System.out.println(l);
+		}
+
 		// return "false" to finish here, otherwise the program will execute
 		return false;
 	}
 
-	public static void interpret(IRProgram p, List<String> strings) {
+	// Interpret program with the give parameters
+	public static ArrayList<IRValue> parseArgs(List<String> strings) {
 		ArrayList<IRValue> args = new ArrayList<>();
 		if (strings != null) {
 			for (String str : strings) {
@@ -67,11 +83,31 @@ public class Compiler {
 				}
 			}
 		}
+		return args;
+	}
+
+	// Interpret program with the give parameters
+	public static void interpret(IRProgram p, List<String> strings) {
+		ArrayList<IRValue> args = parseArgs(strings);
 		try {
 			IRValue ret = p.eval(args);
 			System.out.println("" + ret);
 		} catch (InterpreterException e) {
 			System.err.println("Error while interpreting program: " + e.toString());
+		}
+	}
+
+	// Interpret program with the give parameters
+	public static long measureRunTime(IRProgram p, List<IRValue> args) {
+		try {
+			long start = System.nanoTime();
+			IRValue ret = p.eval(args);
+			long stop = System.nanoTime();
+			long exec_time = stop - start;
+			return exec_time;
+		} catch (InterpreterException e) {
+			System.err.println("Error while interpreting program: " + e.toString());
+			throw new RuntimeException();
 		}
 	}
 
@@ -160,6 +196,7 @@ public class Compiler {
 		Action action = Action.INTERP;
 		String outputFile;
 		String inputFile;
+		String customOption;
 		List<String> importPaths;
 		List<String> progArgs; // arguments for the interpreted program
 
@@ -264,7 +301,7 @@ public class Compiler {
 				ret.action = CmdLineOpts.Action.CUSTOM_AST;
 			} else if (cmd.hasOption("Z")) {
 				ret.action = CmdLineOpts.Action.CUSTOM_IR;
-				ret.setProgArgs(cmd.getOptionValues("Z"));
+				ret.customOption = cmd.getOptionValue("Z");
 			} else if (cmd.hasOption("r")) {
 				ret.action = CmdLineOpts.Action.INTERP;
 				ret.setProgArgs(cmd.getOptionValues("r"));
@@ -362,7 +399,7 @@ public class Compiler {
 		}
 
 		if (opts.action == CmdLineOpts.Action.CUSTOM_IR) {
-			if (!customIRAction(irProg)) {
+			if (!customIRAction(irProg, opts.customOption)) {
 				return true;
 			}
 		}

@@ -76,7 +76,7 @@ aspect TypeAnalysis {
 
 	eq Access.type() {
 		VarDecl d = (VarDecl) getIdUse().lookup().getDecl();
-		if (d.hasDeclaredType())
+		if (d != null && d.hasDeclaredType())
 			return (TypeDefinition) d.getDeclaredType().qualifiedTypeDefinition();
 		return program().ANY();
 	}
@@ -84,10 +84,10 @@ aspect TypeAnalysis {
 	eq MemberAccess.type() {
 		Expr base = getExpr();
 		IdDecl varId = base.type().memberLookup(getIdentifier());
-		if (varId.isUnknown())
+		if (varId == null || varId.isUnknown()) // FIXME: should not need both!
 			return program().ANY();
 		Decl d = varId.getDecl();
-		if (d.isVarDecl())
+		if (d != null && d.isVarDecl())
 			return d.asVarDecl().variableType();
 		return program().ANY();
 	}
