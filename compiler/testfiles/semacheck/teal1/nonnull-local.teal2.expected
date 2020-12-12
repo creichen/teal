@@ -1,1 +1,1 @@
-testfiles/semacheck/teal1/nonnull-local.in[2:5-2:24]: Qualified local variabes must be initialized.
+testfiles/semacheck/teal1/nonnull-local.in[2:4-2:23]: Qualified local variabes must be initialized.
