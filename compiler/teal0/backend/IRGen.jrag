@@ -223,6 +223,7 @@ aspect IRGen {
 				// the same name at different scopes, and we want them to have a unique
 				// name inside the IR
 				v = new IRVar(new IRName(d.name() + counter++), d.variableType().genIRTypeRef());
+				v.setSourceLocation(d.sourceLocation());
 				F.getLocals().add(v);
 				locals.put(d, v);
 			}
@@ -309,7 +310,9 @@ aspect IRGen {
 		// formal param types
 		lang.ir.List<IRTypeRef> irTypes = new lang.ir.List<>();
 		for (VarDecl d : getFormals()) {
-			irTypes.add(d.variableType().genIRTypeRef());
+			IRTypeRef tyref = d.variableType().genIRTypeRef();
+			tyref.setSourceLocation(d.sourceLocation());
+			irTypes.add(tyref);
 		}
 		func.setParamTypeList(irTypes);
 		// return type, if any
@@ -336,7 +339,7 @@ aspect IRGen {
 
 		getBody().genCode(fctx);
 
-		if (fctx.getCurrentBB().getIRCodeExit() == null) {
+		if (fctx.hasBB() && fctx.getCurrentBB().getIRCodeExit() == null) {
 			// no exit here
 			fctx.addInsn(new IRConstantInsn().setDst(new IRVarRef(fctx.getReturnVar()))
 										.setSrc(new IRNull()));
@@ -465,12 +468,20 @@ aspect IRGen {
 		// copy this to the return value
 		ctx.addInsn(new IRCopyInsn(new IRVarRef(ctx.getReturnVar()), retVal));
 		IRCodeBB currentBB = ctx.getCurrentBB();
-		currentBB.setIRCodeExit(new IRReturn(new IRVarRef(ctx.getReturnVar())));
-		// start a new basic block to hold the translation
-		// of any (unreachable) statements following the return.
-		ctx.startBB();
+
+		IRReturn ret = new IRReturn(new IRVarRef(ctx.getReturnVar()));
+		ret.setSourceLocation(sourceLocation());
+		currentBB.setIRCodeExit(ret);
+		// ctx will auto-start a new basic block to hold the translation
+		// of any (unreachable) statements following the return if needed.
+		ctx.endBB();
 	}
 
-	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), variableType().genIRTypeRef());
+	syn IRVar VarDecl.genIR() {
+		IRVar var = new IRVar(getIdDecl().genIR(), variableType().genIRTypeRef());
+		var.setSourceLocation(sourceLocation());
+		return var;
+	}
+
 	syn IRName IdDecl.genIR() = new IRName(getIdentifier());
 }
