@@ -269,6 +269,9 @@ aspect IRGen {
 		m.getIRFunctions().add(f);
 	}
 
+	// Custom postprocessing operations after initial IR construction, e.g., to work around circular dependencies
+	public void Decl.postprocessIR() {}
+
 	syn IRModule Module.genIR() {
 		String name = getName().stream().collect(Collectors.joining("::"));
 
@@ -278,6 +281,7 @@ aspect IRGen {
 		// Add code for all class elements
 		for (Decl d : getDecls()) {
 			d.addIRToModule(m);
+			d.postprocessIR();
 		}
 
 		// FIXME: do we still need this code?  What does it do that the loop above doesn't do already?

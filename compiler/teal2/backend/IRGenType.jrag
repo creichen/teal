@@ -14,10 +14,23 @@ aspect IRGenType {
 		klass.setSourceLocation(this.sourceLocation());
 		// set formal type parameters
 		for (TypeVarDecl d : getTypeFormals()) {
-			klass.addIRTypeFormal(d.genIR());
+			IRTypeFormal formal = d.genIR();
+			formal.setSourceLocation(d.sourceLocation());
+			klass.addIRTypeFormal(formal);
 		}
 
 		return klass;
+	}
+
+	@Override
+	public void TypeDecl.postprocessIR() {
+		IRClass klass = this.genIRStruct();
+		// set fields
+		for (VarDecl d : getFunFormals()) {
+			IRVar field = d.genIR();
+			field.setSourceLocation(d.sourceLocation());
+			klass.addIRVar(field);
+		}
 	}
 
 	public void TypeDecl.genCode(IRClass klass) {
