@@ -40,17 +40,17 @@
 {
    String text = yytext();
    Long data = Long.parseLong(text);
-   return new beaver.Symbol(Terminals.INTEGER_LITERAL, yyline, yycolumn, yylength(), data);
+   return new beaver.Symbol(Terminals.INTEGER_LITERAL, yyline + 1, yycolumn, yylength(), data);
 }
 {HexLiteral}
 {
    String text = yytext();
    Long data = Long.parseLong(text.substring(2), 16);
-   return new beaver.Symbol(Terminals.INTEGER_LITERAL, yyline, yycolumn, yylength(), data);
+   return new beaver.Symbol(Terminals.INTEGER_LITERAL, yyline + 1, yycolumn, yylength(), data);
 }
 {StringLiteral}
 {
    String text = yytext();
    String data = text.substring(1, text.length() - 1);
-   return new beaver.Symbol(Terminals.STRING_LITERAL, yyline + 1, yycolumn + 1, yylength() - 2, data);
+   return new beaver.Symbol(Terminals.STRING_LITERAL, yyline + 1, yycolumn, yylength() - 2, data);
 }

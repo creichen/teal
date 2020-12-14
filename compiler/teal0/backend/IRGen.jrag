@@ -223,7 +223,6 @@ aspect IRGen {
 				// the same name at different scopes, and we want them to have a unique
 				// name inside the IR
 				v = new IRVar(new IRName(d.name() + counter++), d.variableType().genIRTypeRef());
-				v.setSourceLocation(d.sourceLocation());
 				F.getLocals().add(v);
 				locals.put(d, v);
 			}
@@ -337,7 +336,7 @@ aspect IRGen {
 
 		getBody().genCode(fctx);
 
-		if (fctx.hasBB() && fctx.getCurrentBB().getIRCodeExit() == null) {
+		if (fctx.getCurrentBB().getIRCodeExit() == null) {
 			// no exit here
 			fctx.addInsn(new IRConstantInsn().setDst(new IRVarRef(fctx.getReturnVar()))
 										.setSrc(new IRNull()));
@@ -466,19 +465,12 @@ aspect IRGen {
 		// copy this to the return value
 		ctx.addInsn(new IRCopyInsn(new IRVarRef(ctx.getReturnVar()), retVal));
 		IRCodeBB currentBB = ctx.getCurrentBB();
-		IRReturn ret = new IRReturn(new IRVarRef(ctx.getReturnVar()));
-		ret.setSourceLocation(sourceLocation());
-		currentBB.setIRCodeExit(ret);
-		// ctx will auto-start a new basic block to hold the translation
-		// of any (unreachable) statements following the return if needed.
-		ctx.endBB();
+		currentBB.setIRCodeExit(new IRReturn(new IRVarRef(ctx.getReturnVar())));
+		// start a new basic block to hold the translation
+		// of any (unreachable) statements following the return.
+		ctx.startBB();
 	}
 
-	syn IRVar VarDecl.genIR() {
-		IRVar var = new IRVar(getIdDecl().genIR(), variableType().genIRTypeRef());
-		var.setSourceLocation(sourceLocation());
-		return var;
-	}
-
+	syn IRVar VarDecl.genIR() = new IRVar(getIdDecl().genIR(), variableType().genIRTypeRef());
 	syn IRName IdDecl.genIR() = new IRName(getIdentifier());
 }

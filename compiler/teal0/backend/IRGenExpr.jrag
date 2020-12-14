@@ -130,6 +130,7 @@ aspect IRGenExpr {
 		ctx.addInsn(new IRConstantInsn(size, new IRInteger((long) this.getNumExpr())));
 		IRNewArrayInsn newInsn = new IRNewArrayInsn().setDst(dst)
 			.setIRType((IRType) IRModule.makeAnyTypeRef()).setSize(size); // FIXME: more precise type if we get type inference
+		newInsn.setSourceLocation(this.sourceLocation());
 		ctx.addInsn(newInsn);
 
 		long indexCounter = 0;

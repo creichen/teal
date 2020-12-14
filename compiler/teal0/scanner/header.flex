@@ -23,7 +23,7 @@ import lang.ast.TEALParser.SyntaxError;
 // this code will be inlined in the body of the generated scanner class
 %{
   private beaver.Symbol sym(short id) {
-    return new beaver.Symbol(id, yyline + 1, yycolumn + 1, yylength(), yytext());
+    return new beaver.Symbol(id, yyline + 1, yycolumn, yylength(), yytext());
   }
 %}
 
