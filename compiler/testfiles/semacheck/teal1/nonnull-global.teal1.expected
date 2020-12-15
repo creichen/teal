@@ -1,1 +1,1 @@
-testfiles/semacheck/teal1/nonnull-global.in[1:1-1:20]: Global variable types cannot be qualified.
+testfiles/semacheck/teal1/nonnull-global.in[1:0-1:19]: Global variable types cannot be qualified.

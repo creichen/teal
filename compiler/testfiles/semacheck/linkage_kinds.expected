@@ -1,2 +1,2 @@
-testfiles/semacheck/linkage_kinds.in[5:5-5:5]: 'f' is declared as a function, but used as a variable.
-testfiles/semacheck/linkage_kinds.in[6:5-6:9]: 'v' is declared as a variable, but used as a function.
+testfiles/semacheck/linkage_kinds.in[5:4-5:4]: 'f' is declared as a function, but used as a variable.
+testfiles/semacheck/linkage_kinds.in[6:4-6:8]: 'v' is declared as a variable, but used as a function.
