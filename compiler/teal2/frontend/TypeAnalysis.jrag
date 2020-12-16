@@ -30,10 +30,15 @@ aspect TypeAnalysis {
 
 	TypeDecl implements TypeDefinition;
 	TypeVarDecl implements TypeDefinition;
+	Type implements TypeDefinition;
+
+	syn IdDecl Type.memberLookup(String s) {
+		TypeDefinition td = (TypeDefinition) getIdUse().lookup().getDecl();
+		return td.memberLookup(s);
+	}
 
 	syn TypeDefinition Type.qualifiedTypeDefinition() {
-		TypeDefinition td = (TypeDefinition) getIdUse().lookup().getDecl();
-		return new QualifiedTypeDefinition(td, getTypeQualifiers());
+		return this;
 	}
 
 	// The following gives us the type of the expression if and only if we know the type precisely
