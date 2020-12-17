@@ -1,14 +1,29 @@
 // Top level
 IRProgram ::= IRModule*;
+
+// IRFunction is the list of functions in the module
 IRModule ::= IRModuleName IRVar* IRTypeCon* IRFunction*;
 IRModuleName ::= IRName*;
 IRVar ::= IRName IRTypeRef;
 
+// The first IRTypeRef is the return type.
+// Local is the list of local variables.
+// IRCodeBB is the list of basic blocks.  Block 0 is the entry point.
 IRFunction ::= IRName IRTypeRef ParamType:IRTypeRef* Local:IRVar* IRCodeBB*;
+// IRCodeBB encodes the Control Flow Graph
 IRCodeBB ::= IRInsn* IRCodeExit;
 
-// Instructions
+//----------------------------------------
+// Each IRCodeBB is a Basic Block with the following operations in sequence:
+//
+//   IRInsn_0
+//     ...
+//   IRInsn_n
+//   IRCodeExit
+//----------------------------------------
+// Block Instructions
 abstract IRInsn;
+//  Loads the constant value "Src" into local variable "Dst"
 IRConstantInsn : IRInsn ::= Dst:IRVarRef Src:IRConstant;
 
 // Instruction to access the i-th argument
@@ -18,29 +33,42 @@ IRArgInsn : IRInsn ::= Dst:IRVarRef <Index:Integer>;
 IRCopyInsn : IRInsn ::= Dst:IRVarRef Src:IRVarRef;
 
 abstract IRAbstractLoadInsn : IRInsn ::= Dst:IRVarRef;
+// Load from a static variable
 IRLoadStaticInsn : IRAbstractLoadInsn ::= Src:IRVarRef;
+// Load from an array "Base", at the given index
 IRLoadArrayInsn : IRAbstractLoadInsn ::= Base:IRVarRef Index:IRVarRef;
 
 abstract IRAbstractStoreInsn : IRInsn ::= Src:IRVarRef;
+// Store into static variable
 IRStoreStaticInsn : IRAbstractStoreInsn ::= Dst:IRVarRef;
+// Store into array "Base", at given index
 IRStoreArrayInsn : IRAbstractStoreInsn ::= Base:IRVarRef Index:IRVarRef;
 
+// Call "IRFunRef" with parameters "Arg", store return in "Dst"
+// These calls include our arithmetic operations etc.
 abstract IRAbstractCallInsn : IRInsn ::= Dst:IRVarRef Arg:IRVarRef* IRFunRef;
 IRCallInsn : IRAbstractCallInsn;
 
+// Create array with given type and size
 IRNewArrayInsn : IRInsn ::= Dst:IRVarRef IRType Size:IRVarRef;
 
+//----------------------------------------
 // Block terminators
 abstract IRCodeExit;
+// Return from function with the given return value
 IRReturn : IRCodeExit ::= IRVarRef;
+// Unconditional jump
 IRJump : IRCodeExit ::=  IRCodeBBRef;
+// If "Cond" (must be int) is 0: branch to "FalseTarget", otherwise branch to "TrueTarget"
 IRBranch : IRCodeExit ::= Cond:IRVarRef TrueTarget:IRCodeBBRef FalseTarget:IRCodeBBRef;
+//----------------------------------------
 
 abstract IRConstant;
 IRString : IRConstant ::= <Value:String>;
 IRInteger : IRConstant ::= <Value:Long>;
 IRNull : IRConstant;
 
+// These references point to the AST node that represents the variable / function / basic block of interest
 IRVarRef ::= <IRVar:IRVar>;
 IRFunRef ::= <IRFunction:IRFunction>;
 IRCodeBBRef ::= <IRCodeBB:IRCodeBB>;
@@ -54,8 +82,11 @@ IRBuiltinTypeCon : IRTypeCon;
 
 // Type reference
 abstract IRTypeRef;
+// In Teal-1, all types have the form below, and IRQualifier* is either empty or contains IRNonNull
 IRType : IRTypeRef ::= <IRTypeCon:IRTypeCon> TypeActual:IRTypeRef* IRQualifier*;
 
 IRName ::= <String>;
 
+// Formal type parameters, e.g., the "T" in "array[T]"
+// This should not be used for exercise 2. Confused the students.
 IRTypeFormal ::= IRName;
