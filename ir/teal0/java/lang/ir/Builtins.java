@@ -64,8 +64,7 @@ public final class Builtins {
 	OP(BuiltinNames.CONCAT, ctx -> new IRStringValue(ctx.getString(0).concat(ctx.getString(1))));
 	OP(BuiltinNames.ARRAY_LENGTH, ctx -> new IRIntegerValue(ctx.getArray(0).getSize()));
 	INT_OP(BuiltinNames.TIME, ctx -> {
-			Instant t = Instant.now();
-			return t.getEpochSecond() * 1_000_000_000 + t.getNano();
+			return System.nanoTime();
 		});
     }
 
