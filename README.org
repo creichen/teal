@@ -140,11 +140,11 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
     If you're too lazy to read the rest, here is the following in script form:
 
     #+begin_src sh
-      git remote add upstream https://git.cs.lth.se/creichen/edap15-exercise-1.git
+      git remote add upstream https://git.cs.lth.se/creichen/edap15-exercise-<nr>.git
       git fetch upstream
-      git checkout master
-      git merge upstream/master
-      git push origin master
+      git checkout main
+      git merge upstream/main
+      git push origin main
     #+end_src
 
     Otherwise, here are the explanations!
@@ -159,8 +159,8 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
 
     You should see something like
     #+begin_src text
-      origin	git@coursegit.cs.lth.se:edap15-2020/<group>/exercise-1.git (fetch)
-      origin	git@coursegit.cs.lth.se:edap15-2020/<group>/exercise-1.git (push)
+      origin	git@coursegit.cs.lth.se:edap15-<year>/<group>/exercise-<nr>.git (fetch)
+      origin	git@coursegit.cs.lth.se:edap15-<year>/<group>/exercise-<nr>.git (push)
     #+end_src
 
 *** Specify a Remote Upstream
@@ -169,7 +169,7 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
     We can give names to remote, we'll call this one /upstream/.
 
     #+begin_src sh
-      git remote add upstream https://git.cs.lth.se/creichen/edap15-exercise-1.git
+      git remote add upstream https://git.cs.lth.se/creichen/edap15-exercise-<nr>.git
     #+end_src
 
 *** Get the Changes
@@ -185,10 +185,10 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
     using something called /branches/.
 
     So now both the code from the upstream repo and yours are on your computer
-    you just can't see the other branch. You can look at it by typing ~git checkout upstream/master~
+    you just can't see the other branch. You can look at it by typing ~git checkout upstream/main~
 
-    You can also /compare/ branches with ~git diff upstream/master~, this will show
-    the differences between your master branch and ~upstream/master~.
+    You can also /compare/ branches with ~git diff upstream/main~, this will show
+    the differences between your main branch and ~upstream/main~.
 
 *** Merging Changes
 
@@ -198,9 +198,9 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
 
     You do this by running
     #+begin_src sh
-      git checkout master # make sure you're on the right branch
-      git merge upstream/master
+      git checkout main # make sure you're on the right branch
+      git merge upstream/main
     #+end_src
 
 *** Pushing to Gitlab
-    Now you can update gitlab's copy of your code with ~git push origin master~
+    Now you can update gitlab's copy of your code with ~git push origin main~
