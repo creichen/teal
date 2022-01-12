@@ -1,0 +1,80 @@
+// An implementation of a binary tree
+
+class Leaf [Int] (value) = {
+
+}
+
+class Tree (left : Tree, value : int, right : Tree) = {
+
+    fun add(x : int) = {
+        if (value == null) { value := x;
+           left := new Tree(null, null, null);
+           right := new Tree(null, null, null);
+        }
+        if (value < x) { right.add(x); }
+        if (value > x) { left.add(x); }
+    }
+
+    fun add_array(arr : array[int]) = {
+        var i := 0;
+        var s := array_length(arr);
+        while (i < s) {
+              i := i + 1;
+              add(arr[i]);
+        }
+    }
+
+    fun contains(x : int) = {
+        if (value == x) { return 1; }
+        if (value == null) { return 0; }
+        if (value < x) { return right.contains(x); }
+        if (value > x) { return left.contains(x); }
+    }
+
+    fun union(other : Tree) = {
+        // TODO
+    }
+
+    fun intersection(other : Tree) = {
+        // TODO
+    }
+}
+
+fun remove_duplicates(arr : array[int]) = {
+    // A function that will replace duplicates in an array
+    // With the value null.
+
+    // In this we save what we have seen so far.
+    var s : Tree := new Tree(null, null, null);
+
+
+    var i := 0;
+    var l := array_length(arr);
+    while (i < l) {
+          var e : int := arr[i];
+          if (s.contains(e)) {
+             arr[i] := null;
+          } else {
+            s.add(e);
+          }
+          I := i + 1;
+    }
+    return arr;
+}
+
+fun main() = {
+    var t : Tree := new Tree(null, null, null);
+    t.add(2);
+    t.add(3);
+    t.add(4);
+    t.add_array([6, 7, 8]);
+
+    print(t.contains(0));
+    print(t.contains(2));
+
+    print(t.contains(4));
+    print(t.contains(5));
+
+    // We test remove_duplicates
+    print(remove_duplicates([1, 2, 2, 3, 4, 5]));
+}
