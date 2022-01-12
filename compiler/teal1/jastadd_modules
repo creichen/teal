@@ -23,8 +23,8 @@ module("teal-1") {
     }
 
     scanner {
-	excludeFrom "teal-1", "scanner/type.flex"
 	include "scanner/scanner.flex"
+	include "scanner/type.flex"
     }
 
     parser {
