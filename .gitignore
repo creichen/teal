@@ -17,4 +17,7 @@ tests/evaluation/bottomupout/*
 /tmp/
 /src/gen
 **/*~
+**/*.orig
+**/.settings
+compiler/bin
 *.out
