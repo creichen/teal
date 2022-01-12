@@ -1,7 +1,5 @@
 // An implementation of a binary tree
 
-
-
 type Leaf(dummy : any);
 type Branch(left : nonnull any, value : nonnull int, right : nonnull any);
 var leaf_singleton;
@@ -15,63 +13,45 @@ fun leaf() = {
 
 type Tree(t : nonnull any);
 
-fun tree_empty() : Tree = return new Tree(leaf());
+fun empty_tree() : Tree = return new Tree(leaf());
 
 fun tree_add(t : Tree, x : nonnull int) = {
- t.t := _tree_rec_add(t.t, x);
+ t.t := _rec_tree_add(t.t, x);
 }
 
 fun _rec_tree_add(node : nonnull any, x : nonnull int) : nonnull any = {
-    if node == leaf() {
-        return Branch(leaf(), x, leaf());
+    if (node == leaf()) {
+        return new Branch(leaf(), x, leaf());
     }
-    // else compare / recurse
+    var b : nonnull Branch := node;
+    if (b.value > x) { return new Branch(_rec_tree_add(b.left, x),
+                                  b.value,
+                                  b.right); }
+    if (b.value < x) { return new Branch(b.left, b.value, _rec_tree_add(b.right, x)); }
+    return b;
+}
+
+fun tree_contains(t : Tree, x : nonnull int) = {
+    return _rec_tree_contains(t.t, x);
+}
+
+fun _rec_tree_contains(node : nonnull any, x : nonnull int) = {
+    if (node == leaf()) { return 0; }
+    var b : Branch := node;
+    if (b.value == x) { return 1; }
+    if (b.value < x) { return _rec_tree_contains(b.right, x); }
+    if (b.value > x) { return _rec_tree_contains(b.left, x); }
 }
 
 /////
-
-type TreeBox(content : nonull any);
-
-fun empty_tree() = {
- if (nothing == null) {
-  nothing := new Leaf();
- }
- return TreeBox(nothing);
-}
-
-fun tree_add(t : TreeBox, x : int) = {
-    if (t.content == nothing) {
-        t.content := new Tree();
-        t.content.value := x; 
-        t.content.left := empty_tree();
-        t.right := empty_tree();
-    }
-    if (t.content.value < x) { tree_add(t.right, x); }
-    if (t.content.value > x) { tree_add(t.left, x); }
-}
 
 fun tree_add_array(t : Tree, arr : array[int]) = {
     var i := 0;
     var s := array_length(arr);
     while (i < s) {
-            i := i + 1;
-            tree_add(t, arr[i]);
+        tree_add(t, arr[i]);
+        i := i + 1;
     }
-}
-
-fun tree_contains(t : Tree, x : int) = {
-    if (t.value == nothing()) { return 0; }
-    if (t.value.v == x.value) { return 1; }
-    if (t.value.v < x.value) { return tree_contains(t.right, x); }
-    if (t.value.v > x.value) { return tree_contains(t.left, x); }
-}
-
-fun union(other : Tree) = {
-    // TODO
-}
-
-fun intersection(other : Tree) = {
-    // TODO
 }
 
 fun remove_duplicates(arr : array[int]) = {
@@ -88,19 +68,18 @@ fun remove_duplicates(arr : array[int]) = {
              arr[i] := null;
           } else {
             tree_add(s, e);
-          } 
+          }
           i := i + 1;
-    } 
+    }
     return arr;
 }
 
 fun main() = {
     var t : Tree := empty_tree();
     tree_add(t, 2);
-    tree_add(t, 2);
-    tree_add(t, 2);
-    tree_add(t, 2);
-    tree_add(t, 2);
+    tree_add(t, 3);
+    tree_add(t, 4);
+    tree_add(t, 5);
     tree_add_array(t, [6, 7, 8]);
 
     print(tree_contains(t, 0));
@@ -111,4 +90,6 @@ fun main() = {
 
     // We test remove_duplicates
     print(remove_duplicates([1, 2, 2, 3, 4, 5]));
+
+    tree_add_array(t, remove_duplicates([1, 2, 2, 3]));
 }
