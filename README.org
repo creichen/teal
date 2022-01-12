@@ -137,7 +137,8 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
 
 *** TL;DR
 
-    If you're too lazy to read the rest, here is the following in script form:
+    If you're too lazy to read the rest, here is the following in script form.
+    Run these instructions in the ~exercise-<nr>~ directory::
 
     #+begin_src sh
       git remote add upstream https://git.cs.lth.se/creichen/edap15-exercise-<nr>.git
