@@ -40,7 +40,7 @@ jastadd {
     if (project.hasProperty("langVersion")) {
 	module = project.getProperty("langVersion")
     } else {
-	module = "teal-1"
+	module = "teal-2"
     }
 
     println "Using frontend module " + module.name
