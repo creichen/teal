@@ -1,0 +1,17 @@
+type T(x : string, y : int);
+
+
+fun f(a : nonnull array[int], y : int) : int = {
+  return a[y];
+}
+
+fun main() = {
+  var b : T := new T("", null);
+  var c : nonnull T := b;
+
+  b := null;
+
+  f([1, 2], c.y);
+
+  return b.x;
+}
