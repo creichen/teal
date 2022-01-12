@@ -1,10 +1,34 @@
 // An implementation of a binary tree
 
-type Leaf();
 
-var nothing; 
 
-type Tree(left : nonnull any, value : nonnull int, right : nonnull any);
+type Leaf(dummy : any);
+type Branch(left : nonnull any, value : nonnull int, right : nonnull any);
+var leaf_singleton;
+
+fun leaf() = {
+    if leaf_singleton == null {
+        leaf_singleton := new Leaf("");
+    }
+    return leaf_singleton;
+}
+
+type Tree(t : nonnull any);
+
+fun tree_empty() : Tree = return new Tree(leaf());
+
+fun tree_add(t : Tree, x : nonnull int) = {
+ t.t := _tree_rec_add(t.t, x);
+}
+
+fun _rec_tree_add(node : nonnull any, x : nonnull int) : nonnull any = {
+    if node == leaf() {
+        return Branch(leaf(), x, leaf());
+    }
+    // else compare / recurse
+}
+
+/////
 
 type TreeBox(content : nonull any);
 
