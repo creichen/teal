@@ -1,0 +1,15 @@
+type ABC(a : int, b : int, c : ABC);
+
+fun main() = {
+  var x : ABC := new ABC(1, 2, null);
+  x := new ABC(3, 4, x);
+
+  var sum : int := 0;
+  var it : nonnull ABC := x;
+  while it != null {
+    print(it.a);
+    sum := sum + it.b;
+    it := it.c;
+  }
+  return sum;
+}
