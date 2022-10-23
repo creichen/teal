@@ -18,7 +18,7 @@ jastadd {
 		module = "teal-3-ir"; break;
 	}
     } else {
-	module = "teal-2-ir";
+	module = "teal-3-ir";
     }
 
     println "Using IR module " + module.name

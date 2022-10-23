@@ -2,20 +2,6 @@ import java.io.PrintStream;
 import java.util.Iterator;
 
 aspect IRPrint {
-	public void IRClass.print(PrintStream out) {
-		out.print("class ");
-		getIRName().print(out);
-
-		if (getNumIRTypeFormal() != 0)
-			printCollection(getIRTypeFormals(), "[", "]", ", ", out);
-
-		out.println();
-
-		printCollection(getIRVars(), "", "\n", "\n", out);
-
-		out.println("end class\n");
-	}
-
 	public void IRLoadInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" <- load ");

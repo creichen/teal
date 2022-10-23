@@ -4,28 +4,6 @@ import java.io.ByteArrayOutputStream;
 import lang.common.SourceLocation;
 
 aspect IRPrint {
-	public void IRClass.print(PrintStream out) {
-		out.print("class ");
-		getIRName().print(out);
-
-		if (getNumIRTypeFormal() != 0)
-			printCollection(getIRTypeFormals(), "[", "]", ", ", out);
-
-		out.print(" <: ");
-		printCollection(getSupers(), "", "", ", ", out);
-
-
-		out.println();
-
-		printCollection(getIRVars(), "", "\n", "\n", out);
-
-		getConstructor().print(out);
-
-		printCollection(getIRFunctions(), "", "\n", "\n", out);
-
-		out.println("end class\n");
-	}
-
 	public void IRTypeFormalRef.print(PrintStream out) {
 		getIRTypeFormal().print(out);
 	}
@@ -45,31 +23,8 @@ aspect IRPrint {
 		printCollection(getArgs(), "(", ")", ", ", out);
 	}
 
-	public void IRLoadInsn.print(PrintStream out) {
-		getDst().print(out);
-		out.print(" <- load ");
-		getBase().print(out);
-		out.print(" ");
-		getField().print(out);
-	}
-
-	public void IRStoreInsn.print(PrintStream out) {
-		out.print("store ");
-		getSrc().print(out);
-		out.print(" ");
-		getBase().print(out);
-		out.print(" ");
-		getField().print(out);
-	}
-
 	public void IRSelfInsn.print(PrintStream out) {
 		getDst().print(out);
 		out.print(" <- self");
-	}
-
-	public void IRNewInsn.print(PrintStream out) {
-		getDst().print(out);
-		out.print(" <- new ");
-		getIRType().print(out);
 	}
 }

@@ -2,7 +2,7 @@
 module("teal-3-ir") {
     moduleName "teal-3-ir"
 
-    imports "teal-0-ir"
+    imports "teal-2-ir"
 
     java {
 	basedir "."
@@ -12,9 +12,14 @@ module("teal-3-ir") {
     jastadd {
 	include "ast/assert.ast"
 	include "ast/object.ast"
+	excludeFrom "teal-2-ir", "ast/class.ast"
+	include "ast/class.ast"
 	include "ast/generic.ast"
 
+	excludeFrom "teal-2-ir", "ast/IRPrintClass.jrag"
 	include "ast/IRPrint.jrag"
+	include "ast/IRPrintClass.jrag"
+	excludeFrom "teal-2-ir", "ast/IRInterpreter.jrag"
 	include "ast/IRInterpreter.jrag"
     }
 }
