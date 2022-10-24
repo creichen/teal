@@ -3,6 +3,10 @@
     id "org.jastadd" version "1.13.3"
 }
 
+tasks.withType(JavaCompile) {
+    options.deprecation = true
+}
+
 // ========================================
 // Testing
 

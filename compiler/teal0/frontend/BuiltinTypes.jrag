@@ -5,24 +5,43 @@ aspect BuiltinTypes {
 	eq Program.getChild().program() = this;
 	eq Program.getBuiltinDecls().program() = this;
 
+	/**
+	 * Map type names (strings) to types.
+	 *
+	 * Used by makeBuiltinFunDecl to assign types to the built-in operators.
+	 * Approximates array types.
+	 *
+	 * @param typename Name of the type to approximate
+	 * @return A Type object.
+	 */
 	syn Type Program.simpleTypeFromName(String typename) {
 		switch (typename) {
 		case BuiltinNames.INT:
 			return new IntType();
-		case "string":
+		case BuiltinNames.STRING:
 			return new StringType();
-		case "array":
-		    // FIXME: we don't have parametric types here, so we must change the types of
-		    // functions that operate over arrays to use "any".
-		    // This is fine, as long as we don't do any type checking or inference...
+		case BuiltinNames.ARRAY:
+		    /**
+		     * TODO for Homework 1
+		     *
+		     * This function doesn't know how to deal with arrays, so
+		     * it returns "any".  You will have to fix this to correctly
+		     * support the "array_length" function.
+		     */
 		    return new AnyType();
-		case "any":
+		case BuiltinNames:ANY:
 			return new AnyType();
 		default:
-			throw new RuntimeException("Can't build type from name " + typename);
+			throw new RuntimeException("Can't build type from unexpected type name " + typename);
 		}
 	}
 
+	/**
+	 * Transform a builtin operation (addition, subtraction etc.) into a "pseudo-Decl"
+	 *
+	 * @param op: The operation to transform
+	 * @return A Decl that declares the built-in operation as if it had been declared by the source program
+	 */
 	private Decl Program.makeBuiltinFunDecl(BuiltinNames.Operation op) {
 		//String name, String retType, String ...argTypes) {
 		FunDecl f = new FunDecl();

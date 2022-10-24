@@ -74,6 +74,10 @@ aspect NameAnalysis {
 		return lookup(s);
 	}
 
+	eq Program.getChild().lookup(String s) {
+	    return null;
+	}
+
 	// inh IdDecl TypeDecl.lookup(String s);
 	syn IdDecl Module.localLookup(String s) {
 		IdDecl d = moduleDeclMap().getOne(s);

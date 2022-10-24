@@ -1,11 +1,10 @@
 aspect TypeAnalysis {
-	public interface TypeDefinition {
-		lang.ir.IRTypeRef genIRTypeRef(); // code generation
-	}
-
-	Type implements TypeDefinition;
-
-	// The following gives us the type of the expression if and only if we know the type precisely
+	/**
+	 * Interpret the type of literal values and explicit type annotations.
+	 *
+	 * @return Either the precise type of the expression if that type is obvious
+	 * purely by looking at the AST node, or <tt>null</tt>.
+	 */
 	syn Type Expr.implicitType() = null;
 	eq IntConstant.implicitType() = new IntType();
 	eq StringConstant.implicitType() = new StringType();
@@ -13,8 +12,12 @@ aspect TypeAnalysis {
 		return getDeclaredType();
 	}
 
-	// The inferred type of the expression:
-	// EX1: You may want to replace this implementation
+	/**
+	 * Infers the type of the expression.
+	 *
+	 * @return The expression's type, or AnyType if the expression's type
+	 * is unknown or contradictory.
+	 */
 	syn TypeDefinition Expr.type() {
 	    TypeDefinition ty = this.implicitType();
 	    if (ty == null) {

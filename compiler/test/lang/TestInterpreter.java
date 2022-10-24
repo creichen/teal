@@ -443,7 +443,7 @@ public class TestInterpreter {
         public void testMultipleSpecs() {
                 String text = "// IN: 10 10\n// OUT: 5\n// IN: 2 3\n// OUT: 0\n";
                 Scanner scanner = new Scanner(text);
-                List<String> lines = new ArrayList();
+                List<String> lines = new ArrayList<>();
                 while (scanner.hasNextLine()) {
                         lines.add(scanner.nextLine());
                 }
@@ -467,7 +467,7 @@ public class TestInterpreter {
 
         @Test(expected=RuntimeException.class)
         public void testAbsentSpec() {
-                List<String> lines = new ArrayList();
+                List<String> lines = new ArrayList<>();
                 lines.add("Some text with IN: and OUT: and stuff.");
                 lines.add("// even has comments and EXCEPTION: and stuff.");
                 lines.add("But yet no spec to be seen");
@@ -476,7 +476,7 @@ public class TestInterpreter {
 
         public List<TestSpec> readTestSpecLines(List<String> lines) {
                 TestSpec currentSpec = new TestSpec();
-                List<TestSpec> results = new ArrayList();
+                List<TestSpec> results = new ArrayList<>();
                 for (String l : lines) {
                         currentSpec.combineWith(TestSpec.parseInputs(l));
                         currentSpec.combineWith(TestSpec.parsePrints(l));

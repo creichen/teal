@@ -30,7 +30,7 @@ ArrayLiteralExpr : Expr ::= Expr*;
 IndexExpr : Expr ::= Base:Expr Index:Expr;
 NotExpr : Expr ::= Expr;
 TypedExpr : Expr ::= Expr DeclaredType:Type;
-NewExpr : Expr ::= Type Actual:Expr*; // Array allocation.  In later layers of Teal we generalise this to object allocation.
+NewExpr : Expr ::= Type Actual:Expr*; // Array allocation.  In later layers of Teal we generalise this operation.
 
 // Constants
 Constant : Expr;
@@ -54,5 +54,5 @@ SkipStmt : Stmt;
 // Identifiers
 IdUse ::= <Identifier>;
 IdDecl ::= <Identifier>;
-// Unknown
+// Unknown declaration (error handling)
 UnknownDecl : IdDecl;
