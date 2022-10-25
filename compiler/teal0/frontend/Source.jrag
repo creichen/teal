@@ -1,3 +1,5 @@
+import lang.common.SourceLocation;
+
 aspect Source {
 	private String Module.sourceFile = "";
 
@@ -11,7 +13,7 @@ aspect Source {
 
 	inh String ASTNode.sourceFile();
 	eq Program.getChild().sourceFile() = null;
-	eq Program.getBuiltinDecls().sourceFile() = "(BUILTIN)";
+	eq Program.getBuiltinDecls().sourceFile() = SourceLocation.BUILTIN_FILENAME_PLACEHOLDER;
 	eq Module.getChild().sourceFile() = sourceFile();
 
 	public int ASTNode.startLine() {

@@ -1,1 +1,1 @@
-int func() {} ; int func2() {}
+fun func(): int = {}  fun func2() = {}

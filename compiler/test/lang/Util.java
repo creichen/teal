@@ -14,6 +14,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Scanner;
 
+import org.junit.Test;
+
 import lang.ast.Program;
 import lang.ast.TEALParser;
 import lang.ast.LangScanner;
@@ -22,7 +24,8 @@ import lang.ast.LangScanner;
 public final class Util {
   private static String SYS_LINE_SEP = System.getProperty("line.separator");
 
-  private Util() { }
+  // Workaround for bugs in Gradle/JUnit
+  @Test public void thisIsNotATest() {}
 
   /**
    * Parses the given file

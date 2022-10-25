@@ -246,23 +246,31 @@ public class TestInterpreter {
 	}
 
         public static class TestSpec {
-                public Optional<Object[]> inputs;
-                public Optional<Object> output;
-                public Optional<Class> exception;
+                public Optional<Object[]> inputs = Optional.empty();
+                public Optional<Object> output = Optional.empty();
+                public Optional<Class> exception = Optional.empty();
 		public List<String> prints = new ArrayList<>();
 
-                public TestSpec() {
-                        this.inputs = Optional.empty();
-                        this.output = Optional.empty();
-                        this.exception = Optional.empty();
-                }
+		// Workaround for bugs in Gradle/JUnit
+		@Test public void thisIsNotATest() {}
 
-                public TestSpec(Optional<Object[]> inputs,
-                                Optional<Object> output,
-                                Optional<Class> exception) {
-                        this.inputs = inputs;
-                        this.output = output;
-                        this.exception = exception;
+		public TestSpec() {
+		}
+
+		public static TestSpec
+		empty() {
+			return new TestSpec();
+		}
+
+                public static TestSpec
+		make(Optional<Object[]> inputs,
+		     Optional<Object> output,
+		     Optional<Class> exception) {
+			TestSpec t = new TestSpec();
+                        t.inputs = inputs;
+                        t.output = output;
+                        t.exception = exception;
+			return t;
                 }
 
                 public static Pattern INPUT_PATTERN = Pattern.compile("// IN: (.+)");
@@ -292,11 +300,11 @@ public class TestInterpreter {
                                         i++;
                                 }
 
-                                return new TestSpec(Optional.of(results),
-                                                    Optional.empty(),
-                                                    Optional.empty());
+                                return TestSpec.make(Optional.of(results),
+						     Optional.empty(),
+						     Optional.empty());
                         } else {
-                                return new TestSpec();
+                                return TestSpec.empty();
                         }
                 }
 
@@ -307,11 +315,11 @@ public class TestInterpreter {
 				Object pv = parseValue(m.group(1));
 				assertTrue("PRINT: spec values must be strings in double quotes",
 					   pv instanceof String);
-				TestSpec ts = new TestSpec();
+				TestSpec ts = TestSpec.empty();
 				ts.prints.add((String)pv);
 				return ts;
 			} else {
-				return new TestSpec();
+				return TestSpec.empty();
 			}
 		}
 
@@ -337,11 +345,11 @@ public class TestInterpreter {
                         Matcher m = p.matcher(line);
 
                         if (m.find()) {
-                                return new TestSpec(Optional.empty(),
-                                                    Optional.of(parseValue(m.group(1))),
-                                                    Optional.empty());
+                                return TestSpec.make(Optional.empty(),
+						     Optional.of(parseValue(m.group(1))),
+						     Optional.empty());
                         } else {
-                                return new TestSpec();
+                                return TestSpec.empty();
                         }
                 }
 
@@ -360,11 +368,11 @@ public class TestInterpreter {
                         Matcher m = p.matcher(line);
 
                         if (m.find()) {
-                                return new TestSpec(Optional.empty(),
-                                                    Optional.empty(),
-                                                    Optional.of(parseExceptionValue(m.group(1))));
+                                return TestSpec.make(Optional.empty(),
+						     Optional.empty(),
+						     Optional.of(parseExceptionValue(m.group(1))));
                         } else {
-                                return new TestSpec();
+                                return TestSpec.empty();
                         }
                 }
 
@@ -475,7 +483,7 @@ public class TestInterpreter {
         }
 
         public List<TestSpec> readTestSpecLines(List<String> lines) {
-                TestSpec currentSpec = new TestSpec();
+                TestSpec currentSpec = TestSpec.empty();
                 List<TestSpec> results = new ArrayList<>();
                 for (String l : lines) {
                         currentSpec.combineWith(TestSpec.parseInputs(l));
@@ -484,7 +492,7 @@ public class TestInterpreter {
                         currentSpec.combineWith(TestSpec.parseException(l));
                         if(currentSpec.isComplete()) {
                                 results.add(currentSpec);
-                                currentSpec = new TestSpec();
+                                currentSpec = TestSpec.empty();
                         }
                 }
                 if (!currentSpec.isBlank()) {

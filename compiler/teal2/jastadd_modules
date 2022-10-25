@@ -54,4 +54,5 @@ module("teal-2") {
 	excludeFrom "teal-0", "parser/type.parser"
 	excludeFrom "teal-1", "parser/type.parser"
     }
+
 }

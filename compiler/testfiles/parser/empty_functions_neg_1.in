@@ -1,2 +1,2 @@
-func1 () {
+fun func1 () = {
 }

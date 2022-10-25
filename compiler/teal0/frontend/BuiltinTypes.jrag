@@ -29,7 +29,7 @@ aspect BuiltinTypes {
 		     * support the "array_length" function.
 		     */
 		    return new AnyType();
-		case BuiltinNames:ANY:
+		case BuiltinNames.ANY:
 			return new AnyType();
 		default:
 			throw new RuntimeException("Can't build type from unexpected type name " + typename);

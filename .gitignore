@@ -8,7 +8,7 @@ compiler/build
 ir/build
 /bin/
 compiler.jar
-DrAST-1.2.2.jar
+./DrAST-1.2.2.jar
 DrAST.cfg
 tests/**/*.out
 /tests/output/

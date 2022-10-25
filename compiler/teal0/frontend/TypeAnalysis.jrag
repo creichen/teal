@@ -18,8 +18,8 @@ aspect TypeAnalysis {
 	 * @return The expression's type, or AnyType if the expression's type
 	 * is unknown or contradictory.
 	 */
-	syn TypeDefinition Expr.type() {
-	    TypeDefinition ty = this.implicitType();
+	syn Type Expr.type() {
+	    Type ty = this.implicitType();
 	    if (ty == null) {
 		return new AnyType();
 	    }
@@ -27,7 +27,7 @@ aspect TypeAnalysis {
 	}
 
 	// The type of this variable, as far as we can tell (without trying very hard); never null
-	syn TypeDefinition VarDecl.variableType() {
+	syn Type VarDecl.variableType() {
 		if (hasDeclaredType()) {
 			return getDeclaredType();
 		}
@@ -38,7 +38,7 @@ aspect TypeAnalysis {
 	}
 
 	// The return type; never null
-	syn TypeDefinition FunDecl.returnType() {
+	syn Type FunDecl.returnType() {
 		if (hasDeclaredReturnType()) {
 			return getDeclaredReturnType();
 		}

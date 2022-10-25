@@ -3,6 +3,7 @@ package lang.common;
 import java.io.PrintStream;
 
 public class SourceLocation implements Comparable<SourceLocation> {
+	public static final String BUILTIN_FILENAME_PLACEHOLDER = "<BUILTIN>";
 	private String file = "UNKNOWN";
 	private int startLine, endLine, startColumn, endColumn;
 

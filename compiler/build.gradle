@@ -1,10 +1,31 @@
- plugins {
+plugins {
     id "java"
     id "org.jastadd" version "1.13.3"
+    id "com.google.osdetector" version "1.6.1" // for JavaFX
+    id 'org.openjfx.javafxplugin' version '0.0.13' // JavaFX support for DrAST
 }
+
+// ========================================
+// Debugging
 
 tasks.withType(JavaCompile) {
     options.deprecation = true
+}
+
+// JavaFX support for DrAST
+javafx {
+    version = "19"
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing' ]
+}
+
+dependencies {
+    if (JavaVersion.current() >= JavaVersion.VERSION_11) {
+            implementation('org.openjfx:javafx-controls:11')
+	    implementation('org.openjfx:javafx-fxml:11')
+    }
+    implementation files('../libs/DrAST-1.2.2.jar') // include DrAST
+    implementation('org.fxmisc.richtext:richtextfx:0.10.2') // for DrAST
+    implementation files('../libs/code-prober.jar') // include code-prober
 }
 
 // ========================================
@@ -16,7 +37,9 @@ dependencies {
 }
 
 sourceSets {
-    test.java.srcDirs = [ 'test' ]
+    test.java {
+	srcDirs = [ 'test' ]
+    }
 }
 
 // Configuration for the test running.
@@ -60,7 +83,7 @@ jastadd {
 	testCompile 'junit:junit:4.12'
 	jflex 'de.jflex:jflex:1.6.1'
 	beaver 'org.extendj:nbfront:0.1.5'
-	jastadd2 "org.jastadd:jastadd:2.3.4" // Selects which JastAdd version to use (optional).
+	jastadd2 'org.jastadd:jastadd:2.3.4' // Selects which JastAdd version to use (optional).
     }
 
     jastaddOptions = [ "--cache=all" ]

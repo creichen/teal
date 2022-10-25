@@ -1,7 +1,7 @@
-int func1(int a) { /* empty */ }
+fun func1(a : int) = { /* empty */ }
 
-int func2(int b, int c) {
+fun func2(b : int, c : int) : any = {
     // empty
 }
 
-int func3() {}
+fun func3() = {}

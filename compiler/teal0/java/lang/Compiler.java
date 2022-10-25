@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -180,6 +182,7 @@ public class Compiler {
 			CHECK,
 			CUSTOM_AST,
 			CUSTOM_IR,
+			DRAST,
 			IRGEN,
 			INTERP
 		}
@@ -224,6 +227,8 @@ public class Compiler {
 			.desc("Generate IR code and print it out.").build();
 		Option run = Option.builder("r").longOpt("run").hasArgs().optionalArg(true)
 			.desc("Interpret the IR code.").build();
+		Option drast = Option.builder("d").longOpt("drast").hasArg(false)
+			.desc("Show AST with DrAST.").build();
 		Option custom1 = Option.builder("Y").longOpt("custom-ast").hasArg(false)
 			.desc("Custom analysis on the AST").build();
 		Option custom2 = Option.builder("Z").longOpt("custom-ir").hasArgs().optionalArg(true)
@@ -238,6 +243,7 @@ public class Compiler {
 			.addOption(check)
 			.addOption(codegen)
 			.addOption(run)
+			.addOption(drast)
 			.addOption(custom1)
 			.addOption(custom2)
 			.addOption(help)
@@ -286,6 +292,8 @@ public class Compiler {
 				ret.action = CmdLineOpts.Action.PARSE;
 			} else if (cmd.hasOption("c")) {
 				ret.action = CmdLineOpts.Action.CHECK;
+			} else if (cmd.hasOption("d")) {
+				ret.action = CmdLineOpts.Action.DRAST;
 			} else if (cmd.hasOption("g")) {
 				ret.action = CmdLineOpts.Action.IRGEN;
 			} else if (cmd.hasOption("Y")) {
@@ -371,15 +379,34 @@ public class Compiler {
 			return false;
 		}
 
-		if (opts.action == CmdLineOpts.Action.CHECK) {
-			out.print(program.dumpTree());
-			return true;
-		}
+		switch (opts.action) {
 
-		if (opts.action == CmdLineOpts.Action.CUSTOM_AST) {
-			if (!customASTAction(program)) {
-				return true;
-			}
+		case CHECK:
+		    out.print(program.dumpTree());
+		    return true;
+
+		case CUSTOM_AST:
+		    if (!customASTAction(program)) {
+			return true;
+		    }
+		    break;
+
+		case DRAST:
+		    String src = null;
+		    try {
+			byte[] src_bytes = Files.readAllBytes(Paths.get(opts.inputFile));
+			src = new String(src_bytes, "utf-8");
+		    } catch (IOException exn) {
+			throw new RuntimeException(exn);
+		    }
+		    drast.views.gui.controllers.Controller.setSourceColumnBaseOffset(0);
+		    drast.views.gui.DrASTGUI.run(program,
+						 src,
+						 "exclude ** when {isBuiltin}\n");
+		    return true;
+
+		default:
+		    // pass
 		}
 
 		// Generate the IR program
