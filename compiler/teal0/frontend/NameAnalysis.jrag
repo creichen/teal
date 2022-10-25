@@ -33,9 +33,6 @@ aspect NameAnalysis {
 		return (VarDecl) getIdUse().lookup().getDecl();
 	}
 
-	syn boolean Program.isBuiltin() = false;
-	syn boolean ASTNode.isBuiltin() = this.sourceFile() == SourceLocation.BUILTIN_FILENAME_PLACEHOLDER;
-
 	// ----------------------------------------
 	// Implementation details below.
 

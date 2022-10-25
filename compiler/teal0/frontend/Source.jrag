@@ -12,9 +12,13 @@ aspect Source {
 	}
 
 	inh String ASTNode.sourceFile();
+	syn String Program.sourceFile() = null;
 	eq Program.getChild().sourceFile() = null;
 	eq Program.getBuiltinDecls().sourceFile() = SourceLocation.BUILTIN_FILENAME_PLACEHOLDER;
 	eq Module.getChild().sourceFile() = sourceFile();
+
+	syn boolean Program.isBuiltin() = false;
+	syn boolean ASTNode.isBuiltin() = this.sourceFile() == SourceLocation.BUILTIN_FILENAME_PLACEHOLDER;
 
 	public int ASTNode.startLine() {
 		return beaver.Symbol.getLine(getStartLoc());

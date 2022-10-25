@@ -52,5 +52,5 @@
 {
    String text = yytext();
    String data = text.substring(1, text.length() - 1);
-   return new beaver.Symbol(Terminals.STRING_LITERAL, yyline + 1, yycolumn, yylength() - 2, data);
+   return new beaver.Symbol(Terminals.STRING_LITERAL, yyline + 1, yycolumn, yylength(), data);
 }

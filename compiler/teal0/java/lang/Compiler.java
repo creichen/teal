@@ -183,6 +183,7 @@ public class Compiler {
 			CUSTOM_AST,
 			CUSTOM_IR,
 			DRAST,
+			CODEPROBER,
 			IRGEN,
 			INTERP
 		}
@@ -229,6 +230,8 @@ public class Compiler {
 			.desc("Interpret the IR code.").build();
 		Option drast = Option.builder("d").longOpt("drast").hasArg(false)
 			.desc("Show AST with DrAST.").build();
+		Option codeprober = Option.builder("D").longOpt("codeprober").hasArg(false)
+			.desc("Computer information used by CodeProber (to be used when calling from CodeProber only)").build();
 		Option custom1 = Option.builder("Y").longOpt("custom-ast").hasArg(false)
 			.desc("Custom analysis on the AST").build();
 		Option custom2 = Option.builder("Z").longOpt("custom-ir").hasArgs().optionalArg(true)
@@ -244,6 +247,7 @@ public class Compiler {
 			.addOption(codegen)
 			.addOption(run)
 			.addOption(drast)
+			.addOption(codeprober)
 			.addOption(custom1)
 			.addOption(custom2)
 			.addOption(help)
@@ -259,7 +263,7 @@ public class Compiler {
 			.addOption(outputFile)
 			.addOption(importPaths)
 			.addOption(Option.builder("s").longOpt("source-locations").hasArg(false)
-				   .desc("When printing out IR code, include the source location.").build())
+				   .desc("When printing out ASTs or IR code, include the source location.").build())
 			;
 
 		try {
@@ -294,6 +298,8 @@ public class Compiler {
 				ret.action = CmdLineOpts.Action.CHECK;
 			} else if (cmd.hasOption("d")) {
 				ret.action = CmdLineOpts.Action.DRAST;
+			} else if (cmd.hasOption("D")) {
+				ret.action = CmdLineOpts.Action.CODEPROBER;
 			} else if (cmd.hasOption("g")) {
 				ret.action = CmdLineOpts.Action.IRGEN;
 			} else if (cmd.hasOption("Y")) {
@@ -311,6 +317,7 @@ public class Compiler {
 			}
 			if (cmd.hasOption("s")) {
 				IRProgram.printSourceLocations = true;
+				Program.printSourceLocation = true;
 			}
 
 			if (cmd.hasOption("i")) {
@@ -379,6 +386,9 @@ public class Compiler {
 			return false;
 		}
 
+		// Inspecting the input program
+		DrAST_root_node = program;
+
 		switch (opts.action) {
 
 		case CHECK:
@@ -390,6 +400,9 @@ public class Compiler {
 			return true;
 		    }
 		    break;
+
+		case CODEPROBER:
+		    return true;
 
 		case DRAST:
 		    String src = null;
@@ -411,6 +424,10 @@ public class Compiler {
 
 		// Generate the IR program
 		IRProgram irProg = program.genIR();
+
+		// Inspecting the IR
+		DrAST_root_node = irProg;
+
 		if (opts.action == CmdLineOpts.Action.IRGEN) {
 			irProg.print(out);
 			return true;
@@ -426,12 +443,14 @@ public class Compiler {
 		interpret(irProg, opts.progArgs);
 
 		return true;
-
 	}
 
 	public static void main(String[] args) {
 		CmdLineOpts opts = parseCmdLineArgs(args);
 		if (run(opts)) {
+			if (opts.action == CmdLineOpts.Action.CODEPROBER) {
+				return;
+			}
 			System.exit(0);
 		} else {
 			System.exit(1);
