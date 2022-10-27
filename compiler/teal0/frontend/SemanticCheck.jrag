@@ -1,21 +1,14 @@
 aspect SemanticCheck {
 	// Check various flavours of assignment
 	class SemanticError extends CompilerError {
-		String msg;
-
-		public SemanticError(SourceLocation loc, String msg) {
-			super(loc);
-			this.msg = msg;
-		}
-
-		@Override public String report() {
-			return getSrcLoc() + ": " + msg;
+		public SemanticError(String msg, ASTNode node) {
+			super("sem", msg, node);
 		}
 	}
 
 	class LValueError extends SemanticError {
-		public LValueError(SourceLocation loc) {
-			super(loc, "Illegal target expression for assignment.");
+		public LValueError(ASTNode loc) {
+			super("Illegal target expression for assignment", loc);
 		}
 	}
 
@@ -25,9 +18,9 @@ aspect SemanticCheck {
 	eq IndexExpr.isLValue() = true;
 	eq TypedExpr.isLValue() = getExpr().isLValue();
 
-	AssignStmt contributes new LValueError(getLValue().sourceLocation()) when !getLValue().isLValue() to Program.semanticErrors();
+	AssignStmt contributes new LValueError(getLValue()) when !getLValue().isLValue() to Program.semanticErrors();
 
-	VarDecl contributes new SemanticError(sourceLocation(), "Global variable does not allow explicit initialization. Its initial value is always null.")
+	VarDecl contributes new SemanticError("Global variable does not allow explicit initialization. Its initial value is always null.", this)
 		when hasInitializer() && getScope() == VariableScope.GLOBAL to Program.semanticErrors();
 
 	syn String Decl.kind();
@@ -36,22 +29,22 @@ aspect SemanticCheck {
 
 	// Check that the right declaration kinds are used in the righ places
 	class DeclKindError extends SemanticError {
-		public DeclKindError(String use, String decl, String name, SourceLocation loc) {
-			super(loc, String.format("'%s' is declared as a %s, but used as a %s.", name, decl, use));
+		public DeclKindError(String use, String decl, String name, ASTNode node) {
+			super(String.format("'%s' is declared as a %s, but used as a %s.", name, decl, use), node);
 		}
 	}
 
-	Access contributes new DeclKindError("variable", getIdUse().lookup().getDecl().kind(), name(), sourceLocation())
+	Access contributes new DeclKindError("variable", getIdUse().lookup().getDecl().kind(), name(), this)
 		when !getIdUse().lookup().isUnknown() && !getIdUse().lookup().getDecl().isVarDecl() to Program.semanticErrors();
 
-	CallExpr contributes new DeclKindError("function", getIdUse().lookup().getDecl().kind(), name(), sourceLocation())
+	CallExpr contributes new DeclKindError("function", getIdUse().lookup().getDecl().kind(), name(), this)
 		when !getIdUse().lookup().isUnknown() && !getIdUse().lookup().getDecl().isFunDecl() to Program.semanticErrors();
 
 
 	// Check for ExprStmt that do nothing
 	class InvalidExprStmtError extends SemanticError {
-		public InvalidExprStmtError(SourceLocation loc) {
-			super(loc, String.format("Expression used as statement but has no effect.  Did you mean to add a \"return\"?"));
+		public InvalidExprStmtError(ASTNode node) {
+			super(String.format("Expression used as statement but has no effect.  Did you mean to add a \"return\"?"), node);
 		}
 	}
 
@@ -61,7 +54,7 @@ aspect SemanticCheck {
 	eq Null.canHaveSideEffects() = false;
 
 	ExprStmt contributes
-		new InvalidExprStmtError(sourceLocation())
+		new InvalidExprStmtError(this)
 		when !getExpr().canHaveSideEffects()
 		to Program.semanticErrors();
 }

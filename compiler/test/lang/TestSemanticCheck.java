@@ -49,7 +49,7 @@ public class TestSemanticCheck {
 
     String actual = "";
     for (CompilerError e : nameErrors) {
-	actual += e.report() + "\n";
+	actual += e.testReport() + "\n";
     }
     // Normalise path separators
     actual = actual.replace(File.separatorChar, '/');

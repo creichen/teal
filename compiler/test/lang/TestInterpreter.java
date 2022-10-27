@@ -116,15 +116,15 @@ public class TestInterpreter {
 		List<CompilerError> nameErrors = program.nameErrors();
 
 		for (CompilerError e : compilerErrors) {
-			System.err.println("ERROR " + e.report());
+			System.err.println("ERROR " + e.testReport());
 		}
 
 		for (CompilerError e : nameErrors) {
-			System.err.println("ERROR " + e.report());
+			System.err.println("ERROR " + e.testReport());
 		}
 
 		for (CompilerError e : semaErrors) {
-			System.err.println("ERROR " + e.report());
+			System.err.println("ERROR " + e.testReport());
 		}
 
 		if (compilerErrors.size() != 0)

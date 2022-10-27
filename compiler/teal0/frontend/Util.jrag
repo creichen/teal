@@ -3,7 +3,10 @@ import java.util.TreeMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Comparator;
+import lang.common.Report;
 import beaver.Symbol;
+
+import lang.common.WithSourceLocation;
 
 aspect Util {
 	public class AccHashMap<K, V> extends HashMap<K, V> {
@@ -60,14 +63,26 @@ aspect Util {
 }
 
 aspect CompilerError {
-	public abstract class CompilerError {
-		private SourceLocation loc;
-		public abstract String report();
-		public CompilerError(SourceLocation loc) {
-			this.loc = loc;
+	public abstract class CompilerError extends Report<ASTNode> {
+		public CompilerError(String type, String description, ASTNode node) {
+			super(type, "ERR", node);
+			this.withExplanation(description);
 		}
-		public SourceLocation getSrcLoc() {
-			return loc;
+
+		/**
+		 * Source location, for testing
+		 */
+		public SourceLocation
+		getSrcLoc() {
+			return this.getFirstSrcLoc();
+		}
+
+		/**
+		 * Combined explanation + location, for testing
+		 */
+		public String
+		testReport() {
+			return this.getFirstSrcLoc() + ": " + this.getExplanation();
 		}
 	}
 }

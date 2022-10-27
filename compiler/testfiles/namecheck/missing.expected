@@ -1,1 +1,1 @@
-Undeclared symbol 'g' at [3:4-3:6].
+[3:4-3:6]: Undeclared symbol 'g'

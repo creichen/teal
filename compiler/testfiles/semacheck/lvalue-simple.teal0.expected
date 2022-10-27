@@ -1,8 +1,8 @@
-testfiles/semacheck/lvalue-simple.in[2:4-2:4]: Illegal target expression for assignment.
-testfiles/semacheck/lvalue-simple.in[3:4-3:8]: Illegal target expression for assignment.
-testfiles/semacheck/lvalue-simple.in[4:4-4:8]: Illegal target expression for assignment.
-testfiles/semacheck/lvalue-simple.in[5:4-5:8]: Illegal target expression for assignment.
-testfiles/semacheck/lvalue-simple.in[6:4-6:9]: Illegal target expression for assignment.
-testfiles/semacheck/lvalue-simple.in[7:4-7:7]: Illegal target expression for assignment.
-testfiles/semacheck/lvalue-simple.in[9:4-9:7]: Illegal target expression for assignment.
-testfiles/semacheck/lvalue-simple.in[13:4-13:7]: Illegal target expression for assignment.
+testfiles/semacheck/lvalue-simple.in[2:4-2:4]: Illegal target expression for assignment
+testfiles/semacheck/lvalue-simple.in[3:4-3:8]: Illegal target expression for assignment
+testfiles/semacheck/lvalue-simple.in[4:4-4:8]: Illegal target expression for assignment
+testfiles/semacheck/lvalue-simple.in[5:4-5:8]: Illegal target expression for assignment
+testfiles/semacheck/lvalue-simple.in[6:4-6:9]: Illegal target expression for assignment
+testfiles/semacheck/lvalue-simple.in[7:4-7:7]: Illegal target expression for assignment
+testfiles/semacheck/lvalue-simple.in[9:4-9:7]: Illegal target expression for assignment
+testfiles/semacheck/lvalue-simple.in[13:4-13:7]: Illegal target expression for assignment

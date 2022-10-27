@@ -1,1 +1,1 @@
-Multiple declarations for symbol 'dup_name' at locations: [1:0-1:17], [2:0-2:25], [3:0-3:35].
+[1:0-1:17]: Multiple declarations for symbol 'dup_name' at locations: [1:0-1:17], [2:0-2:25], [3:0-3:35]

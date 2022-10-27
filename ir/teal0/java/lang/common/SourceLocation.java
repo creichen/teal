@@ -36,6 +36,23 @@ public class SourceLocation implements Comparable<SourceLocation> {
 		out.print(startLine + ":" + startColumn + "," +  endLine + ":" + endColumn);
 	}
 
+	public int
+	forCodeProberAtStart() {
+		return (this.getStartLine() << 12) | (this.getStartColumn());
+	}
+
+	public int
+	forCodeProberAtEnd() {
+		return (this.getEndLine() << 12) | (this.getEndColumn());
+	}
+
+	public int
+	forCodeProberinMiddle() {
+		int line = (this.getStartLine() + this.getEndLine() + 1) >> 1;
+		int column = (this.getStartColumn() + this.getEndColumn() + 1) >> 1;
+		return (line << 12) | (column);
+	}
+
 	public boolean
 	isReal() {
 		return !(this == UNKNOWN || this == BUILTIN);

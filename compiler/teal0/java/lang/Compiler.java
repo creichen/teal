@@ -19,6 +19,7 @@ import java.util.Arrays;
 
 import beaver.Parser.Exception;
 
+import lang.ast.ASTNode;
 import lang.ast.Program;
 import lang.ast.Module;
 import lang.ast.Decl;
@@ -29,6 +30,8 @@ import lang.ast.CompilerError;
 import lang.ir.*;
 
 import lang.common.SourceLocation;
+import lang.common.WithSourceLocation;
+import lang.common.Report;
 
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
@@ -112,12 +115,7 @@ public class Compiler {
 		try {
 			scanner = new LangScanner(new FileReader(f));
 		} catch (FileNotFoundException e) {
-			errors.add(new CompilerError(SourceLocation.UNKNOWN) {
-					@Override
-					public String report() {
-						return "Missing input file '" + f + "'";
-					}
-				});
+			errors.add(new CompilerError("missing-file", "Missing input file '" + f + "'", null){});
 			return null;
 		}
 
@@ -125,12 +123,7 @@ public class Compiler {
 			m = (Module) parser.parse(scanner);
 			m.setSourceFile(f.getPath());
 		} catch (IOException | Exception e) {
-			errors.add(new CompilerError(SourceLocation.UNKNOWN) {
-					@Override
-					public String report() {
-						return "Parsing error in file '" + f + "': " + e;
-					}
-				});
+			errors.add(new CompilerError("parser", "Parsing error in file '" + f + "': " + e, null){});
 			return null;
 		}
 
@@ -262,8 +255,14 @@ public class Compiler {
 		Options options = new Options().addOptionGroup(action)
 			.addOption(outputFile)
 			.addOption(importPaths)
+			.addOption(Option.builder("0").longOpt("columns-start-at-zero").hasArg(false)
+				   .desc("The leftmost column has the number 0 (default: 1).").build())
 			.addOption(Option.builder("s").longOpt("source-locations").hasArg(false)
 				   .desc("When printing out ASTs or IR code, include the source location.").build())
+			.addOption(Option.builder("A").longOpt("reports-ast").hasArg(false)
+				   .desc("Print out all reports on the source AST.").build())
+			.addOption(Option.builder("I").longOpt("reports-ir").hasArg(false)
+				   .desc("Print out all reports on the IR.").build())
 			;
 
 		try {
@@ -327,12 +326,32 @@ public class Compiler {
 				ret.importPaths.add(".");
 			}
 
+			if (cmd.hasOption("0")) {
+				ASTNode.SOURCE_LEFTMOST_COLUMN_OFFSET = 0;
+			} else {
+				ASTNode.SOURCE_LEFTMOST_COLUMN_OFFSET = 1;
+			}
+
 		} catch (ParseException e) {
 			printHelp(options);
 			throw new RuntimeException(e);
 		}
 
 		return ret;
+	}
+
+	public static <N extends WithSourceLocation, R extends Report<N>> void
+	printReports(List<R> reports, CmdLineOpts opts) {
+		boolean codeprober = opts.action == CmdLineOpts.Action.CODEPROBER;
+		if (codeprober) {
+			for (R r : reports) {
+				System.out.println(r.toCodeProberString());
+			}
+		} else {
+			for (R r : reports) {
+				System.err.println(r);
+			}
+		}
 	}
 
 	public static boolean run(CmdLineOpts opts) {
@@ -350,18 +369,16 @@ public class Compiler {
 
 		// parse the program and all its imported modules
 		Program program = createProgramFromFiles(Collections.singletonList(opts.inputFile),
-												 opts.importPaths,
-												 compilerErrors);
+							 opts.importPaths,
+							 compilerErrors);
 
-
-		// print any errors so far
-		for (CompilerError e : compilerErrors) {
-			System.err.println("ERROR " + e.report());
-		}
+		// print any errors and other reports on the AST so far
+		printReports(compilerErrors, opts);
 
 		// fail if there are compiler erorrs
-		if (!compilerErrors.isEmpty())
+		if (!compilerErrors.isEmpty()) {
 			return false;
+		}
 
 		// if this is all what's requested, return
 		if (opts.action == CmdLineOpts.Action.PARSE) {
@@ -373,13 +390,11 @@ public class Compiler {
 		List<CompilerError> semaErrors = program.semanticErrors();
 		List<CompilerError> nameErrors = program.nameErrors();
 
-		for (CompilerError e : nameErrors) {
-			System.err.println("ERROR " + e.report());
-		}
+		printReports(nameErrors, opts);
+		printReports(semaErrors, opts);
 
-		for (CompilerError e : semaErrors) {
-			System.err.println("ERROR " + e.report());
-		}
+		// Other reports
+		printReports(program.reports(), opts);
 
 		// fail if there are any errors
 		if (!nameErrors.isEmpty() || !semaErrors.isEmpty()) {

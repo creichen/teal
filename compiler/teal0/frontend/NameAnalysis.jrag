@@ -220,25 +220,31 @@ aspect NameAnalysisPrivate {
 aspect NameAnalysisCheck {
 	// Check for duplicate symbols
 	class DuplicateSymbolDeclaration extends CompilerError {
-		private ArrayList<IdDecl> declarations;
 
 		DuplicateSymbolDeclaration(Collection<IdDecl> declarations) {
-			super(declarations.stream().map(d -> d.sourceLocation()).min(Comparator.naturalOrder()).get());
-			this.declarations = new ArrayList<>(declarations);
-			Collections.sort(this.declarations, Comparator.comparing(d -> d.sourceLocation()));
+			super("name-dup",
+			      reportString(declarations),
+			      sortedDecls(declarations).get(0));
 		}
 
-		public String report() {
-			String name = declarations.iterator().next().getIdentifier();
+		public static java.util.List<IdDecl>
+		sortedDecls(Collection<IdDecl> declarations) {
+			java.util.List<IdDecl> decls = new ArrayList<>(declarations);
+			Collections.sort(decls, Comparator.comparing(d -> d.sourceLocation()));
+			return decls;
+		}
+
+		public static String reportString(Collection<IdDecl> declarations) {
+			java.util.List<IdDecl> decls = sortedDecls(declarations);
+			String name = decls.iterator().next().getIdentifier();
 			String err = "Multiple declarations for symbol '" + name + "' at locations: ";
-			for (int i = 0; i < declarations.size(); i++) {
-				IdDecl d = declarations.get(i);
+			for (int i = 0; i < decls.size(); i++) {
+				IdDecl d = decls.get(i);
 				if (i != 0) {
 					err += ", ";
 				}
 				err += d.sourceLocation().toString();
 			}
-			err += ".";
 			return err;
 		}
 	}
@@ -283,19 +289,15 @@ aspect NameAnalysisCheck {
 
 	// Check for undeclared symbols
 	class UndeclaredSymbol extends CompilerError {
-		private String name;
 
-		UndeclaredSymbol(String name, SourceLocation loc) {
-			super(loc);
-			this.name = name;
-
-		}
-		public String report() {
-			return "Undeclared symbol '" + name + "' at " + getSrcLoc().toString() + ".";
+		UndeclaredSymbol(String name, ASTNode node) {
+			super("name-undef",
+			      "Undeclared symbol '" + name + "'",
+			      node);
 		}
 	}
 
-	IdUse contributes Collections.singleton(new UndeclaredSymbol(getIdentifier(), sourceLocation()))
+	IdUse contributes Collections.singleton(new UndeclaredSymbol(getIdentifier(), this))
 		when lookup().isUnknown() to Program.nameErrors();
 }
 

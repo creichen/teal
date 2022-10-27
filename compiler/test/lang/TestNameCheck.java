@@ -45,13 +45,13 @@ public class TestNameCheck {
 	  int c = left.getSrcLoc().compareTo(right.getSrcLoc());
 	  if (c != 0)
 	    return c;
-	  return left.report().compareTo(right.report());
+	  return left.testReport().compareTo(right.testReport());
 	}
       });
 
     String actual = "";
     for (CompilerError e : nameErrors) {
-      actual += e.report() + "\n";
+      actual += e.testReport() + "\n";
     }
 
     Util.compareOutput(actual, TEST_DIRECTORY, filename);

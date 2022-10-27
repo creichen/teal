@@ -1,6 +1,9 @@
 import lang.common.SourceLocation;
 
 aspect Source {
+	// Our tests assume that the leftmost column is offset 0, so that is the default.
+	public static int ASTNode.SOURCE_LEFTMOST_COLUMN_OFFSET = 0;
+
 	private String Module.sourceFile = "";
 
 	public void Module.setSourceFile(String src) {
@@ -29,11 +32,19 @@ aspect Source {
 	}
 
 	public int ASTNode.startColumn() {
-		return beaver.Symbol.getColumn(getStartLoc());
+		int loc = getStartLoc();
+		if (loc == 0) {
+			return 0;
+		}
+		return beaver.Symbol.getColumn(loc) + ASTNode.SOURCE_LEFTMOST_COLUMN_OFFSET;
 	}
 
 	public int ASTNode.endColumn() {
-		return beaver.Symbol.getColumn(getEndLoc());
+		int loc = getEndLoc();
+		if (loc == 0) {
+			return 0;
+		}
+		return beaver.Symbol.getColumn(loc) + ASTNode.SOURCE_LEFTMOST_COLUMN_OFFSET;
 	}
 
 	inh int ASTNode.getParentStartLoc();
