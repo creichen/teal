@@ -74,7 +74,7 @@
 \newtheorem{definition}{Definition}
 
 \newcommand{\Prod}{\longrightarrow}
-\newcommand{\ntaX}[1]{\ensuremath{\textit{#1}}}
+\newcommand{\ntaX}[1]{\ensuremath{\textcolor{cyan!20!black}{\textit{#1}}}}
 \newcommand{\ntam}[1]{\ensuremath{{#1}}}
 \newcommand{\VB}{\ |\ }
 \newcommand{\tuple}[1]{\ensuremath{\langle #1 \rangle}}
@@ -86,6 +86,7 @@
 \newcommand{\nta}[1]{\nt{#1}}
 \newcommand{\ntm}[1]{\ensuremath{\tuple{\hspace{-0.02cm}{#1}\hspace{0.02cm}}}}
 \newcommand{\sem}[1]{\ensuremath{\llbracket #1 \rrbracket}}
+\newcommand{\astmap}[1]{\textrm{\textcolor{green!20!grey}{#1}}}
 
 \newcommand{\Val}[1]{\textcolor{dyellow}{#1}}
 \newcommand{\Ty}[1]{\textcolor{dblue}{#1}}
@@ -262,47 +263,48 @@ and the standard library.
 % ================================================================================
 \section{Syntax}
 \[
-  \begin{array}[t]{lcl}
-    \nta{module} & \Prod & \ntstar{import}\ \ntstar{decl}\\
+  \begin{array}[t]{lcl@{\hspace{0.4cm}}l}
+    \nta{Program} & \Prod & \ntstar{Module} \\
     \\
-    \nta{import} & \Prod & \vterminal{import}\ \nt{qualified}\ \vterminal{;}\\
+    \nta{Module} & \Prod & \ntstar{ImportDecl}\ \ntstar{Decl}\\
     \\
-    \nta{qualified} & \Prod & \terminal{id}\\
-                    & \VB   & \nt{qualified}\ \vterminal{::}\ \terminal{id} \\
+    \nta{ImportDecl} & \Prod & \vterminal{import}\ \nt{PackagePath}\ \vterminal{;}\\
     \\
-    \nta{decl} & \Prod & \nt{vardecl}\ \\
-                 & \VB & \vterminal{fun}\ \terminal{id}\ \vterminal{(}\ \ntq{formals}\ \vterminal{)}\ \nt{opttype}\ \vterminal{=}\ \nt{stmt}\\
+    \nta{PackagePath} & \Prod & \terminal{id}\\
+                    & \VB   & \nt{PackagePath}\ \vterminal{::}\ \terminal{id} \\
     \\
-    \nta{vardecl} & \Prod & \vterminal{var}\ \terminal{id}\ \nt{opttype} \\
-                  & \VB   & \vterminal{var}\ \terminal{id}\ \nt{opttype}\ \vterminal{:=}\ \nt{expr} \vterminal{;}\\
+    \nta{Decl} & \Prod & \nt{VarDecl}\ \\
+                 & \VB & \vterminal{fun}\ \terminal{id}\ \vterminal{(}\ \ntq{formals}\ \vterminal{)}\ \nt{optTyped}\ \vterminal{=}\ \nt{stmt}  & \astmap{Represented as } \ntaX{FunDecl} \\
     \\
-    \nta{formals} & \Prod & \terminal{id}\ \nt{opttype} \\
-                  & \VB & \terminal{id}\ \nt{opttype}\ \vterminal{,}\ \nt{formal}\\
-    \nta{formal} & \nt{vardecl}\\
+    \nta{VarDecl} & \Prod & \vterminal{var}\ \terminal{id}\ \nt{optTyped} \\
+                  & \VB   & \vterminal{var}\ \terminal{id}\ \nt{optTyped}\ \vterminal{:=}\ \nt{Expr} \vterminal{;}\\
+    \\
+    \nta{formals} & \Prod & \terminal{id}\ \nt{optTyped} & \astmap{Formals represented as \ntaX{VarDecl}s} \\
+                  & \VB & \terminal{id}\ \nt{optTyped}\ \vterminal{,}\ \nt{formals}\\
                 \\
-    \nta{opttype} & \Prod & \vterminal{:}\ \nt{type}\\
+    \nta{optTyped} & \Prod & \vterminal{:}\ \nt{Type}\\
                   & \VB{} & \varepsilon \\
     \\
-    \nta{type} & \Prod & \Cty{int}\ \VB\ \Cty{string}\ \VB\ \Cty{any}\\
-               & \VB   & \Cty{array}\ \Cty{[}\ \nt{type}\ \Cty{]}\\
+    \nta{Type} & \Prod & \Cty{int}\ \VB\ \Cty{string}\ \VB\ \Cty{any} & \astmap{Represented as \ntaX{Int}, \ntaX{String}, \ntaX{Any}}\\
+               & \VB   & \Cty{array}\ \Cty{[}\ \nt{Type}\ \Cty{]} & \astmap{Represented as \ntaX{Array}}\\
     \\
-    \nta{block} & \Prod & \vterminal{\{}\ \ntstar{stmt}\ \vterminal{\}} \\
+    \nta{BlockStmt} & \Prod & \vterminal{\{}\ \ntstar{Stmt}\ \vterminal{\}} \\
     \\
-    \nta{expr} & \Prod & \nt{expr}\ \nt{binop}\ \nt{expr} \\
-               & \VB   & \vterminal{not}\ \nt{expr} \\
-               & \VB   & \vterminal{(}\ \nt{expr}\ \nt{opttype}\ \vterminal{)} \\
-               & \VB   & \nt{expr}\ \vterminal{[}\ \nt{expr}\ \vterminal{]} \\
-               & \VB   & \terminal{id}\ \vterminal{(}\ \ntq{actuals}\ \vterminal{)} \\
-               & \VB   & \vterminal{[}\ \ntq{actuals}\ \vterminal{]} \\
-               & \VB   & \vterminal{new}\ \nt{type}\ \vterminal{(}\ \nt{expr}\ \vterminal{)} \\
-               & \VB   & \terminal{int}\ \VB\ \terminal{string}\ \VB\ \vterminal{null} \\
-               & \VB   & \terminal{id} \\
+    \nta{Expr} & \Prod & \nt{Expr}\ \nt{binop}\ \nt{Expr} & \astmap{Represented as \ntaX{BinExpr}}\\
+               & \VB   & \vterminal{not}\ \nt{Expr} & \astmap{Represented as \ntaX{NotExpr}}\\
+               & \VB   & \vterminal{(}\ \nt{Expr}\ \nt{optTyped}\ \vterminal{)} & \astmap{Represented as \ntaX{TypedExpr}}\\
+               & \VB   & \nt{Expr}\ \vterminal{[}\ \nt{Expr}\ \vterminal{]} & \astmap{Represented as \ntaX{CallExpr}}\\
+               & \VB   & \terminal{id}\ \vterminal{(}\ \ntq{actuals}\ \vterminal{)} & \astmap{Represented as \ntaX{IndexExpr}}\\
+               & \VB   & \vterminal{[}\ \ntq{actuals}\ \vterminal{]} & \astmap{Represented as \ntaX{ArrayLiteralExpr}}\\
+               & \VB   & \vterminal{new}\ \nt{Type}\ \vterminal{(}\ \nt{Expr}\ \vterminal{)} & \astmap{Represented as \ntaX{NewExpr}}\\
+               & \VB   & \terminal{int}\ \VB\ \terminal{string}\ \VB\ \vterminal{null} & \astmap{Represented as \ntaX{Constant}}\\
+               & \VB   & \terminal{id} & \astmap{Represented as \ntaX{IdUse}}\\
     \\
-    \nta{actuals} & \Prod & \terminal{expr} \\
-                  & \VB   & \terminal{expr} \vterminal{,}\ \nt{actuals} \\
+    \nta{actuals} & \Prod & \nt{Expr} \\
+                  & \VB   & \nt{Expr} \vterminal{,}\ \nt{actuals} \\
     \\
     \nta{binop} & \Prod &
-    		\vterminal{+}
+		\vterminal{+}
                 \ \VB\ \vterminal{-}
                 \ \VB\ \vterminal{*}
                 \ \VB\ \vterminal{/}
@@ -317,14 +319,14 @@ and the standard library.
                 & \VB& \vterminal{or}
                 \ \VB\ \vterminal{and}\\
     \\
-    \nta{stmt} & \Prod & \nt{vardecl} \\
-               & \VB   & \nt{expr}\ \vterminal{;} \\
-               & \VB   & \nt{expr}\ \vterminal{:=}\ \nt{expr}\ \vterminal{;} \\
-               & \VB   & \nt{block} \\
-               & \VB   & \vterminal{if}\ \nt{expr}\ \nt{block}\ \vterminal{else}\ \nt{block} \\
-               & \VB   & \vterminal{if}\ \nt{expr}\ \nt{block}\ \\
-               & \VB   & \vterminal{while}\ \nt{expr}\ \nt{block} \\
-               & \VB   & \vterminal{return}\ \nt{expr}\ \vterminal{;} \\
+    \nta{Stmt} & \Prod & \nt{VarDecl}  & \astmap{Represented as } \ntaX{VarDeclStmt}\\
+               & \VB   & \nt{Expr}\ \vterminal{;} & \astmap{Represented as } \ntaX{ExprStmt}\\
+               & \VB   & \nt{Expr}\ \vterminal{:=}\ \nt{Expr}\ \vterminal{;} & \astmap{Represented as } \ntaX{AssignStmt}\\
+               & \VB   & \nt{BlockStmt} \\
+               & \VB   & \vterminal{if}\ \nt{expr}\ \nt{block}\ \vterminal{else}\ \nt{block} & \astmap{Represented as } \ntaX{IfStmt}\\
+               & \VB   & \vterminal{if}\ \nt{expr}\ \nt{block}\ & \astmap{Represented as \ntaX{IfStmt} with \ntaX{SkipStmt}} \\
+               & \VB   & \vterminal{while}\ \nt{expr}\ \nt{block} & \astmap{Represented as } \ntaX{WhileStmt}\\
+               & \VB   & \vterminal{return}\ \nt{expr}\ \vterminal{;} & \astmap{Represented as } \ntaX{ReturnStmt}\\
   \end{array}
 \]
 

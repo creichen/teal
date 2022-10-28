@@ -13,13 +13,13 @@ AddExpr : BinExpr;
 SubExpr : BinExpr;
 MulExpr : BinExpr;
 DivExpr : BinExpr;
-ModExpr : BinExpr;
-EQExpr : BinExpr;
-NEQExpr : BinExpr;
-LTExpr : BinExpr;
-GTExpr : BinExpr;
-LEQExpr : BinExpr;
-GEQExpr : BinExpr;
+ModExpr : BinExpr; // %
+EQExpr : BinExpr;  // ==
+NEQExpr : BinExpr; // !=
+LTExpr : BinExpr;  // <
+GTExpr : BinExpr;  // >
+LEQExpr : BinExpr; // <=
+GEQExpr : BinExpr; // >=
 OrExpr : BinExpr;
 AndExpr : BinExpr;
 
@@ -51,8 +51,8 @@ WhileStmt : Stmt ::= Cond:Expr Body:Stmt;
 ReturnStmt : Stmt ::= Expr;
 SkipStmt : Stmt;
 
-// Identifiers
+// Identifiers:
 IdUse ::= <Identifier>;
 IdDecl ::= <Identifier>;
-// Unknown declaration (error handling)
+// Unknown declaration (for error handling)
 UnknownDecl : IdDecl;
