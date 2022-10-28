@@ -11,15 +11,22 @@ public abstract class Report {
 	private String explanation;
 	private String code_prober_format;
 
+	public enum CodeProber {
+		ERR,	// red squiggles
+		WARN,	// yellow squiggles
+		INFO,	// blue squiggles
+		HINT	// grey dots
+	}
+
 	/**
 	 * Creates a fresh report
 	 *
 	 * @param kind The kind of report to make; used as prefix to stdout output or as default message for codeprober hover
-	 * @param codeProberFormat Prefix string for codeProber.  The following nodes will be appended.
+	 * @param codeProberFormat Marker codeProber.
 	 * @param nodes ASTNodes of significance to the report, with the most prominent location (or otherwise the first location) first
 	 */
 	protected <ASTNode extends WithSourceLocation>
-	Report(String kind, String codeProberFormat, ASTNode node0, ASTNode ... nodes) {
+	Report(String kind, CodeProber codeProberFormat, ASTNode node0, ASTNode ... nodes) {
 		ArrayList<SourceLocation> locs = new ArrayList<>();
 		if (node0 != null) {
 			locs.add(node0.sourceLocation());
@@ -31,13 +38,13 @@ public abstract class Report {
 		}
 		this.node_locations = locs.toArray(new SourceLocation[locs.size()]);
 		this.kind = kind;
-		this.code_prober_format = codeProberFormat;
+		this.code_prober_format = codeProberFormat.toString();
 	}
 
-	protected Report(String kind, String codeProberFormat, SourceLocation ... locs) {
+	protected Report(String kind, CodeProber codeProberFormat, SourceLocation ... locs) {
 		this.node_locations = locs;
 		this.kind = kind;
-		this.code_prober_format = codeProberFormat;
+		this.code_prober_format = codeProberFormat.toString();
 	}
 
 	/**

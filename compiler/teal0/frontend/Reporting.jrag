@@ -17,26 +17,6 @@ import lang.common.SourceLocation;
 aspect Reporting {
 	ASTNode implements WithSourceLocation;
 
-	public class TypeErrorReport extends Report {
-		/**
-		 * Reports a type mismatch
-		 *
-		 * Blames the type error on the 'left' node
-		 *
-		 * @param left AST node from which we get one of the types
-		 * @param left_type String representation of the type for the left node
-		 * @param right AST node from which we get the other type
-		 * @param right_type String representation of the type for the right node
-		 */
-		public TypeErrorReport(ASTNode left,
-				       String left_type,
-				       ASTNode right,
-				       String right_type) {
-			super("type-error", "WARN", left, right);
-			this.withExplanation("type mismatch: expected " + left_type + ", found " + right_type);
-		}
-	}
-
 	coll ArrayList<Report> Program.reports() [new ArrayList<Report>()] with add;
 
 	syn Report ASTNode.report() = null;
@@ -58,7 +38,7 @@ aspect CompilerError {
 		 * Compiler error without associated location, applying to entire program
 		 */
 		public CompilerError(String type, String description) {
-			super(type, "ERR", (ASTNode) null);
+			super(type, Report.CodeProber.ERR, (ASTNode) null);
 			this.withExplanation(description);
 		}
 
@@ -66,7 +46,7 @@ aspect CompilerError {
 		 * Compiler error attached to AST node
 		 */
 		public CompilerError(String type, String description, ASTNode node) {
-			super(type, "ERR", node);
+			super(type, Report.CodeProber.ERR, node);
 			this.withExplanation(description);
 		}
 
@@ -74,7 +54,7 @@ aspect CompilerError {
 		 * Compiler error attached to source location
 		 */
 		public CompilerError(String type, String description, SourceLocation loc) {
-			super(type, "ERR", loc);
+			super(type, Report.CodeProber.ERR, loc);
 			this.withExplanation(description);
 		}
 

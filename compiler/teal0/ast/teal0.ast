@@ -7,7 +7,7 @@ FunDecl : Decl ::= IdDecl [DeclaredReturnType:Type] Formal:VarDecl* [Body:Stmt];
 // Expressions
 abstract Expr;
 
-// Binary
+// Binary expressions
 abstract BinExpr : Expr ::= Left:Expr Right:Expr;
 AddExpr : BinExpr;
 SubExpr : BinExpr;
@@ -37,7 +37,7 @@ Constant : Expr;
 IntConstant : Constant ::= <Value:Long>;
 StringConstant : Constant ::= <Value:String>;
 
-// Access
+// Variable Access
 Access : Expr ::= IdUse ;
 
 // Statements

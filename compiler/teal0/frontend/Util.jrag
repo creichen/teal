@@ -24,11 +24,17 @@ aspect Util {
 		}
 	}
 
+	/**
+	 * HashMap that maps a key to multiple values
+	 */
 	public class MultiHashMap<K, V> extends HashMap<K, HashSet<V>> {
 		public MultiHashMap() {
 			super();
 		}
 
+		/**
+		 * Add a value to the map
+		 */
 		public V append(K key, V value) {
 			HashSet<V> entry = get(key);
 			if (entry == null) {
@@ -39,8 +45,9 @@ aspect Util {
 			return value;
 		}
 
-		/** Get one value maped to key, if it exists. Otherwise, return null.
-		 **/
+		/**
+		 * Get one value maped to key, if it exists. Otherwise, return null.
+		 */
 		public V getOne(K key) {
 			HashSet<V> entry = get(key);
 			if (entry == null)
@@ -49,6 +56,9 @@ aspect Util {
 		}
 	}
 
+	/**
+	 * Compare two AST nodes based on their source locations
+	 */
 	public class SrcLocComparator implements Comparator<ASTNode> {
 		public int compare(ASTNode n1, ASTNode n2) {
 			int startPos1 = n1.getStart();

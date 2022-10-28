@@ -1,4 +1,46 @@
+/**
+ * Incomplete type analysis
+ *
+ */
 aspect TypeAnalysis {
+	/**
+	 * Type error report
+	 */
+	public class TypeError extends Report {
+		/**
+		 * Constructs a TypeError
+		 *
+		 * You can use <tt>withExplanation</tt> to change the description
+		 *
+		 * @param location AST node with the type error
+		 * @param t1 String representation of th
+		 */
+		public TypeError(ASTNode location) {
+			// Tag as WARN for yellow squiggly lines
+			super("type", Report.CodeProber.WARN, location);
+		}
+	}
+
+	/**
+	 * One type constructor for each of the four types that we support in Teal-0
+	 *
+	 * Since Int, String etc. are AST nodes, they are not equal to each other.
+	 * We can represent them by enum values that we can easily check for equality.
+	 */
+	enum TyCon {
+		ANY	{ public String toString() { return "any"; } },
+		INT	{ public String toString() { return "int"; } },
+		STRING	{ public String toString() { return "string"; } },
+		ARRAY	{ public String toString() { return "array"; } }
+		// TODO: do we need to do more to distinguish array[int] from array[string]?
+	}
+
+	syn TyCon Type.getTyCon();
+	eq AnyType.getTyCon()    = TyCon.ANY;
+	eq IntType.getTyCon()    = TyCon.INT;
+	eq StringType.getTyCon() = TyCon.STRING;
+	eq ArrayType.getTyCon()  = TyCon.ARRAY;
+
 	/**
 	 * Interpret the type of literal values and explicit type annotations.
 	 *

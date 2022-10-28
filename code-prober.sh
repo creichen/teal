@@ -11,4 +11,8 @@ if [ ! -e "${TEAL_JAR}" ]; then
 fi
 
 #java -Djava.security.manager=allow -jar ${BASEDIR}/libs/code-prober.jar ${TEAL_JAR} $@
-java -jar ${BASEDIR}/libs/code-prober.jar ${TEAL_JAR} -D $@
+if [ x$1 != x ]; then
+	SOURCE="--source $1"
+fi
+echo java -jar ${BASEDIR}/libs/code-prober.jar --autoprobes nameErrors,semanticErrors,reports --syntax teal "${SOURCE}" ${TEAL_JAR} -D
+java -jar ${BASEDIR}/libs/code-prober.jar --autoprobes nameErrors,semanticErrors,reports --syntax teal ${SOURCE} ${TEAL_JAR} -D
