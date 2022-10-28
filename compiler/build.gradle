@@ -25,7 +25,6 @@ dependencies {
     }
     implementation files('../libs/DrAST-1.2.2.jar') // include DrAST
     implementation('org.fxmisc.richtext:richtextfx:0.10.2') // for DrAST
-    implementation files('../libs/code-prober.jar') // include code-prober
 }
 
 // ========================================
