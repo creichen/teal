@@ -115,7 +115,7 @@ public class Compiler {
 		try {
 			scanner = new LangScanner(new FileReader(f));
 		} catch (FileNotFoundException e) {
-			errors.add(new CompilerError("missing-file", "Missing input file '" + f + "'", null){});
+			errors.add(new CompilerError("missing-file", "Missing input file '" + f + "'"){});
 			return null;
 		}
 
@@ -123,7 +123,10 @@ public class Compiler {
 			m = (Module) parser.parse(scanner);
 			m.setSourceFile(f.getPath());
 		} catch (IOException | Exception e) {
-			errors.add(new CompilerError("parser", "Parsing error in file '" + f + "': " + e, null){});
+			errors.add(new CompilerError("parser", "Parsing error in file '" + f + "': " + e){});
+			return null;
+		} catch (lang.ast.TEALParser.SyntaxError e) {
+			errors.add(e.getCompilerError());
 			return null;
 		}
 
@@ -340,15 +343,13 @@ public class Compiler {
 		return ret;
 	}
 
-	public static <N extends WithSourceLocation, R extends Report<N>> void
+	public static <R extends Report> void
 	printReports(List<R> reports, CmdLineOpts opts) {
 		boolean codeprober = opts.action == CmdLineOpts.Action.CODEPROBER;
-		if (codeprober) {
-			for (R r : reports) {
+		for (R r : reports) {
+			if (codeprober) {
 				System.out.println(r.toCodeProberString());
-			}
-		} else {
-			for (R r : reports) {
+			} else {
 				System.err.println(r);
 			}
 		}
@@ -371,6 +372,9 @@ public class Compiler {
 		Program program = createProgramFromFiles(Collections.singletonList(opts.inputFile),
 							 opts.importPaths,
 							 compilerErrors);
+		// Inspecting the input program
+		DrAST_root_node = program;
+
 
 		// print any errors and other reports on the AST so far
 		printReports(compilerErrors, opts);
@@ -400,9 +404,6 @@ public class Compiler {
 		if (!nameErrors.isEmpty() || !semaErrors.isEmpty()) {
 			return false;
 		}
-
-		// Inspecting the input program
-		DrAST_root_node = program;
 
 		switch (opts.action) {
 
@@ -462,10 +463,11 @@ public class Compiler {
 
 	public static void main(String[] args) {
 		CmdLineOpts opts = parseCmdLineArgs(args);
-		if (run(opts)) {
-			if (opts.action == CmdLineOpts.Action.CODEPROBER) {
-				return;
-			}
+		boolean success = run(opts);
+		if (opts.action == CmdLineOpts.Action.CODEPROBER) {
+			return;
+		}
+		if (success) {
 			System.exit(0);
 		} else {
 			System.exit(1);

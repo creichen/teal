@@ -292,7 +292,7 @@ aspect NameAnalysisCheck {
 
 		UndeclaredSymbol(String name, ASTNode node) {
 			super("name-undef",
-			      "Undeclared symbol '" + name + "'",
+			      "Undeclared symbol",// '" + name + "'",
 			      node);
 		}
 	}

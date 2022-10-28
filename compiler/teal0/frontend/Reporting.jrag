@@ -1,0 +1,52 @@
+import java.util.Collection;
+import java.util.ArrayList;
+
+import lang.common.Report;
+import lang.common.WithSourceLocation;
+import lang.common.SourceLocation;
+
+
+/**
+ * The reporting aspect allows you to communicate your analysis results when
+ * doing homework exercises.
+ *
+ * By customising the 'report' or 'reportMulti' attributes, you can make
+ * each AST node to send any number of 'Report' objects.  These will then
+ * show up on the standard output stream or in the code-prober UI.
+ */
+aspect Reporting {
+	ASTNode implements WithSourceLocation;
+
+	public class TypeErrorReport extends Report {
+		/**
+		 * Reports a type mismatch
+		 *
+		 * Blames the type error on the 'left' node
+		 *
+		 * @param left AST node from which we get one of the types
+		 * @param left_type String representation of the type for the left node
+		 * @param right AST node from which we get the other type
+		 * @param right_type String representation of the type for the right node
+		 */
+		public TypeErrorReport(ASTNode left,
+				       String left_type,
+				       ASTNode right,
+				       String right_type) {
+			super("type-error", "WARN", left, right);
+			this.withExplanation("type mismatch: expected " + left_type + ", found " + right_type);
+		}
+	}
+
+	coll ArrayList<Report> Program.reports();
+
+	syn Report ASTNode.report() = null;
+	syn Collection<Report> ASTNode.reportMulti() = null;
+
+	ASTNode contributes each reportMulti()
+		when reportMulti() != null
+		to Program.reports();
+
+	ASTNode contributes report()
+		when report() != null
+		to Program.reports();
+}

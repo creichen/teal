@@ -1,14 +1,32 @@
 // Top-level declarations for Beaver
 %header {:
         package lang.ast;
+	import lang.common.SourceLocation;
 :};
 
 %embed {:
-        static public class SyntaxError extends RuntimeException { public SyntaxError(String msg) {super(msg);}}
+	static public class SyntaxError extends RuntimeException {
+		private CompilerError report;
+		public SyntaxError(int start_line, int start_col,
+				   int end_line, int end_col,
+				   String msg) {
+			super(msg);
+			this.report = new CompilerError("syntax", msg,
+							new SourceLocation("",
+									   start_line, start_col,
+									   end_line, end_col)
+							){};
+		}
+		public CompilerError getCompilerError() { return this.report; };
+	}
         // Disable syntax error recovery
         protected void recoverFromError(Symbol token, TokenStream in) {
-                throw new SyntaxError("Cannot recover from the syntax error at " +
-		Symbol.getLine(token.getStart()) + ":" + Symbol.getColumn(token.getStart()));
+                throw new SyntaxError(
+			Symbol.getLine(token.getStart()),
+			Symbol.getColumn(token.getStart()),
+			Symbol.getLine(token.getEnd()),
+			Symbol.getColumn(token.getEnd()),
+			"Unrecoverable syntax error");
         }
 :};
 
