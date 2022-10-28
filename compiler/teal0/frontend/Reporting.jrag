@@ -37,7 +37,7 @@ aspect Reporting {
 		}
 	}
 
-	coll ArrayList<Report> Program.reports();
+	coll ArrayList<Report> Program.reports() [new ArrayList<Report>()] with add;
 
 	syn Report ASTNode.report() = null;
 	syn Collection<Report> ASTNode.reportMulti() = null;
@@ -49,4 +49,49 @@ aspect Reporting {
 	ASTNode contributes report()
 		when report() != null
 		to Program.reports();
+}
+
+
+aspect CompilerError {
+	public abstract class CompilerError extends Report {
+		/**
+		 * Compiler error without associated location, applying to entire program
+		 */
+		public CompilerError(String type, String description) {
+			super(type, "ERR", (ASTNode) null);
+			this.withExplanation(description);
+		}
+
+		/**
+		 * Compiler error attached to AST node
+		 */
+		public CompilerError(String type, String description, ASTNode node) {
+			super(type, "ERR", node);
+			this.withExplanation(description);
+		}
+
+		/**
+		 * Compiler error attached to source location
+		 */
+		public CompilerError(String type, String description, SourceLocation loc) {
+			super(type, "ERR", loc);
+			this.withExplanation(description);
+		}
+
+		/**
+		 * Source location, for testing
+		 */
+		public SourceLocation
+		getSrcLoc() {
+			return this.getFirstSrcLoc();
+		}
+
+		/**
+		 * Combined explanation + location, for testing
+		 */
+		public String
+		testReport() {
+			return this.getFirstSrcLoc() + ": " + this.getExplanation();
+		}
+	}
 }

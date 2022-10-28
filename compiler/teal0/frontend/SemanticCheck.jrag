@@ -1,5 +1,7 @@
 aspect SemanticCheck {
-	// Check various flavours of assignment
+	/**
+	 * Catch-all class for semantic errors not reported elsewhere
+	 */
 	class SemanticError extends CompilerError {
 		public SemanticError(String msg, ASTNode node) {
 			super("sem", msg, node);
