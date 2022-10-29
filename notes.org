@@ -47,7 +47,7 @@ TEAL allows a class to inherit from multiple superclasses. In this case the inte
 In order to resolve name accesses, i.e. a.x, we need to find the type of a. ~a~ can be any expression, for example it can be a function call, ~f().g().x~. We require that the expression is either a variable with explicitly declared type or a type ascription expression.
 
 * Qualifiers
-** How many types a qualifier can qualify?
+** How many types can a qualifier qualify?
 A qualifier declares the subtypes it may qualify. For example, ~qual Q <: A, B~ can qualify the types A and B. Inside the qualifier, the ~self~ variable refers to the value it qualifies. It is unclear what is the type of the ~self~ variable in this case. It should be the union of the types A and B, but the TEAL type system does not have such a concept. There are two solution to this:
 - let ~self~ have the common supertype of A and B, which may be ~any~
 - restrict the number of types a qulifier can qualify to one - implemented.
@@ -76,18 +76,19 @@ class Qualifier[T] = {
 * Remaining
 ** DONE Add source location to IR nodes
    CLOSED: [2020-10-19 Mon 10:02]
-** TODO Split the language in different version, e.g. TEAL-0, TEAL-1, ...
+** DONE Split the language in different version, e.g. TEAL-0, TEAL-1, ...
+- State "DONE"       from "TODO"       [2022-10-29 Sat 08:24]
 This might not be feasible, because classes are needed to implement arrays. Qualifiers may be added separately.
-** TODO For loops
-Desugaring of for loops.
 ** DONE Arrays
    CLOSED: [2020-10-19 Mon 10:01]
 Implement the array type and desugar array accesses and array types.
-** TODO Explicit and implicit calls to constructors of superclasses
-The superclasses are not initialized when a class is built.
 ** DONE Packages
    CLOSED: [2020-10-19 Mon 10:02]
 Support for import statement
+** TODO For loops
+Desugaring of for loops.
+** TODO Explicit and implicit calls to constructors of superclasses
+The superclasses are not initialized when a class is built.
 ** TODO Qualifiers for classes
 Qualifiers are supported only for variables.
 ** TODO Semantic checks for lvalues
