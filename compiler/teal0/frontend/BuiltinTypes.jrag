@@ -1,5 +1,9 @@
 import lang.common.BuiltinNames;
 
+/**
+ * Add built-in operations to the AST, so that name analysis and type analysis
+ * can process them as if they were user-defined operations
+ */
 aspect BuiltinTypes {
 	inh Program ASTNode.program();
 	eq Program.getChild().program() = this;
@@ -69,4 +73,10 @@ aspect BuiltinTypes {
 		}
 		return decls;
 	}
+
+	// ----------------------------------------
+	// Checks for specific built-in types
+
+	syn boolean Type.isArray() = false;
+	eq ArrayType.isArray() = true;
 }

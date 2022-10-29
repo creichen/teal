@@ -16,17 +16,17 @@ module("teal-0") {
 	include "frontend/Version.jrag"
 
 	// Semantic analysis
-	include "frontend/BuiltinTypes.jrag"
-	include "frontend/DumpTree.jrag"
-	include "frontend/Modules.jrag"
-	include "frontend/Reporting.jrag"
-	include "frontend/Util.jrag"
-	include "frontend/Decl.jrag"
-	include "frontend/Source.jrag"
-	include "frontend/NameAnalysis.jrag"
-	include "frontend/SemanticCheck.jrag"
-	include "frontend/TypeAnalysis.jrag"
-	include "frontend/TypeAnalysisBuiltinTypes.jrag"
+	include "frontend/BuiltinTypes.jrag"		// Translate built-in operations into AST fragments
+	include "frontend/DumpTree.jrag"		// Write AST to a file / to stdout
+	include "frontend/Modules.jrag"			// Teal Module support
+	include "frontend/Reporting.jrag"		// Reporting analysis results (bugs in Teal code etc.)
+	include "frontend/Util.jrag"			// Helper datastructures (multimaps, ASTNode sorting)
+	include "frontend/Decl.jrag"			// Decl.asVarDecl() and Decl.asFunDecl()
+	include "frontend/Source.jrag"			// Source location tracking
+	include "frontend/NameAnalysis.jrag"		// Name Analysis
+	include "frontend/SemanticCheck.jrag"		// Special-purpose semantic checks
+	include "frontend/TypeAnalysis.jrag"		// Static type analysis
+	include "frontend/DependencyAnalysis.jrag"	// Dependency analysis
 
 	// Code generation
 	include "backend/IRGen.jrag"

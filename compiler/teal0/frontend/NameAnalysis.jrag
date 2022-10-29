@@ -5,7 +5,9 @@ import java.util.Collections;
 import java.util.Collection;
 
 aspect NameAnalysis {
-        // Function or variable name
+	/**
+	 * Get the function or variable name
+	 */
         syn String Decl.name() {
                 return getIdDecl().getIdentifier();
         }
@@ -18,24 +20,35 @@ aspect NameAnalysis {
                 return getIdUse().getIdentifier();
         }
 
-	// Getting the declaration for a CallExpr
+	/**
+	 * Get the FunDecl, i.e., the declaration of the called funcion, for a CallExpr
+	 */
 	syn FunDecl CallExpr.funDecl() {
 		return (FunDecl) getIdUse().lookup().getDecl();
 	}
 
-	// Getting the declaration for a CallExpr
+	/**
+	 * Get the FunDecl, i.e., the declaration of the called funcion, for a BinExpr
+	 */
 	syn FunDecl BinExpr.funDecl() {
 		return (FunDecl) lookup(builtin().getName()).getDecl();
 	}
 
-	// Getting the declaration for an Access (variable use)
+	/**
+	 * Get the VarDecl, i.e., the declaration of the variable, for a variable access
+	 */
 	syn VarDecl Access.varDecl() {
 		return (VarDecl) getIdUse().lookup().getDecl();
 	}
 
+	/**
+	 * Check if a declaration is for a built-in operation
+	 */
+	syn boolean Decl.isBuiltin() = false;
+	eq FunDecl.isBuiltin() = !hasBody();
+
 	// ----------------------------------------
 	// Implementation details below.
-
 
         // Lookup the declaration matching an use.
 	inh IdDecl IdUse.lookup(String s);
