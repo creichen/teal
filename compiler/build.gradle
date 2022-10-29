@@ -23,7 +23,7 @@ dependencies {
             implementation('org.openjfx:javafx-controls:11')
 	    implementation('org.openjfx:javafx-fxml:11')
     }
-    implementation files('../libs/DrAST-1.2.2.jar') // include DrAST
+    implementation files('../libs/DrAST-1.2.2-teal.jar') // include DrAST
     implementation('org.fxmisc.richtext:richtextfx:0.10.2') // for DrAST
 }
 
