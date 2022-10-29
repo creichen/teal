@@ -176,6 +176,7 @@ public class Compiler {
 			// Compiler actions
 			PARSE,
 			CHECK,
+			PRINT_AST,
 			CUSTOM_AST,
 			CUSTOM_IR,
 			DRAST,
@@ -219,6 +220,8 @@ public class Compiler {
 		Option parse = Option.builder("p").longOpt("parse").hasArg(false)
 			.desc("Parse the program and build the AST.").build();
 		Option check = Option.builder("c").longOpt("check").hasArg(false)
+			.desc("Perform semantic and type checks.").build();
+		Option printast = Option.builder("a").longOpt("check").hasArg(false)
 			.desc("Perform semantic and type checks and print out the AST.").build();
 		Option codegen = Option.builder("g").longOpt("codegen").hasArg(false)
 			.desc("Generate IR code and print it out.").build();
@@ -238,12 +241,13 @@ public class Compiler {
 			.desc("Print out version information.").build();
 
 		OptionGroup action = new OptionGroup()
-			.addOption(parse)
-			.addOption(check)
-			.addOption(codegen)
 			.addOption(run)
+			.addOption(check)
 			.addOption(drast)
 			.addOption(codeprober)
+			.addOption(parse)
+			.addOption(printast)
+			.addOption(codegen)
 			.addOption(custom1)
 			.addOption(custom2)
 			.addOption(help)
@@ -298,6 +302,8 @@ public class Compiler {
 				ret.action = CmdLineOpts.Action.PARSE;
 			} else if (cmd.hasOption("c")) {
 				ret.action = CmdLineOpts.Action.CHECK;
+			} else if (cmd.hasOption("a")) {
+				ret.action = CmdLineOpts.Action.PRINT_AST;
 			} else if (cmd.hasOption("d")) {
 				ret.action = CmdLineOpts.Action.DRAST;
 			} else if (cmd.hasOption("D")) {
@@ -411,8 +417,10 @@ public class Compiler {
 
 		switch (opts.action) {
 
-		case CHECK:
+		case PRINT_AST:
 		    out.print(program.dumpTree());
+		    // fall through
+		case CHECK:
 		    return true;
 
 		case CUSTOM_AST:
