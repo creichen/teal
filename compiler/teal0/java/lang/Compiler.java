@@ -394,11 +394,15 @@ public class Compiler {
 		List<CompilerError> semaErrors = program.semanticErrors();
 		List<CompilerError> nameErrors = program.nameErrors();
 
-		printReports(nameErrors, opts);
-		printReports(semaErrors, opts);
+		if (opts.action != CmdLineOpts.Action.CODEPROBER) {
+			// Codeprober will extract attributes directly, so only print for command-line use
 
-		// Other reports
-		printReports(program.reports(), opts);
+			printReports(nameErrors, opts);
+			printReports(semaErrors, opts);
+
+			// Other reports
+			printReports(program.reports(), opts);
+		}
 
 		// fail if there are any errors
 		if (!nameErrors.isEmpty() || !semaErrors.isEmpty()) {

@@ -75,3 +75,9 @@ aspect CompilerError {
 		}
 	}
 }
+aspect CodeProberGlue {
+	syn int ASTNode.getStartLine() = startLine();
+	syn int ASTNode.getStartColumn() = startColumn();
+	syn int ASTNode.getEndLine() = endLine();
+	syn int ASTNode.getEndColumn() = endColumn();
+}

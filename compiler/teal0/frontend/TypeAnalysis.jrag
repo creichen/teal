@@ -1,3 +1,5 @@
+import lang.common.Report;
+
 /**
  * Incomplete type analysis
  *
@@ -34,11 +36,11 @@ aspect TypeAnalysis {
 		ARRAY	{ public String toString() { return "array"; } }
 	}
 
-	syn TyCon Type.getTyCon();
-	eq AnyType.getTyCon()    = TyCon.ANY;
-	eq IntType.getTyCon()    = TyCon.INT;
-	eq StringType.getTyCon() = TyCon.STRING;
-	eq ArrayType.getTyCon()  = TyCon.ARRAY;
+	syn TyCon Type.tyCon();
+	eq AnyType.tyCon()    = TyCon.ANY;
+	eq IntType.tyCon()    = TyCon.INT;
+	eq StringType.tyCon() = TyCon.STRING;
+	eq ArrayType.tyCon()  = TyCon.ARRAY;
 
 	/**
 	 * Interpret the type of literal values and explicit type annotations.

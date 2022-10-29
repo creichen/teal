@@ -21,24 +21,32 @@ aspect NameAnalysis {
         }
 
 	/**
-	 * Get the FunDecl, i.e., the declaration of the called funcion, for a CallExpr
+	 * Get function declaration for CallExpr and BinExpr
 	 */
-	syn FunDecl CallExpr.funDecl() {
-		return (FunDecl) getIdUse().lookup().getDecl();
+	interface FunCall {
+		/**
+		 * Get the FunDecl, i.e., the declaration of the called funcion, for this call
+		 */
+		FunDecl funDecl();
 	}
 
-	/**
-	 * Get the FunDecl, i.e., the declaration of the called funcion, for a BinExpr
-	 */
-	syn FunDecl BinExpr.funDecl() {
-		return (FunDecl) lookup(builtin().getName()).getDecl();
+	class CallExpr implements FunCall {
+		public FunDecl funDecl() {
+			return getIdUse().lookup().getDecl().asFunDecl();
+		}
+	}
+
+	class BinExpr implements FunCall {
+		public FunDecl funDecl() {
+			return lookup(builtin().getName()).getDecl().asFunDecl();
+		}
 	}
 
 	/**
 	 * Get the VarDecl, i.e., the declaration of the variable, for a variable access
 	 */
 	syn VarDecl Access.varDecl() {
-		return (VarDecl) getIdUse().lookup().getDecl();
+		return getIdUse().lookup().getDecl().asVarDecl();
 	}
 
 	/**

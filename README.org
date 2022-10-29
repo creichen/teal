@@ -68,6 +68,8 @@ You can find this main entry point in: ~teal/compiler/teal0/java/lang/Compiler.j
 The arguments to the program can be integers or strings. This will call the ~main~ function (which must
 take matching formal parameters) and print out the ~main~ function's return value.
 
+Try running it on  ~examples/hello-world.teal~ for a quick example!
+
 ** Adding your own Teal actions
 
 You can find two predefined entry points in ~teal/compiler/teal0/java/lang/Compiler.java~ that you can
@@ -75,7 +77,42 @@ use to get started:
 -  ~Compiler.customASTAction()~, which you can run with ~java -jar build/teal-0.jar program.teal -Y~, can process the AST
 -  ~Compiler.customIRAction()~, which you can run with ~java -jar build/teal-0.jar program.teal -Z~, can process the IR
 
-** Logging
+** Debugging Teal
+
+To understand how Teal works or to fix a bug, you have at least four options:
+- DrAST, for interactively exploring the AST and its attributes
+- code-prober, for probing attributes from Teal source code, and for highlighting custom code
+- The Java debugger ~jdb~
+- Print debugging
+
+We recommend using DrAST or code-prober.
+
+*** Running DrAST
+
+You can start DrAST by running
+~java -jar build/teal-0.jar -d <source.teal>~
+
+On some operating systems, this may not be completely reliable; there, you can instead
+run DrAST the "normal" way, following the steps from [[https://bitbucket.org/jastadd/drast][the DrAST gitlab repository]].
+
+*** Running code-prober
+
+To run code-prober in a POSIX environment (Linux, OS X), you can run the ~codeprober.sh~ script,
+and then connect to code-prober with a web browser at [[http://localhost:8080][localhost:8080]].
+You can optionally pass in a program as parameter to the ~codeprober.sh~ script.
+To run code-prober by hand, you can manually run it with a command line similar to the following:
+
+~java -jar libs/code-prober.jar --autoprobes nameErrors,semanticErrors,reports --syntax teal compiler/teal-0.jar -D~
+
+or, to start with a source file already present:
+
+~java -jar libs/code-prober.jar --autoprobes nameErrors,semanticErrors,reports --syntax teal --source <source.teal> compiler/teal-0.jar -D~
+
+The parameter ~--autoprobes~ lists all attributes in the ~Program~ AST node from which code-prober
+will extract ~lang.common.Report~ objects that it then shows as warning/error/info messages overlaid over
+the source code.
+
+** Internal Logging
 Can be enabled by the ~TEAL_DEBUG~ environment variable:
   - ~export TEAL_DEBUG=interp~ enables interpreter debugging
   - ~export TEAL_DEBUG=irgen~ enables IR generation debugging
@@ -83,8 +120,10 @@ Can be enabled by the ~TEAL_DEBUG~ environment variable:
 
 * Notes on the implementation
 See [[file:notes.org][the implementation notes]] (if available in your distribution).
+
 * Git FAQ
-  Here are answers to some questions you may ask yourself when using Git.
+  Here are answers to some questions you may ask yourself when using Git,
+  kindly donated by Noric Couderc, the TA for 2020.
 
 ** What's Git?
 
@@ -117,7 +156,7 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
    For a more detailed introduction, you may look at [[https://docs.gitlab.com/ee/gitlab-basics/start-using-git.html][Gitlab's documentation]].
 
    Lastly, if you prefer videos with rainbows and unicorns, you may be
-   interested in [[https://thecodingtrain.com/beginners/git-and-github/][this series of videos by Daniel Shiffman]].
+   interested in [[https://thecodingtrain.com/tracks/git-and-github-for-poets][this series of videos by Daniel Shiffman]].
 
 ** I Can't Clone the Repository
    You probably need to upload a SSH public key to the Gitlab server.
@@ -130,7 +169,7 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
 
 ** How Do I Update My Fork with Changes the Instructors Made?
 
-   Sometimes, Noric or Christoph might update the exercises, you can synchronize your
+   Sometimes, Idriss or Christoph might update the exercises, you can synchronize your
    forks with the changes have been made with git (while keeping your own changes too!).
 
    Here's how you do it (based on [[https://medium.com/@sahoosunilkumar/how-to-update-a-fork-in-git-95a7daadc14e][this tutorial]]).
@@ -141,7 +180,7 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
     Run these instructions in the ~exercise-<nr>~ directory::
 
     #+begin_src sh
-      git remote add upstream https://git.cs.lth.se/creichen/edap15-exercise-<nr>.git
+      git remote add upstream https://git.cs.lth.se/creichen/edap15-<year>-exercise-<nr>.git
       git fetch upstream
       git checkout main
       git merge upstream/main

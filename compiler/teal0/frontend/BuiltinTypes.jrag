@@ -25,14 +25,14 @@ aspect BuiltinTypes {
 		case BuiltinNames.STRING:
 			return new StringType();
 		case BuiltinNames.ARRAY:
-		    /**
-		     * TODO for Homework 1
-		     *
-		     * This function doesn't know how to deal with arrays, so
-		     * it returns "any".  You will have to fix this to correctly
-		     * support the "array_length" function.
-		     */
-		    return new AnyType();
+			// IMPRECISION: Since Teal-0 can't express type variables, we cannot
+			// represent "array-of-anything" in the AST.
+			//
+			// This affects one built-in operation:
+			//    array_length : array[T] -> int
+			// will get the imprecise type
+			//    array_length : any -> int
+			return new AnyType();
 		case BuiltinNames.ANY:
 			return new AnyType();
 		default:

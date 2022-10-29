@@ -77,6 +77,13 @@ public abstract class Report {
 		return s;
 	}
 
+	/**
+	 * code-prober magic extraction method
+	 */
+	public String getCodeProberReportString() {
+	    return this.toCodeProberString();
+	}
+
 	public String toCodeProberString() {
 		String s = this.code_prober_format + "@";
 		SourceLocation loc = (this.node_locations.length == 0) ? SourceLocation.UNKNOWN : this.node_locations[0];

@@ -2,6 +2,10 @@
 
 BASEDIR=`dirname $0`
 
+if [ x${CODEPROBER_JAR} == x ]; then
+	CODEPROBER_JAR=${BASEDIR}/libs/code-prober.jar 
+fi
+
 TEAL_JAR_PATTERN=(${BASEDIR}/compiler/teal-?.jar)
 [[ -e "${TEAL_JAR_PATTERN[@]}" ]] && TEAL_JAR="$TEAL_JAR_PATTERN"
 
@@ -14,5 +18,5 @@ fi
 if [ x$1 != x ]; then
 	SOURCE="--source $1"
 fi
-echo java -jar ${BASEDIR}/libs/code-prober.jar --autoprobes nameErrors,semanticErrors,reports --syntax teal "${SOURCE}" ${TEAL_JAR} -D
-java -jar ${BASEDIR}/libs/code-prober.jar --autoprobes nameErrors,semanticErrors,reports --syntax teal ${SOURCE} ${TEAL_JAR} -D
+echo java -jar ${CODEPROBER_JAR} --autoprobes nameErrors,semanticErrors,reports --syntax teal ${SOURCE} ${TEAL_JAR} -D
+java -jar ${CODEPROBER_JAR} --autoprobes nameErrors,semanticErrors,reports --syntax teal ${SOURCE} ${TEAL_JAR} -D
