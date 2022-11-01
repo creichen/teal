@@ -24,23 +24,45 @@ aspect TypeAnalysis {
 	}
 
 	/**
-	 * One type constructor for each of the four predefined types from Teal-0
+	 * One type object for each of the four predefined types from Teal-0
 	 *
 	 * Since Int, String etc. are AST nodes, they are not equal to each other.
-	 * We represent them by enum values that we can easily check for equality.
+	 * We represent them by unique values that we can easily check for equality.
 	 */
-	enum TyCon {
-		ANY	{ public String toString() { return "any"; } },
-		INT	{ public String toString() { return "int"; } },
-		STRING	{ public String toString() { return "string"; } },
-		ARRAY	{ public String toString() { return "array"; } }
-	}
+	syn nta AnyType Program.anyType() = new AnyType();
+	syn nta IntType Program.intType() = new IntType();
+	syn nta StringType Program.stringType() = new StringType();
+	syn nta ArrayType Program.arrayType(Type ty) = new ArrayType(ty);
 
-	syn TyCon Type.tyCon();
-	eq AnyType.tyCon()    = TyCon.ANY;
-	eq IntType.tyCon()    = TyCon.INT;
-	eq StringType.tyCon() = TyCon.STRING;
-	eq ArrayType.tyCon()  = TyCon.ARRAY;
+	// Broadcast types downwards
+	eq Program.getChild().anyType() = anyType();
+	eq Program.getChild().intType() = intType();
+	eq Program.getChild().stringType() = stringType();
+	eq Program.getChild().arrayType(Type ty) = arrayType(ty);
+
+	inh AnyType Type.anyType();
+	inh IntType Type.intType();
+	inh StringType Type.stringType();
+	inh ArrayType Type.arrayType(Type ty);
+
+	/**
+	 * Canonical representative for each type, for easy equality checking
+	 */
+	syn Type Type.type();
+	eq AnyType.type()    = anyType();
+	eq IntType.type()    = intType();
+	eq StringType.type() = stringType();
+	eq ArrayType.type()  = arrayType(getActual().type());
+
+	/**
+	 * String representation for the name.  We keep toString unchanged to simplify debugging.
+	 */
+	syn String Type.name();
+	eq AnyType.name()    = "any";
+	eq IntType.name()    = "int";
+	eq StringType.name() = "string";
+	eq ArrayType.name()  = "array[" + getActual() + "]";
+
 
 	/**
 	 * Interpret the type of literal values and explicit type annotations.
@@ -49,10 +71,10 @@ aspect TypeAnalysis {
 	 * purely by looking at the AST node, or <tt>null</tt>.
 	 */
 	syn Type Expr.implicitType() = null;
-	eq IntConstant.implicitType() = new IntType();
-	eq StringConstant.implicitType() = new StringType();
+	eq IntConstant.implicitType()    = program().intType();
+	eq StringConstant.implicitType() = program().stringType();
 	eq TypedExpr.implicitType() {
-		return getDeclaredType();
+		return getDeclaredType().type();
 	}
 
 	/**
@@ -62,11 +84,11 @@ aspect TypeAnalysis {
 	 * is unknown or contradictory.
 	 */
 	syn Type Expr.type() {
-	    Type ty = this.implicitType();
-	    if (ty == null) {
-		return new AnyType();
-	    }
-	    return ty;
+		Type ty = this.implicitType();
+		if (ty == null) {
+			return program().anyType();
+		}
+		return ty;
 	}
 
 	// The type of this variable, as far as we can tell (without trying very hard); never null
@@ -77,7 +99,7 @@ aspect TypeAnalysis {
 		if (hasInitializer()) {
 			return getInitializer().type();
 		}
-		return new AnyType();
+		return program().anyType();
 	}
 
 	// The return type; never null
@@ -85,6 +107,6 @@ aspect TypeAnalysis {
 		if (hasDeclaredReturnType()) {
 			return getDeclaredReturnType();
 		}
-		return new AnyType();
+		return program().anyType();
 	}
 }
