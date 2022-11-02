@@ -158,7 +158,42 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
    Lastly, if you prefer videos with rainbows and unicorns, you may be
    interested in [[https://thecodingtrain.com/tracks/git-and-github-for-poets][this series of videos by Daniel Shiffman]].
 
-** I Can't Clone the Repository
+** Exercise 0
+
+   For exercise 0, you don't need to hand in your results, so you only need to get a "clone" (i.e., a copy)
+   of the exercise repository onto your own machine.
+
+*** How Do I Install the Sources on my Machine?
+
+   By far the easiest approach is to use the ~git clone~ command.
+   Your favourite IDE might have built-in support for doing this for you; feel free to check its documentation!
+   The repository that you want is ~https://git.cs.lth.se/creichen/edap15-<year>-exercise-0.git~.
+
+**** TL;DR
+
+   Run the following on your favourite command shell:
+
+    #+begin_src sh
+      git clone https://git.cs.lth.se/creichen/edap15-<year>-exercise-0.git
+    #+end_src
+
+** Exercises 1 and later
+
+   For exercises 1 and later, you will work together with a partner.  That means that you will
+   share your edits in a common repository, and use that repository as a way to submit
+   your solution to the teaching assistant.
+
+   Here, there are two repositories involved:
+   - Your *group repository*, which we here call ~origin~, that we preinitialise for you with the exercise code
+   - An ~upstream~ repository that contains the original exercise, to which we may push changes
+     if we find a bug in the Teal code that is unrelated to the exercise, or if we decide to add more documentation
+     to help you with the exercise.
+
+   You will have read and write access to your ~origin~ *group repository*, but only read access to
+   the ~upstream~ repository.  In principle, you can solve the exercise without using the ~upstream~ repository,
+   but you may miss out on some fixes or help that we publish after the exercise goes live.
+
+*** I Can't Clone the Repository
    You probably need to upload a SSH public key to the Gitlab server.
    You generate those on your computer, two files will be created,
    you upload the contents of of these files to the Gitlab, so it knows who you are.
@@ -167,14 +202,14 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
 
    [[https://docs.gitlab.com/ee/ssh][Here]] is a tutorial on how to do that.
 
-** How Do I Update My Fork with Changes the Instructors Made?
+*** How Do I Update My Fork with Changes the Instructors Made?
 
    Sometimes, Idriss or Christoph might update the exercises, you can synchronize your
    forks with the changes have been made with git (while keeping your own changes too!).
 
    Here's how you do it (based on [[https://medium.com/@sahoosunilkumar/how-to-update-a-fork-in-git-95a7daadc14e][this tutorial]]).
 
-*** TL;DR
+**** TL;DR
 
     If you're too lazy to read the rest, here is the following in script form.
     Run these instructions in the ~exercise-<nr>~ directory::
@@ -189,7 +224,7 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
 
     Otherwise, here are the explanations!
 
-*** List Remotes
+**** List Remotes
     This gives you the list of remote repositories, they are places where code lives
     that aren't on your computer.
 
@@ -203,7 +238,7 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
       origin	git@coursegit.cs.lth.se:edap15-<year>/<group>/exercise-<nr>.git (push)
     #+end_src
 
-*** Specify a Remote Upstream
+**** Specify a Remote Upstream
     This is a way to tell git you know another place where similar code
     is, and that will be the address of the main exercise 1 repo, the one you forked.
     We can give names to remote, we'll call this one /upstream/.
@@ -212,7 +247,7 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
       git remote add upstream https://git.cs.lth.se/creichen/edap15-exercise-<nr>.git
     #+end_src
 
-*** Get the Changes
+**** Get the Changes
 
     You can get the new changes by calling the following (don't worry, it won't erase any of your code!):
 
@@ -230,7 +265,7 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
     You can also /compare/ branches with ~git diff upstream/main~, this will show
     the differences between your main branch and ~upstream/main~.
 
-*** Merging Changes
+**** Merging Changes
 
     Lastly, git is also able to merge changes from two branches together.
     There might be conflicts that you would have to resolve by hand, but in most
@@ -242,5 +277,5 @@ See [[file:notes.org][the implementation notes]] (if available in your distribut
       git merge upstream/main
     #+end_src
 
-*** Pushing to Gitlab
+**** Pushing to Gitlab
     Now you can update gitlab's copy of your code with ~git push origin main~
