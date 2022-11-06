@@ -43,6 +43,10 @@ import org.apache.commons.cli.CommandLine;
 
 public class Compiler {
 	public static Object DrAST_root_node; //Enable debugging with DrAST
+	public static String[] CodeProber_report_styles = new String[] { // CSS styling for Report.Visual
+		// "my-red-bg={background-color: #f008}",
+		// "my-red-bg#light={background-color: #00f8}",
+	};
 
 	public static boolean customASTAction(Program ast) {
 		System.out.println("Hello from method 'customASTAction()' in " + Compiler.class + "!");

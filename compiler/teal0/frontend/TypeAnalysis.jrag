@@ -63,7 +63,6 @@ aspect TypeAnalysis {
 	eq StringType.name() = "string";
 	eq ArrayType.name()  = "array[" + getActual() + "]";
 
-
 	/**
 	 * Interpret the type of literal values and explicit type annotations.
 	 *

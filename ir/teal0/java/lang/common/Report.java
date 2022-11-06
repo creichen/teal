@@ -9,7 +9,7 @@ public abstract class Report {
 	private SourceLocation[] node_locations;
 	private String kind;
 	private String explanation;
-	private String code_prober_format;
+	private CodeProber code_prober_format;
 
 	public enum CodeProber {
 		ERR,	// red squiggles
@@ -38,13 +38,13 @@ public abstract class Report {
 		}
 		this.node_locations = locs.toArray(new SourceLocation[locs.size()]);
 		this.kind = kind;
-		this.code_prober_format = codeProberFormat.toString();
+		this.code_prober_format = codeProberFormat;
 	}
 
 	protected Report(String kind, CodeProber codeProberFormat, SourceLocation ... locs) {
 		this.node_locations = locs;
 		this.kind = kind;
-		this.code_prober_format = codeProberFormat.toString();
+		this.code_prober_format = codeProberFormat;
 	}
 
 	/**
@@ -84,18 +84,29 @@ public abstract class Report {
 	    return this.toCodeProberString();
 	}
 
+	/**
+	 * hover text
+	 */
+	protected String getCodeProberExplanation() {
+		if (this.explanation != null) {
+			return this.explanation;
+		}
+		return this.kind;
+	}
+
+	protected String getCodeProberPrefix() {
+		return this.code_prober_format.toString();
+	}
+
 	public String toCodeProberString() {
-		String s = this.code_prober_format + "@";
+		String s = this.getCodeProberPrefix() + "@";
 		SourceLocation loc = (this.node_locations.length == 0) ? SourceLocation.UNKNOWN : this.node_locations[0];
 
 		s += (loc.forCodeProberAtStart()
 		      + ";" +
-		      loc.forCodeProberAtEnd());
-		if (this.explanation != null) {
-			s += ";" + this.explanation;
-		} else {
-			s += ";" + this.kind;
-		}
+		      loc.forCodeProberAtEnd()
+		      + ";" +
+		      this.getCodeProberExplanation());
 		return s;
 	}
 
@@ -108,5 +119,37 @@ public abstract class Report {
 			return SourceLocation.UNKNOWN;
 		}
 		return this.node_locations[0];
+	}
+
+
+	/**
+	 * Report.Visual is a report that in an IDE does does not have hover text, only CSS styling
+	 */
+	public static class Visual extends Report {
+		private String styling;
+
+		/**
+		 * Creates a fresh report
+		 *
+		 * @param kind The kind of report to make; used as prefix to stdout output or as default message for codeprober hover
+		 * @param styling A CSS class, elaborated in <tt>Compiler.CodeProber_report_styles</tt> (or multiple comma-separated classes within the same string)
+		 * @param nodes ASTNodes of significance to the report, with the most prominent location (or otherwise the first location) first
+		 */
+		protected <ASTNode extends WithSourceLocation>
+		Visual(String kind, String styling, ASTNode node0, ASTNode ... nodes) {
+			super(kind, null, node0, nodes);
+			this.styling = styling;
+		}
+
+		@Override
+		protected String getCodeProberExplanation() {
+			// For STYLE messages, we don't have hover text, instead, the last entry is a CSS spec name
+			return this.styling;
+		}
+
+		@Override
+		protected String getCodeProberPrefix() {
+			return "STYLE";
+		}
 	}
 }
