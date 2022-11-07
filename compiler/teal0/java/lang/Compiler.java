@@ -42,6 +42,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.CommandLine;
 
 public class Compiler {
+	static boolean CODE_PROBER_MODE = stringToBoolean(System.getenv("TEAL_CODEPROBER_MODE"));
+
 	public static Object DrAST_root_node; //Enable debugging with DrAST
 	public static String[] CodeProber_report_styles = new String[] { // CSS styling for Report.Visual
 		// "my-red-bg={background-color: #f008}",
@@ -189,7 +191,7 @@ public class Compiler {
 			INTERP
 		}
 
-		Action action = Action.INTERP;
+		Action action = CODE_PROBER_MODE ? Action.CODEPROBER : Action.INTERP;
 		String outputFile;
 		String inputFile;
 		String customOption;
@@ -313,6 +315,7 @@ public class Compiler {
 			} else if (cmd.hasOption("D")) {
 				ret.action = CmdLineOpts.Action.CODEPROBER;
 			} else if (cmd.hasOption("g")) {
+				CODE_PROBER_MODE = true;
 				ret.action = CmdLineOpts.Action.IRGEN;
 			} else if (cmd.hasOption("Y")) {
 				ret.action = CmdLineOpts.Action.CUSTOM_AST;
@@ -353,11 +356,25 @@ public class Compiler {
 		return ret;
 	}
 
+	static boolean stringToBoolean(String s) {
+		if (s != null) {
+			switch (s.toLowerCase()) {
+			case "true":
+			case "t":
+			case "yes":
+			case "enable":
+			case "on":
+			case "1":
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static <R extends Report> void
-	printReports(List<R> reports, CmdLineOpts opts) {
-		boolean codeprober = opts.action == CmdLineOpts.Action.CODEPROBER;
+	printReports(List<R> reports) {
 		for (R r : reports) {
-			if (codeprober) {
+			if (CODE_PROBER_MODE) {
 				System.out.println(r.toCodeProberString());
 			} else {
 				System.err.println(r);
@@ -387,7 +404,7 @@ public class Compiler {
 
 
 		// print any errors and other reports on the AST so far
-		printReports(compilerErrors, opts);
+		printReports(compilerErrors);
 
 		// fail if there are compiler erorrs
 		if (!compilerErrors.isEmpty()) {
@@ -404,14 +421,14 @@ public class Compiler {
 		List<CompilerError> semaErrors = program.semanticErrors();
 		List<CompilerError> nameErrors = program.nameErrors();
 
-		if (opts.action != CmdLineOpts.Action.CODEPROBER) {
+		if (!CODE_PROBER_MODE) {
 			// Codeprober will extract attributes directly, so only print for command-line use
 
-			printReports(nameErrors, opts);
-			printReports(semaErrors, opts);
+			printReports(nameErrors);
+			printReports(semaErrors);
 
 			// Other reports
-			printReports(program.reports(), opts);
+			printReports(program.reports());
 		}
 
 		// fail if there are any errors

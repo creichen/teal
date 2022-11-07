@@ -1,6 +1,8 @@
 #! /bin/bash
 
 BASEDIR=`dirname $0`
+# Changes defaults to only issue CodeProber style reports and default to checking instead of running
+export TEAL_CODEPROBER_MODE=true
 
 if [ x${CODEPROBER_JAR} == x ]; then
 	CODEPROBER_JAR=${BASEDIR}/libs/code-prober.jar 
