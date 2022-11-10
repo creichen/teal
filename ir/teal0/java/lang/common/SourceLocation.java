@@ -87,6 +87,75 @@ public class SourceLocation implements Comparable<SourceLocation> {
 			+ "]";
 	}
 
+	private static int[]
+	splitCoord(String coordStr) {
+		String[] splits = coordStr.split(":", -1);
+		if (splits.length != 2) {
+			return null;
+		}
+		try {
+			return new int[] {
+				Integer.parseInt(splits[0]),
+				Integer.parseInt(splits[1])
+			};
+		} catch (NumberFormatException exn) {
+			return null;
+		}
+	}
+
+	public static SourceLocation
+	fromString(String str) {
+		if (!str.endsWith("]")) {
+			return null;
+		}
+		String[] splits = str.substring(0, str.length() - 1).split("\\[", 2);
+		if (splits.length != 2) {
+			return null;
+		}
+		final String filename = splits[0];
+		final String[] locs = splits[1].split("-", 2);
+		if (locs.length != 2) {
+			return null;
+		}
+		int[] lcoord = splitCoord(locs[0]);
+		int[] rcoord = splitCoord(locs[1]);
+		if (lcoord == null || rcoord == null) {
+			return null;
+		}
+		return new SourceLocation(filename, lcoord[0], lcoord[1], rcoord[0], rcoord[1]);
+	}
+
+	public SourceLocation
+	withoutFile() {
+		return new SourceLocation("UNKNOWN",
+					  this.startLine, this.startColumn,
+					  this.endLine, this.endColumn);
+	}
+
+	/**
+	 * Is this location within another location?
+	 */
+	public boolean
+	within(SourceLocation outer) {
+		if (!outer.file.equals(this.file)) {
+			return false;
+		}
+
+		if (outer.endLine < this.endLine
+		    || outer.startLine > this.startLine) {
+			return false;
+		}
+		if (outer.startLine == this.startLine
+		    && outer.startColumn > this.startColumn) {
+			return false;
+		}
+		if (outer.endLine == this.endLine
+		    && outer.endColumn < this.endColumn) {
+			return false;
+		}
+		return true;
+	}
+
 	@Override
 	public int compareTo(SourceLocation r) {
 		if (!this.file.equals(r.file))
@@ -105,5 +174,15 @@ public class SourceLocation implements Comparable<SourceLocation> {
 			return Integer.compare(this.endColumn, r.endColumn);
 
 		return 0;
+	}
+
+	@Override
+	public boolean
+	equals(Object other) {
+		if (!(other instanceof SourceLocation)) {
+			return false;
+		}
+		SourceLocation otherLoc = (SourceLocation) other;
+		return 0 == this.compareTo(otherLoc);
 	}
 }
