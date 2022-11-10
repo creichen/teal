@@ -17,6 +17,7 @@ module("teal-0") {
 
 	// Semantic analysis
 	include "frontend/BuiltinTypes.jrag"		// Translate built-in operations into AST fragments
+	include "frontend/CodeProber.jrag"		// CodeProber integration
 	include "frontend/DumpTree.jrag"		// Write AST to a file / to stdout
 	include "frontend/Modules.jrag"			// Teal Module support
 	include "frontend/Reporting.jrag"		// Reporting analysis results (bugs in Teal code etc.)

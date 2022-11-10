@@ -1,0 +1,90 @@
+import lang.common.BuiltinNames;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
+
+/**
+ * Dependency analysis
+ *
+ * You don't need dependency analysis for this exercise, but this module
+ * provides the useful userDefineDecls() attribute.
+ */
+aspect DependencyAnalysis {
+	/**
+	 * A global collection of all user defined Decl objects
+	 */
+	coll ArrayList<Decl> Program.userDefinedDecls()
+		[new ArrayList<Decl>()]
+		with add;
+
+	Decl contributes this
+		when !this.isBuiltin()
+		to Program.userDefinedDecls();
+
+	/**
+	 * Possible "owners" of a declaration
+	 *
+	 * For top-level declarations, the owner is the surrounding module.
+	 * For built-in declarations, there is no owner.
+	 * For all other declarations (only VarDecl possible), the owner is the surrounding FunDecl.
+	 *
+	 * Only needed for polymorphic type analysis.
+	 */
+	public interface DeclOwner {
+		public boolean isModule();  // toplevel Program node is owner?
+		public FunDecl funDeclOwner(); // if it is a FunDecl
+	}
+
+	Module implements DeclOwner;
+	Decl implements DeclOwner;
+
+	public boolean Module.isModule() { return true; }
+	public boolean Decl.isModule()   { return false; }
+
+	public FunDecl Module.funDeclOwner()  { return null; }
+	public FunDecl Decl.funDeclOwner()    { return null; }
+	public FunDecl FunDecl.funDeclOwner() { return this; }
+
+	// Top-level decls are directly underneath a Module
+	inh boolean ASTNode.isTopLevel();
+	eq Program.getChild().isTopLevel() = false;
+	eq Module.getDecl().isTopLevel() = true;
+	eq FunDecl.getChild().isTopLevel() = false;
+
+	// Local owner overriding (only for top-level decls)
+	syn DeclOwner ASTNode.localDeclOwner() = null;
+	syn DeclOwner Module.localDeclOwner() = this;
+	syn DeclOwner Decl.localDeclOwner() {
+		if (isTopLevel()) {
+			return this;
+		}
+		return null;
+	}
+
+	// Computing the declaration owners (at most one)
+	inh DeclOwner ASTNode.declOwner();
+	eq Program.getChild().declOwner() = null;
+	eq ASTNode.getChild().declOwner() {
+		if (localDeclOwner() != null) {
+			return localDeclOwner();
+		}
+		return declOwner();
+	}
+
+	// ----------------------------------------
+	// Direct Dependencies for each DeclOwner (Module, VarDecl, FunDecl)
+	coll Set<Decl> DeclOwner.directDependencies()
+		[new HashSet<Decl>()]
+		with add;
+
+	Access contributes varDecl()
+		when declOwner() != null && varDecl().isTopLevel()
+		to DeclOwner.directDependencies()
+		for declOwner();
+
+	CallExpr contributes funDecl()
+		when declOwner() != null
+		to DeclOwner.directDependencies()
+		for declOwner();
+}

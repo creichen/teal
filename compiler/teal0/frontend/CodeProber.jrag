@@ -1,0 +1,31 @@
+/**
+ * CodeProber integration
+ */
+aspect CodeProber {
+    /**
+     * Default list of properties to show in CodeProber
+     */
+    public static final String[] ASTNode.CODE_PROBER_PROPERTY_LIST = new String[] {
+	"name",
+	"funDecl",
+	"varDecl",
+	"isFunDecl",
+	"isVarDecl",
+	"isBuiltin",
+	"declaredVar",
+	"isLValue",
+	"program",
+	"sourceLocation",
+	"dumpTree",
+	"userDefinedDecls",
+	"funDeclOwner",
+	"isTopLevel",
+	"reports",
+	"report",
+	"reportMulti",
+    };
+
+    public String[] ASTNode.cpr_propertyListShow() {
+	return ASTNode.CODE_PROBER_PROPERTY_LIST;
+    }
+}
