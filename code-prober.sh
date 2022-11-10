@@ -5,7 +5,7 @@ BASEDIR=`dirname $0`
 export TEAL_CODEPROBER_MODE=true
 
 if [ x${CODEPROBER_JAR} == x ]; then
-	CODEPROBER_JAR=${BASEDIR}/libs/code-prober.jar 
+	CODEPROBER_JAR=${BASEDIR}/libs/code-prober.jar
 fi
 
 TEAL_JAR_PATTERN=(${BASEDIR}/compiler/teal-?.jar)
@@ -20,5 +20,22 @@ fi
 if [ x$1 != x ]; then
 	SOURCE="--source $1"
 fi
-echo java -jar ${CODEPROBER_JAR} --autoprobes nameErrors,semanticErrors,reports --syntax teal ${SOURCE} ${TEAL_JAR} -D
-java -jar ${CODEPROBER_JAR} --autoprobes nameErrors,semanticErrors,reports --syntax teal ${SOURCE} ${TEAL_JAR} -D
+
+# disable distracting UI options
+# args override
+DISABLE_UI=control-should-override-main-args
+# custom file sffix
+DISABLE_UI=${DISABLE_UI},control-customize-file-suffix
+# position recovery strategy
+DISABLE_UI=${DISABLE_UI},control-position-recovery-strategy
+# AST cache strategy
+DISABLE_UI=${DISABLE_UI},ast-cache-strategy
+# syntax highlighting
+DISABLE_UI=${DISABLE_UI},syntax-highlighting
+# location style
+DISABLE_UI=${DISABLE_UI},location-style
+# version/update info
+#DISABLE_UI=${DISABLE_UI},version
+
+echo java -jar ${CODEPROBER_JAR} --disable-ui ${DISABLE_UI} --ast-cache FULL --autoprobes nameErrors,semanticErrors,reports --syntax teal ${SOURCE} ${TEAL_JAR} -D
+java -jar ${CODEPROBER_JAR} --disable-ui ${DISABLE_UI} --ast-cache FULL --autoprobes nameErrors,semanticErrors,reports --syntax teal ${SOURCE} ${TEAL_JAR} -D
