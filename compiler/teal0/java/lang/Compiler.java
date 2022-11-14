@@ -231,7 +231,7 @@ public class Compiler {
 			.desc("Perform semantic and type checks and print out the AST.").build();
 		Option codegen = Option.builder("g").longOpt("codegen").hasArg(false)
 			.desc("Generate IR code and print it out.").build();
-		Option run = Option.builder("r").longOpt("run").hasArgs().optionalArg(true)
+		Option run = Option.builder("r").longOpt("run").hasArg(false)
 			.desc("Interpret the IR code.").build();
 		Option drast = Option.builder("d").longOpt("drast").hasArg(false)
 			.desc("Show AST with DrAST.").build();
