@@ -41,11 +41,5 @@ DISABLE_UI=${DISABLE_UI},location-style
 # version/update info
 #DISABLE_UI=${DISABLE_UI},version
 
-<<<<<<< Updated upstream
-echo java -jar ${CODEPROBER_JAR} --disable-ui ${DISABLE_UI} --ast-cache FULL --autoprobes nameErrors,semanticErrors,reports --syntax teal ${SOURCE} ${TEAL_JAR} -D
-java -jar ${CODEPROBER_JAR} --disable-ui ${DISABLE_UI} --ast-cache FULL --autoprobes nameErrors,semanticErrors,reports --syntax teal ${SOURCE} ${TEAL_JAR} -D
-=======
 echo java -jar ${CODEPROBER_JAR} --disable-ui ${DISABLE_UI} --ast-cache FULL --autoprobes "${AUTOPROBES}" --syntax teal ${SOURCE} ${TEAL_JAR} -D
 java -jar ${CODEPROBER_JAR} --disable-ui ${DISABLE_UI} --ast-cache FULL --autoprobes "${AUTOPROBES}" --syntax teal ${SOURCE} ${TEAL_JAR} -D
-
->>>>>>> Stashed changes
