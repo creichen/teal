@@ -74,9 +74,9 @@ aspect BuiltinTypes {
 		return decls;
 	}
 
-	// ----------------------------------------
-	// Checks for specific built-in types
+	// // ----------------------------------------
+	// // Checks for specific built-in types
 
-	syn boolean Type.isArray() = false;
-	eq ArrayType.isArray() = true;
+	// syn boolean Type.isArray() = false;
+	// eq ArrayType.isArray() = true;
 }
