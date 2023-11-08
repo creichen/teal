@@ -79,21 +79,12 @@ use to get started:
 
 ** Debugging Teal
 
-To understand how Teal works or to fix a bug, you have at least four options:
-- DrAST, for interactively exploring the AST and its attributes
-- code-prober, for probing attributes from Teal source code, and for highlighting custom code
+To understand how Teal works or to fix a bug, you have at least three options:
+- code-prober, for interactively exploring the AST and its attributes, and custom queries and highlights
 - The Java debugger ~jdb~
 - Print debugging
 
-We recommend using DrAST or code-prober.
-
-*** Running DrAST
-
-You can start DrAST by running
-~java -jar build/teal-0.jar -d <source.teal>~
-
-On some operating systems, this may not be completely reliable; there, you can instead
-run DrAST the "normal" way, following the steps from [[https://bitbucket.org/jastadd/drast][the DrAST gitlab repository]].
+We recommend using code-prober.
 
 *** Running code-prober
 

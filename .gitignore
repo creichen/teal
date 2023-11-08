@@ -21,3 +21,11 @@ tests/evaluation/bottomupout/*
 **/.settings
 compiler/bin
 *.out
+/TODO.org
+/compiler/teal-*.jar
+**/_*.jrag
+**/_*.teal
+/teal-*.jar
+/old/
+/libs/code-prober-dev.jar
+/libs/code-prober-stable.jar

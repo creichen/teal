@@ -44,7 +44,6 @@ import org.apache.commons.cli.CommandLine;
 public class Compiler {
 	static boolean CODE_PROBER_MODE = stringToBoolean(System.getenv("TEAL_CODEPROBER_MODE"));
 
-	public static Object DrAST_root_node; //Enable debugging with DrAST
 	public static String[] CodeProber_report_styles = new String[] { // CSS styling for Report.Visual
 		// "my-red-bg={background-color: #f008}",
 		// "my-red-bg#light={background-color: #00f8}",
@@ -185,7 +184,6 @@ public class Compiler {
 			PRINT_AST,
 			CUSTOM_AST,
 			CUSTOM_IR,
-			DRAST,
 			CODEPROBER,
 			IRGEN,
 			INTERP
@@ -233,8 +231,6 @@ public class Compiler {
 			.desc("Generate IR code and print it out.").build();
 		Option run = Option.builder("r").longOpt("run").hasArg(false)
 			.desc("Interpret the IR code.").build();
-		Option drast = Option.builder("d").longOpt("drast").hasArg(false)
-			.desc("Show AST with DrAST.").build();
 		Option codeprober = Option.builder("D").longOpt("codeprober").hasArg(false)
 			.desc("Computer information used by CodeProber (to be used when calling from CodeProber only)").build();
 		Option custom1 = Option.builder("Y").longOpt("custom-ast").hasArg(false)
@@ -249,7 +245,6 @@ public class Compiler {
 		OptionGroup action = new OptionGroup()
 			.addOption(run)
 			.addOption(check)
-			.addOption(drast)
 			.addOption(codeprober)
 			.addOption(parse)
 			.addOption(printast)
@@ -310,8 +305,6 @@ public class Compiler {
 				ret.action = CmdLineOpts.Action.CHECK;
 			} else if (cmd.hasOption("a")) {
 				ret.action = CmdLineOpts.Action.PRINT_AST;
-			} else if (cmd.hasOption("d")) {
-				ret.action = CmdLineOpts.Action.DRAST;
 			} else if (cmd.hasOption("D")) {
 				ret.action = CmdLineOpts.Action.CODEPROBER;
 			} else if (cmd.hasOption("g")) {
@@ -399,10 +392,6 @@ public class Compiler {
 		Program program = createProgramFromFiles(Collections.singletonList(opts.inputFile),
 							 opts.importPaths,
 							 compilerErrors);
-		// Inspecting the input program
-		DrAST_root_node = program;
-
-
 		// print any errors and other reports on the AST so far
 		printReports(compilerErrors);
 
@@ -453,29 +442,12 @@ public class Compiler {
 		case CODEPROBER:
 		    return true;
 
-		case DRAST:
-		    String src = null;
-		    try {
-			byte[] src_bytes = Files.readAllBytes(Paths.get(opts.inputFile));
-			src = new String(src_bytes, "utf-8");
-		    } catch (IOException exn) {
-			throw new RuntimeException(exn);
-		    }
-		    drast.views.gui.controllers.Controller.setSourceColumnBaseOffset(0);
-		    drast.views.gui.DrASTGUI.run(program,
-						 src,
-						 "exclude ** when {isBuiltin}\n");
-		    return true;
-
 		default:
 		    // pass
 		}
 
 		// Generate the IR program
 		IRProgram irProg = program.genIR();
-
-		// Inspecting the IR
-		DrAST_root_node = irProg;
 
 		if (opts.action == CmdLineOpts.Action.IRGEN) {
 			irProg.print(out);
