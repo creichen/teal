@@ -114,7 +114,7 @@ public class Compiler {
 
 	public static Module createModuleFromFile(File f,
 						  TEALParser parser,
-						  List<CompilerError> errors) {
+						  List<? super CompilerError> errors) {
 		LangScanner scanner;
 		Module m;
 		try {
@@ -139,7 +139,7 @@ public class Compiler {
 	}
 
 	public static Program createProgramFromFiles(List<String> files, List<String> importPaths,
-						     List<CompilerError> errors) {
+						     List<? super CompilerError> errors) {
 		Queue<File> unresolvedImports = new LinkedList<>();
 
 		Program program = new Program();
@@ -196,6 +196,8 @@ public class Compiler {
 		List<String> importPaths;
 		List<String> progArgs; // arguments for the interpreted program
 
+		PrintStream outStream = null;
+
 		public void
 		setProgArgs(String[] args) {
 			if (args == null) {
@@ -203,6 +205,24 @@ public class Compiler {
 			} else {
 				this.progArgs = Arrays.asList(args);
 			}
+		}
+
+		/**
+		 * Get an output stream, defaulting to System.out (unless overridden)
+		 */
+		public PrintStream out() {
+			if (this.outStream != null) {
+				return this.outStream;
+			}
+			this.outStream = System.out;
+			if (this.outputFile != null) {
+				try {
+					this.outStream = new PrintStream(this.outputFile);
+				} catch (FileNotFoundException e) {
+					System.err.println("ERROR Can't open output file '" + this.outputFile + "'.");
+				}
+			}
+			return this.outStream;
 		}
 	}
 
@@ -375,23 +395,24 @@ public class Compiler {
 		}
 	}
 
+	public static Program tryCompiling(CmdLineOpts opts, List<? super CompilerError> errors) {
+		// open the output file / stdout
+		PrintStream out = opts.out();
+
+		// parse the program and all its imported modules
+		return createProgramFromFiles(Collections.singletonList(opts.inputFile),
+					      opts.importPaths,
+					      errors);
+	}
+
 	public static boolean run(CmdLineOpts opts) {
 		List<CompilerError> compilerErrors = new ArrayList<>();
 
 		// open the output file / stdout
-		PrintStream out = System.out;
-		if (opts.outputFile != null) {
-			try {
-				out = new PrintStream(opts.outputFile);
-			} catch (FileNotFoundException e) {
-				System.err.println("ERROR Can't open output file '" + opts.outputFile + "'.");
-			}
-		}
+		PrintStream out = opts.out();
 
-		// parse the program and all its imported modules
-		Program program = createProgramFromFiles(Collections.singletonList(opts.inputFile),
-							 opts.importPaths,
-							 compilerErrors);
+		Program program = tryCompiling(opts, compilerErrors);
+
 		// print any errors and other reports on the AST so far
 		printReports(compilerErrors);
 
@@ -464,6 +485,12 @@ public class Compiler {
 		interpret(irProg, opts.progArgs);
 
 		return true;
+	}
+
+	public static Object CodeProber_parse(String[] args) throws Throwable {
+		CODE_PROBER_MODE = true;
+		CmdLineOpts opts = parseCmdLineArgs(args);
+		return tryCompiling(opts, new ArrayList<>());
 	}
 
 	public static void main(String[] args) {
