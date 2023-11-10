@@ -80,13 +80,17 @@ public abstract class Report {
 	/**
 	 * code-prober magic extraction method
 	 */
-	public String getCodeProberReportString() {
+	public String cpr_getDiagnostic() {
 	    return this.toCodeProberString();
 	}
 
 	/**
 	 * hover text
 	 */
+	protected String cpr_getOutput() {
+		return this.getCodeProberExplanation();
+	}
+
 	protected String getCodeProberExplanation() {
 		if (this.explanation != null) {
 			return this.explanation;
@@ -142,7 +146,7 @@ public abstract class Report {
 		}
 
 		@Override
-		protected String getCodeProberExplanation() {
+		protected String cpr_getOutput() {
 			// For STYLE messages, we don't have hover text, instead, the last entry is a CSS spec name
 			return this.styling;
 		}

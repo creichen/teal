@@ -490,6 +490,7 @@ public class Compiler {
 	public static Object CodeProber_parse(String[] args) throws Throwable {
 		CODE_PROBER_MODE = true;
 		CmdLineOpts opts = parseCmdLineArgs(args);
+
 		return tryCompiling(opts, new ArrayList<>());
 	}
 

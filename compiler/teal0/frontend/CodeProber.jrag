@@ -1,3 +1,7 @@
+import lang.common.Report;
+import java.util.Collection;
+import java.util.ArrayList;
+
 /**
  * CodeProber integration
  */
@@ -25,7 +29,4 @@ aspect CodeProber {
 	"reportMulti",
     };
 
-    public String[] ASTNode.cpr_propertyListShow() {
-	return ASTNode.CODE_PROBER_PROPERTY_LIST;
-    }
 }

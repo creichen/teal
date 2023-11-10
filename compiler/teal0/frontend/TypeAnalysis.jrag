@@ -101,6 +101,15 @@ aspect TypeAnalysis {
 		return program().anyType();
 	}
 
+	syn Report VarDecl.report() {
+	    if (hasDeclaredType() && hasInitializer()) {
+		if (getDeclaredType() != getInitializer().type()) {
+		    return new TypeError(this).withExplanation("type error");
+		}
+	    }
+	    return null;
+	}
+
 	// The return type; never null
 	syn Type FunDecl.returnType() {
 		if (hasDeclaredReturnType()) {

@@ -29,6 +29,21 @@ aspect Reporting {
 	ASTNode contributes report()
 		when report() != null
 		to Program.reports();
+
+	Collection<Report> ASTNode.reports() {
+	    final Collection<Report> multi_reports = this.reportMulti();
+	    final Report report = this.report();
+	    if (report == null) {
+		return multi_reports;
+	    }
+	    final ArrayList<Report> all_reports = new ArrayList<>();
+	    // single report always goes first
+	    all_reports.add(report);
+	    if (multi_reports != null) {
+		all_reports.addAll(multi_reports);
+	    }
+	    return all_reports;
+	}
 }
 
 
