@@ -18,12 +18,12 @@ fi
 
 #java -Djava.security.manager=allow -jar ${BASEDIR}/libs/code-prober.jar ${TEAL_JAR} $@
 if [ x$1 != x ]; then
-	SOURCE="--source $1"
+	SOURCE="-Dcpr.backing_file=$1"
 fi
 
-AUTOPROBES='nameErrors:force:Name analysis errors'
-AUTOPROBES='semanticErrors:force:Semantic errors',${AUTOPROBES}
-AUTOPROBES='reports:+:ASTNode.report messages',${AUTOPROBES}
+AUTOPROBES='lang.ast.Program:nameErrors'
+AUTOPROBES='lang.ast.Program:semanticErrors',${AUTOPROBES}
+AUTOPROBES='*:reports',${AUTOPROBES}
 
 # disable distracting UI options
 # args override
@@ -41,5 +41,8 @@ DISABLE_UI=${DISABLE_UI},location-style
 # version/update info
 #DISABLE_UI=${DISABLE_UI},version
 
-echo java -jar ${CODEPROBER_JAR} --disable-ui ${DISABLE_UI} --ast-cache FULL --autoprobes "${AUTOPROBES}" --syntax teal ${SOURCE} ${TEAL_JAR} -D
-java -jar ${CODEPROBER_JAR} --disable-ui ${DISABLE_UI} --ast-cache FULL --autoprobes "${AUTOPROBES}" --syntax teal ${SOURCE} ${TEAL_JAR} -D
+# --disable-ui=${DISABLE_UI}
+
+echo java -jar ${SOURCE} ${CODEPROBER_JAR} --ast-cache-strategy=FULL --change-tracking --default-probes=${AUTOPROBES} --force-syntax-highlighting=teal ${TEAL_JAR}
+java -jar ${SOURCE} ${CODEPROBER_JAR} --ast-cache-strategy=FULL --change-tracking --default-probes=${AUTOPROBES} --force-syntax-highlighting=teal ${TEAL_JAR}
+

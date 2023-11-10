@@ -395,7 +395,14 @@ public class Compiler {
 		}
 	}
 
-	public static Program tryCompiling(CmdLineOpts opts, List<? super CompilerError> errors) {
+	/**
+	 * Try compiling with the specified input
+	 *
+	 * @param opts All command-line options
+	 * @param errors Output-only: Errors from lexing and parsing
+	 * @return The program (prior to semantic analysis).  Never <tt>null</tt>.
+	 */
+	public static Program tryParsing(CmdLineOpts opts, List<? super CompilerError> errors) {
 		// open the output file / stdout
 		PrintStream out = opts.out();
 
@@ -411,7 +418,7 @@ public class Compiler {
 		// open the output file / stdout
 		PrintStream out = opts.out();
 
-		Program program = tryCompiling(opts, compilerErrors);
+		Program program = tryParsing(opts, compilerErrors);
 
 		// print any errors and other reports on the AST so far
 		printReports(compilerErrors);
@@ -491,7 +498,11 @@ public class Compiler {
 		CODE_PROBER_MODE = true;
 		CmdLineOpts opts = parseCmdLineArgs(args);
 
-		return tryCompiling(opts, new ArrayList<>());
+		ArrayList<Report> reports = new ArrayList<>();
+		Program result = tryParsing(opts, reports);
+		// Make sure to report parser errors
+		result.reports().addAll(reports);
+		return result;
 	}
 
 	public static void main(String[] args) {
