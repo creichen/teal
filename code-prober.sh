@@ -38,11 +38,11 @@ DISABLE_UI=${DISABLE_UI},ast-cache-strategy
 DISABLE_UI=${DISABLE_UI},syntax-highlighting
 # location style
 DISABLE_UI=${DISABLE_UI},location-style
+# read-only mode
+DISABLE_UI=${DISABLE_UI},control-read-only-mode
 # version/update info
 #DISABLE_UI=${DISABLE_UI},version
 
-# --disable-ui=${DISABLE_UI}
-
-echo java -jar ${SOURCE} ${CODEPROBER_JAR} --ast-cache-strategy=FULL --change-tracking --default-probes=${AUTOPROBES} --force-syntax-highlighting=teal ${TEAL_JAR}
-java -jar ${SOURCE} ${CODEPROBER_JAR} --ast-cache-strategy=FULL --change-tracking --default-probes=${AUTOPROBES} --force-syntax-highlighting=teal ${TEAL_JAR}
+echo java -jar ${SOURCE} ${CODEPROBER_JAR} --force-read-only --force-disable-ui=${DISABLE_UI} --ast-cache-strategy=FULL --change-tracking --default-probes=${AUTOPROBES} --force-syntax-highlighting=teal ${TEAL_JAR}
+java -jar ${SOURCE} ${CODEPROBER_JAR} --force-read-only --force-disable-ui=${DISABLE_UI} --ast-cache-strategy=FULL --change-tracking --default-probes=${AUTOPROBES} --force-syntax-highlighting=teal ${TEAL_JAR}
 
