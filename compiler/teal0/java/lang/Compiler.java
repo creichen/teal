@@ -199,11 +199,11 @@ public class Compiler {
 		PrintStream outStream = null;
 
 		public void
-		setProgArgs(String[] args) {
+		setProgArgs(List<String> args) {
 			if (args == null) {
 				this.progArgs = new ArrayList<>();
 			} else {
-				this.progArgs = Arrays.asList(args);
+				this.progArgs = args;
 			}
 		}
 
@@ -307,17 +307,20 @@ public class Compiler {
 			}
 
 			// Assume that the user wants us to run the compiler
-			if (cmd.getArgs().length != 1) {
-				if (cmd.getArgs().length > 1) {
-					System.err.println("Please specify only one MODULE argument.");
-				} else {
-					System.err.println("Missing MODULE argument.");
-				}
-				printHelp(options);
+			if (cmd.getArgs().length < 1) {
+				System.err.println("Missing MODULE argument.");
 				System.exit(1);
 			} else {
-				ret.inputFile = cmd.getArgs()[0];
+				String[] cmd_args = cmd.getArgs();
+
+				// Arguments to the intepreted program
+				ArrayList<String> teal_code_args = new ArrayList<>();
+				for (int i = 1; i < cmd_args.length; ++i) {
+					teal_code_args.add(cmd_args[i]);
+				}
+				ret.setProgArgs(teal_code_args);
 			}
+			ret.inputFile = cmd.getArgs()[0];
 
 			if (cmd.hasOption("p")) {
 				ret.action = CmdLineOpts.Action.PARSE;
@@ -337,7 +340,6 @@ public class Compiler {
 				ret.customOption = cmd.getOptionValue("Z");
 			} else if (cmd.hasOption("r")) {
 				ret.action = CmdLineOpts.Action.INTERP;
-				ret.setProgArgs(cmd.getOptionValues("r"));
 			}
 
 			if (cmd.hasOption("o")) {
@@ -507,6 +509,7 @@ public class Compiler {
 
 	public static void main(String[] args) {
 		CmdLineOpts opts = parseCmdLineArgs(args);
+		System.err.println("opts.prog_args = " + opts.progArgs);
 		boolean success = run(opts);
 		if (opts.action == CmdLineOpts.Action.CODEPROBER) {
 			return;
