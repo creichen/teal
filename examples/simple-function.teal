@@ -1,0 +1,6 @@
+fun simple_function(arg : string) : string = {
+  // String concatenation
+  return concat("This is ", arg);
+}
+
+fun main() = print(simple_function("a test"));
