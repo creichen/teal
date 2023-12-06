@@ -26,6 +26,8 @@ import lang.ast.Decl;
 import lang.ast.TEALParser;
 import lang.ast.LangScanner;
 import lang.ast.CompilerError;
+import lang.attrcmp.Diff;
+import lang.attrcmp.AttributeSummary;
 
 import lang.ir.*;
 
@@ -186,6 +188,8 @@ public class Compiler {
 			CUSTOM_IR,
 			CODEPROBER,
 			IRGEN,
+			ATTR_EXTRACT,
+			ATTR_DIFF,
 			INTERP
 		}
 
@@ -193,6 +197,8 @@ public class Compiler {
 		String outputFile;
 		String inputFile;
 		String customOption;
+		String attrSpecFile;
+		String[] attributesToExtract;
 		List<String> importPaths;
 		List<String> progArgs; // arguments for the interpreted program
 
@@ -226,6 +232,48 @@ public class Compiler {
 		}
 	}
 
+	private static boolean attrDiff(Program program, CmdLineOpts opts) {
+		try {
+			AttributeSummary asummary = AttributeSummary.withAST(program).empty();
+			AttributeSummary reference = AttributeSummary.withAST(program).from(new File(opts.attrSpecFile));
+			asummary = asummary.withAttributesFrom(reference);
+			Diff diff = reference.diff(asummary);
+			if (diff.isEmpty()) {
+				System.exit(0);
+			}
+			opts.out().print(diff);
+			System.exit(1);
+		} catch (IOException exn) {
+			if (exn instanceof java.io.FileNotFoundException) {
+				System.err.println("File not found: " + opts.inputFile);
+				System.exit(2);
+			}
+			throw new RuntimeException(exn);
+		} catch (lang.attrcmp.ASTMismatchException __) {
+			System.err.println("AST MISMATCH");
+			System.exit(3);
+		}
+		return true;
+	}
+
+	private static boolean attrExtract(Program program, CmdLineOpts opts) {
+		AttributeSummary asummary = AttributeSummary.withAST(program).empty();
+		for (String val : opts.attributesToExtract) {
+			String[] vals = val.split(":");
+			if (vals.length != 2) {
+				System.err.println("Invalid NAME:TYPE attribute specification: '"+val+"");
+				System.exit(1);
+			}
+			asummary.withAttribute(vals[0], vals[1]);
+		}
+		try {
+			asummary.writeTo(opts.out());
+		} catch (IOException exn) {
+			throw new RuntimeException(exn);
+		}
+		return true;
+	}
+
 	private static void printHelp(Options options) {
 		new HelpFormatter().printHelp("teal MODULE",
 					      "Compile and run a TEAL module.\n\n",
@@ -253,6 +301,11 @@ public class Compiler {
 			.desc("Interpret the IR code.").build();
 		Option codeprober = Option.builder("D").longOpt("codeprober").hasArg(false)
 			.desc("Computer information used by CodeProber (to be used when calling from CodeProber only)").build();
+		Option attr_extract = Option.builder("e").longOpt("attr-extract").hasArg(true)
+			.argName("NAME:TYPE").valueSeparator('/')
+			.desc("Extract an AST dump with all of the specified attributes.  Format: '<NAME>:<TYPE>', e.g., 'name:String' or 'refs:Set<ASTNode>'.  For multiple attributes, separate with '/'.").build();
+		Option attr_delta = Option.builder("d").longOpt("attr-diff").hasArg(true).argName("ATTRFILE")
+			.desc("Loads the result of an earlier --attr-extract and prints a diff.  Exit status 0 if both are the same.").build();
 		Option custom1 = Option.builder("Y").longOpt("custom-ast").hasArg(false)
 			.desc("Custom analysis on the AST").build();
 		Option custom2 = Option.builder("Z").longOpt("custom-ir").hasArgs().optionalArg(true)
@@ -269,6 +322,8 @@ public class Compiler {
 			.addOption(parse)
 			.addOption(printast)
 			.addOption(codegen)
+			.addOption(attr_extract)
+			.addOption(attr_delta)
 			.addOption(custom1)
 			.addOption(custom2)
 			.addOption(help)
@@ -340,10 +395,20 @@ public class Compiler {
 				ret.customOption = cmd.getOptionValue("Z");
 			} else if (cmd.hasOption("r")) {
 				ret.action = CmdLineOpts.Action.INTERP;
+			} else if (cmd.hasOption("e")) {
+				ret.action = CmdLineOpts.Action.ATTR_EXTRACT;
+			} else if (cmd.hasOption("d")) {
+				ret.action = CmdLineOpts.Action.ATTR_DIFF;
 			}
 
 			if (cmd.hasOption("o")) {
 				ret.outputFile = cmd.getOptionValue("o");
+			}
+			if (cmd.hasOption("d")) {
+				ret.attrSpecFile = cmd.getOptionValue("d");
+			}
+			if (cmd.hasOption("e")) {
+				ret.attributesToExtract = cmd.getOptionValue("e").split("/");
 			}
 			if (cmd.hasOption("s")) {
 				IRProgram.printSourceLocations = true;
@@ -461,7 +526,14 @@ public class Compiler {
 		    out.print(program.dumpTree());
 		    // fall through
 		case CHECK:
-		    return true;
+			return true;
+
+		case ATTR_DIFF:
+			attrDiff(program, opts);
+			return true;
+
+		case ATTR_EXTRACT:
+			return Compiler.attrExtract(program, opts);
 
 		case CUSTOM_AST:
 		    if (!customASTAction(program)) {
@@ -509,7 +581,6 @@ public class Compiler {
 
 	public static void main(String[] args) {
 		CmdLineOpts opts = parseCmdLineArgs(args);
-		System.err.println("opts.prog_args = " + opts.progArgs);
 		boolean success = run(opts);
 		if (opts.action == CmdLineOpts.Action.CODEPROBER) {
 			return;
