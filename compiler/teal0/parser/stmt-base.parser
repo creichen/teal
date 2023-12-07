@@ -11,8 +11,8 @@ AssignStmt assign_stmt = expr.lvalue ASSIGN expr SEMICOLON {: return new AssignS
 BlockStmt block_stmt = LBRACE stmt* RBRACE {: return new BlockStmt(stmt); :}
                      ;
 
-IfStmt if_stmt = IF expr block_stmt {: return new IfStmt(expr, block_stmt, new SkipStmt()); :}
-               | IF expr block_stmt.t ELSE block_stmt.e {: return new IfStmt(expr, t, e); :}
+IfStmt if_stmt = IF expr block_stmt {: return new IfStmt(expr, block_stmt, new Opt()); :}
+               | IF expr block_stmt.t ELSE block_stmt.e {: return new IfStmt(expr, t, new Opt(e)); :}
                ;
 
 WhileStmt while_stmt = WHILE expr block_stmt {: return new WhileStmt(expr, block_stmt); :}

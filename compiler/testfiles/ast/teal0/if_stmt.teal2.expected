@@ -17,13 +17,14 @@ Module
             List
               ReturnStmt
                 IntConstant Value="5"
-          BlockStmt
-            List
-              ReturnStmt
-                AddExpr
-                  Access
-                    IdUse Identifier="x"
-                  IntConstant Value="5"
+          Opt
+            BlockStmt
+              List
+                ReturnStmt
+                  AddExpr
+                    Access
+                      IdUse Identifier="x"
+                    IntConstant Value="5"
     FunDecl
       IdDecl Identifier="g"
       Opt
@@ -52,10 +53,11 @@ Module
             List
               ReturnStmt
                 IntConstant Value="6"
-          BlockStmt
-            List
-              ReturnStmt
-                IntConstant Value="5"
+          Opt
+            BlockStmt
+              List
+                ReturnStmt
+                  IntConstant Value="5"
     FunDecl
       IdDecl Identifier="h"
       Opt
@@ -81,6 +83,6 @@ Module
                 List
                   ReturnStmt
                     IntConstant Value="5"
-              SkipStmt
+              Opt
             ReturnStmt
               IntConstant Value="6"
