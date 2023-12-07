@@ -1,5 +1,6 @@
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import lang.common.Report;
 
 aspect NullDomain{
 	/**

@@ -1,6 +1,9 @@
 /**
- * Specialisation of IntraCFG to Teal
+ * Specialisation of IntraCFG to Teal-0
  */
+import lang.attrcmp.NTAOwner;
+import java.util.Arrays;
+
 aspect IntraTeal {
 
 	Stmt implements CFGSupport;
@@ -604,3 +607,33 @@ aspect IntraTealEdges {
 	OrExpr contributes nta controlFalseLeft() to Program.allBackwardFlowEdges();
 }
 
+aspect NTAOwners {
+	// Needs to be repetitive for now due to interface handling bugs in JastAdd
+	IfStmt implements NTAOwner;
+	public java.util.List<ASTNode> IfStmt.getNTAs() {
+		return Arrays.<ASTNode>asList(this.controlTrue(),
+					      this.controlFalse());
+	}
+
+	WhileStmt implements NTAOwner;
+	public java.util.List<ASTNode> WhileStmt.getNTAs() {
+		return Arrays.<ASTNode>asList(this.controlTrue(),
+					      this.controlFalse());
+	}
+
+	AndExpr implements NTAOwner;
+	public java.util.List<ASTNode> AndExpr.getNTAs() {
+		return Arrays.<ASTNode>asList(this.controlTrueRight(),
+					      this.controlFalseRight(),
+					      this.controlTrueLeft(),
+					      this.controlTrueRight());
+	}
+
+	OrExpr implements NTAOwner;
+	public java.util.List<ASTNode> OrExpr.getNTAs() {
+		return Arrays.<ASTNode>asList(this.controlTrueRight(),
+					      this.controlFalseRight(),
+					      this.controlTrueLeft(),
+					      this.controlTrueRight());
+	}
+}
