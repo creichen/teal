@@ -1,0 +1,4 @@
+aspect TypeAnalysis {
+    eq NonNullType.type() = this;
+    eq NonNullType.name() = "nonnull " + getType().name();
+}
