@@ -78,16 +78,16 @@ public abstract class Report {
 	}
 
 	/**
-	 * code-prober magic extraction method
+	 * Code-prober magic extraction method
 	 */
 	public String cpr_getDiagnostic() {
 	    return this.toCodeProberString();
 	}
 
 	/**
-	 * hover text
+	 * Hover text
 	 */
-	protected String cpr_getOutput() {
+	protected Object cpr_getOutput() {
 		return this.getCodeProberExplanation();
 	}
 
@@ -104,14 +104,17 @@ public abstract class Report {
 
 	public String toCodeProberString() {
 		String s = this.getCodeProberPrefix() + "@";
+		return s + this.sourceLocationString();
+	}
+
+	protected String sourceLocationString() {
 		SourceLocation loc = (this.node_locations.length == 0) ? SourceLocation.UNKNOWN : this.node_locations[0];
 
-		s += (loc.forCodeProberAtStart()
-		      + ";" +
-		      loc.forCodeProberAtEnd()
-		      + ";" +
-		      this.getCodeProberExplanation());
-		return s;
+		return (loc.forCodeProberAtStart()
+			+ ";" +
+			loc.forCodeProberAtEnd()
+			+ ";" +
+			this.getCodeProberExplanation());
 	}
 
 	/**
@@ -156,4 +159,110 @@ public abstract class Report {
 			return "STYLE";
 		}
 	}
+
+
+        /**
+         * Report.FlowEdge is shown as an arrow
+         */
+        public static class FlowEdge extends Report {
+                private String color;
+                private String arrowtype;
+                private SourceLocation start_pos;
+                private SourceLocation end_pos;
+		private Object from_node;
+		private Object to_node;
+
+                public static <ASTNode extends WithSourceLocation>
+                FlowEdge
+                plain(ASTNode from, ASTNode to, String color) {
+                        return new FlowEdge("LINE-PP", "---", color, from, to);
+                }
+
+                public static <ASTNode extends WithSourceLocation>
+                FlowEdge
+                arrow(ASTNode from, ASTNode to, String color) {
+                        // This is probably a CodeProber labelling bug...?
+                        return new FlowEdge("LINE-PA", "-->", color, from, to);
+                }
+
+                public static <ASTNode extends WithSourceLocation>
+                FlowEdge
+                doubleArrow(ASTNode from, ASTNode to, String color) {
+                        return new FlowEdge("LINE-AA", "<->", color, from, to);
+                }
+
+		/**
+		 * For edges, there is no hover text, so we instead report structural information.
+		 */
+		@Override
+		protected Object cpr_getOutput() {
+			return new Object[] {
+				this.from_node,
+				this.arrowtype,
+				this.to_node
+			};
+		}
+
+                /**
+                 * Creates a fresh report
+                 *
+                 * @param kind The kind of report to make; used as prefix to stdout output or as default message for codeprober hover
+                 * @param styling A CSS class, elaborated in <tt>Compiler.CodeProber_report_styles</tt> (or multiple comma-separated classes within the same string)
+                 * @param nodes ASTNodes of significance to the report, with the most prominent location (or otherwise the first location) first
+                 */
+                private <ASTNode extends WithSourceLocation>
+                FlowEdge(String arrowtype, String kind, String color, ASTNode from, ASTNode to) {
+                        super(kind, null, from, to);
+			this.from_node = from;
+			this.to_node = to;
+                        this.start_pos = from.sourceLocation();
+                        this.end_pos = to.sourceLocation();
+                        this.arrowtype = arrowtype;
+                        this.color = color;
+                }
+
+                @Override
+                protected String getCodeProberExplanation() {
+                        // For STYLE messages, we don't have hover text, instead, the last entry is a CSS spec name
+                        return this.color;
+                }
+
+                @Override
+                protected String getCodeProberPrefix() {
+                        return this.arrowtype;
+                }
+
+                @Override
+                protected String
+                sourceLocationString() {
+                        int from_pos;
+                        int to_pos;
+                        from_pos = this.start_pos.forCodeProberAtStart();
+                        to_pos = this.end_pos.forCodeProberAtStart();
+                        // // Heuristic edge placement
+                        // if (this.start_pos.within(this.end_pos)) {
+                        //      // From outer to inner
+                        //      from_pos = this.start_pos.forCodeProberLeft();
+                        //      to_pos = this.end_pos.forCodeProberLeft();
+                        // } else if (this.end_pos.within(this.start_pos)) {
+                        //      // from inner to outer
+                        //      from_pos = this.start_pos.forCodeProberRight();
+                        //      to_pos = this.end_pos.forCodeProberLeft();
+                        // } else if (this.start_pos.compareTo(this.end_pos) < 0) {
+                        //      // forward through the program
+                        //      from_pos = this.start_pos.forCodeProberAtEnd();
+                        //      to_pos = this.end_pos.forCodeProberAtStart();
+                        // } else {
+                        //      // assume start_pos > end_pos, i.e., back-edge
+                        //      from_pos = this.start_pos.forCodeProberAtStart();
+                        //      to_pos = this.end_pos.forCodeProberAtEnd();
+                        // }
+
+                        return (from_pos
+                                + ";" +
+                                to_pos
+                                + ";" +
+                                this.getCodeProberExplanation());
+                }
+        }
 }
