@@ -271,7 +271,10 @@ aspect NameAnalysisCheck {
 		}
 	}
 
-	coll ArrayList<CompilerError> Program.nameErrors() [new ArrayList<CompilerError>()] with addAll;
+	coll ArrayList<CompilerError> Program.nameErrors()
+	    [new ArrayList<CompilerError>()]
+	    with addAll
+	    root Program;
 	Decl contributes duplicateNameErrors() to Program.nameErrors();
 	Module contributes duplicateNameErrors() to Program.nameErrors();
 	BlockStmt contributes duplicateNameErrors() to Program.nameErrors();
@@ -327,6 +330,9 @@ aspect NameAnalysisTest {
 	/**
 	   A map from identifier uses to declarations; used only for testing
 	 **/
-	coll AccHashMap<IdUse, IdDecl> Program.globalSymbolTable() [new AccHashMap<IdUse, IdDecl>()] with add;
+	coll AccHashMap<IdUse, IdDecl> Program.globalSymbolTable()
+	    [new AccHashMap<IdUse, IdDecl>()]
+	    with add
+	    root Program;
 	IdUse contributes new AbstractMap.SimpleEntry<IdUse, IdDecl>(this, lookup(getIdentifier())) to Program.globalSymbolTable();
 }

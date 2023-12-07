@@ -1,0 +1,11 @@
+fun f(x : int) = {
+  var bad := null;
+  var good := 42;
+  var somenum;
+  if x > 0 {
+    somenum := good;
+  } else {
+    somenum := bad;
+  }
+  return somenum + x;
+}

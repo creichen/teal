@@ -4,13 +4,14 @@ module("teal-0") {
 
     java {
 	basedir "."
-	include "java/**/*.java"
+	include "java/**/*.java", [-3]
     }
 
     jastadd {
-	include "ast/toplevel.ast", [-1]
+	include "ast/toplevel.ast", [-4]
 	include "ast/type.ast"
 	include "ast/teal0.ast"
+	include "ast/CFG.ast", [2]			// IntraCFG AST
 
 	// Meta-information
 	include "frontend/Version.jrag"
@@ -23,11 +24,14 @@ module("teal-0") {
 	include "frontend/Reporting.jrag"		// Reporting analysis results (bugs in Teal code etc.)
 	include "frontend/Util.jrag"			// Helper datastructures (multimaps, ASTNode sorting)
 	include "frontend/Decl.jrag"			// Decl.asVarDecl() and Decl.asFunDecl()
+	include "frontend/IntraCFG.jrag", [-2]		// IntraCFG, Idriss Riouak
+	include "frontend/IntraTeal0.jrag", [-2]	// Teal0 CFG via Idriss Riouak's IntraCFG
 	include "frontend/Source.jrag"			// Source location tracking
 	include "frontend/NameAnalysis.jrag"		// Name Analysis
 	include "frontend/SemanticCheck.jrag"		// Special-purpose semantic checks
 	include "frontend/TypeAnalysis.jrag"		// Static type analysis
 	include "frontend/DependencyAnalysis.jrag"	// Dependency analysis
+	include "frontend/NullnessDataFlow.jrag"	// Teal0 nullness flow analysis
 
 	// Code generation
 	include "backend/IRGen.jrag"

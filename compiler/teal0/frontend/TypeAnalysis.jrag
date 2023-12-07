@@ -15,7 +15,7 @@ aspect TypeAnalysis {
 		 * You can use <tt>withExplanation</tt> to change the description
 		 *
 		 * @param location AST node with the type error
-		 * @param t1 String representation of th
+		 * @param t1 String representation of the error
 		 */
 		public TypeError(ASTNode location) {
 			// Tag as WARN for yellow squiggly lines

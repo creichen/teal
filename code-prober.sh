@@ -24,6 +24,9 @@ fi
 AUTOPROBES='lang.ast.Program:nameErrors'
 AUTOPROBES='lang.ast.Program:semanticErrors',${AUTOPROBES}
 AUTOPROBES='*:reports',${AUTOPROBES}
+AUTOPROBES='*:mayNullReport',${AUTOPROBES}
+AUTOPROBES='*:mustNullReport',${AUTOPROBES}
+AUTOPROBES='*:nullDomainValue',${AUTOPROBES}
 
 # disable distracting UI options
 # args override

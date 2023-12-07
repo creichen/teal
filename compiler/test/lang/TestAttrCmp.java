@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
-import org.junit.Ignore;
 import static org.junit.Assert.*;
 
 import lang.ast.TEALParser;
@@ -79,7 +78,6 @@ public class TestAttrCmp {
 	    assertEquals(node_id,
 			 nidmap.getNodeID(nidmap.getNode(node_id)));
 	}
-	// Should be invariant across between Teal-0 through Teal-3
 	assertTrue(nidmap.getNode("@") instanceof Program);
 	assertTrue(nidmap.getNode("@00") instanceof Module);
 	assertTrue(nidmap.getNode("@0011") instanceof FunDecl);
@@ -230,10 +228,7 @@ public class TestAttrCmp {
 	asummary.withAttribute("name", "String");
 	assertEquals(Arrays.asList(
 				   "@0010 VarDecl name:String =x",
-				   // This one is version-dependent:
-				   (Program.LAYER < 2)
-				   ? "@001010 IntType name:String =int"
-				   : "@001010 Type name:String =int",
+				   "@001010 IntType name:String =int",
 				   "@0011 FunDecl name:String =f",
 				   "@001120 VarDecl name:String =y",
 				   "@00113000 Access name:String =y",
@@ -243,40 +238,51 @@ public class TestAttrCmp {
 		), asummary.entries(false));
     }
 
-    @Ignore("directDependencies are disabled for some later exercises") @Test
-    public void testEntriesDirectDependencies() {
-	Program p = parse("fun f(x) = x; fun g(y) = f(y); fun h(z) = f(g(z));");
-	AttributeSummary.WithAST asummary = AttributeSummary.withAST(p).empty();
-	asummary.withAttribute("directDependencies", "Set<ASTNode>");
-	assertEquals(Arrays.asList("@00 Module directDependencies:Set<ASTNode> ={}",
-				   "@0010 FunDecl directDependencies:Set<ASTNode> ={}",
-				   "@001020 VarDecl directDependencies:Set<ASTNode> ={}",
-				   "@0011 FunDecl directDependencies:Set<ASTNode> ={=@0010}",
-				   "@001120 VarDecl directDependencies:Set<ASTNode> ={}",
-				   "@0012 FunDecl directDependencies:Set<ASTNode> ={=@0010,=@0011}",
-				   "@001220 VarDecl directDependencies:Set<ASTNode> ={}"
-		), asummary.entries(false));
-    }
+    // @Test
+    // public void testEntriesDirectDependencies() {
+    // 	Program p = parse("fun f(x) = x; fun g(y) = f(y); fun h(z) = f(g(z));");
+    // 	AttributeSummary.WithAST asummary = AttributeSummary.withAST(p).empty();
+    // 	asummary.withAttribute("directDependencies", "Set<ASTNode>");
+    // 	assertEquals(Arrays.asList("@00 Module directDependencies:Set<ASTNode> ={}",
+    // 				   "@0010 FunDecl directDependencies:Set<ASTNode> ={}",
+    // 				   "@001020 VarDecl directDependencies:Set<ASTNode> ={}",
+    // 				   "@0011 FunDecl directDependencies:Set<ASTNode> ={=@0010}",
+    // 				   "@001120 VarDecl directDependencies:Set<ASTNode> ={}",
+    // 				   "@0012 FunDecl directDependencies:Set<ASTNode> ={=@0010,=@0011}",
+    // 				   "@001220 VarDecl directDependencies:Set<ASTNode> ={}"
+    // 		), asummary.entries(false));
+    // }
 
-    @Test
-    public void testEntriesDecl() {
-	Program p = parse("fun f(x) = print((x + 1) - 2 * x);");
-	AttributeSummary.WithAST asummary = AttributeSummary.withAST(p).empty();
-	asummary.withAttribute("varDecl", "ASTNode");
-	assertEquals(Arrays.asList("@00103001000 Access varDecl:ASTNode =@001020",
-				   "@00103001011 Access varDecl:ASTNode =@001020"
-		), asummary.entries(false));
-    }
+    // @Test
+    // public void testEntriesDirectDependencies2() {
+    // 	Program p = parse("fun f(x) = print((x + 1) - 2 * x);");
+    // 	AttributeSummary.WithAST asummary = AttributeSummary.withAST(p).empty();
+    // 	asummary.withAttribute("directDependencies", "Set<ASTNode>");
+    // 	assertEquals(Arrays.asList("@00 Module directDependencies:Set<ASTNode> ={}",
+    // 				   "@0010 FunDecl directDependencies:Set<ASTNode> ={=@}",
+    // 				   "@001020 VarDecl directDependencies:Set<ASTNode> ={}"
+    // 		), asummary.entries(false));
+    // }
 
     @Test
     public void testUnparseParseWithAST() {
 	Program p = parse("fun f(x) = print((x + 1) - 2 * x);");
 	AttributeSummary.WithAST asummary_base = AttributeSummary.withAST(p).empty();
-	asummary_base.withAttribute("varDecl", "ASTNode");
+	asummary_base.withAttribute("succ", "SmallSet<ASTNode>");
 	String stringified = asummary_base.writeToString();
 	AttributeSummary asummary = AttributeSummary.withAST(p).from(stringified);
-	assertEquals(Arrays.asList("@00103001000 Access varDecl:ASTNode =@001020",
-				   "@00103001011 Access varDecl:ASTNode =@001020"
+	assertEquals(Arrays.asList(
+				   "@001020 VarDecl succ:SmallSet<ASTNode> ={}",
+				   "@0010300 CallExpr succ:SmallSet<ASTNode> ={=@00106}",
+				   "@001030010 SubExpr succ:SmallSet<ASTNode> ={=@0010300}",
+				   "@0010300100 AddExpr succ:SmallSet<ASTNode> ={=@00103001010}",
+				   "@00103001000 Access succ:SmallSet<ASTNode> ={=@00103001001}",
+				   "@00103001001 IntConstant succ:SmallSet<ASTNode> ={=@0010300100}",
+				   "@0010300101 MulExpr succ:SmallSet<ASTNode> ={=@001030010}",
+				   "@00103001010 IntConstant succ:SmallSet<ASTNode> ={=@00103001011}",
+				   "@00103001011 Access succ:SmallSet<ASTNode> ={=@0010300101}",
+				   "@00105 Entry succ:SmallSet<ASTNode> ={=@00103001000}",
+				   "@00106 Exit succ:SmallSet<ASTNode> ={}"
 		), asummary.entries(false));
     }
 
@@ -284,11 +290,21 @@ public class TestAttrCmp {
     public void testUnparseParseWithoutAST() {
 	Program p = parse("fun f(x) = print((x + 1) - 2 * x);");
 	AttributeSummary.WithAST asummary_base = AttributeSummary.withAST(p).empty();
-	asummary_base.withAttribute("varDecl", "ASTNode");
+	asummary_base.withAttribute("succ", "SmallSet<ASTNode>");
 	String stringified = asummary_base.writeToString();
 	AttributeSummary asummary = AttributeSummary.withoutAST().from(stringified);
-	assertEquals(Arrays.asList("@00103001000 Access varDecl:ASTNode =@001020",
-				   "@00103001011 Access varDecl:ASTNode =@001020"
+	assertEquals(Arrays.asList(
+				   "@001020 VarDecl succ:SmallSet<ASTNode> ={}",
+				   "@0010300 CallExpr succ:SmallSet<ASTNode> ={=@00106}",
+				   "@001030010 SubExpr succ:SmallSet<ASTNode> ={=@0010300}",
+				   "@0010300100 AddExpr succ:SmallSet<ASTNode> ={=@00103001010}",
+				   "@00103001000 Access succ:SmallSet<ASTNode> ={=@00103001001}",
+				   "@00103001001 IntConstant succ:SmallSet<ASTNode> ={=@0010300100}",
+				   "@0010300101 MulExpr succ:SmallSet<ASTNode> ={=@001030010}",
+				   "@00103001010 IntConstant succ:SmallSet<ASTNode> ={=@00103001011}",
+				   "@00103001011 Access succ:SmallSet<ASTNode> ={=@0010300101}",
+				   "@00105 Entry succ:SmallSet<ASTNode> ={=@00103001000}",
+				   "@00106 Exit succ:SmallSet<ASTNode> ={}"
 		), asummary.entries(false));
     }
 
@@ -296,7 +312,7 @@ public class TestAttrCmp {
     public void testUnparseParseWithoutASTEmptyDiffShort() {
 	Program p = parse("fun f(x) = print((x + 1) - 2 * x);");
 	AttributeSummary.WithAST asummary_base = AttributeSummary.withAST(p).empty();
-	asummary_base.withAttribute("varDecl", "ASTNode");
+	asummary_base.withAttribute("succ", "SmallSet<ASTNode>");
 	String stringified = asummary_base.writeToString();
 	AttributeSummary asummary1 = AttributeSummary.withoutAST().from(stringified);
 	AttributeSummary asummary2 = AttributeSummary.withoutAST().from(stringified);
@@ -308,7 +324,8 @@ public class TestAttrCmp {
 	Program p = parse("var x : int := 1; fun f(y) = y + (x * (y + x));");
 	AttributeSummary.WithAST asummary_base = AttributeSummary.withAST(p).empty();
 	asummary_base.withAttribute("name", "String");
-	asummary_base.withAttribute("varDecl", "ASTNode");
+	asummary_base.withAttribute("decl", "ASTNode");
+	asummary_base.withAttribute("succ", "SmallSet<ASTNode>");
 	String stringified = asummary_base.writeToString();
 	AttributeSummary asummary1 = AttributeSummary.withoutAST().from(stringified);
 	AttributeSummary asummary2 = AttributeSummary.withoutAST().from(stringified);
@@ -320,9 +337,11 @@ public class TestAttrCmp {
 	Program p = parse("fun f(x) = print((x + 1) - 2 * x);");
 	AttributeSummary.WithAST asummary = AttributeSummary.withAST(p).empty();
 	assertTrue(asummary.diff(asummary).isEmpty());
+	asummary.withAttribute("succ", "SmallSet<ASTNode>");
+	assertTrue(asummary.diff(asummary).isEmpty());
 	asummary.withAttribute("name", "String");
 	assertTrue(asummary.diff(asummary).isEmpty());
-	asummary.withAttribute("varDecl", "ASTNode");
+	asummary.withAttribute("decl", "ASTNode");
 	assertTrue(asummary.diff(asummary).isEmpty());
     }
 
@@ -338,6 +357,13 @@ public class TestAttrCmp {
 	asummary1 = AttributeSummary.withoutAST().from(asummary1_with_ast.writeToString());
 	asummary2 = AttributeSummary.withoutAST().from(asummary2_with_ast.writeToString());
 
+	// +succ
+	asummary1_with_ast.withAttribute("succ", "SmallSet<ASTNode>");
+	asummary2_with_ast.withAttribute("succ", "SmallSet<ASTNode>");
+	asummary1 = AttributeSummary.withoutAST().from(asummary1_with_ast.writeToString());
+	asummary2 = AttributeSummary.withoutAST().from(asummary2_with_ast.writeToString());
+	assertTrue(asummary1.diff(asummary2).isEmpty());
+
 	// +name
 	asummary1_with_ast.withAttribute("name", "String");
 	asummary2_with_ast.withAttribute("name", "String");
@@ -346,8 +372,8 @@ public class TestAttrCmp {
 	assertTrue(asummary1.diff(asummary2).isEmpty());
 
 	// +decl
-	asummary1_with_ast.withAttribute("varDecl", "ASTNode");
-	asummary2_with_ast.withAttribute("varDecl", "ASTNode");
+	asummary1_with_ast.withAttribute("decl", "ASTNode");
+	asummary2_with_ast.withAttribute("decl", "ASTNode");
 	asummary1 = AttributeSummary.withoutAST().from(asummary1_with_ast.writeToString());
 	asummary2 = AttributeSummary.withoutAST().from(asummary2_with_ast.writeToString());
 	assertTrue(asummary1.diff(asummary2).isEmpty());
@@ -365,9 +391,9 @@ public class TestAttrCmp {
 	asummary1 = AttributeSummary.withoutAST().from(asummary1_with_ast.writeToString());
 	asummary2 = AttributeSummary.withoutAST().from(asummary2_with_ast.writeToString());
 
-	// +varDecl
-	asummary1_with_ast.withAttribute("varDecl", "ASTNode");
-	asummary2_with_ast.withAttribute("varDecl", "ASTNode");
+	// +succ
+	asummary1_with_ast.withAttribute("succ", "SmallSet<ASTNode>");
+	asummary2_with_ast.withAttribute("succ", "SmallSet<ASTNode>");
 	asummary1 = AttributeSummary.withoutAST().from(asummary1_with_ast.writeToString());
 	asummary2 = AttributeSummary.withoutAST().from(asummary2_with_ast.writeToString());
 	assertTrue(asummary1.diff(asummary2).isEmpty());

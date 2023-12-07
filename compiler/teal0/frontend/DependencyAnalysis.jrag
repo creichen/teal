@@ -69,20 +69,4 @@ aspect DependencyAnalysis {
 		}
 		return declOwner();
 	}
-
-	// ----------------------------------------
-	// Direct Dependencies for each DeclOwner (Module, VarDecl, FunDecl)
-	coll Set<Decl> DeclOwner.directDependencies()
-		[new HashSet<Decl>()]
-		with add;
-
-	Access contributes varDecl()
-		when declOwner() != null && varDecl().isTopLevel()
-		to DeclOwner.directDependencies()
-		for declOwner();
-
-	CallExpr contributes funDecl()
-		when declOwner() != null
-		to DeclOwner.directDependencies()
-		for declOwner();
 }

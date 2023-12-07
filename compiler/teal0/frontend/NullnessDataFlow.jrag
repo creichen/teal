@@ -1,0 +1,357 @@
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+
+aspect NullDomain{
+	/**
+	 * Abstract domain for the four-element nullness lattice:
+	 * - TOP represents "either NULL or NONNULL"
+	 * - BOTTOM represents "no information yet"
+	 */
+	public enum Nullness {
+		TOP("⊤"),
+		BOTTOM("⊥"),
+		NULL("NULL"),
+		NOTNULL("NOTNULL")
+		;
+		private String name;
+		private Nullness(String str) {
+			this.name = str;
+		}
+		@Override
+		public String
+		toString() {
+			return this.name;
+		}
+
+		/**
+		 * Join function for the domain
+		 */
+		public Nullness join(Nullness other) {
+			if (this == BOTTOM) {
+				return other;
+			}
+			if (other == BOTTOM) {
+				return this;
+			}
+			if (this == other) {
+				return this;
+			}
+			// this != other, neither is bottom
+			return TOP;
+		}
+	}
+
+	/**
+	 * Product domain for Nullness
+	 */
+	public class NullDomain extends LinkedHashMap<VarDecl, Nullness>{
+		public static Nullness TOP = Nullness.TOP;
+		public static Nullness BOTTOM = Nullness.BOTTOM;
+		public static Nullness NULL = Nullness.NULL;
+		public static Nullness NOTNULL = Nullness.NOTNULL;
+
+		public NullDomain(){
+			super();
+		}
+
+		public NullDomain(Set<VarDecl> vars){
+			super();
+			for (VarDecl v : vars) {
+				put(v, BOTTOM);
+			}
+		}
+
+		public NullDomain(NullDomain other){
+			super(other);
+		}
+
+		public String toString(){
+			String result = "";
+			for(VarDecl v : keySet()) {
+				result += v.name() + " -> " + get(v) + "\n";
+			}
+			return result;
+		}
+
+		/**
+		 * Get nullness for variable.  Returns BOTTOM by default.
+		 */
+		public Nullness
+		get(VarDecl var) {
+			Nullness v = super.get(var);
+			if (v == null) {
+				return BOTTOM;
+			}
+			return v;
+		}
+
+		/**
+		 * join: computes the least upper bound of @param this and @param other.
+		 * @param other the other domain to join with
+		 */
+
+		public void joinVar(VarDecl var, Nullness abs) {
+			put(var, get(var).join(abs));
+		}
+
+
+		public NullDomain join(NullDomain lattice) {
+			for (Map.Entry<VarDecl, Nullness> entry : lattice.entrySet()) {
+				this.joinVar(entry.getKey(), entry.getValue());
+			}
+			return this;
+		}
+
+		/**
+		* invert: computes the inverse of the domain (i.e. null -> notnull and notnull -> null)
+		* @return  the inverse of the domain
+		*/
+		public NullDomain invert(){
+			NullDomain result = new NullDomain();
+			for(VarDecl v : keySet()){
+				if(get(v).equals(NULL)){
+					result.put(v, NOTNULL);
+				}
+				else if(get(v).equals(NOTNULL)){
+					result.put(v, NULL);
+				}
+				else{
+					result.put(v, get(v));
+				}
+			}
+			return result;
+		}
+	}
+}
+
+aspect NullPointerAnalysis{
+
+	/*
+	 * nullnessTransfer compute the nullness of the variables in the lattice
+	 * after the execution of the current node.
+	 * @param lattice the nullness of the variables before the execution of the current node.
+	 * @return a lattice with the nullness of the variables after the execution of the current node.
+	 */
+	syn NullDomain CFGNode.nullnessTransfer(NullDomain lattice);
+	eq Entry.nullnessTransfer(NullDomain lattice)            =lattice;
+	eq Exit.nullnessTransfer(NullDomain lattice)             =lattice;
+	eq Access.nullnessTransfer(NullDomain lattice)           =lattice;
+	eq IntConstant.nullnessTransfer(NullDomain lattice)      =lattice;
+	eq StringConstant.nullnessTransfer(NullDomain lattice)   =lattice;
+	eq Null.nullnessTransfer(NullDomain lattice)             =lattice;
+	eq CallExpr.nullnessTransfer(NullDomain lattice)         =lattice;
+	eq NotExpr.nullnessTransfer(NullDomain lattice)          =lattice;
+	eq ArrayLiteralExpr.nullnessTransfer(NullDomain lattice) =lattice;
+	eq AddExpr.nullnessTransfer(NullDomain lattice)          =lattice;
+	eq SubExpr.nullnessTransfer(NullDomain lattice)          =lattice;
+	eq MulExpr.nullnessTransfer(NullDomain lattice)          =lattice;
+	eq DivExpr.nullnessTransfer(NullDomain lattice)          =lattice;
+	eq ModExpr.nullnessTransfer(NullDomain lattice)          =lattice;
+	eq EQExpr.nullnessTransfer(NullDomain lattice)           =lattice;
+	eq NEQExpr.nullnessTransfer(NullDomain lattice)          =lattice;
+	eq LTExpr.nullnessTransfer(NullDomain lattice)           =lattice;
+	eq GTExpr.nullnessTransfer(NullDomain lattice)           =lattice;
+	eq LEQExpr.nullnessTransfer(NullDomain lattice)          =lattice;
+	eq GEQExpr.nullnessTransfer(NullDomain lattice)          =lattice;
+	eq NewExpr.nullnessTransfer(NullDomain lattice)          =lattice;
+	eq TypedExpr.nullnessTransfer(NullDomain lattice)        =lattice;
+	eq IndexExpr.nullnessTransfer(NullDomain lattice)        =lattice;
+	eq OrExpr.nullnessTransfer(NullDomain lattice)           =lattice;
+	eq AndExpr.nullnessTransfer(NullDomain lattice)          =lattice;
+	eq ReturnStmt.nullnessTransfer(NullDomain lattice)       =lattice;
+
+	eq AssignStmt.nullnessTransfer(NullDomain lattice) {
+		NullDomain result = new NullDomain(lattice);
+		VarDecl decl = getLValue().decl();
+		if(getRValue().isNull()){
+			result.put(decl, NullDomain.NULL);
+		} else if(getRValue().mayBeNull()) {
+			result.put(decl, NullDomain.TOP);
+		} else {
+			result.put(decl, NullDomain.NOTNULL);
+		}
+		return result;
+	}
+	eq VarDecl.nullnessTransfer(NullDomain lattice) {
+		NullDomain result = new NullDomain(lattice);
+		if (hasInitializer()) {
+			Expr init = getInitializer();
+			if (init.isNull()) {
+				result.put(this, NullDomain.NULL);
+			} else if (init.mayBeNull()) {
+				result.put(this, NullDomain.TOP);
+			} else {
+				result.put(this, NullDomain.NOTNULL);
+			}
+		} else if(declaredInBody()) {
+			result.put(this, NullDomain.NULL);
+		}
+		return result;
+	}
+	eq ControlTrue.nullnessTransfer(NullDomain lattice) {
+		//We don't have to invert the lattice. We can directely use the implicit assignment.
+		if (getCond().isImplicitAssignment()) {
+			NullDomain result = new NullDomain(lattice);
+			NullDomain assignment = getCond().getImplicitAssignment();
+			for(VarDecl decl : assignment.keySet()){
+				result.put(decl, assignment.get(decl));
+			}
+			return result.join(getCond().getImplicitAssignment());
+		} else {
+			return lattice;
+		}
+	}
+	eq ControlFalse.nullnessTransfer(NullDomain lattice) {
+		if (getCond().isImplicitAssignment()) {
+			NullDomain result = new NullDomain(lattice);
+			//We must invert the implicit assignment
+			NullDomain assignment = getCond().getImplicitAssignment().invert();
+			for(VarDecl decl : assignment.keySet()){
+				result.put(decl, assignment.get(decl));
+			}
+			return result;
+		} else {
+			return lattice;
+		}
+	}
+
+	/**
+	 * nullnessOut computes the result of the application of the transfer function
+	 * to the incoming environment (i.e., nullnessIn).
+	 */
+	syn NullDomain CFGNode.nullnessOut() circular[new NullDomain()] {
+		NullDomain res = new NullDomain(nullnessIn());
+		res = nullnessTransfer(res);
+		return res;
+	}
+
+	/**
+	 * nullnessIn computes the join between the incoming environment for the current node.
+	 */
+	syn NullDomain CFGNode.nullnessIn() circular[new NullDomain()] {
+		if (isEntry()) { //Entry node
+			FunDecl fun = (FunDecl) declOwner();
+			return new NullDomain(fun.decls());
+		}
+		NullDomain res = new NullDomain();
+		for (CFGNode e : pred()) {
+			res.join(e.nullnessOut());
+		}
+		return res;
+	}
+
+	/**
+	 * mayBeNull() returns true if the expression might be null.
+	 *
+	 * @return true if the expression might be null e.g., x -> T.
+	 */
+	syn boolean Expr.mayBeNull()    = false;
+	eq Null.mayBeNull()             = false;
+	eq Access.mayBeNull()           = getAbstractValue() == NullDomain.TOP;
+	syn boolean VarDecl.mayBeNull() = hasInitializer() ? getInitializer().mayBeNull() : false;
+
+	/**
+	 * isNull() returns true if the expression is null.
+	 * @return true if the expression is null e.g., x -> NULL.
+	 */
+	syn boolean Expr.isNull()    = false;
+	eq Null.isNull()             = true;
+	eq Access.isNull()           = getAbstractValue() == NullDomain.NULL;
+	syn boolean VarDecl.isNull() = hasInitializer() ? getInitializer().isNull() : false;
+
+}
+
+
+aspect NullPointerAnalysisReport {
+	/**
+	* Analysis info squiggly lines
+	*/
+	public class NullReport extends Report {
+		/**
+		* Constructs an Analysis Info report
+		*
+		* @param location AST node with the analysis info
+		* @param String explaining the analysis info
+		*/
+		public NullReport(ASTNode location, String description, Report.CodeProber KIND) {
+			super("null-info", KIND, location);
+			this.withExplanation(description);
+		}
+	}
+
+	public NullReport ASTNode.mustNullReport(String description) {
+		return new NullReport(this, description, Report.CodeProber.ERR);
+	}
+
+	public NullReport ASTNode.mayNullReport(String description) {
+		return new NullReport(this, description, Report.CodeProber.WARN);
+	}
+
+	public NullReport ASTNode.nullDomainValue( String description) {
+		return new NullReport(this, description, Report.CodeProber.INFO);
+	}
+
+	coll ArrayList<Report> Program.nullReport()[new ArrayList<Report>()] with add;
+
+	Access contributes mayNullReport("Variable '"+ name() + "' may be null.") when
+	getAbstractValue() == NullDomain.TOP to Program.nullReport();
+
+	VarDecl contributes mayNullReport("Variable '" + name() + "' may be null.") when
+	getAbstractValue() == NullDomain.TOP to Program.nullReport();
+
+	Access contributes mustNullReport("Variable '" + name() + "' is null.") when
+	getAbstractValue() == NullDomain.NULL to Program.nullReport();
+
+	VarDecl contributes mustNullReport("Variable '" + name() + "' is null.") when
+	getAbstractValue() == NullDomain.NULL to Program.nullReport();
+
+	Access contributes nullDomainValue(name() + " → " + getAbstractValue()) to Program.nullReport();
+	VarDecl contributes nullDomainValue(name() + " → " + (getAbstractValue()==null ? NullDomain.BOTTOM: getAbstractValue())) to Program.nullReport();
+}
+
+aspect NullPointerAnalysisHelpers{
+	coll LinkedHashSet<VarDecl> FunDecl.decls()[new LinkedHashSet<VarDecl>()] with add root FunDecl;
+	VarDecl contributes this to FunDecl.decls();
+
+	syn VarDecl Expr.decl() = null;
+	eq Access.decl() = varDecl();
+
+	syn Nullness Access.getAbstractValue() = nullnessIn().get(decl());
+	syn Nullness VarDecl.getAbstractValue() = nullnessOut().get(this);
+
+	inh boolean CFGNode.declaredInBody();
+	eq FunDecl.getBody().declaredInBody() = true;
+	eq Program.getChild().declaredInBody() = false;
+}
+
+
+aspect NullPointerAnalysisControlSensitivity{
+
+	syn boolean Expr.isImplicitAssignment() = getImplicitAssignment() != null;
+
+	/**
+	 * getImplicitAssignment: computes the implicit assignment of the expression.
+	 * @return a lattice with a map from the variable to the abstract value represented
+	 * by the implicit assignment.
+	 */
+	syn NullDomain Expr.getImplicitAssignment() = null;
+	eq NEQExpr.getImplicitAssignment() {
+		NullDomain result = new NullDomain();
+		if (getLeft().decl() != null && getRight().isNull()) {
+			result.put(getLeft().decl(), NullDomain.NOTNULL);
+		} else if (getLeft().isNull() && getRight().decl() != null) {
+			result.put(getRight().decl(), NullDomain.NOTNULL);
+		}
+		return result;
+	}
+
+	eq EQExpr.getImplicitAssignment() {
+		NullDomain result = new NullDomain();
+		if (getLeft().decl() != null && getRight().isNull()) {
+			result.put(getLeft().decl() , NullDomain.NULL);
+		} else if (getLeft().isNull() && getRight().decl() != null) {
+			result.put(getRight().decl(), NullDomain.NULL);
+		}
+		return result;
+	}
+}

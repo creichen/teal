@@ -65,7 +65,7 @@ jastadd {
 	testCompile 'junit:junit:4.12'
 	jflex 'de.jflex:jflex:1.6.1'
 	beaver 'org.extendj:nbfront:0.1.5'
-	jastadd2 'org.jastadd:jastadd:2.3.4' // Selects which JastAdd version to use (optional).
+	jastadd2 'org.jastadd:jastadd:2.3.6' // Selects which JastAdd version to use (optional).
     }
 
     jastaddOptions = [ "--cache=all", "--tracing=compute" ]

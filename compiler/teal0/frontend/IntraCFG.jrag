@@ -1,0 +1,177 @@
+/* Copyright (c) 2021, Idriss Riouak <idriss.riouak@cs.lth.se>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+import java.util.Random;
+import lang.attrcmp.NTAOwner;
+
+aspect IntraCFG {
+
+public
+  interface CFGRoot {}
+
+public
+  interface CFGSupport  {}
+
+public
+  interface CFGNode {}
+
+
+
+  Entry implements CFGNode;
+  Exit implements CFGNode;
+
+  syn SmallSet<CFGNode> CFGSupport.firstNodes(); //= SmallSet.<CFGNode>empty();
+  syn SmallSet<CFGNode> CFGNode.firstNodes() ;//= SmallSet.<CFGNode>singleton(this);
+  syn SmallSet<CFGNode> CFGNode.succ();
+  inh SmallSet<CFGNode> CFGNode.nextNodes();
+  inh SmallSet<CFGNode> CFGSupport.nextNodes();
+  inh SmallSet<CFGNode> CFGNode.nextNodesTT();
+  inh SmallSet<CFGNode> CFGNode.nextNodesFF();
+
+  // Defining Entry and Exit point for each CFGRoot
+  syn nta Entry CFGRoot.entry() = new Entry(this);
+  syn nta Exit CFGRoot.exit() = new Exit(this);
+  CFGRoot implements NTAOwner;
+  public java.util.List<ASTNode> CFGRoot.getNTAs() {
+      java.util.List<ASTNode> ntas = new ArrayList<>();
+      ntas.add(this.entry());
+      ntas.add(this.exit());
+      return ntas;
+  }
+
+  // Entry and Exit are always the first and last nodes
+  eq Entry.firstNodes() = SmallSet.<CFGNode>singleton(this);
+  eq Exit.firstNodes() = SmallSet.<CFGNode>singleton(this);
+
+  // Forwarding the exit() and entry() attribute to each CFGSupport node.
+  eq CFGRoot.getChild().exit() = exit();
+  eq CFGRoot.getChild().entry() = entry();
+
+  inh Exit CFGSupport.exit();
+  inh Entry CFGSupport.entry();
+
+  inh Exit CFGNode.exit();
+  inh Entry CFGNode.entry();
+
+  // Setting source location for Entry and Exit nodes
+public
+  Entry.Entry(ASTNode node) {
+    super();
+    this.start = node.getStartLoc();
+    this.end = node.getStartLoc();
+  }
+
+public
+  Exit.Exit(ASTNode node) {
+    super();
+    this.start = node.getEndLoc();
+    this.end = node.getEndLoc();
+  }
+
+  inh CFGRoot CFGNode.enclosingRoot();
+  eq CFGRoot.getChild().enclosingRoot() = this;
+  eq Program.getChild().enclosingRoot() = null;
+
+  // Default values for the
+  eq CFGRoot.getChild().nextNodes() = SmallSet.<CFGNode>empty();
+  eq CFGRoot.getChild().nextNodesTT() = SmallSet.<CFGNode>empty();
+  eq CFGRoot.getChild().nextNodesFF() = SmallSet.<CFGNode>empty();
+
+
+  //Defining predicate to distinguish Entry and Exit nodes
+  syn boolean ASTNode.isEntry() = false;
+  eq Entry.isEntry() = true;
+
+  syn boolean ASTNode.isExit() = false;
+  eq Exit.isExit() = true;
+
+  // Defining a predicate to distinguish an ASTNode from a CFGNode
+  syn boolean ASTNode.isCFGNode() = false;
+  eq CFGNode.isCFGNode() = true;
+
+  // --------------------------------------------------------------------------------
+  // Predecessor relation
+
+  // ----------------------------------------
+  // Workaround for bug in JastAdd + collections on interfaces + ASTNode
+
+  syn lazy SmallSet<? extends CFGNode> CFGNode.pred() {
+      SmallSet<? extends CFGNode> res = entry().predMap().get(this);
+      return (res == null) ? SmallSet.<CFGNode>empty() : res;
+  }
+
+  syn lazy Map<CFGNode, SmallSet.Mutable<CFGNode>> Entry.predMap() {
+      Map<CFGNode, SmallSet.Mutable<CFGNode>> res = new LinkedHashMap<CFGNode, SmallSet.Mutable<CFGNode>>();
+      res.put(this, SmallSet.<CFGNode>mutable());
+      traverseCFG(res, new HashSet<CFGNode>());
+      return res;
+  }
+
+  public void CFGNode.traverseCFG(Map<CFGNode, SmallSet.Mutable<CFGNode>> res, Set<CFGNode> visited) {
+      if (visited.contains(this)) {
+	  return;
+      }
+      visited.add(this);
+      for (CFGNode succ : succ()) {
+	  if (!res.containsKey(succ)) {
+	      res.put(succ, SmallSet.<CFGNode>mutable());
+	  }
+	  res.get(succ).add(this);
+	  succ.traverseCFG(res, visited);
+      }
+  }
+
+  // ----------------------------------------
+  // Clean solution, to be used once the bug is fixed
+
+  // syn boolean CFGNode.isInCFG() circular[false] {
+  //   if(isEntry()) return true;
+  //   if (predColl().isEmpty())
+  //     return false;
+  //   for (CFGNode pred : predColl()) {
+  //     if (pred.isInCFG())
+  //       return true;
+  //   }
+  //   return false;
+  // }
+
+  // syn SmallSet<CFGNode> CFGNode.pred() {
+  //   SmallSet<CFGNode> res = SmallSet.<CFGNode>empty().mutable();
+  //   for (CFGNode pred : predColl()) {
+  //     if (pred.isInCFG())
+  //       res.add(pred);
+  //   }
+  //   return res;
+  // }
+
+  // coll SmallSet<CFGNode> CFGNode.predColl()[new SmallSet<CFGNode>()];
+  // ASTNode contributes (CFGNode)this when isCFGNode()
+  //     to CFGNode.predColl() for each ((CFGNode)this)
+  //         .succ();
+}
