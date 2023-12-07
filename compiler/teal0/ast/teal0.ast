@@ -33,7 +33,7 @@ TypedExpr : Expr ::= Expr DeclaredType:Type;
 NewExpr : Expr ::= Type Actual:Expr*; // Array allocation.  In later layers of Teal we generalise this operation.
 
 // Constants
-Constant : Expr;
+abstract Constant : Expr;
 IntConstant : Constant ::= <Value:Long>;
 StringConstant : Constant ::= <Value:String>;
 
@@ -46,10 +46,9 @@ VarDeclStmt : Stmt ::= VarDecl;
 ExprStmt : Stmt ::= Expr;
 AssignStmt : Stmt ::= LValue:Expr RValue:Expr;
 BlockStmt : Stmt ::= Stmt*;
-IfStmt : Stmt ::= Cond:Expr Then:Stmt Else:Stmt;
+IfStmt : Stmt ::= Cond:Expr Then:Stmt [Else:Stmt];
 WhileStmt : Stmt ::= Cond:Expr Body:Stmt;
 ReturnStmt : Stmt ::= Expr;
-SkipStmt : Stmt;
 
 // Identifiers:
 IdUse ::= <Identifier>;

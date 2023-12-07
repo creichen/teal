@@ -436,7 +436,7 @@ aspect IRGen {
 
 
 		IRCodeBB elseEntry = ctx.startBB();
-		getElse().genCode(ctx);
+		if(hasElse()) getElse().genCode(ctx);
 		IRCodeBB elseExit = ctx.getCurrentBB();
 
 		IRCodeBB joinBB = ctx.startBB();
