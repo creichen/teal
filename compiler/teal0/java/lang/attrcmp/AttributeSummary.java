@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 import lang.ast.ASTNode;
 import lang.ast.Program;
+import lang.ast.SmallSet;
 
 /**
  *
@@ -647,6 +648,101 @@ public abstract class AttributeSummary {
 		}
 	}
 
+	public class ATSmallSet<T> extends ParametricAttributeType<SmallSet> {
+		ATSmallSet() {
+			this((AttributeType<T>) new ATAny());
+		}
+
+		AttributeType<T> elt;
+		ATSmallSet(AttributeType<T> elt) {
+			super(1);
+			this.elt = elt;
+		}
+
+		@Override
+		protected AttributeType<?> buildWithParameters(AttributeType<?>[] type_args) {
+			return new ATSmallSet(type_args[0]);
+		}
+
+		@Override
+		public Class<SmallSet> getEncodedType() {
+			return SmallSet.class;
+		}
+
+		@Override
+		public String encode(SmallSet set) {
+			List<String> elts = new ArrayList<String>();
+			for (Object obj : set) {
+				elts.add(this.elt.encodeQuoted((T) obj));
+			}
+			Collections.sort(elts);
+			return "{" +  elts.stream()
+				.collect(Collectors.joining(",")) + "}";
+		}
+
+		@Override
+		public Object decode(String elts_str) {
+			if (elts_str.charAt(0) != '{'
+			    || elts_str.charAt(elts_str.length() - 1) != '}') {
+				throw new RuntimeException("Ill-formed set: " + elts_str);
+			}
+			elts_str = elts_str.substring(1, elts_str.length() - 1);
+
+			SmallSet.Mutable<Object> results = SmallSet.<Object>mutable();
+			if (elts_str.length() != 0) {
+				String[] elts = elts_str.split(",");
+				for (String elt : elts) {
+					Value<T> v = this.elt.decodeQuoted(elt);
+					if (v.isValue()) {
+						results.add(v.getValue());
+					}
+					if (v.isNull()) {
+						results.add(null);
+					}
+				}
+			}
+			return results;
+		}
+
+		@Override
+		public String typeName() {
+			return "SmallSet";
+		}
+
+		@Override
+		public Object[] diff(SmallSet expected, SmallSet actual) {
+			if (expected.equals(actual)) {
+				return null;
+			}
+			ArrayList<Object> missing = new ArrayList<>();
+			ArrayList<Object> unexpected = new ArrayList<>();
+
+			for (Object obj : expected) {
+				if (!actual.contains(expected)) {
+					missing.add(obj);
+				}
+			}
+			for (Object obj : actual) {
+				if (!expected.contains(expected)) {
+					unexpected.add(obj);
+				}
+			}
+			if (missing.isEmpty() && unexpected.isEmpty()) {
+				throw new RuntimeException("Inconsistent set difference");
+			}
+
+			sort(missing);
+			sort(unexpected);
+
+			return new Object[] {
+				"missing:",
+				missing.isEmpty()? "none" : missing.toArray(),
+				"unexpected:",
+				unexpected.isEmpty()? "none" : unexpected.toArray(),
+			};
+		}
+	}
+
 	protected abstract AttributeType<?> getASTNodeEncoder();
 
 	protected AttributeType<?>[] attribute_type_table = new AttributeType<?>[] {
@@ -656,6 +752,7 @@ public abstract class AttributeSummary {
 		new ATString(),
 		getASTNodeEncoder(),
 		new ATSet(),
+		new ATSmallSet(),
 	};
 
 	AttributeType<?>
@@ -1139,7 +1236,7 @@ public abstract class AttributeSummary {
 			return new ATFakeASTNode();
 		}
 
-		public class ATFakeASTNode extends AttributeType<String> {
+		public class ATFakeASTNode extends AttributeTypeSemanticEq<String> {
 			@Override
 			public Class<String> getEncodedType() {
 				return String.class;

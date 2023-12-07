@@ -79,6 +79,17 @@ public class NodeIDMap {
 						    path, depth + 1,
 						    node.getChild(child_nr));
 			}
+			if (node instanceof NTAOwner) {
+				int count = node.getNumChild();
+				++count; // Skip one index number to mark transition to NTAs
+				NTAOwner ntaowner = (NTAOwner) node;
+				for (ASTNode nta : ntaowner.getNTAs()) {
+					path[depth] = count++;
+					this.addRecursively(nodeids,
+							    path, depth + 1,
+							    nta);
+				}
+			}
 		}
 	}
 
