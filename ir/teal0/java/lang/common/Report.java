@@ -160,10 +160,6 @@ public abstract class Report {
 		}
 	}
 
-	protected String
-	getKind() {
-		return this.kind;
-	}
 
         /**
          * Report.FlowEdge is shown as an arrow
@@ -173,35 +169,36 @@ public abstract class Report {
                 private String arrowtype;
                 private SourceLocation start_pos;
                 private SourceLocation end_pos;
-		private WithSourceLocation from_node;
-		private WithSourceLocation to_node;
+		private Object from_node;
+		private Object to_node;
 
                 public static <ASTNode extends WithSourceLocation>
                 FlowEdge
                 plain(ASTNode from, ASTNode to, String color) {
-                        return new FlowEdge("LINE-PP", "―", color, from, to);
+                        return new FlowEdge("LINE-PP", "---", color, from, to);
                 }
 
                 public static <ASTNode extends WithSourceLocation>
                 FlowEdge
                 arrow(ASTNode from, ASTNode to, String color) {
                         // This is probably a CodeProber labelling bug...?
-                        return new FlowEdge("LINE-PA", "⟶", color, from, to);
+                        return new FlowEdge("LINE-PA", "-->", color, from, to);
                 }
 
                 public static <ASTNode extends WithSourceLocation>
                 FlowEdge
                 doubleArrow(ASTNode from, ASTNode to, String color) {
-                        return new FlowEdge("LINE-AA", "⟷", color, from, to);
+                        return new FlowEdge("LINE-AA", "<->", color, from, to);
                 }
 
 		/**
 		 * For edges, there is no hover text, so we instead report structural information.
 		 */
-		public Object cpr_getEdgeDiagnostic() {
+		@Override
+		protected Object cpr_getOutput() {
 			return new Object[] {
 				this.from_node,
-				this.getKind(),
+				this.arrowtype,
 				this.to_node
 			};
 		}
@@ -223,16 +220,6 @@ public abstract class Report {
                         this.arrowtype = arrowtype;
                         this.color = color;
                 }
-
-		public WithSourceLocation
-		getFrom() {
-			return this.from_node;
-		}
-
-		public WithSourceLocation
-		getTo() {
-			return this.to_node;
-		}
 
                 @Override
                 protected String getCodeProberExplanation() {
