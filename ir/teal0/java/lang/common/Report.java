@@ -160,6 +160,10 @@ public abstract class Report {
 		}
 	}
 
+	protected String
+	getKind() {
+		return this.kind;
+	}
 
         /**
          * Report.FlowEdge is shown as an arrow
@@ -194,11 +198,10 @@ public abstract class Report {
 		/**
 		 * For edges, there is no hover text, so we instead report structural information.
 		 */
-		@Override
-		protected Object cpr_getOutput() {
+		public Object cpr_getEdgeDiagnostic() {
 			return new Object[] {
 				this.from_node,
-				this.arrowtype,
+				this.getKind(),
 				this.to_node
 			};
 		}

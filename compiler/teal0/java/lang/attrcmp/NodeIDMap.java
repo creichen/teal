@@ -136,7 +136,7 @@ public class NodeIDMap {
 			return Integer.toString(index);
 		}
 		if (index < 35) {
-			return Character.toString('A' + (index - 10));
+			return Character.toString((char) ((int) 'A' + (index - 10)));
 		}
 		return "Z" + indexFromInt(index / 35) + indexFromInt(index % 35);
 	}
