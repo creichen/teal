@@ -69,4 +69,7 @@ aspect DependencyAnalysis {
 		}
 		return declOwner();
 	}
+
+	syn boolean VarDecl.isGlobalVar() = declOwner() == program();
+	syn boolean VarDecl.isLocalVar() = declOwner() != program() && !isFormalParameterDecl();
 }
