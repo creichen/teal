@@ -15,12 +15,22 @@ aspect SemanticCheck {
 	}
 
 	coll ArrayList<CompilerError> Program.semanticErrors() [new ArrayList<CompilerError>()];
-	syn boolean Expr.isLValue() = false;
-	eq Access.isLValue() = true;
-	eq IndexExpr.isLValue() = true;
-	eq TypedExpr.isLValue() = getExpr().isLValue();
 
-	AssignStmt contributes new LValueError(getLValue()) when !getLValue().isLValue() to Program.semanticErrors();
+	/* Expr is direct left-hand side of assignment */
+	inh boolean Expr.isAssignedTo();
+	eq ASTNode.getChild().isAssignedTo() = false;
+	eq AssignStmt.getLValue().isAssignedTo() = true;
+
+	/* Expr can be assigned to (e.g., a variable) */
+	syn boolean Expr.isAssignable() = false;
+	eq Access.isAssignable() = true;
+	eq IndexExpr.isAssignable() = true;
+	eq TypedExpr.isAssignable() = getExpr().isAssignable();
+
+	/* Check that we only assign when allowed */
+	Expr contributes new LValueError(this)
+	    when isAssignedTo() && !isAssignable()
+	    to Program.semanticErrors();
 
 	VarDecl contributes new SemanticError("Global variable does not allow explicit initialization. Its initial value is always null.", this)
 		when hasInitializer() && getScope() == VariableScope.GLOBAL to Program.semanticErrors();

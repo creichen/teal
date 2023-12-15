@@ -33,7 +33,7 @@ aspect DependencyAnalysis {
 	 */
 	public interface DeclOwner {
 		public boolean isModule();  // toplevel Program node is owner?
-		public FunDecl funDeclOwner(); // if it is a FunDecl
+		public FunDecl asFunDecl(); // if it is a FunDecl
 	}
 
 	Module implements DeclOwner;
@@ -42,9 +42,7 @@ aspect DependencyAnalysis {
 	public boolean Module.isModule() { return true; }
 	public boolean Decl.isModule()   { return false; }
 
-	public FunDecl Module.funDeclOwner()  { return null; }
-	public FunDecl Decl.funDeclOwner()    { return null; }
-	public FunDecl FunDecl.funDeclOwner() { return this; }
+	public FunDecl Module.asFunDecl()  { return null; }
 
 	// Top-level decls are directly underneath a Module
 	inh boolean ASTNode.isTopLevel();
