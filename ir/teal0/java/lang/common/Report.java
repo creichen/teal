@@ -173,26 +173,26 @@ public abstract class Report {
                 private String arrowtype;
                 private SourceLocation start_pos;
                 private SourceLocation end_pos;
-		private Object from_node;
-		private Object to_node;
+		private WithSourceLocation from_node;
+		private WithSourceLocation to_node;
 
                 public static <ASTNode extends WithSourceLocation>
                 FlowEdge
                 plain(ASTNode from, ASTNode to, String color) {
-                        return new FlowEdge("LINE-PP", "---", color, from, to);
+                        return new FlowEdge("LINE-PP", "―", color, from, to);
                 }
 
                 public static <ASTNode extends WithSourceLocation>
                 FlowEdge
                 arrow(ASTNode from, ASTNode to, String color) {
                         // This is probably a CodeProber labelling bug...?
-                        return new FlowEdge("LINE-PA", "-->", color, from, to);
+                        return new FlowEdge("LINE-PA", "⟶", color, from, to);
                 }
 
                 public static <ASTNode extends WithSourceLocation>
                 FlowEdge
                 doubleArrow(ASTNode from, ASTNode to, String color) {
-                        return new FlowEdge("LINE-AA", "<->", color, from, to);
+                        return new FlowEdge("LINE-AA", "⟷", color, from, to);
                 }
 
 		/**
@@ -223,6 +223,16 @@ public abstract class Report {
                         this.arrowtype = arrowtype;
                         this.color = color;
                 }
+
+		public WithSourceLocation
+		getFrom() {
+			return this.from_node;
+		}
+
+		public WithSourceLocation
+		getTo() {
+			return this.to_node;
+		}
 
                 @Override
                 protected String getCodeProberExplanation() {
