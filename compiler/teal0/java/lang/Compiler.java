@@ -509,11 +509,24 @@ public class Compiler {
 		if (!CODE_PROBER_MODE) {
 			// Codeprober will extract attributes directly, so only print for command-line use
 
-			printReports(nameErrors);
-			printReports(semaErrors);
+			try {
+				printReports(nameErrors);
+			} catch (RuntimeException exn) {
+				exn.printStackTrace();
+			}
+			try {
+				printReports(semaErrors);
+			} catch (RuntimeException exn) {
+				exn.printStackTrace();
+			}
 
 			// Other reports
-			printReports(program.reports());
+			try {
+				printReports(program.reports());
+			} catch (RuntimeException exn) {
+				exn.printStackTrace();
+			}
+
 		}
 
 		// fail if there are any errors
@@ -575,8 +588,27 @@ public class Compiler {
 
 		ArrayList<Report> reports = new ArrayList<>();
 		Program result = tryParsing(opts, reports);
-		// Make sure to report parser errors
-		result.reports().addAll(reports);
+		try {
+			// Make sure to report parser errors
+			result.reports().addAll(reports);
+		} catch (RuntimeException exn) {
+			// internal error during reports()?
+			exn.printStackTrace();
+
+			// Nasty hackery: Forcefully set reports()
+			reports.add(new InternalErrorReport(result, "INTERNAL ERROR: Could not evaluate Program.reports()", exn));
+			try {
+				Field field = Program.class.getDeclaredField("Program_reports_computed");
+				field.setAccessible(true);
+				field.set(result, true);
+
+				field = Program.class.getDeclaredField("Program_reports_value");
+				field.setAccessible(true);
+				field.set(result, reports);
+			} catch (Throwable exn2) {
+				exn2.printStackTrace();
+			}
+		}
 		return result;
 	}
 
@@ -590,6 +622,26 @@ public class Compiler {
 			System.exit(0);
 		} else {
 			System.exit(1);
+		}
+	}
+
+	static final class InternalErrorReport extends Report {
+		private String[] lines;
+		public InternalErrorReport(Program program,
+					   String comment,
+					   Throwable exn) {
+			super("internal", Report.CodeProber.ERR,
+			      program);
+			java.io.StringWriter swriter = new java.io.StringWriter();
+			java.io.PrintWriter pwriter = new java.io.PrintWriter(swriter);
+			exn.printStackTrace(pwriter);
+			this.withExplanation(comment);
+			this.lines = swriter.toString().split("\n");
+		}
+
+		@Override
+		public Object cpr_getOutput() {
+			return this.lines;
 		}
 	}
 }
