@@ -10,4 +10,19 @@ public interface WithSourceLocation {
 	 * @return The object's source location
 	 */
 	public SourceLocation sourceLocation();
+
+	public static class Comparator implements java.util.Comparator<WithSourceLocation> {
+		public int compare(WithSourceLocation l1, WithSourceLocation l2) {
+			if (l1 == null) {
+				if (l2 == null) {
+					return 0;
+				}
+				return -1;
+			}
+			if (l2 == null) {
+				return 1;
+			}
+			return l1.sourceLocation().compareTo(l2.sourceLocation());
+		}
+	}
 }

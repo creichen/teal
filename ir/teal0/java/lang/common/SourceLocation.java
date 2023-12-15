@@ -193,4 +193,19 @@ public class SourceLocation implements Comparable<SourceLocation> {
 		SourceLocation otherLoc = (SourceLocation) other;
 		return 0 == this.compareTo(otherLoc);
 	}
+
+	public static class Comparator implements java.util.Comparator<SourceLocation> {
+		public int compare(SourceLocation l1, SourceLocation l2) {
+			if (l1 == null) {
+				if (l2 == null) {
+					return 0;
+				}
+				return -1;
+			}
+			if (l2 == null) {
+				return 1;
+			}
+			return l1.compareTo(l2);
+		}
+	}
 }
