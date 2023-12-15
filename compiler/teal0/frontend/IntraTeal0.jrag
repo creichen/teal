@@ -1,8 +1,36 @@
 /**
  * Specialisation of IntraCFG to Teal-0
  */
-import lang.attrcmp.NTAOwner;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.TreeSet;
+
+import lang.attrcmp.NTAOwner;
+
+// In Teal, we mainly use a subset of AST nodes to serve as CFG nodes.
+// In other words, some (but not all) AST nodes are also CFG nodes.
+
+// Coversely, almost all CFG nodes are AST nodes.  There are two exceptions:
+// - `Entry` nodes (FunDecl.entry())
+// - `Exit`  nodes (FunDecl.exit())
+//
+// These nodes are so-called "NTA" or "Non-Terminal Attribute" nodes;
+// while they are ASTNode objects, they are not part of the input program
+// and not part of the normal AST structure (e.g., not accessible via getChild()).
+//
+// You can (and may have to) write attribute equations for them, too,
+// including data flow-related attribute equations.
+// For the purposes of EDAP15, you can mostly treat them as any other CFG node.
+//
+// For example, when you inherit equations for them, you can use the
+// FunDecl.entry() and FunDecl.exit() methods to reference them
+// (cf. the definition of `FunDecl.entry().nextNodes()' below.), which is analogous
+// to how you would define inherited attributes for AST nodes.
 
 aspect IntraTeal {
 
@@ -66,40 +94,20 @@ aspect IntraTeal {
 	eq ExprStmt.firstNodes() = getExpr().firstNodes();
 
 	eq IfStmt.firstNodes() = getCond().firstNodes();
-	// commented out: control insensitive CFG
-	//eq IfStmt.getCond().nextNodesTT() = getThen().firstNodes();
-	//eq IfStmt.getCond().nextNodesFF() = hasElse() ? getElse().firstNodes() : nextNodes();
-	eq IfStmt.getThen().nextNodes() = nextNodes();
-	eq IfStmt.getElse().nextNodes() = nextNodes();
-	eq IfStmt.getCond().nextNodes() {
-	    return getCond().nextNodesTT()
-		.union(getCond().nextNodesFF());
-	}
+	// See IntraTeal0WithCS / IntraTeal0WithoutCS for the "IfStmt.*.nextNodes()" equations
 
 	eq WhileStmt.firstNodes() = getCond().firstNodes();
-	// commented out: control insensitive CFG
-	//eq WhileStmt.getCond().nextNodesTT() = getBody().firstNodes();
-	//eq WhileStmt.getCond().nextNodesFF() = nextNodes();
-	eq WhileStmt.getBody().nextNodes() = getCond().firstNodes();
-	eq WhileStmt.getCond().nextNodes() {
-	    return getCond().nextNodesTT()
-		.union(getCond().nextNodesFF());
-	}
-
+	// See IntraTeal0WithCS / IntraTeal0WithoutCS for the "WhileStmt.*.nextNodes()" equations
 
 	eq ReturnStmt.firstNodes() = getExpr().firstNodes();
 	eq ReturnStmt.getExpr().nextNodes() = SmallSet.<CFGNode>singleton(this);
 	eq ReturnStmt.succ() = SmallSet.<CFGNode>singleton(exit());
 
-	// The flow for AssignStmt is: right -> this -> left -> next
-	// This is because we want to be able to see the value of the
-	// right hand side in the left hand side before visiting the left
-	// hand side. This can be problematic for the case of IndexExpr in the left
-	// hand side. But for our purposes, it is not a problem.
+	// The flow for AssignStmt is: right -> left -> this -> next
 	eq AssignStmt.firstNodes() = getRValue().firstNodes();
-	eq AssignStmt.getRValue().nextNodes() = SmallSet.<CFGNode>singleton(this);
-	eq AssignStmt.getLValue().nextNodes() = nextNodes();
-	eq AssignStmt.succ() = getLValue().firstNodes();
+	eq AssignStmt.getRValue().nextNodes() = getLValue().firstNodes();
+	eq AssignStmt.getLValue().nextNodes() = SmallSet.<CFGNode>singleton(this);
+	eq AssignStmt.succ() = nextNodes();
 
 	eq Access.firstNodes() = SmallSet.<CFGNode>singleton(this);
 
@@ -124,16 +132,16 @@ aspect IntraTeal {
 		: getExpr(0).firstNodes();
 	eq ArrayLiteralExpr.getExpr(int i).nextNodes() {
 		if (i == getNumExpr() - 1) {
-			return nextNodes();
+			return SmallSet.<CFGNode>singleton(this);
 		} else {
 			return getExpr(i + 1).firstNodes();
 		}
 	}
 
 
-	eq IndexExpr.firstNodes() = getIndex().firstNodes();
-	eq IndexExpr.getIndex().nextNodes() = getBase().firstNodes();
-	eq IndexExpr.getBase().nextNodes() = SmallSet.<CFGNode>singleton(this);
+	eq IndexExpr.firstNodes() = getBase().firstNodes();
+	eq IndexExpr.getBase().nextNodes() = getIndex().firstNodes();
+	eq IndexExpr.getIndex().nextNodes() = SmallSet.<CFGNode>singleton(this);
 
 	eq NotExpr.firstNodes() = getExpr().firstNodes();
 	eq NotExpr.getExpr().nextNodes() = SmallSet.<CFGNode>singleton(this);
@@ -182,38 +190,40 @@ aspect IntraTeal {
 	eq GEQExpr.getLeft().nextNodes() = getRight().firstNodes();
 	eq GEQExpr.getRight().nextNodes() = SmallSet.<CFGNode>singleton(this);
 
-	// ----------------------------------------
-	// And
 	eq AndExpr.firstNodes() = getLeft().firstNodes();
-
-	eq AndExpr.getRight().nextNodes() {
-	    return getRight().nextNodesTT()
-		.union(getRight().nextNodesFF());
-	}
-
-	eq AndExpr.getLeft().nextNodes() {
-	    return getLeft().nextNodesTT()
-		.union(getLeft().nextNodesFF());
-	}
-
-	eq AndExpr.succ() = this.inControlSensitiveContext()
-	    ? SmallSet.<CFGNode>empty() : this.nextNodes();
-
-	// ----------------------------------------
-	// Or
 	eq OrExpr.firstNodes() = getLeft().firstNodes();
 
-	eq OrExpr.getLeft().nextNodes() {
-	    return getLeft().nextNodesTT()
-		.union(getLeft().nextNodesFF());
-	}
-	eq OrExpr.getRight().nextNodes() {
-	    return getRight().nextNodesTT()
-		.union(getRight().nextNodesFF());
-	}
+	// The disabled code below is for short-cicruit evaluation, which we don't use in Teal at this point
+	// ----------------------------------------
+	// // And
 
-	eq OrExpr.succ() = this.inControlSensitiveContext()
-	    ? SmallSet.<CFGNode>empty() : this.nextNodes();
+	// eq AndExpr.getRight().nextNodes() {
+	//     return getRight().nextNodesTT()
+	// 	.union(getRight().nextNodesFF());
+	// }
+
+	// eq AndExpr.getLeft().nextNodes() {
+	//     return getLeft().nextNodesTT()
+	// 	.union(getLeft().nextNodesFF());
+	// }
+
+	// eq AndExpr.succ() = this.inControlSensitiveContext()
+	//     ? SmallSet.<CFGNode>empty() : this.nextNodes();
+
+	// // ----------------------------------------
+	// // Or
+
+	// eq OrExpr.getLeft().nextNodes() {
+	//     return getLeft().nextNodesTT()
+	// 	.union(getLeft().nextNodesFF());
+	// }
+	// eq OrExpr.getRight().nextNodes() {
+	//     return getRight().nextNodesTT()
+	// 	.union(getRight().nextNodesFF());
+	// }
+
+	// eq OrExpr.succ() = this.inControlSensitiveContext()
+	//     ? SmallSet.<CFGNode>empty() : this.nextNodes();
 
 	// ----------------------------------------
 	eq NewExpr.firstNodes() {
@@ -239,200 +249,6 @@ aspect IntraTeal {
 	// FunDecl contributes nta exit() to CFGNode.predColl();
 
 }
-
-aspect ControlSensitivity {
-	// Control node simplification: mark ControlFlowExpr nodes
-	syn boolean Expr.isControlFlowExpr() = false;
-	eq AndExpr.isControlFlowExpr() = true;
-	eq OrExpr.isControlFlowExpr() = true;
-
-	inh boolean ASTNode.inControlSensitiveContext();
-	eq Program.getChild(int i).inControlSensitiveContext() = false;
-	eq Expr.getChild(int i).inControlSensitiveContext() = isControlFlowExpr();
-	eq Stmt.getChild(int i).inControlSensitiveContext() = false;
-	eq IfStmt.getCond().inControlSensitiveContext() = true;
-	eq WhileStmt.getCond().inControlSensitiveContext() = true;
-
-	// ControlTrue and ControlFalse nodes mark when we have decided that their associated condition
-	// is "true" or "false" (respectively).
-	ControlTrue  implements CFGNode;
-	ControlFalse implements CFGNode;
-
-	eq ControlTrue.firstNodes()  = SmallSet.<CFGNode>singleton(this);
-	eq ControlFalse.firstNodes() = SmallSet.<CFGNode>singleton(this);
-
-	eq ControlTrue.succ()  = this.nextNodes();
-	eq ControlFalse.succ() = this.nextNodes();
-
-	// ----------------------------------------
-	// Control nodes for IfStmt
-
-	syn nta ControlTrue  IfStmt.controlTrue()  = new ControlTrue(this.getCond());
-	syn nta ControlFalse IfStmt.controlFalse() = new ControlFalse(this.getCond());
-
-	// Disabled, using workaround due to bug in JastAdd + collections on interfaces + ASTNode
-	// IfStmt contributes nta controlTrue() to CFGNode.predColl();
-	// IfStmt contributes nta controlFalse() to CFGNode.predColl();
-
-	syn SmallSet<CFGNode> IfStmt.trueBranchTarget() = getThen().firstNodes();
-	syn SmallSet<CFGNode> IfStmt.falseBranchTarget() = hasElse() ? getElse().firstNodes() : nextNodes();
-
-	eq IfStmt.controlTrue().nextNodes()  = this.getCond().isControlFlowExpr()
-		? SmallSet.<CFGNode>empty() : this.trueBranchTarget();
-	eq IfStmt.controlFalse().nextNodes() = this.getCond().isControlFlowExpr()
-		? SmallSet.<CFGNode>empty() : this.falseBranchTarget();
-
-	eq IfStmt.getCond().nextNodesTT() = this.getCond().isControlFlowExpr()
-		? this.trueBranchTarget() : SmallSet.<CFGNode>singleton(controlTrue());
-	eq IfStmt.getCond().nextNodesFF() = this.getCond().isControlFlowExpr()
-		? this.falseBranchTarget() : SmallSet.<CFGNode>singleton(controlFalse());
-
-	// ----------------------------------------
-	// Control nodes for WhileStmt
-	// -- FIXME --: analogous to the changes to IfStmt
-
-	syn nta ControlTrue  WhileStmt.controlTrue()  = new ControlTrue(this.getCond());
-	syn nta ControlFalse WhileStmt.controlFalse() = new ControlFalse(this.getCond());
-
-	// Disabled, using workaround due to bug in JastAdd + collections on interfaces + ASTNode
-	// WhileStmt contributes nta controlTrue() to CFGNode.predColl();
-	// WhileStmt contributes nta controlFalse() to CFGNode.predColl();
-
-	syn SmallSet<CFGNode> WhileStmt.trueBranchTarget() = getBody().firstNodes();
-	syn SmallSet<CFGNode> WhileStmt.falseBranchTarget() = nextNodes();
-
-	eq WhileStmt.controlTrue().nextNodes()  = this.getCond().isControlFlowExpr()
-		? SmallSet.<CFGNode>empty() : this.trueBranchTarget();
-	eq WhileStmt.controlFalse().nextNodes() = this.getCond().isControlFlowExpr()
-		? SmallSet.<CFGNode>empty() : this.falseBranchTarget();
-
-	eq WhileStmt.getCond().nextNodesTT() = this.getCond().isControlFlowExpr()
-		? this.trueBranchTarget() : SmallSet.<CFGNode>singleton(controlTrue());
-	eq WhileStmt.getCond().nextNodesFF() = this.getCond().isControlFlowExpr()
-		? this.falseBranchTarget() : SmallSet.<CFGNode>singleton(controlFalse());
-
-	// eq WhileStmt.controlTrue().nextNodes()  = getBody().firstNodes();
-	// eq WhileStmt.controlFalse().nextNodes() = nextNodes();
-
-	// eq WhileStmt.getCond().nextNodesTT() = SmallSet.<CFGNode>singleton(controlTrue());
-	// eq WhileStmt.getCond().nextNodesFF() = SmallSet.<CFGNode>singleton(controlFalse());
-
-	// ----------------------------------------
-	// Shared AndExpr / OrExpr
-	syn boolean BinExpr.leftHasControlFlow()  = this.getLeft().isControlFlowExpr();
-	syn boolean BinExpr.rightHasControlFlow() = this.getRight().isControlFlowExpr();
-
-	// Control nodes for AndExpr
-
-	syn nta ControlTrue  AndExpr.controlTrueLeft()   = new ControlTrue(this.getLeft());
-	syn nta ControlFalse AndExpr.controlFalseLeft()  = new ControlFalse(this.getLeft());
-	syn nta ControlTrue  AndExpr.controlTrueRight()  = new ControlTrue(this.getRight());
-	syn nta ControlFalse AndExpr.controlFalseRight() = new ControlFalse(this.getRight());
-
-	// Disabled, using workaround due to bug in JastAdd + collections on interfaces + ASTNode
-	// AndExpr contributes nta controlTrueLeft()   to CFGNode.predColl();
-	// AndExpr contributes nta controlFalseLeft()  to CFGNode.predColl();
-	// AndExpr contributes nta controlTrueRight()  to CFGNode.predColl();
-	// AndExpr contributes nta controlFalseRight() to CFGNode.predColl();
-	// AndExpr contributes this when !inControlSensitiveContext() to CFGNode.predColl() for each ((CFGNode)this).succ();
-	// OrExpr contributes this when !inControlSensitiveContext() to CFGNode.predColl() for each ((CFGNode)this).succ();
-
-	syn SmallSet<CFGNode> AndExpr.nextNodesTTMaterialising() = inControlSensitiveContext()
-	    ? nextNodesTT() : SmallSet.<CFGNode>singleton(this);
-	syn SmallSet<CFGNode> AndExpr.nextNodesFFMaterialising() = inControlSensitiveContext()
-	    ? nextNodesFF() : SmallSet.<CFGNode>singleton(this);
-
-	eq AndExpr.controlTrueLeft().nextNodes()  = getRight().firstNodes();
-	eq AndExpr.controlFalseLeft().nextNodes() = nextNodesFFMaterialising();
-
-	eq AndExpr.controlTrueRight().nextNodes()  = nextNodesTTMaterialising();
-	eq AndExpr.controlFalseRight().nextNodes() = nextNodesFFMaterialising();
-
-	eq AndExpr.getLeft().nextNodesTT() {
-		if (this.leftHasControlFlow()) {
-			return getRight().firstNodes();
-		} else {
-			return controlTrueLeft().firstNodes();
-		}
-	}
-	eq AndExpr.getLeft().nextNodesFF() {
-		if (this.leftHasControlFlow()) {
-			return nextNodesFFMaterialising();
-		} else {
-			return controlFalseLeft().firstNodes();
-		}
-	}
-	eq AndExpr.getRight().nextNodesTT() {
-		if (this.rightHasControlFlow()) {
-			return nextNodesTTMaterialising();
-		} else {
-			return controlTrueRight().firstNodes();
-		}
-	}
-	eq AndExpr.getRight().nextNodesFF() {
-		if (this.rightHasControlFlow()) {
-			return nextNodesFFMaterialising();
-		} else {
-			return controlFalseRight().firstNodes();
-		}
-	}
-
-
-
-	// Control nodes for OrExpr
-
-	syn nta ControlTrue  OrExpr.controlTrueLeft()   = new ControlTrue(this.getLeft());
-	syn nta ControlFalse OrExpr.controlFalseLeft()  = new ControlFalse(this.getLeft());
-	syn nta ControlTrue  OrExpr.controlTrueRight()  = new ControlTrue(this.getRight());
-	syn nta ControlFalse OrExpr.controlFalseRight() = new ControlFalse(this.getRight());
-
-	// Disabled, using workaround due to bug in JastAdd + collections on interfaces + ASTNode
-	// OrExpr contributes nta controlTrueLeft()   to CFGNode.predColl();
-	// OrExpr contributes nta controlFalseLeft()  to CFGNode.predColl();
-	// OrExpr contributes nta controlTrueRight()  to CFGNode.predColl();
-	// OrExpr contributes nta controlFalseRight() to CFGNode.predColl();
-
-	syn SmallSet<CFGNode> OrExpr.nextNodesTTMaterialising() = inControlSensitiveContext()
-	    ? nextNodesTT() : SmallSet.<CFGNode>singleton(this);
-	syn SmallSet<CFGNode> OrExpr.nextNodesFFMaterialising() = inControlSensitiveContext()
-	    ? nextNodesFF() : SmallSet.<CFGNode>singleton(this);
-
-	eq OrExpr.controlTrueLeft().nextNodes()  = nextNodesTTMaterialising();
-	eq OrExpr.controlFalseLeft().nextNodes() = getRight().firstNodes();
-
-	eq OrExpr.controlTrueRight().nextNodes()  = nextNodesTTMaterialising();
-	eq OrExpr.controlFalseRight().nextNodes() = nextNodesFFMaterialising();
-
-	eq OrExpr.getLeft().nextNodesTT() {
-		if (this.leftHasControlFlow()) {
-			return nextNodesTTMaterialising();
-		} else {
-			return controlTrueLeft().firstNodes();
-		}
-	}
-	eq OrExpr.getLeft().nextNodesFF() {
-		if (this.leftHasControlFlow()) {
-			return getRight().firstNodes();
-		} else {
-			return controlFalseLeft().firstNodes();
-		}
-	}
-	eq OrExpr.getRight().nextNodesTT() {
-		if (this.rightHasControlFlow()) {
-			return nextNodesTTMaterialising();
-		} else {
-			return controlTrueRight().firstNodes();
-		}
-	}
-	eq OrExpr.getRight().nextNodesFF() {
-		if (this.rightHasControlFlow()) {
-			return nextNodesFFMaterialising();
-		} else {
-			return controlFalseRight().firstNodes();
-		}
-	}
-}
-
 
 aspect WarningSuppression {
 	// Suppress warnings (better to throw an exception)
@@ -467,6 +283,10 @@ aspect WarningSuppression {
 	eq NewExpr.succ()=nextNodes();
 	eq TypedExpr.succ()=nextNodes();
 	eq IndexExpr.succ()=nextNodes();
+
+	// And and Or work like other binary operators, since we don't use short-circuit evaluation at the moment:
+	eq AndExpr.succ()=nextNodes();
+	eq OrExpr.succ()=nextNodes();
 }
 
 aspect AllCFGNodes {
@@ -476,30 +296,102 @@ aspect AllCFGNodes {
 		when this instanceof CFGNode
 		to Program.allCFGNodes();
 
+	// Track NTAs for Entry and Exit
 	FunDecl contributes exit() to Program.allCFGNodes();
 	FunDecl contributes entry() to Program.allCFGNodes();
-
-	// Control nodes
-	IfStmt contributes nta controlTrue()  to Program.allCFGNodes();
-	IfStmt contributes nta controlFalse() to Program.allCFGNodes();
-	WhileStmt contributes nta controlTrue()  to Program.allCFGNodes();
-	WhileStmt contributes nta controlFalse() to Program.allCFGNodes();
-	AndExpr contributes nta controlTrueLeft()  to Program.allCFGNodes();
-	AndExpr contributes nta controlFalseLeft() to Program.allCFGNodes();
-	AndExpr contributes nta controlTrueRight()  to Program.allCFGNodes();
-	AndExpr contributes nta controlFalseRight() to Program.allCFGNodes();
-	OrExpr contributes nta controlTrueLeft()  to Program.allCFGNodes();
-	OrExpr contributes nta controlFalseLeft() to Program.allCFGNodes();
-	OrExpr contributes nta controlTrueRight()  to Program.allCFGNodes();
-	OrExpr contributes nta controlFalseRight() to Program.allCFGNodes();
 }
 
+/**
+ * This is mostly to help debug/visualise the CFG.
+ */
 aspect IntraTealEdges {
-	coll ArrayList<Report.FlowEdge> Program.allForwardFlowEdges()
+	coll ArrayList<Report.FlowEdge> Program.allForwardFlowEdgesUnsorted()
 		[new ArrayList<Report.FlowEdge>()] with add;
 
-	coll ArrayList<Report.FlowEdge> Program.allBackwardFlowEdges()
+	coll ArrayList<Report.FlowEdge> Program.allBackwardFlowEdgesUnsorted()
 		[new ArrayList<Report.FlowEdge>()] with add;
+
+
+	syn java.util.List<Report.FlowEdge> Program.allForwardFlowEdges() =
+		Program.sortedEdges(Entry.class, this.allForwardFlowEdgesUnsorted());
+
+	syn java.util.List<Report.FlowEdge> Program.allBackwardFlowEdges() =
+		Program.sortedEdges(Exit.class, this.allBackwardFlowEdgesUnsorted());
+
+	/**
+	 * Sort edges to group common "start" edges, put in tree order
+	 *
+	 * @param startType CFG Node type to use as starting point (normally Entry.class or Exit.class)
+	 * @param edges The edges to sort
+	 * @return Sorted edges
+	 */
+	public static ArrayList<Report.FlowEdge> Program.sortedEdges(Class<?> startType,
+								     java.util.List<? extends Report.FlowEdge> edges) {
+		// Track all edges and how often they're listed (should always be 1)
+		HashMap<Report.FlowEdge, Integer> workMultiSet = new HashMap<Report.FlowEdge, Integer>();
+		// Outgoing edges (using only the array of edges as ground truth)
+		HashMap<Object, ArrayList<Report.FlowEdge>> outgoing = new HashMap<Object, ArrayList<Report.FlowEdge>>();
+		// (Sorted) starting points
+		TreeSet<WithSourceLocation> startingPoints = new TreeSet<>(new WithSourceLocation.Comparator());
+
+		// Initialise the above three datastructures
+		for (Report.FlowEdge edge : edges) {
+			if (!workMultiSet.containsKey(edge)) {
+				workMultiSet.put(edge, 0);
+			}
+			// We shouldn't have duplicate edges, but we want to include them more than once them if we do
+			workMultiSet.put(edge,
+					 1 + workMultiSet.get(edge));
+
+			WithSourceLocation src = edge.getFrom();
+			if (outgoing.get(src) == null) {
+				outgoing.put(src, new ArrayList<>());
+			}
+			outgoing.get(src).add(edge);
+			if (startType.isInstance(src)) {
+				startingPoints.add(src);
+			}
+		}
+
+		// Add edges in order
+		ArrayList<Report.FlowEdge> result = new ArrayList<>();
+		for (WithSourceLocation entry : startingPoints) {
+			HashSet<Object> completed = new HashSet<>();
+			PriorityQueue<WithSourceLocation> worklist = new PriorityQueue<WithSourceLocation>(new WithSourceLocation.Comparator());
+			worklist.add(entry);
+
+			while (!worklist.isEmpty()) {
+				Object src = worklist.remove();
+				completed.add(src);
+
+				ArrayList<Report.FlowEdge> localEdges = outgoing.get(src);
+				if (localEdges != null) {
+					Collections.sort(localEdges, new java.util.Comparator<Report.FlowEdge>() {
+						public int compare(Report.FlowEdge e1, Report.FlowEdge e2) {
+							return e1.getTo().sourceLocation().compareTo(e2.getTo().sourceLocation());
+						}
+					});
+					for (Report.FlowEdge edge : localEdges) {
+						result.add(edge);
+						workMultiSet.put(edge, workMultiSet.get(edge) - 1);
+						WithSourceLocation dest = edge.getTo();
+						if (!completed.contains(dest) && !worklist.contains(dest)) {
+							worklist.add(dest);
+						}
+					}
+				}
+			}
+		}
+
+		// We should have all edges now, unless there was some error
+		for (Map.Entry<Report.FlowEdge, Integer> item : workMultiSet.entrySet()) {
+			for (int i = 0; i < item.getValue(); ++i) {
+				result.add(item.getKey());
+			}
+		}
+
+		return result;
+	}
 
 	public static String ASTNode.edgeColor(boolean fwd, CFGNode from, CFGNode toward) {
 		boolean syntacticBackwards = ((ASTNode)from).sourceLocation().compareTo(((ASTNode) toward).sourceLocation()) > 0;
@@ -511,8 +403,8 @@ aspect IntraTealEdges {
 
 		if (fwd) {
 			// forward edge
-			boolean toTrue = from instanceof ControlTrue;
-			boolean toFalse = from instanceof ControlFalse;
+			boolean toTrue = from instanceof ControlTrueNode;
+			boolean toFalse = from instanceof ControlFalseNode;
 
 			blue = 15;
 
@@ -527,8 +419,8 @@ aspect IntraTealEdges {
 			}
 		} else {
 			// backward edge
-			boolean toTrue = toward instanceof ControlTrue;
-			boolean toFalse = toward instanceof ControlFalse;
+			boolean toTrue = toward instanceof ControlTrueNode;
+			boolean toFalse = toward instanceof ControlFalseNode;
 
 			red = green = 7;
 			if (toTrue) {
@@ -566,74 +458,17 @@ aspect IntraTealEdges {
 			.collect(java.util.stream.Collectors.toList());
 	}
 
-	ASTNode contributes each ((CFGNode)this).forwardFlowEdges() when isCFGNode() to Program.allForwardFlowEdges();
-	ASTNode contributes each((CFGNode)this).backwardFlowEdges() when isCFGNode() to Program.allBackwardFlowEdges();
+	ASTNode contributes each ((CFGNode)this).forwardFlowEdges() when isCFGNode() to Program.allForwardFlowEdgesUnsorted();
+	ASTNode contributes each((CFGNode)this).backwardFlowEdges() when isCFGNode() to Program.allBackwardFlowEdgesUnsorted();
 
 	FunDecl contributes nta exit()
-		to Program.allForwardFlowEdges(); // Superfluous but harmless
+		to Program.allForwardFlowEdgesUnsorted(); // Superfluous but harmless
 	FunDecl contributes nta exit()
-		to Program.allBackwardFlowEdges();
+		to Program.allBackwardFlowEdgesUnsorted();
 
 	FunDecl contributes nta entry()
-		to Program.allForwardFlowEdges();
+		to Program.allForwardFlowEdgesUnsorted();
 	FunDecl contributes nta entry()
-		to Program.allBackwardFlowEdges(); // Superfluous but harmless
+		to Program.allBackwardFlowEdgesUnsorted(); // Superfluous but harmless
 
-	// Control nodes
-	IfStmt contributes nta controlTrue()  to Program.allForwardFlowEdges();
-	IfStmt contributes nta controlFalse() to Program.allForwardFlowEdges();
-	WhileStmt contributes nta controlTrue()  to Program.allForwardFlowEdges();
-	WhileStmt contributes nta controlFalse() to Program.allForwardFlowEdges();
-	AndExpr contributes nta controlTrueRight()  to Program.allForwardFlowEdges();
-	AndExpr contributes nta controlFalseRight() to Program.allForwardFlowEdges();
-	AndExpr contributes nta controlTrueLeft()  to Program.allForwardFlowEdges();
-	AndExpr contributes nta controlFalseLeft() to Program.allForwardFlowEdges();
-	OrExpr contributes nta controlTrueRight()  to Program.allForwardFlowEdges();
-	OrExpr contributes nta controlFalseRight() to Program.allForwardFlowEdges();
-	OrExpr contributes nta controlTrueLeft()  to Program.allForwardFlowEdges();
-	OrExpr contributes nta controlFalseLeft() to Program.allForwardFlowEdges();
-
-	IfStmt contributes nta controlTrue()  to Program.allBackwardFlowEdges();
-	IfStmt contributes nta controlFalse() to Program.allBackwardFlowEdges();
-	WhileStmt contributes nta controlTrue()  to Program.allBackwardFlowEdges();
-	WhileStmt contributes nta controlFalse() to Program.allBackwardFlowEdges();
-	AndExpr contributes nta controlTrueRight()  to Program.allBackwardFlowEdges();
-	AndExpr contributes nta controlFalseRight() to Program.allBackwardFlowEdges();
-	AndExpr contributes nta controlTrueLeft()  to Program.allBackwardFlowEdges();
-	AndExpr contributes nta controlFalseLeft() to Program.allBackwardFlowEdges();
-	OrExpr contributes nta controlTrueRight()  to Program.allBackwardFlowEdges();
-	OrExpr contributes nta controlFalseRight() to Program.allBackwardFlowEdges();
-	OrExpr contributes nta controlTrueLeft()  to Program.allBackwardFlowEdges();
-	OrExpr contributes nta controlFalseLeft() to Program.allBackwardFlowEdges();
-}
-
-aspect NTAOwners {
-	// Needs to be repetitive for now due to interface handling bugs in JastAdd
-	IfStmt implements NTAOwner;
-	public java.util.List<ASTNode> IfStmt.getNTAs() {
-		return Arrays.<ASTNode>asList(this.controlTrue(),
-					      this.controlFalse());
-	}
-
-	WhileStmt implements NTAOwner;
-	public java.util.List<ASTNode> WhileStmt.getNTAs() {
-		return Arrays.<ASTNode>asList(this.controlTrue(),
-					      this.controlFalse());
-	}
-
-	AndExpr implements NTAOwner;
-	public java.util.List<ASTNode> AndExpr.getNTAs() {
-		return Arrays.<ASTNode>asList(this.controlTrueRight(),
-					      this.controlFalseRight(),
-					      this.controlTrueLeft(),
-					      this.controlTrueRight());
-	}
-
-	OrExpr implements NTAOwner;
-	public java.util.List<ASTNode> OrExpr.getNTAs() {
-		return Arrays.<ASTNode>asList(this.controlTrueRight(),
-					      this.controlFalseRight(),
-					      this.controlTrueLeft(),
-					      this.controlTrueRight());
-	}
 }

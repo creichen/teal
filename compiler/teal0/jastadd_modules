@@ -27,12 +27,19 @@ module("teal-0") {
 	include "frontend/Decl.jrag"			// Decl.asVarDecl() and Decl.asFunDecl()
 	include "frontend/IntraCFG.jrag", [-2]		// IntraCFG, Idriss Riouak
 	include "frontend/IntraTeal0.jrag", [-2]	// Teal0 CFG via Idriss Riouak's IntraCFG
+	// ----------------------------------------
+	// Exactly ONE of the following two must be active, depending on the exercise:
+	include "frontend/IntraTeal0NoCS.jrag", [-2]	// Teal0 CFG variant: conrol insensitive
+	//include "frontend/IntraTeal0WithCS.jrag", [-2]	// Teal0 CFG variant: control sensitive
+	// Exactly ONE of the previous two must be active, depending on the exercise:
+	// ----------------------------------------
 	include "frontend/Source.jrag"			// Source location tracking
 	include "frontend/NameAnalysis.jrag"		// Name Analysis
 	include "frontend/SemanticCheck.jrag"		// Special-purpose semantic checks
 	include "frontend/TypeAnalysis.jrag"		// Static type analysis
 	include "frontend/DependencyAnalysis.jrag"	// Dependency analysis
 	include "frontend/NullnessDataFlow.jrag"	// Teal0 nullness flow analysis
+	include "frontend/NullnessErrors.jrag"		// Reporting nullness in Teal0
 
 	// Code generation
 	include "backend/IRGen.jrag"

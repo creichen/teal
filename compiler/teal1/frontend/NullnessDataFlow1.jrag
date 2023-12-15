@@ -1,0 +1,18 @@
+/**
+ * Nullness analysis and error reporting for Teal-1
+ */
+
+aspect NullPointerAnalysis {
+    // Do we need to do anything with the nullnessTransfer() function?
+    // See teal0/frontend/NullnessDataFlow.jrag
+
+
+    // HINT: check the following attributes:
+    //   nullnessValue();
+    //   defaultInitializerNullness();
+}
+
+aspect NullnessErrors {
+    // Do we need to report any new kinds of errors?
+    // See teal0/frontend/NullnessErrors.jrag
+}

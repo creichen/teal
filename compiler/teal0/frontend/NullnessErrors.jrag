@@ -1,0 +1,103 @@
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import lang.common.Report;
+
+/**
+ * Reports based on the null pointer analysis
+ */
+aspect NullPointerAnalysisReport {
+	/**
+	 * Analysis info squiggly lines
+	 */
+	public class NullReport extends Report {
+		/**
+		* Constructs an Analysis Info report
+		*
+		* @param location AST node with the analysis info
+		* @param String explaining the analysis info
+		*/
+		public NullReport(ASTNode location, String description, Report.CodeProber KIND) {
+			super("null-info", KIND, location);
+			this.withExplanation(description);
+		}
+	}
+
+	public NullReport ASTNode.nullDomainValue( String description) {
+		return new NullReport(this, description, Report.CodeProber.INFO);
+	}
+
+	coll ArrayList<Report> Program.nullReport()[new ArrayList<Report>()] with add;
+
+	/**
+	 * Informative reports
+	 */
+	Access  contributes nullDomainValue(name() + " ↦ " + nullnessValue())
+		when !isAssignedTo() /* suppress assignment lhs */
+		to Program.nullReport();
+	VarDecl contributes nullDomainValue(name() + " ↦ " + nullnessInitializerValue())
+		to Program.nullReport();
+
+
+	/*------------------------*/
+	/*-- Task 1 begins here --*/
+
+	// Use the class below to report null dereference errors; see further below for details:
+
+	/**
+	 * Reporting a null pointer dereference error or warning
+	 */
+	public class NullDereferenceError extends Report {
+		/**
+		* Constructs a null pointer dereference report
+		*
+		* @param location AST node with the analysis info
+		* @param String explaining the analysis info
+		*/
+		protected NullDereferenceError(ASTNode location, String description, Report.CodeProber KIND) {
+			super("null-dereference", KIND, location);
+			this.withExplanation(description);
+		}
+
+		/**
+		 * Report that the AST node here will always fail due to a null pointer dereference
+		 *
+		 * @param location The ASTNode at which the null dereference is taking place.
+		 * @return A Report that can be contributed to Program.reports().
+		 */
+		public static NullDereferenceError error(ASTNode location) {
+			return new NullDereferenceError(location, "Null pointer dereference", Report.CodeProber.ERR);
+		}
+
+		/**
+		 * Report that the AST node here might fail due to a null pointer dereference, since we can't show
+		 * that it is never NULL.
+		 *
+		 * @param location The ASTNode at which the null dereference is taking place.
+		 * @return A Report that can be contributed to Program.reports().
+		 */
+		public static NullDereferenceError warning(ASTNode location) {
+			return new NullDereferenceError(location, "Possible null pointer dereference", Report.CodeProber.WARN);
+		}
+	}
+
+	// WHAT TO REPORT
+	// --------------
+	// If you see the expression "foo[0] := 1;", then there may be a null pointer dereference
+	// if "foo" is set to `null'.  If there MAY or MUST be such a derefence, report it as follows:
+	// - NullDereferenceError.error() if "foo" is guaranteed to be NULL
+	// - NullDereferenceError.warning() if "foo" may be NULL
+	//
+	// Specifically:
+	// - Report these errors as contributions to the collection attribute Program.reports().
+	// - The `error()' and `warning()' methods take as parameer the AST node to blame; this should be
+	//   the AST node that represents the expression "foo[10]", in our exapmle.
+
+	// HINT: you can solve this with just two declarations.
+	// (you may use as many as you wish.)
+
+
+
+	/*-- Task 1 ends here --*/
+	/*----------------------*/
+}
+

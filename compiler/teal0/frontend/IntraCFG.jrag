@@ -41,7 +41,11 @@ public
 public
   interface CFGNode {}
 
-
+  // Always define these interfaces, so Java code can depend on them;
+  // if we are using control sensitivity, then ControlTrue and ControlFalse
+  // must implement these interfaces.
+  public interface ControlTrueNode {}
+  public interface ControlFalseNode {}
 
   Entry implements CFGNode;
   Exit implements CFGNode;
@@ -98,7 +102,7 @@ public
   eq CFGRoot.getChild().enclosingRoot() = this;
   eq Program.getChild().enclosingRoot() = null;
 
-  // Default values for the
+  // Default values for the next node sets
   eq CFGRoot.getChild().nextNodes() = SmallSet.<CFGNode>empty();
   eq CFGRoot.getChild().nextNodesTT() = SmallSet.<CFGNode>empty();
   eq CFGRoot.getChild().nextNodesFF() = SmallSet.<CFGNode>empty();
@@ -115,7 +119,7 @@ public
   syn boolean ASTNode.isCFGNode() = false;
   eq CFGNode.isCFGNode() = true;
 
-  // --------------------------------------------------------------------------------
+  // ================================================================================
   // Predecessor relation
 
   // ----------------------------------------

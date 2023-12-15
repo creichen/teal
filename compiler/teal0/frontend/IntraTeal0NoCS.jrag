@@ -1,0 +1,19 @@
+/**
+ * Specialisation of IntraCFG to Teal-0: Control insensitive variant
+ */
+import lang.attrcmp.NTAOwner;
+import java.util.Arrays;
+
+aspect IntraTealControlInsensitive {
+    eq IfStmt.getCond().nextNodes() {
+	SmallSet<CFGNode> set = getThen().firstNodes();
+	if (hasElse()) {
+	    set = set.union(getElse().firstNodes());
+	} else {
+	    // No "else" branch?  Continue directly
+	    set = set.union(this.nextNodes());
+	}
+	return set;
+    }
+    eq WhileStmt.getCond().nextNodes() = nextNodes().union(getBody().firstNodes());
+}
