@@ -5,7 +5,7 @@ module("teal-1") {
     imports "teal-0"
 
     jastadd {
-	include "ast/teal.ast"
+	include "ast/teal1.ast"
 	include "ast/type.ast"
 	//excludeFrom "teal-0", "ast/type.ast"
 
@@ -17,6 +17,8 @@ module("teal-1") {
 	include "frontend/SemanticCheck.jrag"
 	include "frontend/TypeAnalysis.jrag"
 	include "frontend/IntraTeal1.jrag", [-2]
+	include "frontend/NullnessDataFlow1.jrag"
+	include "frontend/DeadAssignment.jrag"
 
 	// Code generation
 	include "backend/IRGen.jrag"
