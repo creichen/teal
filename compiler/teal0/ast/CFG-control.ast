@@ -28,5 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-Entry;
-Exit;
+// Implicit Assignment (for control-sensitive analysis)
+ControlTrue  ::= <Cond:Expr>;  // branch was taken because condition holds
+ControlFalse  ::= <Cond:Expr>; // branch was taken because condition does not hold

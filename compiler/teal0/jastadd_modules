@@ -11,7 +11,8 @@ module("teal-0") {
 	include "ast/toplevel.ast", [-4]
 	include "ast/type.ast"
 	include "ast/teal0.ast"
-	include "ast/CFG.ast", [2]			// IntraCFG AST
+	include "ast/CFG.ast", [2]			// IntraCFG AST: Entry and Exit
+        // include "ast/CFG-control.ast", [2]		// IntraCFG AST with control sensitivity: ControlTrue, ControlFalse
 
 	// Meta-information
 	include "frontend/Version.jrag"
