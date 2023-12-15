@@ -5,7 +5,7 @@ module("teal-3") {
     imports "teal-1"
 
     jastadd {
-	include "ast/teal.ast"
+	include "ast/teal3.ast"
 	excludeFrom "teal-0", "ast/type.ast"
 	excludeFrom "teal-1", "ast/type.ast"
 
