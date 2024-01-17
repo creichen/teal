@@ -8,6 +8,8 @@ import java.util.ArrayList;
 aspect CodeProber {
     /**
      * Default list of properties to show in CodeProber
+     *
+     * (Not currently used)
      */
     public static final String[] ASTNode.CODE_PROBER_PROPERTY_LIST = new String[] {
 	"name",
@@ -29,4 +31,44 @@ aspect CodeProber {
 	"reportMulti",
     };
 
+    /**
+     * Default list of properties (including signature) to suppress for traces
+     */
+    public static final String[] ASTNode.CODE_PROBER_TRACE_BLOCKLIST = new String[] {
+	"getEndLine()",
+	"getStartLine()",
+	"getEndColumn()",
+	"getStartColumn()",
+	"getEndLoc()",
+	"getStartLoc()",
+	"getParentEndLoc()",
+	"getParentStartLoc()",
+    };
+
+    /**
+     * Returns the list of attributes to suppress when constructing traces
+     */
+    public String[] Program.getTraceBlocklist() {
+	String[] blocklist = new String[ASTNode.CODE_PROBER_TRACE_BLOCKLIST.length];
+	for (int i = 0; i < blocklist.length; ++i) {
+	    blocklist[i] = "." + ASTNode.CODE_PROBER_TRACE_BLOCKLIST[i];
+	}
+	return blocklist;
+    }
+
+    public void Program.cpr_setTraceReceiver(final java.util.function.Consumer<Object[]> recv) {
+	trace().setReceiver(new ASTState.Trace.Receiver() {
+		final String[] attrsToHide = getTraceBlocklist();
+
+		@Override
+		public void accept(ASTState.Trace.Event event, ASTNode node, String attribute, Object params, Object value) {
+		    for (String needle : attrsToHide) {
+			if (attribute.endsWith(needle)) {
+			    return;
+			}
+		    }
+		    recv.accept(new Object[] { event, node, attribute, params, value });
+		}
+	    });
+    }
 }
