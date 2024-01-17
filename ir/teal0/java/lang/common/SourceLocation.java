@@ -80,11 +80,19 @@ public class SourceLocation implements Comparable<SourceLocation> {
 
 	@Override
 	public String toString() {
-		return this.file + "["
-			+ this.startLine + ":" + this.startColumn
-			+ "-"
-			+ this.endLine + ":" + this.endColumn
-			+ "]";
+	    String maskedFile;
+	    String tmpDir = System.getProperty("java.io.tmpdir");
+	    // FIXME: should probably only use this if we're using CodeProber
+	    if (tmpDir != null && this.file.startsWith(tmpDir)) {
+		maskedFile = "CodeProber";
+	    } else {
+		maskedFile = file;
+	    }
+	    return maskedFile + "["
+		+ this.startLine + ":" + this.startColumn
+		+ "-"
+		+ this.endLine + ":" + this.endColumn
+		+ "]";
 	}
 
 	private static int[]
