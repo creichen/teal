@@ -10,7 +10,7 @@ For other layers of Teal, set suitable parameters; e.g., for Teal-3,
 run:
 
 ``` {.bash org-language="sh"}
-~./gradlew -PlangVersion=teal-3 jar test
+./gradlew -PlangVersion=teal-3 jar test
 ```
 
 If you are using Teal as part of a course, you may be using a

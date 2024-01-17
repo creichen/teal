@@ -10,7 +10,7 @@ To build Teal-0 (the default) run:
 
 For other layers of Teal, set suitable parameters; e.g., for Teal-3, run:
 #+BEGIN_SRC sh
-~./gradlew -PlangVersion=teal-3 jar test
+./gradlew -PlangVersion=teal-3 jar test
 #+END_SRC
 If you are using Teal as part of a course, you may be using a distribution of Teal that does not
 include all Teal layers (possibly only Teal-0).
