@@ -109,20 +109,20 @@ started:
 To understand how Teal works or to fix a bug, you have at least three
 options:
 
--   code-prober, for interactively exploring the AST and its attributes,
+-   CodeProber, for interactively exploring the AST and its attributes,
     and custom queries and highlights
 -   The Java debugger `jdb`
 -   Print debugging
 
-We recommend using code-prober.
+We recommend using CodeProber.
 
-### Running code-prober
+### Running CodeProber
 
-To run code-prober in a POSIX environment (Linux, OS X), you can run the
-`codeprober.sh` script, and then connect to code-prober with a web
-browser at [localhost:8080](http://localhost:8080). You can optionally
+To run CodeProber in a POSIX environment (Linux, OS X), you can run the
+`codeprober.sh` script, and then connect to CodeProber with a web
+browser at [localhost:8000](http://localhost:8000). You can optionally
 pass in a program as parameter to the `codeprober.sh` script. To run
-code-prober by hand, you can manually run it with a command line similar
+CodeProber by hand, you can manually run it with a command line similar
 to the following:
 
 `java -jar libs/code-prober.jar --autoprobes nameErrors,semanticErrors,reports --syntax teal compiler/teal-0.jar -D`
@@ -132,7 +132,7 @@ or, to start with a source file already present:
 `java -jar libs/code-prober.jar --autoprobes nameErrors,semanticErrors,reports --syntax teal --source <source.teal> compiler/teal-0.jar -D`
 
 The parameter `--autoprobes` lists all attributes in the `Program` AST
-node from which code-prober will extract `lang.common.Report` objects
+node from which CodeProber will extract `lang.common.Report` objects
 that it then shows as warning/error/info messages overlaid over the
 source code.
 
