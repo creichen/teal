@@ -1,7 +1,7 @@
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Comparator;
 import lang.common.Report;
 import beaver.Symbol;
@@ -27,7 +27,7 @@ aspect Util {
 	/**
 	 * HashMap that maps a key to multiple values
 	 */
-	public class MultiHashMap<K, V> extends HashMap<K, HashSet<V>> {
+	public class MultiHashMap<K, V> extends HashMap<K, LinkedHashSet<V>> {
 		public MultiHashMap() {
 			super();
 		}
@@ -36,9 +36,9 @@ aspect Util {
 		 * Add a value to the map
 		 */
 		public V append(K key, V value) {
-			HashSet<V> entry = get(key);
+			LinkedHashSet<V> entry = get(key);
 			if (entry == null) {
-				entry = new HashSet<>();
+				entry = new LinkedHashSet<>();
 				put(key, entry);
 			}
 			entry.add(value);
@@ -49,7 +49,7 @@ aspect Util {
 		 * Get one value maped to key, if it exists. Otherwise, return null.
 		 */
 		public V getOne(K key) {
-			HashSet<V> entry = get(key);
+			LinkedHashSet<V> entry = get(key);
 			if (entry == null)
 				return null;
 			return entry.iterator().next();
