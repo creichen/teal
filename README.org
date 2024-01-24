@@ -88,20 +88,19 @@ We recommend using CodeProber.
 
 *** Running CodeProber
 
-To run CodeProber in a POSIX environment (Linux, OS X), you can run the ~codeprober.sh~ script,
+To run CodeProber in a POSIX environment (Linux, OS X), you can run the ~code-prober.sh~ script,
 and then connect to CodeProber with a web browser at [[http://localhost:8000][localhost:8000]].
 You can optionally pass in a program as parameter to the ~codeprober.sh~ script.
-To run CodeProber by hand, you can manually run it with a command line similar to the following:
 
-~java -jar libs/code-prober.jar --autoprobes nameErrors,semanticErrors,reports --syntax teal compiler/teal-0.jar -D~
+If you want to run CodeProber by hand, you can call it e.g. as:
 
-or, to start with a source file already present:
+~java -jar libs/code-prober.jar --force-syntax-highlighting=teal compiler/teal-0.jar~
 
-~java -jar libs/code-prober.jar --autoprobes nameErrors,semanticErrors,reports --syntax teal --source <source.teal> compiler/teal-0.jar -D~
-
-The parameter ~--autoprobes~ lists all attributes in the ~Program~ AST node from which CodeProber
-will extract ~lang.common.Report~ objects that it then shows as warning/error/info messages overlaid over
-the source code.
+Note that this will not give you the exact same setup as the
+~codeprober.sh~ script, which also enables some automatic probes and
+enforces specific evaluation strategies; check ~code-prober.sh~ for
+details.  If you are doing a homework exercise, please avoid running
+CodeProber by hand unless you know exactly what you are doing.
 
 ** Internal Logging
 Can be enabled by the ~TEAL_DEBUG~ environment variable:
