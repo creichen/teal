@@ -284,7 +284,7 @@ aspect NullPointerAnalysis{
 	syn NullDomain CFGNode.nullnessIn() circular[new NullDomain()] {
 		NullDomain res = new NullDomain();
 		for (CFGNode e : pred()) {
-			res.join(e.nullnessOut());
+			res.joinUpdate(e.nullnessOut());
 		}
 		return res;
 	}
