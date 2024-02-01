@@ -77,19 +77,28 @@ These files are loaded and tested by the various test classes in:
 
 # Using Teal
 
-The Teal compiler and runtime use the same entry point. You can start
-them with the following, which will print out help:
+The Teal compiler and runtime use the same entry point. If you are using
+Teal-0, you can start the compiler and runtime with the following, which
+will print out help:
+
 `java -jar build/teal-0.jar`
 
 You can find this main entry point in:
 `teal/compiler/teal0/java/lang/Compiler.java`
 
+For Teal-1 and later, use `teal-1.jar` etc. instead.
+
 # Running Teal programs
 
-`java -jar build/teal-0.jar program.teal --run arg1 arg2 ...` The
-arguments to the program can be integers or strings. This will call the
-`main` function (which must take matching formal parameters) and print
-out the `main` function\'s return value.
+The following assume that you are using Teal-0. If you are using Teal-1
+or later, replace `teal-0.jar` by `teal-1.jar`, `teal-2.jar`, or
+`teal-3.jar`, as appropriate.
+
+`java -jar build/teal-0.jar program.teal --run arg1 arg2 ...`
+
+The arguments to the program can be integers or strings. This will call
+the `main` function (which must take matching formal parameters) and
+print out the `main` function\'s return value.
 
 Try running it on `examples/hello-world.teal` for a quick example!
 
