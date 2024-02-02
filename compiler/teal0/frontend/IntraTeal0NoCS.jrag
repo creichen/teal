@@ -15,5 +15,8 @@ aspect IntraTealControlInsensitive {
 	}
 	return set;
     }
+
     eq WhileStmt.getCond().nextNodes() = nextNodes().union(getBody().firstNodes());
+    // back-edge: end-of-while body -> condition
+    eq WhileStmt.getBody().nextNodes() = getCond().firstNodes();
 }

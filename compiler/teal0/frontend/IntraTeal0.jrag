@@ -432,7 +432,7 @@ aspect IntraTealEdges {
 					green = 8 + random.nextInt(8);
 					blue = random.nextInt(16);
 				}
-				red = random.nextInt(green);
+				red = random.nextInt(green+1);
 			}
 		} else {
 			// Different colours for forward and backward edges
