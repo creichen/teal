@@ -393,43 +393,81 @@ aspect IntraTealEdges {
 		return result;
 	}
 
+	/** Colouring scheme for AST node edges: if true, randomises colours */
+	static final boolean ASTNode.INTRA_TEAL_RANDOM_EDGE_COLORS = true;
+	// FIXME: better to generalie with a colouring scheme interface
+
+	/**
+	 * @param fwd: Forward edge (IN edge, from a CFG perspective) or not (OUT edge)
+	 * @param from: Edge source CFG node
+	 * @param toward: Edge destination CFG node
+	 */
 	public static String ASTNode.edgeColor(boolean fwd, CFGNode from, CFGNode toward) {
-		boolean syntacticBackwards = ((ASTNode)from).sourceLocation().compareTo(((ASTNode) toward).sourceLocation()) > 0;
+		ASTNode ast_from = (ASTNode) from;
+		ASTNode ast_toward = (ASTNode) toward;
+		boolean syntacticForward = ast_from.sourceLocation().compareTo(ast_toward.sourceLocation()) < 0;
 
 		final int alpha = 0x8;
 		int red = 0;
 		int green = 0;
 		int blue = 0;
 
-		if (fwd) {
-			// forward edge
-			boolean toTrue = from instanceof ControlTrueNode;
-			boolean toFalse = from instanceof ControlFalseNode;
+		if (ASTNode.INTRA_TEAL_RANDOM_EDGE_COLORS) {
+			// Randomised colours
+			Random random = new Random(ast_from.getStartLoc() ^ ast_toward.getStartLoc());
 
-			blue = 15;
-
-			if (toTrue) {
-				green = 12;
-			}
-			if (toFalse) {
-				red = 12;
-			}
-			if (syntacticBackwards) {
-				red += 3;
+			if (syntacticForward != fwd) {
+				// back-edge, in the sense of going the opposite of the "normal" direction
+				// less common, need less entropy
+				red = 8 + random.nextInt(8);
+				blue = red - random.nextInt(4);
+				green = random.nextInt(8);
+			} else {
+				if (random.nextBoolean()) {
+					// blue-style
+					blue = 12 + random.nextInt(4);
+					green = random.nextInt(16);
+				} else {
+					// green-style
+					green = 8 + random.nextInt(8);
+					blue = random.nextInt(16);
+				}
+				red = random.nextInt(green);
 			}
 		} else {
-			// backward edge
-			boolean toTrue = toward instanceof ControlTrueNode;
-			boolean toFalse = toward instanceof ControlFalseNode;
+			// Different colours for forward and backward edges
+			if (fwd) {
+				// forward edge
+				boolean toTrue = from instanceof ControlTrueNode;
+				boolean toFalse = from instanceof ControlFalseNode;
 
-			red = green = 7;
-			if (toTrue) {
-				green = 15;
-			}
-			if (toFalse) {
-				red = 15;
+				blue = 15;
+
+				if (toTrue) {
+					green = 12;
+				}
+				if (toFalse) {
+					red = 12;
+				}
+				if (!syntacticForward) {
+					red += 3;
+				}
+			} else {
+				// backward edge
+				boolean toTrue = toward instanceof ControlTrueNode;
+				boolean toFalse = toward instanceof ControlFalseNode;
+
+				red = green = 7;
+				if (toTrue) {
+					green = 15;
+				}
+				if (toFalse) {
+					red = 15;
+				}
 			}
 		}
+
+		// More homogenous colouring scheme, perhaps less useful:
 
 		final String s = String.format("#%01x%01x%01x%01x",
 				     red,
