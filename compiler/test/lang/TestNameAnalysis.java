@@ -52,7 +52,7 @@ public class TestNameAnalysis {
       actual += line;
     }
 
-    Util.compareOutput(actual, TEST_DIRECTORY, filename);
+    Util.compareOutput(actual, TEST_DIRECTORY, filename, null);
   }
 
   @Parameters(name = "{0}")

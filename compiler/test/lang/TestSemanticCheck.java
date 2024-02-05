@@ -54,7 +54,7 @@ public class TestSemanticCheck {
     // Normalise path separators
     actual = actual.replace(File.separatorChar, '/');
 
-    Util.compareOutput(actual, TEST_DIRECTORY, filename);
+    Util.compareOutput(actual, TEST_DIRECTORY, filename, null);
   }
 
   @Parameters(name = "{0}")

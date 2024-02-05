@@ -51,8 +51,12 @@ public final class Util {
    * @param filename filename prefix for expected and actual output.  The actual output
    *   is written to filename + ".out", and the expected input is read from
    *   filename + ".teal{X}.expected" or filename + ".expected" (see above).
+   * @param normalizer An optional custom string normaliser
    */
-  public static void compareOutput(String actual, File test_directory, String filename) {
+    public static void compareOutput(String actual, File test_directory, String filename, StringNormalizer normalizer) {
+      if (normalizer == null) {
+	normalizer = new StringNormalizer.NoOp();
+      }
     try {
       File out = new File(test_directory, Util.changeExtension(filename, ".out"));
       File expected = null;
@@ -69,10 +73,33 @@ public final class Util {
 
       Files.write(out.toPath(), actual.getBytes());
       assertEquals("Output differs.",
-        readFileToString(expected),
-        normalizeText(actual));
+		   normalizer.normalize(readFileToString(expected)),
+		   normalizer.normalize(normalizeText(actual)));
     } catch (IOException e) {
       fail("IOException occurred while comparing output: " + e.getMessage());
+    }
+  }
+
+  interface StringNormalizer {
+    public String normalize(String s);
+
+    public static class NoOp implements StringNormalizer {
+      @Override
+      public String normalize(String s) {
+	return s;
+      }
+    }
+    public static class TabToSpace implements StringNormalizer {
+      @Override
+      public String normalize(String s) {
+	return s.replace('\t', ' ');
+      }
+    }
+    public static class WhitespaceNormalize implements StringNormalizer {
+      @Override
+      public String normalize(String s) {
+	return s.replaceAll("[\t ]+", " ");
+      }
     }
   }
 
