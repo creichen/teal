@@ -80,29 +80,6 @@ public final class Util {
     }
   }
 
-  interface StringNormalizer {
-    public String normalize(String s);
-
-    public static class NoOp implements StringNormalizer {
-      @Override
-      public String normalize(String s) {
-	return s;
-      }
-    }
-    public static class TabToSpace implements StringNormalizer {
-      @Override
-      public String normalize(String s) {
-	return s.replace('\t', ' ');
-      }
-    }
-    public static class WhitespaceNormalize implements StringNormalizer {
-      @Override
-      public String normalize(String s) {
-	return s.replaceAll("[\t ]+", " ");
-      }
-    }
-  }
-
   /**
    * Reads an entire file to a string object.
    * <p>If the file does not exist an empty string is returned.
