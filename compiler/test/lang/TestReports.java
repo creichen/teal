@@ -22,7 +22,7 @@ import lang.ast.IdDecl;
 import lang.common.Report;
 
 /**
- * Tests for custom (sematic) reports
+ * Tests for custom (semantic) reports
  * This is a parameterized test: one test case is generated for each input
  * file found in TEST_DIRECTORY. Input files should have the ".in" extension.
  * @author Jesper Öqvist <jesper.oqvist@cs.lth.se>, Christoph Reichenbach
