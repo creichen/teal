@@ -1,0 +1,10 @@
+Entry#0 @ 1 :
+  -> Access#0
+VarDecl#0 @ 1 :
+ReturnStmt#0 @ 2 :
+  -> Exit#0
+NotExpr#0 @ 2 :
+  -> ReturnStmt#0
+Access#0 @ 2 :
+  -> NotExpr#0
+Exit#0 @ 3 :

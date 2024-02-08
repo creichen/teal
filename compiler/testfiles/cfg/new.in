@@ -1,0 +1,4 @@
+fun f() = {
+  return new array[int](3);
+}
+

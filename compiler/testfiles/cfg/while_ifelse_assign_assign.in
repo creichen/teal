@@ -1,0 +1,10 @@
+fun f(a) = {
+  while a {
+    if a {
+      a := 0;
+    } else {
+      a := 1;
+    }
+  }
+}
+

@@ -1,0 +1,12 @@
+fun f(a, b) = {
+  while b {
+    if a {
+      a := 0;
+    } else {
+      while a {
+        b := a;
+      }
+    }
+  }
+}
+

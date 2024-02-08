@@ -1,0 +1,14 @@
+Entry#0 @ 1 :
+  -> IntConstant#0
+ReturnStmt#0 @ 2 :
+  -> Exit#0
+IntConstant#0 @ 2 :
+  -> ReturnStmt#0
+Exit#0 @ 3 :
+Entry#1 @ 4 :
+  -> CallExpr#0
+ReturnStmt#1 @ 5 :
+  -> Exit#1
+CallExpr#0 @ 5 :
+  -> ReturnStmt#1
+Exit#1 @ 6 :

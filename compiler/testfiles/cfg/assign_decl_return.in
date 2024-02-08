@@ -1,0 +1,6 @@
+fun f(a) = {
+  a := 2;
+  var y := a + 2;
+  return y;
+}
+

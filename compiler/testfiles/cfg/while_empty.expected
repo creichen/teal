@@ -1,0 +1,6 @@
+Entry#0 @ 1 :
+  -> IntConstant#0
+IntConstant#0 @ 2 :
+  -> IntConstant#0
+  -> Exit#0
+Exit#0 @ 3 :

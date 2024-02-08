@@ -1,0 +1,14 @@
+fun f(a, b) = {
+  while b {
+    if a {
+      while a {
+        if b > 0 {
+          b := a;
+	}
+      }
+    } else {
+      print(0);
+    }
+  }
+}
+

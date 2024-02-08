@@ -191,7 +191,12 @@ aspect IntraTeal {
 	eq GEQExpr.getRight().nextNodes() = SmallSet.<CFGNode>singleton(this);
 
 	eq AndExpr.firstNodes() = getLeft().firstNodes();
+	eq AndExpr.getLeft().nextNodes() = getRight().firstNodes();
+	eq AndExpr.getRight().nextNodes() = SmallSet.<CFGNode>singleton(this);
+
 	eq OrExpr.firstNodes() = getLeft().firstNodes();
+	eq OrExpr.getLeft().nextNodes() = getRight().firstNodes();
+	eq OrExpr.getRight().nextNodes() = SmallSet.<CFGNode>singleton(this);
 
 	// The disabled code below is for short-cicruit evaluation, which we don't use in Teal at this point
 	// ----------------------------------------

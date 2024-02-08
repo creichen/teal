@@ -1,0 +1,7 @@
+Entry#0 @ 1 :
+  -> StringConstant#0
+ReturnStmt#0 @ 2 :
+  -> Exit#0
+StringConstant#0 @ 2 :
+  -> ReturnStmt#0
+Exit#0 @ 3 :

@@ -1,0 +1,5 @@
+fun f() = {
+  var x;
+  var y;
+}
+

@@ -1,0 +1,6 @@
+fun f() = {
+  var x := 1;
+  var y;
+  var z := 2;
+}
+

@@ -1,0 +1,28 @@
+Entry#0 @ 1 :
+  -> Access#0
+VarDecl#0 @ 1 :
+Access#0 @ 2 :
+  -> Access#1
+  -> IntConstant#2
+GTExpr#0 @ 3 :
+  -> IntConstant#1
+  -> Null#0
+Access#1 @ 3 :
+  -> IntConstant#0
+IntConstant#0 @ 3 :
+  -> GTExpr#0
+Access#2 @ 4 :
+  -> AssignStmt#0
+AssignStmt#0 @ 4 :
+  -> Null#0
+IntConstant#1 @ 4 :
+  -> Access#2
+ReturnStmt#0 @ 7 :
+  -> Exit#0
+IntConstant#2 @ 7 :
+  -> ReturnStmt#0
+ReturnStmt#1 @ 9 :
+  -> Exit#0
+Null#0 @ 9 :
+  -> ReturnStmt#1
+Exit#0 @ 10 :

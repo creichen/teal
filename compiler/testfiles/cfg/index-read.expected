@@ -1,0 +1,12 @@
+Entry#0 @ 1 :
+  -> Access#0
+VarDecl#0 @ 1 :
+ReturnStmt#0 @ 2 :
+  -> Exit#0
+Access#0 @ 2 :
+  -> IntConstant#0
+IndexExpr#0 @ 2 :
+  -> ReturnStmt#0
+IntConstant#0 @ 2 :
+  -> IndexExpr#0
+Exit#0 @ 3 :

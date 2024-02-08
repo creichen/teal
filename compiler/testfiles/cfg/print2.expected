@@ -1,0 +1,11 @@
+Entry#0 @ 1 :
+  -> IntConstant#0
+CallExpr#0 @ 2 :
+  -> IntConstant#1
+IntConstant#0 @ 2 :
+  -> CallExpr#0
+CallExpr#1 @ 3 :
+  -> Exit#0
+IntConstant#1 @ 3 :
+  -> CallExpr#1
+Exit#0 @ 4 :

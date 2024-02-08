@@ -1,0 +1,4 @@
+fun f(a) = {
+  return a[0];
+}
+

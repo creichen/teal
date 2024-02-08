@@ -1,0 +1,10 @@
+fun h() = {
+  return 1;
+}
+fun g(y, z) = {
+  return y;
+}
+fun f() = {
+  return g(h(), h());
+}
+

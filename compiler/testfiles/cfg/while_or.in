@@ -1,0 +1,6 @@
+fun f(a, b) = {
+  while a or b {
+    a := b;
+  }
+}
+

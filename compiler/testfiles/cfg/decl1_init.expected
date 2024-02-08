@@ -1,0 +1,7 @@
+Entry#0 @ 1 :
+  -> IntConstant#0
+VarDecl#0 @ 2 :
+  -> Exit#0
+IntConstant#0 @ 2 :
+  -> VarDecl#0
+Exit#0 @ 3 :

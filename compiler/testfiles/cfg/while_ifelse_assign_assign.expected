@@ -1,0 +1,22 @@
+Entry#0 @ 1 :
+  -> Access#0
+VarDecl#0 @ 1 :
+Access#0 @ 2 :
+  -> Access#1
+  -> Exit#0
+Access#1 @ 3 :
+  -> IntConstant#0
+  -> IntConstant#1
+Access#2 @ 4 :
+  -> AssignStmt#0
+AssignStmt#0 @ 4 :
+  -> Access#0
+IntConstant#0 @ 4 :
+  -> Access#2
+Access#3 @ 6 :
+  -> AssignStmt#1
+AssignStmt#1 @ 6 :
+  -> Access#0
+IntConstant#1 @ 6 :
+  -> Access#3
+Exit#0 @ 9 :

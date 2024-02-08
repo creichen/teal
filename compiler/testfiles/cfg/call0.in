@@ -1,0 +1,7 @@
+fun g() = {
+  return 1;
+}
+fun f() = {
+  return g();
+}
+

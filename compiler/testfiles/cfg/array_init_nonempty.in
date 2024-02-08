@@ -1,0 +1,4 @@
+fun f(a, b) = {
+  return [a, array_length(b), b];
+}
+

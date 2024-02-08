@@ -1,0 +1,5 @@
+Entry#0 @ 1 :
+  -> VarDecl#0
+VarDecl#0 @ 2 :
+  -> Exit#0
+Exit#0 @ 3 :
