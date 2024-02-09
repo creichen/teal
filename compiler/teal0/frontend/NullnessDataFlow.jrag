@@ -225,7 +225,7 @@ aspect NullPointerAnalysis{
 	 * When encountering a VarDecl: what is the default value "Nullness" if there is no explicit initialiser?
 	 */
 	inh Nullness VarDecl.defaultInitializerNullness();
-	eq ASTNode.getChild().defaultInitializerNullness() = Nullness.NULL; // Default: initialised to NULL
+	eq Program.getChild().defaultInitializerNullness() = Nullness.NULL; // Default: initialised to NULL
 	eq FunDecl.getFormal().defaultInitializerNullness() = Nullness.TOP; // Function parameter: Unknown
 
 	eq VarDecl.nullnessTransfer(NullDomain lattice) {
