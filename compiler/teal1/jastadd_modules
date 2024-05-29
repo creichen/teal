@@ -16,9 +16,8 @@ module("teal-1") {
 	include "frontend/NameAnalysis.jrag"
 	include "frontend/SemanticCheck.jrag"
 	include "frontend/TypeAnalysis.jrag"
-	include "frontend/IntraTeal1.jrag", [-2]
+	// include "frontend/IntraTeal1.jrag", [-2]
 	include "frontend/NullnessDataFlow1.jrag"
-	include "frontend/DeadAssignment.jrag"
 
 	// Code generation
 	include "backend/IRGen.jrag"

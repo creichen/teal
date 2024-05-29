@@ -69,4 +69,9 @@ aspect SemanticCheck {
 		new InvalidExprStmtError(this)
 		when !getExpr().canHaveSideEffects()
 		to Program.semanticErrors();
+
+
+	inh boolean VarDecl.isFormalParameterDecl();
+	eq FunDecl.getFormal(int i).isFormalParameterDecl() = true;
+	eq Program.getChild(int i).isFormalParameterDecl() = false;
 }

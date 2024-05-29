@@ -53,7 +53,7 @@ public class TestReports {
     }
 
     // Task 1: Enable this line!
-    Util.compareOutput(actual, TEST_DIRECTORY, filename, new Util.StringNormalizer.WhitespaceNormalize());
+    Util.compareOutput(actual, TEST_DIRECTORY, filename, new StringNormalizer.WhitespaceNormalize());
   }
 
   @Parameters(name = "{0}")
