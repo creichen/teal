@@ -30,3 +30,4 @@ compiler/bin
 /libs/code-prober-dev.jar
 /libs/code-prober-stable.jar
 /examples/tmp/
+/logs/
