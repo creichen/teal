@@ -1,0 +1,180 @@
+
+/**
+ * Flow Type Analysis (providing int vs. array information)
+ */
+aspect FlowTypeAnalysis {
+	public enum FlowType implements Lattice<FlowType> {
+		INT("int"),
+		STRING("string"),
+		ARRAY("array"),
+		TOP("⊤"),
+		BOTTOM("⊥")
+		;
+		private String name;
+		private FlowType(String str) {
+			this.name = str;
+		}
+		@Override
+		public String
+		toString() {
+			return this.name;
+		}
+		/**
+		 * @return <tt>true</tt> iff this is <tt>INT</tt> or <tt>ARRAY</tt>
+		 */
+		public boolean isIntOrArray() {
+			return this == INT || this == ARRAY;
+		}
+		/**
+		 * Join function for the domain
+		 */
+		public FlowType join(FlowType other) {
+			if (this == BOTTOM) {
+				return other;
+			}
+
+			if (other == BOTTOM) {
+				return this;
+			}
+			if (this == other) {
+				return this;
+			}
+			// this != other, neither is bottom
+			return TOP;
+		}
+		/**
+		 * Lattice order relation test
+		 *
+		 * @param other
+		 * @return <tt>true</tt> iff this &lt;= other in lattice order
+		 */
+		public boolean isLessOrEqual(FlowType other) {
+			if (other == TOP
+			    || this == BOTTOM
+			    || this == other) {
+				return true;
+			}
+			return false;
+		}
+	}
+	/**
+	 * Product domain for FlowType
+	 */
+	public class FlowTypeDomain extends VarDomain<FlowType, FlowTypeDomain> {
+		public FlowTypeDomain() {
+			this(null);
+		}
+		public FlowTypeDomain(FlowTypeDomain source) {
+			super(FlowType.BOTTOM,
+			      source);
+		}
+		// Create a new instance of FlowTypeDomain.
+		// This method is a workaround to inherent limitations in subtyping.
+		// Every implementation of VarDomain must provide this method.
+		@Override
+		protected FlowTypeDomain createFrom(FlowTypeDomain source) {
+			return new FlowTypeDomain(source);
+		}
+	}
+	syn FlowTypeDomain CFGNode.flowTypeTransfer(FlowTypeDomain lattice);
+	eq Access.flowTypeTransfer(FlowTypeDomain lattice)           =lattice;
+	eq IntConstant.flowTypeTransfer(FlowTypeDomain lattice)      =lattice;
+	eq StringConstant.flowTypeTransfer(FlowTypeDomain lattice)   =lattice;
+	eq Null.flowTypeTransfer(FlowTypeDomain lattice)             =lattice;
+	eq CallExpr.flowTypeTransfer(FlowTypeDomain lattice)         =lattice;
+	eq NotExpr.flowTypeTransfer(FlowTypeDomain lattice)          =lattice;
+	eq ArrayLiteralExpr.flowTypeTransfer(FlowTypeDomain lattice) =lattice;
+	eq AddExpr.flowTypeTransfer(FlowTypeDomain lattice)          =lattice;
+	eq SubExpr.flowTypeTransfer(FlowTypeDomain lattice)          =lattice;
+	eq MulExpr.flowTypeTransfer(FlowTypeDomain lattice)          =lattice;
+	eq DivExpr.flowTypeTransfer(FlowTypeDomain lattice)          =lattice;
+	eq ModExpr.flowTypeTransfer(FlowTypeDomain lattice)          =lattice;
+	eq EQExpr.flowTypeTransfer(FlowTypeDomain lattice)           =lattice;
+	eq NEQExpr.flowTypeTransfer(FlowTypeDomain lattice)          =lattice;
+	eq LTExpr.flowTypeTransfer(FlowTypeDomain lattice)           =lattice;
+	eq GTExpr.flowTypeTransfer(FlowTypeDomain lattice)           =lattice;
+	eq LEQExpr.flowTypeTransfer(FlowTypeDomain lattice)          =lattice;
+	eq GEQExpr.flowTypeTransfer(FlowTypeDomain lattice)          =lattice;
+	eq NewExpr.flowTypeTransfer(FlowTypeDomain lattice)          =lattice;
+	eq TypedExpr.flowTypeTransfer(FlowTypeDomain lattice)        =lattice;
+	eq IndexExpr.flowTypeTransfer(FlowTypeDomain lattice)        =lattice;
+
+	eq OrExpr.flowTypeTransfer(FlowTypeDomain lattice)           =lattice;
+	eq AndExpr.flowTypeTransfer(FlowTypeDomain lattice)          =lattice;
+	eq ReturnStmt.flowTypeTransfer(FlowTypeDomain lattice)       =lattice;
+	// // Not control sensitive
+	// eq ControlTrue.flowTypeTransfer(FlowTypeDomain lattice)      =lattice;
+	// eq ControlFalse.flowTypeTransfer(FlowTypeDomain lattice)     =lattice;
+	eq Entry.flowTypeTransfer(FlowTypeDomain lattice)            =lattice;
+	eq Exit.flowTypeTransfer(FlowTypeDomain lattice)             =lattice;
+	eq AssignStmt.flowTypeTransfer(FlowTypeDomain lattice) {
+		/* Important: don't modify "lattice"! */
+		FlowTypeDomain result = new FlowTypeDomain(lattice);
+		VarDecl decl = getLValue().decl();
+		result.put(decl, getRValue().flowType());
+		return result;
+	}
+	// --------------------------------------------------------------------------------
+	// flowType() attribute: extracting the flow
+	/**
+	 * Type declarations offer defaults, but we only trust them for parameters
+	 */
+	syn FlowType Type.flowType() = FlowType.TOP;
+	eq StringType.flowType() =     FlowType.INT;
+	eq IntType.flowType() =        FlowType.INT;
+	eq ArrayType.flowType() =      FlowType.ARRAY;
+	syn FlowType Expr.flowType() =    FlowType.TOP;
+	eq Access.flowType() =            flowTypeIn().get(decl());
+	eq IntConstant.flowType() =       FlowType.INT;
+	eq StringConstant.flowType() =    FlowType.STRING;
+	eq Null.flowType() =              FlowType.BOTTOM; // be generous with null
+	eq CallExpr.flowType() =          type().flowType();
+	eq NotExpr.flowType() =           FlowType.INT;
+	eq BinExpr.flowType() =           FlowType.INT;
+	eq NewExpr.flowType() =           FlowType.ARRAY;
+	eq ArrayLiteralExpr.flowType() =  FlowType.ARRAY;
+	eq TypedExpr.flowType() =         getDeclaredType().flowType();
+	eq IndexExpr.flowType() =         FlowType.TOP;
+	// --------------------------------------------------------------------------------
+	// VarDecls below
+	// Don't trust local declared types
+	inh boolean VarDecl.flowTypeTrustDeclaration();
+	eq Program.getChild().flowTypeTrustDeclaration()  = false;
+	eq FunDecl.getFormal().flowTypeTrustDeclaration() = true;
+	syn FlowType VarDecl.flowType() {
+		if (flowTypeTrustDeclaration() && hasDeclaredType()) {
+			return getDeclaredType().flowType();
+		} else if (hasInitializer()) {
+			return getInitializer().flowType();
+		}
+		return FlowType.TOP;
+	}
+	// --------------------------------------------------------------------------------
+	// VarDecls below
+	eq VarDecl.flowTypeTransfer(FlowTypeDomain lattice) {
+		/* Important: don't modify "lattice"! */
+		FlowTypeDomain result = new FlowTypeDomain(lattice);
+		result.put(this, flowType());
+		return result;
+	}
+	/**
+	 * flowTypeOut computes the result of the application of the transfer function
+	 * to the incoming environment (i.e., flowTypeIn).
+
+	 */
+	syn FlowTypeDomain CFGNode.flowTypeOut() circular[new FlowTypeDomain()] {
+		FlowTypeDomain res = new FlowTypeDomain(flowTypeIn());
+		res = flowTypeTransfer(res);
+		return res;
+	}
+	/**
+	 * flowTypeIn computes the join between the incoming environment for the current node.
+	 */
+	syn FlowTypeDomain CFGNode.flowTypeIn() circular[new FlowTypeDomain()] {
+		FlowTypeDomain res = new FlowTypeDomain();
+		for (CFGNode e : pred()) {
+			res.joinUpdate(e.flowTypeOut());
+		}
+		return res;
+	}
+}

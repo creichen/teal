@@ -8,7 +8,7 @@ aspect NullDomain{
 	 * - TOP represents "either NULL or NONNULL"
 	 * - BOTTOM represents "no information yet"
 	 */
-	public enum Nullness {
+	public enum Nullness implements Lattice<Nullness> {
 		TOP("⊤"),
 		BOTTOM("⊥"),
 		NULL("NULL"),
@@ -72,94 +72,35 @@ aspect NullDomain{
 	}
 
 	/**
-	 * Product domain for Nullness
+	 * Product domain for Nullness.
 	 */
-	public class NullDomain extends LinkedHashMap<VarDecl, Nullness> {
+	public class NullDomain extends VarDomain<Nullness, NullDomain> {
 		public static Nullness TOP = Nullness.TOP;
 		public static Nullness BOTTOM = Nullness.BOTTOM;
 		public static Nullness NULL = Nullness.NULL;
 		public static Nullness NOTNULL = Nullness.NOTNULL;
 
-		public NullDomain(){
-			super();
-		}
-
-		public NullDomain(Set<VarDecl> vars){
-			super();
-			for (VarDecl v : vars) {
-				put(v, BOTTOM);
-			}
-		}
-
-		public NullDomain(NullDomain other){
-			super(other);
-		}
-
-		public String toString(){
-			String result = "";
-			for(VarDecl v : keySet()) {
-				result += v.name() + " -> " + get(v) + "\n";
-			}
-			return result;
-		}
-
 		/**
-		 * Get nullness for variable.  Returns BOTTOM by default.
+		 * Construct empty NullDomain
 		 */
-		public Nullness
-		get(VarDecl var) {
-			Nullness v = super.get(var);
-			if (v == null) {
-				return BOTTOM;
-			}
-			return v;
-		}
+		public NullDomain() {
+			this(null);
+		};
 
 		/**
-		 * join: computes the least upper bound of @param this and @param other.
-		 * @param other the other domain to join with
+		 * Construct NullDomain that is a copy of another NullDomain
 		 */
+		public NullDomain(NullDomain source) {
+			super(Nullness.BOTTOM,
+			      source);
+		};
 
-		public void joinVarUpdate(VarDecl var, Nullness abs) {
-			put(var, get(var).join(abs));
-		}
-
-
-		public NullDomain joinUpdate(NullDomain lattice) {
-			for (Map.Entry<VarDecl, Nullness> entry : lattice.entrySet()) {
-				this.joinVarUpdate(entry.getKey(), entry.getValue());
-			}
-			return this;
-		}
-
-		public NullDomain join(NullDomain other) {
-			NullDomain result = new NullDomain(this);
-			result.joinUpdate(other);
-			return result;
-		}
-
-
-		/**
-		* invert: computes the inverse of the domain (i.e. null -> notnull and notnull -> null)
-		*
-		* Needed for control sensitivity only
-		*
-		* @return  the inverse of the domain
-		*/
-		public NullDomain invert(){
-			NullDomain result = new NullDomain();
-			for(VarDecl v : keySet()){
-				if(get(v).equals(NULL)){
-					result.put(v, NOTNULL);
-				}
-				else if(get(v).equals(NOTNULL)){
-					result.put(v, NULL);
-				}
-				else{
-					result.put(v, get(v));
-				}
-			}
-			return result;
+		// Create a new instance of NullDomain.
+		// This method is a workaround to inherent limitations in subtyping.
+		// Every implementation of VarDomain must provide this method.
+		@Override
+		protected NullDomain createFrom(NullDomain source) {
+			return new NullDomain(source);
 		}
 	}
 }

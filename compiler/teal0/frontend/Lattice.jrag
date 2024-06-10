@@ -1,0 +1,179 @@
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import lang.common.Report;
+
+aspect Lattice {
+	/**
+	 * Interface for per-variable lattices
+	 *
+	 * The type parameter L must be the same as the type of the lattice.  This
+	 * "bound" on L is an example of "F-bounded-polymorphism", and it
+	 * allows us to give more precise types.
+	 */
+	interface Lattice<L extends Lattice<L>> {
+		/**
+		 * Computes the join of <tt>this</tt> value with another
+		 *
+		 * @param other The parameter to join with
+		 *
+		 * @return <tt>this</tt> ⊔ <tt>other</tt>
+		 */
+		public L join(L other);
+	}
+
+	/**
+	 * A product lattice of some other lattice L, indexed by all <tt>VarDecl</tt>s.
+	 *
+	 * This is an abstract class.  To use it for your own lattice L, you have
+	 * to subclass it; have a look at the example for <tt>NullDomain</tt> below.
+	 */
+	public abstract class VarDomain<L extends Lattice<L>,
+		                        LD extends VarDomain<L, LD>>
+		              implements Lattice<LD> {
+		protected LinkedHashMap<VarDecl, L> map;
+		protected L bottom;
+
+		/**
+		 * @param bottom The bottom element for lattice L
+		 * @param source Another product lattice to initialise this lattice from, or
+		 *               <tt>null</tt> to start with an empty mapping.
+		 */
+		protected VarDomain(L bottom,
+				    LD source) {
+			this.bottom = bottom;
+			if (source == null) {
+				this.map = new LinkedHashMap<>();
+			} else {
+				this.map = new LinkedHashMap<>(source.map);
+			}
+		}
+
+		protected VarDomain(L bottom) {
+			this(bottom, null);
+		}
+
+		/**
+		 * Allocate a new LD, possibly from an existing one.
+		 *
+		 * Due to limitations in inheritance and subtyping, each subclass of
+		 * VarDomain must implement this method.  The method body should
+		 * directly return an instance of LD.
+		 *
+		 * Abstract method, subclasses must implement.
+		 *
+		 * @return creates an instance of LD
+		 */
+		protected abstract LD createFrom(LD other);
+
+                /**
+		 * Updates this product lattice for one <tt>VarDecl</tt>.
+		 *
+		 * Any existing binding for <tt>VarDecl</tt> is overridden.
+		 *
+		 * <b>Modifies</b> <tt>this</tt>.
+		 *
+		 * @param var The variable to update
+		 * @param abs The abstract value to map <tt>var</tt> to
+		 */
+		public void put(VarDecl var, L abs) {
+			if (var == null) {
+				return;
+			}
+			this.map.put(var, abs);
+		}
+
+                /**
+		 * Updates this product lattice, copying from another
+		 *
+		 * Any existing bindings that are present in <tt>source</tt>
+		 * will be overwritten in <tt>this</tt>.
+		 *
+		 * <b>Modifies</b> <tt>this</tt>.
+		 *
+		 * @param source The lattice to copy from
+		 */
+		public void putAll(VarDomain<L, LD> source) {
+			this.map.putAll(source.map);
+		}
+
+		/**
+		 * Get element lattice value for a variable.  Returns BOTTOM by default.
+		 */
+		public L get(VarDecl var) {
+			L v = null;
+			if (var != null) {
+				v = map.get(var);
+			}
+			if (v == null) {
+				return this.bottom;
+			}
+			return v;
+		}
+
+		/**
+		 * Updates <tt>var</tt> in this lattice to the join (least upper bound) of
+		 * its current binding and another binding
+		 *
+		 * <b>Modifies</b> <tt>this</tt>.
+		 *
+		 * @param var The <tt>VarDecl</tt> binding to update
+		 * @param abs The other element lattice value to join with
+		 */
+		public void joinVarUpdate(VarDecl var, L abs) {
+			if (var == null) {
+				return;
+			}
+			map.put(var, abs.join(this.get(var)));
+		}
+
+		/**
+		 * Joins another VarDomain lattice, updates the current one
+		 *
+		 * The join is pointwise, i.e., each per-element lattice value
+		 * for some <tt>VarDecl</tt> is joined with the corresponding
+		 * per-element lattice value for the same <tt>VarDecl</tt> in the
+		 * <tt>other</tt> lattice.
+		 *
+		 * <b>Modifies</b> <tt>this</tt>.
+		 *
+		 * @param other The lattice to join with.
+		 */
+		public void joinUpdate(LD other) {
+			for (Map.Entry<VarDecl, L> entry : other.map.entrySet()) {
+				this.joinVarUpdate(entry.getKey(), entry.getValue());
+			}
+		}
+
+		/**
+		 * Joins two NullDomains without updating the current one
+		 *
+		 * (i.e., Side-effect free)
+		 *
+		 * @param other The lattice to join with.
+		 * @return A fresh, joined lattice.
+		 */
+		public LD join(LD other) {
+			LD result = this.createFrom(other);
+			result.joinUpdate(other);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (o instanceof VarDomain) {
+				VarDomain<?, ?> other = (VarDomain<?, ?>) o;
+				return other.map.equals(this.map);
+			}
+			return false;
+		}
+
+		@Override
+		public String toString(){
+			String result = "";
+			for(VarDecl v : map.keySet()) {
+				result += v.name() + " -> " + get(v) + "\n";
+			}
+			return result;
+		}
+	}
+}

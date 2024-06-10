@@ -40,6 +40,8 @@ module("teal-0") {
 	include "frontend/DependencyAnalysis.jrag"	// Dependency analysis
 	include "frontend/NullnessDataFlow.jrag"	// Teal0 nullness flow analysis
 	include "frontend/NullnessErrors.jrag"		// Reporting nullness in Teal0
+	include "frontend/Lattice.jrag"			// Flow-sensitive local type analysis
+	include "frontend/FlowTypeAnalysis.jrag"	// Flow-sensitive local type analysis
 
 	// Code generation
 	include "backend/IRGen.jrag"
