@@ -37,12 +37,6 @@ aspect NullPointerAnalysisReport {
 	VarDecl contributes nullDomainValue(name() + " ↦ " + nullnessInitializerValue())
 		to Program.nullReport();
 
-
-	/*------------------------*/
-	/*-- Task 1 begins here --*/
-
-	// Use the class below to report null dereference errors; see further below for details:
-
 	/**
 	 * Reporting a null pointer dereference error or warning
 	 */
@@ -94,10 +88,5 @@ aspect NullPointerAnalysisReport {
 
 	// HINT: you can solve this with just two declarations.
 	// (you may use as many as you wish.)
-
-
-
-	/*-- Task 1 ends here --*/
-	/*----------------------*/
 }
 

@@ -1,4 +1,0 @@
-fun f() = {
-  var x := null;
-  return x[0];
-}
