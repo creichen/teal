@@ -142,6 +142,15 @@ enforces specific evaluation strategies; check `code-prober.sh` for
 details. If you are doing a homework exercise, please avoid running
 CodeProber by hand unless you know exactly what you are doing.
 
+## Program Analyses
+
+Teal comes with a few built-in program analyses.  Fire up CodeProber
+and have a look at the attribute:
+
+- `flowType()` for an intraprocedural (nonparametric) flow-sensitive
+  type analysis
+- `nullnessValue()` for an intraprocedural nullness analysis
+
 ## Internal Logging
 
 Can be enabled by the `TEAL_DEBUG` environment variable:
